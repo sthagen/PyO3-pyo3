@@ -1,6 +1,6 @@
 # Changelog
 All notable changes to this project will be documented in this file. For help with updating to new
-PyO3 versions, please see the [migration guide](https://pyo3.rs/master/migration.html).
+PyO3 versions, please see the [migration guide](https://pyo3.rs/main/migration.html).
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add FFI definition `PyCFunction_CheckExact` for Python 3.9 and later. [#1425](https://github.com/PyO3/pyo3/pull/1425)
 - Add FFI definition `Py_IS_TYPE`. [#1429](https://github.com/PyO3/pyo3/pull/1429)
 - Add FFI definition `_Py_InitializeMain`. [#1473](https://github.com/PyO3/pyo3/pull/1473)
+- Add tuple and unit struct support for `#[pyclass]` macro. [#1504](https://github.com/PyO3/pyo3/pull/1504)
 
 ### Changed
 - Change `PyTimeAcces::get_fold()` to return a `bool` instead of a `u8`. [#1397](https://github.com/PyO3/pyo3/pull/1397)
@@ -33,6 +34,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - `PyMethodDef_INIT` [#1426](https://github.com/PyO3/pyo3/pull/1426)
   - `PyTypeObject_INIT` [#1429](https://github.com/PyO3/pyo3/pull/1429)
   - `PyObject_Check`, `PySuper_Check`, and `FreeFunc` [#1438](https://github.com/PyO3/pyo3/pull/1438)
+- Remove pyclass implementation details `Type`, `DESCRIPTION`, and `FLAGS` from `PyTypeInfo`. [#1456](https://github.com/PyO3/pyo3/pull/1456)
+- Remove `__doc__` from module's `__all__`. [#1509](https://github.com/PyO3/pyo3/pull/1509)
 
 ### Fixed
 - Remove FFI definition `PyCFunction_ClearFreeList` for Python 3.9 and later. [#1425](https://github.com/PyO3/pyo3/pull/1425)

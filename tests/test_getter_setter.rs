@@ -60,12 +60,7 @@ fn class_with_properties() {
     py_run!(py, inst, "assert inst.data_list == [42]");
 
     let d = [("C", py.get_type::<ClassWithProperties>())].into_py_dict(py);
-    py.run(
-        "assert C.DATA.__doc__ == 'a getter for data'",
-        None,
-        Some(d),
-    )
-    .unwrap();
+    py_assert!(py, *d, "C.DATA.__doc__ == 'a getter for data'");
 }
 
 #[pyclass]
@@ -134,4 +129,32 @@ fn ref_getter_setter() {
 
     py_run!(py, inst, "assert inst.num == 10");
     py_run!(py, inst, "inst.num = 20; assert inst.num == 20");
+}
+
+#[pyclass]
+struct TupleClassGetterSetter(i32);
+
+#[pymethods]
+impl TupleClassGetterSetter {
+    #[getter(num)]
+    fn get_num(&self) -> i32 {
+        self.0
+    }
+
+    #[setter(num)]
+    fn set_num(&mut self, value: i32) {
+        self.0 = value;
+    }
+}
+
+#[test]
+fn tuple_struct_getter_setter() {
+    let gil = Python::acquire_gil();
+    let py = gil.python();
+
+    let inst = Py::new(py, TupleClassGetterSetter(10)).unwrap();
+
+    py_assert!(py, inst, "inst.num == 10");
+    py_run!(py, inst, "inst.num = 20");
+    py_assert!(py, inst, "inst.num == 20");
 }

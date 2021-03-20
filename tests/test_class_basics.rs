@@ -18,6 +18,20 @@ fn empty_class() {
     py_assert!(py, typeobj, "typeobj.__name__ == 'EmptyClass'");
 }
 
+#[pyclass]
+struct UnitClass;
+
+#[test]
+fn unit_class() {
+    Python::with_gil(|py| {
+        let typeobj = py.get_type::<UnitClass>();
+        // By default, don't allow creating instances from python.
+        assert!(typeobj.call((), None).is_err());
+
+        py_assert!(py, typeobj, "typeobj.__name__ == 'UnitClass'");
+    });
+}
+
 /// Line1
 ///Line2
 ///  Line3
@@ -78,6 +92,12 @@ impl EmptyClass2 {
     #[staticmethod]
     #[name = "custom_static"]
     fn bar_static() {}
+
+    #[getter]
+    #[name = "custom_getter"]
+    fn foo(&self) -> i32 {
+        5
+    }
 }
 
 #[test]
@@ -92,8 +112,14 @@ fn custom_names() {
         typeobj,
         "typeobj.custom_static.__name__ == 'custom_static'"
     );
+    py_assert!(
+        py,
+        typeobj,
+        "typeobj.custom_getter.__name__ == 'custom_getter'"
+    );
     py_assert!(py, typeobj, "not hasattr(typeobj, 'bar')");
     py_assert!(py, typeobj, "not hasattr(typeobj, 'bar_static')");
+    py_assert!(py, typeobj, "not hasattr(typeobj, 'foo')");
 }
 
 #[pyclass]
@@ -288,4 +314,17 @@ fn test_pymethods_from_py_with() {
         "#
         );
     })
+}
+
+#[pyclass]
+struct TupleClass(i32);
+
+#[test]
+fn test_tuple_struct_class() {
+    Python::with_gil(|py| {
+        let typeobj = py.get_type::<TupleClass>();
+        assert!(typeobj.call((), None).is_err());
+
+        py_assert!(py, typeobj, "typeobj.__name__ == 'TupleClass'");
+    });
 }
