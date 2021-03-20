@@ -18,18 +18,17 @@ pub const VERSION: i32 = 4;
 ///
 /// See the [Python documentation](https://docs.python.org/3/library/marshal.html) for more details.
 ///
-/// # Example:
+/// # Examples
 /// ```
 /// # use pyo3::{marshal, types::PyDict};
-/// # let gil = pyo3::Python::acquire_gil();
-/// # let py = gil.python();
-/// #
+/// # pyo3::Python::with_gil(|py| {
 /// let dict = PyDict::new(py);
 /// dict.set_item("aap", "noot").unwrap();
 /// dict.set_item("mies", "wim").unwrap();
 /// dict.set_item("zus", "jet").unwrap();
 ///
 /// let bytes = marshal::dumps(py, dict, marshal::VERSION);
+/// # });
 /// ```
 pub fn dumps<'a>(py: Python<'a>, object: &impl AsPyPointer, version: i32) -> PyResult<&'a PyBytes> {
     unsafe {

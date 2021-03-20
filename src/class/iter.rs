@@ -12,7 +12,7 @@ use crate::{ffi, IntoPy, IntoPyPointer, PyClass, PyObject, Python};
 /// Check [CPython doc](https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_iter)
 /// for more.
 ///
-/// # Example
+/// # Examples
 /// The following example shows how to implement a simple Python iterator in Rust which yields
 /// the integers 1 to 5, before raising `StopIteration("Ended")`.
 ///
@@ -38,11 +38,10 @@ use crate::{ffi, IntoPy, IntoPyPointer, PyClass, PyObject, Python};
 ///     }
 /// }
 ///
-/// # let gil = Python::acquire_gil();
-/// # let py = gil.python();
-/// # let inst = Py::new(py, Iter { count: 0 }).unwrap();
-/// # pyo3::py_run!(py, inst, "assert next(inst) == 1");
-/// # // test of StopIteration is done in examples/rustapi_module/pyclass_iter.rs
+/// # Python::with_gil(|py| {
+/// #     let inst = Py::new(py, Iter { count: 0 }).unwrap();
+/// #     pyo3::py_run!(py, inst, "assert next(inst) == 1");
+/// # }); // test of StopIteration is done in examples/rustapi_module/pyclass_iter.rs
 /// ```
 #[allow(unused_variables)]
 pub trait PyIterProtocol<'p>: PyClass {

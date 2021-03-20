@@ -140,7 +140,7 @@ impl Python<'_> {
     /// - If the `auto-initialize` feature is not enabled and the Python interpreter is not
     ///   initialized.
     ///
-    /// # Example
+    /// # Examples
     /// ```
     /// use pyo3::prelude::*;
     /// Python::with_gil(|py| -> PyResult<()> {
@@ -187,7 +187,7 @@ impl<'p> Python<'p> {
 
     /// Temporarily releases the `GIL`, thus allowing other Python threads to run.
     ///
-    /// # Example
+    /// # Examples
     /// ```
     /// # use pyo3::prelude::*; use pyo3::types::IntoPyDict; use pyo3::wrap_pyfunction;
     /// use pyo3::exceptions::PyRuntimeError;
@@ -208,15 +208,16 @@ impl<'p> Python<'p> {
     ///         Ok(sum)
     ///     })
     /// }
-    /// let gil = Python::acquire_gil();
-    /// let py = gil.python();
-    /// let m = PyModule::new(py, "pcount").unwrap();
-    /// m.add_function(wrap_pyfunction!(parallel_count, m).unwrap()).unwrap();
-    /// let locals = [("pcount", m)].into_py_dict(py);
-    /// py.run(r#"
-    ///    s = ["Flow", "my", "tears", "the", "Policeman", "Said"]
-    ///    assert pcount.parallel_count(s, "a") == 3
-    /// "#, None, Some(locals));
+    ///
+    /// Python::with_gil(|py| {
+    ///     let m = PyModule::new(py, "pcount").unwrap();
+    ///     m.add_function(wrap_pyfunction!(parallel_count, m).unwrap()).unwrap();
+    ///     let locals = [("pcount", m)].into_py_dict(py);
+    ///     pyo3::py_run!(py, *locals, r#"
+    ///         s = ["Flow", "my", "tears", "the", "Policeman", "Said"]
+    ///         assert pcount.parallel_count(s, "a") == 3
+    ///     "#);
+    /// });
     /// ```
     ///
     /// **Note:**
@@ -234,7 +235,7 @@ impl<'p> Python<'p> {
     /// do much with those without a `Python<'p>` token, for which you'd need to
     /// reacquire the GIL.
     ///
-    /// # Example
+    /// # Examples
     /// ```compile_fail
     /// # use pyo3::prelude::*;
     /// # use pyo3::types::PyString;
@@ -277,14 +278,14 @@ impl<'p> Python<'p> {
     /// If `globals` is `None`, it defaults to Python module `__main__`.
     /// If `locals` is `None`, it defaults to the value of `globals`.
     ///
-    /// # Example:
+    /// # Examples
     /// ```
     /// # use pyo3::{types::{PyBytes, PyDict}, prelude::*};
-    /// # let gil = pyo3::Python::acquire_gil();
-    /// # let py = gil.python();
+    /// # Python::with_gil(|py| {
     /// let result = py.eval("[i * 10 for i in range(5)]", None, None).unwrap();
     /// let res: Vec<i64> = result.extract().unwrap();
     /// assert_eq!(res, vec![0, 10, 20, 30, 40])
+    /// # });
     /// ```
     pub fn eval(
         self,
@@ -300,25 +301,29 @@ impl<'p> Python<'p> {
     /// If `globals` is `None`, it defaults to Python module `__main__`.
     /// If `locals` is `None`, it defaults to the value of `globals`.
     ///
-    /// # Example:
+    /// # Examples
     /// ```
     /// use pyo3::{types::{PyBytes, PyDict}, prelude::*};
-    /// let gil = pyo3::Python::acquire_gil();
-    /// let py = gil.python();
-    /// let locals = PyDict::new(py);
-    /// py.run(
-    ///     r#"
+    /// Python::with_gil(|py| {
+    ///     let locals = PyDict::new(py);
+    ///     py.run(
+    ///         r#"
     /// import base64
     /// s = 'Hello Rust!'
     /// ret = base64.b64encode(s.encode('utf-8'))
     /// "#,
-    ///    None,
-    ///    Some(locals),
-    /// ).unwrap();
-    /// let ret = locals.get_item("ret").unwrap();
-    /// let b64: &PyBytes = ret.downcast().unwrap();
-    /// assert_eq!(b64.as_bytes(), b"SGVsbG8gUnVzdCE=");
+    ///       None,
+    ///       Some(locals),
+    ///     )
+    ///     .unwrap();
+    ///     let ret = locals.get_item("ret").unwrap();
+    ///     let b64: &PyBytes = ret.downcast().unwrap();
+    ///     assert_eq!(b64.as_bytes(), b"SGVsbG8gUnVzdCE=");
+    /// });
     /// ```
+    ///
+    /// You can use [`py_run!`](macro.py_run.html) for a handy alternative of `run`
+    /// if you don't need `globals` and unwrapping is OK.
     pub fn run(
         self,
         code: &str,
@@ -398,7 +403,7 @@ impl<'p> Python<'p> {
     ///
     /// This is a wrapper around the ffi call Py_GetVersion.
     ///
-    /// # Example
+    /// # Examples
     /// ```rust
     /// # use pyo3::Python;
     /// Python::with_gil(|py| {
@@ -418,7 +423,7 @@ impl<'p> Python<'p> {
     /// Gets the running Python interpreter version as a struct similar to
     /// `sys.version_info`.
     ///
-    /// # Example
+    /// # Examples
     /// ```rust
     /// # use pyo3::Python;
     /// Python::with_gil(|py| {
@@ -599,24 +604,23 @@ impl<'p> Python<'p> {
     /// to use this API to clear memory, as PyO3 usually does not clear memory until the GIL is
     /// released.
     ///
-    /// # Example
+    /// # Examples
     /// ```rust
     /// # use pyo3::prelude::*;
-    /// let gil = Python::acquire_gil();
-    /// let py = gil.python();
+    /// Python::with_gil(|py| {
+    ///     // Some long-running process like a webserver, which never releases the GIL.
+    ///     loop {
+    ///         // Create a new pool, so that PyO3 can clear memory at the end of the loop.
+    ///         let pool = unsafe { py.new_pool() };
     ///
-    /// // Some long-running process like a webserver, which never releases the GIL.
-    /// loop {
-    ///     // Create a new pool, so that PyO3 can clear memory at the end of the loop.
-    ///     let pool = unsafe { py.new_pool() };
+    ///         // It is recommended to *always* immediately set py to the pool's Python, to help
+    ///         // avoid creating references with invalid lifetimes.
+    ///         let py = unsafe { pool.python() };
     ///
-    ///     // It is recommended to *always* immediately set py to the pool's Python, to help
-    ///     // avoid creating references with invalid lifetimes.
-    ///     let py = unsafe { pool.python() };
-    ///
-    ///     // do stuff...
-    /// # break;  // Exit the loop so that doctest terminates!
-    /// }
+    ///         // do stuff...
+    /// #       break;  // Exit the loop so that doctest terminates!
+    ///     }
+    /// });
     /// ```
     ///
     /// # Safety

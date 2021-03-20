@@ -33,7 +33,7 @@
 //! A `PyErr` represents a Python exception. Errors within the `PyO3` library are
 //! also exposed as Python exceptions.
 //!
-//! # Example
+//! # Examples
 //!
 //! ## Using Rust from Python
 //!
@@ -286,7 +286,11 @@ macro_rules! wrap_pymodule {
 
 /// A convenient macro to execute a Python code snippet, with some local variables set.
 ///
-/// # Example
+/// # Panics
+/// This macro internally calls [`Python::run`](struct.Python.html#method.run) and panics
+/// if it returns `Err`, after printing the error to stdout.
+///
+/// # Examples
 /// ```
 /// use pyo3::{prelude::*, py_run, types::PyList};
 /// Python::with_gil(|py| {
@@ -297,7 +301,6 @@ macro_rules! wrap_pymodule {
 ///
 /// You can use this macro to test pyfunctions or pyclasses quickly.
 ///
-/// # Example
 /// ```
 /// use pyo3::{prelude::*, py_run, PyCell};
 /// #[pyclass]

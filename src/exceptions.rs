@@ -51,7 +51,7 @@ macro_rules! impl_exception_boilerplate {
 /// * `module` is the name of the containing module.
 /// * `MyError` is the name of the new exception type.
 ///
-/// # Example
+/// # Examples
 /// ```
 /// use pyo3::import_exception;
 /// use pyo3::types::IntoPyDict;
@@ -60,16 +60,10 @@ macro_rules! impl_exception_boilerplate {
 /// import_exception!(socket, gaierror);
 ///
 /// fn main() {
-///     let gil = Python::acquire_gil();
-///     let py = gil.python();
-///
-///     let ctx = [("gaierror", py.get_type::<gaierror>())].into_py_dict(py);
-///     py.run(
-///         "import socket; assert gaierror is socket.gaierror",
-///         None,
-///         Some(ctx),
-///     )
-///     .unwrap();
+///     Python::with_gil(|py| {
+///         let ctx = [("gaierror", py.get_type::<gaierror>())].into_py_dict(py);
+///         pyo3::py_run!(py, *ctx, "import socket; assert gaierror is socket.gaierror");
+///     });
 /// }
 ///
 /// ```
@@ -127,7 +121,7 @@ macro_rules! import_exception {
 /// * `MyError` is the name of the new exception type.
 /// * `BaseException` is the superclass of `MyError`, usually `pyo3::exceptions::PyException`.
 ///
-/// # Example
+/// # Examples
 /// ```
 /// use pyo3::prelude::*;
 /// use pyo3::create_exception;
@@ -137,22 +131,17 @@ macro_rules! import_exception {
 /// create_exception!(mymodule, CustomError, PyException);
 ///
 /// fn main() {
-///     let gil = Python::acquire_gil();
-///     let py = gil.python();
-///     let error_type = py.get_type::<CustomError>();
-///     let ctx = [("CustomError", error_type)].into_py_dict(py);
-///     let type_description: String = py
-///         .eval("str(CustomError)", None, Some(&ctx))
-///         .unwrap()
-///         .extract()
-///         .unwrap();
-///     assert_eq!(type_description, "<class 'mymodule.CustomError'>");
-///     py.run(
-///         "assert CustomError('oops').args == ('oops',)",
-///         None,
-///         Some(ctx),
-///     )
-///     .unwrap();
+///     Python::with_gil(|py| {
+///         let error_type = py.get_type::<CustomError>();
+///         let ctx = [("CustomError", error_type)].into_py_dict(py);
+///         let type_description: String = py
+///             .eval("str(CustomError)", None, Some(&ctx))
+///             .unwrap()
+///             .extract()
+///             .unwrap();
+///         assert_eq!(type_description, "<class 'mymodule.CustomError'>");
+///         pyo3::py_run!(py, *ctx, "assert CustomError('oops').args == ('oops',)");
+///    });
 /// }
 /// ```
 #[macro_export]
