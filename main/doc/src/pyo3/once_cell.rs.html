@@ -103,8 +103,6 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Python</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
@@ -116,7 +114,7 @@
 <span class="doccomment">/// `lazy_static`&#39;s synchronization strategy can lead to deadlocks when interacting with the Python</span>
 <span class="doccomment">/// GIL. For an example, see [the FAQ section](https://pyo3.rs/main/faq.html) of the guide.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The following example shows how to use `GILOnceCell` to share a reference to a Python list</span>
 <span class="doccomment">/// between threads:</span>
@@ -133,9 +131,7 @@
 <span class="doccomment">///         .get_or_init(py, || PyList::empty(py).into())</span>
 <span class="doccomment">///         .as_ref(py)</span>
 <span class="doccomment">/// }</span>
-<span class="doccomment">/// # let gil = Python::acquire_gil();</span>
-<span class="doccomment">/// # let py = gil.python();</span>
-<span class="doccomment">/// # assert_eq!(get_shared_list(py).len(), 0 );</span>
+<span class="doccomment">/// # Python::with_gil(|py| assert_eq!(get_shared_list(py).len(), 0));</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GILOnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>);
 

@@ -590,6 +590,7 @@
 <span id="587">587</span>
 <span id="588">588</span>
 <span id="589">589</span>
+<span id="590">590</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">class</span>::<span class="ident">basic</span>::<span class="ident">CompareOp</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conversion</span>::{
@@ -616,17 +617,18 @@
 <span class="doccomment">/// See [the guide](https://pyo3.rs/main/types.html) for an explanation</span>
 <span class="doccomment">/// of the different Python object types.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">/// use pyo3::types::{PyAny, PyDict, PyList};</span>
-<span class="doccomment">/// let gil = Python::acquire_gil();</span>
-<span class="doccomment">/// let dict = PyDict::new(gil.python());</span>
-<span class="doccomment">/// assert!(dict.is_instance::&lt;PyAny&gt;().unwrap());</span>
-<span class="doccomment">/// let any: &amp;PyAny = dict.as_ref();</span>
-<span class="doccomment">/// assert!(any.downcast::&lt;PyDict&gt;().is_ok());</span>
-<span class="doccomment">/// assert!(any.downcast::&lt;PyList&gt;().is_err());</span>
+<span class="doccomment">/// Python::with_gil(|py| {</span>
+<span class="doccomment">///     let dict = PyDict::new(py);</span>
+<span class="doccomment">///     assert!(dict.is_instance::&lt;PyAny&gt;().unwrap());</span>
+<span class="doccomment">///     let any: &amp;PyAny = dict.as_ref();</span>
+<span class="doccomment">///     assert!(any.downcast::&lt;PyDict&gt;().is_ok());</span>
+<span class="doccomment">///     assert!(any.downcast::&lt;PyList&gt;().is_err());</span>
+<span class="doccomment">/// });</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyAny</span>(<span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">ffi</span>::<span class="ident">PyObject</span><span class="op">&gt;</span>);
@@ -843,21 +845,21 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.name(*args, **kwargs)`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use pyo3::prelude::*;</span>
     <span class="doccomment">/// use pyo3::types::IntoPyDict;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let gil = Python::acquire_gil();</span>
-    <span class="doccomment">/// let py = gil.python();</span>
-    <span class="doccomment">/// let list = vec![3, 6, 5, 4, 7].to_object(py);</span>
-    <span class="doccomment">/// let dict = vec![(&quot;reverse&quot;, true)].into_py_dict(py);</span>
-    <span class="doccomment">/// list.call_method(py, &quot;sort&quot;, (), Some(dict)).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(list.extract::&lt;Vec&lt;i32&gt;&gt;(py).unwrap(), vec![7, 6, 5, 4, 3]);</span>
+    <span class="doccomment">/// Python::with_gil(|py| {</span>
+    <span class="doccomment">///     let list = vec![3, 6, 5, 4, 7].to_object(py);</span>
+    <span class="doccomment">///     let dict = vec![(&quot;reverse&quot;, true)].into_py_dict(py);</span>
+    <span class="doccomment">///     list.call_method(py, &quot;sort&quot;, (), Some(dict)).unwrap();</span>
+    <span class="doccomment">///     assert_eq!(list.extract::&lt;Vec&lt;i32&gt;&gt;(py).unwrap(), vec![7, 6, 5, 4, 3]);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let new_element = 1.to_object(py);</span>
-    <span class="doccomment">/// list.call_method(py, &quot;append&quot;, (new_element,), None).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(list.extract::&lt;Vec&lt;i32&gt;&gt;(py).unwrap(), vec![7, 6, 5, 4, 3, 1]);</span>
+    <span class="doccomment">///     let new_element = 1.to_object(py);</span>
+    <span class="doccomment">///     list.call_method(py, &quot;append&quot;, (new_element,), None).unwrap();</span>
+    <span class="doccomment">///     assert_eq!(list.extract::&lt;Vec&lt;i32&gt;&gt;(py).unwrap(), vec![7, 6, 5, 4, 3, 1]);</span>
+    <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,

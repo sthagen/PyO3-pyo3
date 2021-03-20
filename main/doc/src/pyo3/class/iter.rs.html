@@ -120,7 +120,6 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
-<span id="120">120</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! Python Iterator Interface.</span>
@@ -136,7 +135,7 @@
 <span class="doccomment">/// Check [CPython doc](https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_iter)</span>
 <span class="doccomment">/// for more.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// The following example shows how to implement a simple Python iterator in Rust which yields</span>
 <span class="doccomment">/// the integers 1 to 5, before raising `StopIteration(&quot;Ended&quot;)`.</span>
 <span class="doccomment">///</span>
@@ -162,11 +161,10 @@
 <span class="doccomment">///     }</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # let gil = Python::acquire_gil();</span>
-<span class="doccomment">/// # let py = gil.python();</span>
-<span class="doccomment">/// # let inst = Py::new(py, Iter { count: 0 }).unwrap();</span>
-<span class="doccomment">/// # pyo3::py_run!(py, inst, &quot;assert next(inst) == 1&quot;);</span>
-<span class="doccomment">/// # // test of StopIteration is done in examples/rustapi_module/pyclass_iter.rs</span>
+<span class="doccomment">/// # Python::with_gil(|py| {</span>
+<span class="doccomment">/// #     let inst = Py::new(py, Iter { count: 0 }).unwrap();</span>
+<span class="doccomment">/// #     pyo3::py_run!(py, inst, &quot;assert next(inst) == 1&quot;);</span>
+<span class="doccomment">/// # }); // test of StopIteration is done in examples/rustapi_module/pyclass_iter.rs</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {

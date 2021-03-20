@@ -822,6 +822,9 @@
 <span id="819">819</span>
 <span id="820">820</span>
 <span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -883,7 +886,7 @@
 <span class="doccomment">///   thread (the thread which originally initialized Python) also initializes</span>
 <span class="doccomment">///   threading.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">///</span>
@@ -949,7 +952,7 @@
 <span class="doccomment">/// - No Python APIs can be used after this function has finished executing.</span>
 <span class="doccomment">/// - The return value of the closure must not contain any Python value, _including_ `PyResult`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">///</span>
@@ -1003,10 +1006,13 @@
     <span class="ident">result</span>
 }
 
-<span class="doccomment">/// RAII type that represents the Global Interpreter Lock acquisition. To get hold of a value of</span>
-<span class="doccomment">/// this type, see [`Python::acquire_gil`](struct.Python.html#method.acquire_gil).</span>
+<span class="doccomment">/// RAII type that represents the Global Interpreter Lock acquisition.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// Users are strongly encouraged to [`Python::with_gil`](struct.Python.html#method.with_gil)</span>
+<span class="doccomment">/// instead of directly constructing this type.</span>
+<span class="doccomment">/// See [`Python::acquire_gil`](struct.Python.html#method.acquire_gil) for more.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use pyo3::Python;</span>
 <span class="doccomment">///</span>

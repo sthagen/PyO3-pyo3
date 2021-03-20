@@ -194,6 +194,11 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Initialization utilities for `#[pyclass]`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">callback</span>::<span class="ident">IntoPyCallbackOutput</span>;
@@ -222,11 +227,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// You can use this type to initalize complicatedly nested `#[pyclass]`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use pyo3::prelude::*;</span>
 <span class="doccomment">/// # use pyo3::py_run;</span>
+<span class="doccomment">/// # use pyo3::types::IntoPyDict;</span>
 <span class="doccomment">/// #[pyclass(subclass)]</span>
 <span class="doccomment">/// struct BaseClass {</span>
 <span class="doccomment">///     #[pyo3(get)]</span>
@@ -252,14 +258,18 @@
 <span class="doccomment">///             .add_subclass(SubSubClass { subsubname: &quot;subsub&quot; })</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">/// }</span>
-<span class="doccomment">/// let gil = Python::acquire_gil();</span>
-<span class="doccomment">/// let py = gil.python();</span>
-<span class="doccomment">/// let typeobj = py.get_type::&lt;SubSubClass&gt;();</span>
-<span class="doccomment">/// let inst = typeobj.call((), None).unwrap();</span>
-<span class="doccomment">/// py_run!(py, inst, r#&quot;</span>
-<span class="doccomment">///         assert inst.basename == &#39;base&#39;</span>
-<span class="doccomment">///         assert inst.subname == &#39;sub&#39;</span>
-<span class="doccomment">///         assert inst.subsubname == &#39;subsub&#39;&quot;#);</span>
+<span class="doccomment">/// Python::with_gil(|py| {</span>
+<span class="doccomment">///     let typeobj = py.get_type::&lt;SubSubClass&gt;();</span>
+<span class="doccomment">///     let sub_sub_class = typeobj.call((), None).unwrap();</span>
+<span class="doccomment">///     py_run!(</span>
+<span class="doccomment">///         py,</span>
+<span class="doccomment">///         sub_sub_class,</span>
+<span class="doccomment">///         r#&quot;</span>
+<span class="doccomment">///  assert sub_sub_class.basename == &#39;base&#39;</span>
+<span class="doccomment">///  assert sub_sub_class.subname == &#39;sub&#39;</span>
+<span class="doccomment">///  assert sub_sub_class.subsubname == &#39;subsub&#39;&quot;#</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">/// });</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> {
     <span class="ident">init</span>: <span class="ident">T</span>,
@@ -276,7 +286,7 @@
 
     <span class="doccomment">/// Constructs a new initializer from base class&#39; initializer.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use pyo3::prelude::*;</span>
     <span class="doccomment">/// #[pyclass]</span>

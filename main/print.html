@@ -726,25 +726,25 @@ struct MyClass {
     num: i32,
     debug: bool,
 }
-let gil = Python::acquire_gil();
-let py = gil.python();
-let obj = PyCell::new(py, MyClass { num: 3, debug: true }).unwrap();
-{
-    let obj_ref = obj.borrow(); // Get PyRef
-    assert_eq!(obj_ref.num, 3);
-    // You cannot get PyRefMut unless all PyRefs are dropped
-    assert!(obj.try_borrow_mut().is_err());
-}
-{
-    let mut obj_mut = obj.borrow_mut(); // Get PyRefMut
-    obj_mut.num = 5;
-    // You cannot get any other refs until the PyRefMut is dropped
-    assert!(obj.try_borrow().is_err());
-    assert!(obj.try_borrow_mut().is_err());
-}
+Python::with_gil(|py| {
+    let obj = PyCell::new(py, MyClass { num: 3, debug: true }).unwrap();
+    {
+        let obj_ref = obj.borrow(); // Get PyRef
+        assert_eq!(obj_ref.num, 3);
+        // You cannot get PyRefMut unless all PyRefs are dropped
+        assert!(obj.try_borrow_mut().is_err());
+    }
+    {
+        let mut obj_mut = obj.borrow_mut(); // Get PyRefMut
+        obj_mut.num = 5;
+        // You cannot get any other refs until the PyRefMut is dropped
+        assert!(obj.try_borrow().is_err());
+        assert!(obj.try_borrow_mut().is_err());
+    }
 
-// You can convert `&amp;PyCell` to a Python object
-pyo3::py_run!(py, obj, &quot;assert obj.num == 5&quot;)
+    // You can convert `&amp;PyCell` to a Python object
+    pyo3::py_run!(py, obj, &quot;assert obj.num == 5&quot;);
+});
 <span class="boring">}
 </span></code></pre></pre>
 <p><code>&amp;PyCell&lt;T&gt;</code> is bounded by the same lifetime as a <a href="https://docs.rs/pyo3/latest/pyo3/struct.GILGuard.html"><code>GILGuard</code></a>.
@@ -760,15 +760,14 @@ struct MyClass {
     num: i32,
 }
 fn return_myclass() -&gt; Py&lt;MyClass&gt; {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    Py::new(py, MyClass { num: 1 }).unwrap()
+    Python::with_gil(|py| Py::new(py, MyClass { num: 1 }).unwrap())
 }
-let gil = Python::acquire_gil();
 let obj = return_myclass();
-let cell = obj.as_ref(gil.python()); // Py&lt;MyClass&gt;::as_ref returns &amp;PyCell&lt;MyClass&gt;
-let obj_ref = cell.borrow(); // Get PyRef&lt;T&gt;
-assert_eq!(obj_ref.num, 1);
+Python::with_gil(|py|{
+    let cell = obj.as_ref(py); // Py&lt;MyClass&gt;::as_ref returns &amp;PyCell&lt;MyClass&gt;
+    let obj_ref = cell.borrow(); // Get PyRef&lt;T&gt;
+    assert_eq!(obj_ref.num, 1);
+});
 <span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#customizing-the-class" id="customizing-the-class">Customizing the class</a></h2>
@@ -894,18 +893,20 @@ impl SubSubClass {
         SubClass::method2(super_).map(|x| x * v)
     }
 }
-<span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
-</span><span class="boring">let subsub = pyo3::PyCell::new(py, SubSubClass::new()).unwrap();
-</span><span class="boring">pyo3::py_run!(py, subsub, &quot;assert subsub.method3() == 3000&quot;)
+<span class="boring">Python::with_gil(|py| {
+</span><span class="boring">    let subsub = pyo3::PyCell::new(py, SubSubClass::new()).unwrap();
+</span><span class="boring">    pyo3::py_run!(py, subsub, &quot;assert subsub.method3() == 3000&quot;)
+</span><span class="boring">});
 </span><span class="boring">}
 </span></code></pre></pre>
 <p>You can also inherit native types such as <code>PyDict</code>, if they implement
 <a href="https://docs.rs/pyo3/latest/pyo3/type_object/trait.PySizedLayout.html"><code>PySizedLayout</code></a>. However, this is not supported when building for the Python limited API (aka the <code>abi3</code> feature of PyO3).</p>
 <p>However, because of some technical problems, we don't currently provide safe upcasting methods for types
 that inherit native types. Even in such cases, you can unsafely get a base class by raw pointer conversion.</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#[cfg(Py_LIMITED_API)] fn main() {}
-</span><span class="boring">#[cfg(not(Py_LIMITED_API))] fn main() {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">#[cfg(not(Py_LIMITED_API))] {
 </span><span class="boring">use pyo3::prelude::*;
 </span>use pyo3::types::PyDict;
 use pyo3::{AsPyPointer, PyNativeType};
@@ -930,10 +931,11 @@ impl DictWithCounter {
         dict.set_item(key, value)
     }
 }
-<span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
-</span><span class="boring">let cnt = pyo3::PyCell::new(py, DictWithCounter::new()).unwrap();
-</span><span class="boring">pyo3::py_run!(py, cnt, &quot;cnt.set('abc', 10); assert cnt['abc'] == 10&quot;)
+<span class="boring">Python::with_gil(|py| {
+</span><span class="boring">    let cnt = pyo3::PyCell::new(py, DictWithCounter::new()).unwrap();
+</span><span class="boring">    pyo3::py_run!(py, cnt, &quot;cnt.set('abc', 10); assert cnt['abc'] == 10&quot;)
+</span><span class="boring">});
+</span><span class="boring">}
 </span><span class="boring">}
 </span></code></pre></pre>
 <p>If <code>SubClass</code> does not provide a baseclass initialization, the compilation fails.</p>
@@ -1184,10 +1186,10 @@ impl MyClass {
     }
 }
 
-let gil = Python::acquire_gil();
-let py = gil.python();
-let my_class = py.get_type::&lt;MyClass&gt;();
-pyo3::py_run!(py, my_class, &quot;assert my_class.my_attribute == 'hello'&quot;)
+Python::with_gil(|py| {
+    let my_class = py.get_type::&lt;MyClass&gt;();
+    pyo3::py_run!(py, my_class, &quot;assert my_class.my_attribute == 'hello'&quot;)
+});
 <span class="boring">}
 </span></code></pre></pre>
 <p>Note that unlike class variables defined in Python code, class attributes defined in Rust cannot
@@ -1327,8 +1329,7 @@ num=-1, debug=false
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span><span class="boring">#[cfg(not(feature = &quot;multiple-pymethods&quot;))]
-</span><span class="boring">{
+</span><span class="boring">#[cfg(not(feature = &quot;multiple-pymethods&quot;))] {
 </span><span class="boring">use pyo3::prelude::*;
 </span>// Note: the implementation differs slightly with the `multiple-pymethods` feature enabled.
 
@@ -1423,10 +1424,10 @@ impl pyo3::class::impl_::PyClassImpl for MyClass {
         collector.buffer_procs()
     }
 }
-<span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
-</span><span class="boring">let cls = py.get_type::&lt;MyClass&gt;();
-</span><span class="boring">pyo3::py_run!(py, cls, &quot;assert cls.__name__ == 'MyClass'&quot;)
+<span class="boring">Python::with_gil(|py| {
+</span><span class="boring">    let cls = py.get_type::&lt;MyClass&gt;();
+</span><span class="boring">    pyo3::py_run!(py, cls, &quot;assert cls.__name__ == 'MyClass'&quot;)
+</span><span class="boring">});
 </span><span class="boring">}
 </span><span class="boring">}
 </span></code></pre></pre>
@@ -1696,17 +1697,12 @@ impl PyIterProtocol for Container {
     }
 }
 
-<span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
-</span><span class="boring">let inst = pyo3::PyCell::new(
-</span><span class="boring">    py,
-</span><span class="boring">    Container {
-</span><span class="boring">        iter: vec![1, 2, 3, 4],
-</span><span class="boring">    },
-</span><span class="boring">)
-</span><span class="boring">.unwrap();
-</span><span class="boring">pyo3::py_run!(py, inst, &quot;assert list(inst) == [1, 2, 3, 4]&quot;);
-</span><span class="boring">pyo3::py_run!(py, inst, &quot;assert list(iter(iter(inst))) == [1, 2, 3, 4]&quot;);
+<span class="boring">Python::with_gil(|py| {
+</span><span class="boring">    let container = Container { iter: vec![1, 2, 3, 4] };
+</span><span class="boring">    let inst = pyo3::PyCell::new(py, container).unwrap();
+</span><span class="boring">    pyo3::py_run!(py, inst, &quot;assert list(inst) == [1, 2, 3, 4]&quot;);
+</span><span class="boring">    pyo3::py_run!(py, inst, &quot;assert list(iter(iter(inst))) == [1, 2, 3, 4]&quot;);
+</span><span class="boring">});
 </span><span class="boring">}
 </span></code></pre></pre>
 <p>For more details on Python's iteration protocols, check out <a href="https://docs.python.org/3/library/stdtypes.html#iterator-types">the &quot;Iterator Types&quot; section of the library
@@ -2006,22 +2002,23 @@ create_exception!(module, MyError, pyo3::exceptions::PyException);
 <li><code>MyError</code> is the name of the new exception type.</li>
 </ul>
 <p>For example:</p>
-<pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 use pyo3::create_exception;
 use pyo3::types::IntoPyDict;
 use pyo3::exceptions::PyException;
 
 create_exception!(mymodule, CustomError, PyException);
 
-fn main() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
+Python::with_gil(|py| {
     let ctx = [(&quot;CustomError&quot;, py.get_type::&lt;CustomError&gt;())].into_py_dict(py);
-
-    py.run(&quot;assert str(CustomError) == \&quot;&lt;class 'mymodule.CustomError'&gt;\&quot;&quot;, None, Some(&amp;ctx)).unwrap();
-    py.run(&quot;assert CustomError('oops').args == ('oops',)&quot;, None, Some(&amp;ctx)).unwrap();
-}
-</code></pre></pre>
+    pyo3::py_run!(py, *ctx, &quot;assert str(CustomError) == \&quot;&lt;class 'mymodule.CustomError'&gt;\&quot;&quot;);
+    pyo3::py_run!(py, *ctx, &quot;assert CustomError('oops').args == ('oops',)&quot;);
+});
+<span class="boring">}
+</span></code></pre></pre>
 <p>When using PyO3 to create an extension module, you can add the new exception to
 the module like this, so that it is importable from Python:</p>
 <pre><code class="language-rust ignore">
@@ -2038,17 +2035,19 @@ fn mymodule(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 </code></pre>
 <h2><a class="header" href="#raising-an-exception" id="raising-an-exception">Raising an exception</a></h2>
 <p>To raise an exception, first you need to obtain an exception type and construct a new <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a>, then call the <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.restore"><code>PyErr::restore</code></a> method to write the exception back to the Python interpreter's global state.</p>
-<pre><pre class="playground"><code class="language-rust">use pyo3::{Python, PyErr};
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::{Python, PyErr};
 use pyo3::exceptions::PyTypeError;
 
-fn main() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
+Python::with_gil(|py| {
     PyTypeError::new_err(&quot;Error&quot;).restore(py);
     assert!(PyErr::occurred(py));
     drop(PyErr::fetch(py));
-}
-</code></pre></pre>
+});
+<span class="boring">}
+</span></code></pre></pre>
 <p>From <code>pyfunction</code>s and <code>pyclass</code> methods, returning an <code>Err(PyErr)</code> is enough;
 PyO3 will handle restoring the exception on the Python interpreter side.</p>
 <p>If you already have a Python exception instance, you can simply call <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.from_instance"><code>PyErr::from_instance</code></a>.</p>
@@ -2076,18 +2075,20 @@ have Rust types as well.</p>
 <h2><a class="header" href="#checking-exception-types" id="checking-exception-types">Checking exception types</a></h2>
 <p>Python has an <a href="https://docs.python.org/3/library/functions.html#isinstance"><code>isinstance</code></a> method to check an object's type.
 In PyO3 every native type has access to the <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyAny.html#method.is_instance"><code>PyAny::is_instance</code></a> method which does the same thing.</p>
-<pre><pre class="playground"><code class="language-rust">use pyo3::Python;
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::Python;
 use pyo3::types::{PyBool, PyList};
 
-fn main() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
+Python::with_gil(|py| {
     assert!(PyBool::new(py, true).is_instance::&lt;PyBool&gt;().unwrap());
     let list = PyList::new(py, &amp;[1, 2, 3, 4]);
     assert!(!list.is_instance::&lt;PyBool&gt;().unwrap());
     assert!(list.is_instance::&lt;PyList&gt;().unwrap());
-}
-</code></pre></pre>
+});
+<span class="boring">}
+</span></code></pre></pre>
 <p><a href="https://docs.rs/pyo3/latest/pyo3/struct.PyAny.html#method.is_instance"><code>PyAny::is_instance</code></a> calls the underlying <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyType.html#method.is_instance"><code>PyType::is_instance</code></a>
 method to do the actual work.</p>
 <p>To check the type of an exception, you can similarly do:</p>
@@ -2096,11 +2097,11 @@ method to do the actual work.</p>
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::exceptions::PyTypeError;
 </span><span class="boring">use pyo3::prelude::*;
-</span><span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
+</span><span class="boring">Python::with_gil(|py| {
 </span><span class="boring">let err = PyTypeError::new_err(());
 </span>err.is_instance::&lt;PyTypeError&gt;(py);
-<span class="boring">}
+<span class="boring">});
+</span><span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#handling-rust-errors" id="handling-rust-errors">Handling Rust errors</a></h2>
 <p>The vast majority of operations in this library will return
@@ -2225,21 +2226,20 @@ fn main() {
     let arg2 = &quot;arg2&quot;;
     let arg3 = &quot;arg3&quot;;
 
-    let gil = Python::acquire_gil();
-    let py = gil.python();
+    Python::with_gil(|py| {
+        let obj = SomeObject::new(py);
 
-    let obj = SomeObject::new(py);
+        // call object without empty arguments
+        obj.call0(py);
 
-    // call object without empty arguments
-    obj.call0(py);
+        // call object with PyTuple
+        let args = PyTuple::new(py, &amp;[arg1, arg2, arg3]);
+        obj.call1(py, args);
 
-    // call object with PyTuple
-    let args = PyTuple::new(py, &amp;[arg1, arg2, arg3]);
-    obj.call1(py, args);
-
-    // pass arguments as rust tuple
-    let args = (arg1, arg2, arg3);
-    obj.call1(py, args);
+        // pass arguments as rust tuple
+        let args = (arg1, arg2, arg3);
+        obj.call1(py, args);
+    });
 }
 </code></pre></pre>
 <h3><a class="header" href="#creating-keyword-arguments" id="creating-keyword-arguments">Creating keyword arguments</a></h3>
@@ -2262,23 +2262,22 @@ fn main() {
     let key2 = &quot;key2&quot;;
     let val2 = 2;
 
-    let gil = Python::acquire_gil();
-    let py = gil.python();
+    Python::with_gil(|py| {
+        let obj = SomeObject::new(py);
 
-    let obj = SomeObject::new(py);
+        // call object with PyDict
+        let kwargs = [(key1, val1)].into_py_dict(py);
+        obj.call(py, (), Some(kwargs));
 
-    // call object with PyDict
-    let kwargs = [(key1, val1)].into_py_dict(py);
-    obj.call(py, (), Some(kwargs));
+        // pass arguments as Vec
+        let kwargs = vec![(key1, val1), (key2, val2)];
+        obj.call(py, (), Some(kwargs.into_py_dict(py)));
 
-    // pass arguments as Vec
-    let kwargs = vec![(key1, val1), (key2, val2)];
-    obj.call(py, (), Some(kwargs.into_py_dict(py)));
-
-    // pass arguments as HashMap
-    let mut kwargs = HashMap::&lt;&amp;str, i32&gt;::new();
-    kwargs.insert(key1, 1);
-    obj.call(py, (), Some(kwargs.into_py_dict(py)));
+        // pass arguments as HashMap
+        let mut kwargs = HashMap::&lt;&amp;str, i32&gt;::new();
+        kwargs.insert(key1, 1);
+        obj.call(py, (), Some(kwargs.into_py_dict(py)));
+   });
 }
 </code></pre></pre>
 <h2><a class="header" href="#executing-existing-python-code" id="executing-existing-python-code">Executing existing Python code</a></h2>
@@ -2585,8 +2584,7 @@ Python-Rust FFI boundary, or returning objects from functions implemented in Rus
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">use pyo3::types::PyList;
-</span><span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
+</span><span class="boring">Python::with_gil(|py| {
 </span>let list: Py&lt;PyList&gt; = PyList::empty(py).into();
 
 // To &amp;PyList with Py::as_ref() (borrows from the Py)
@@ -2599,15 +2597,15 @@ let _: &amp;PyList = list.into_ref(py);
 <span class="boring">let list = list_clone;
 </span>// To Py&lt;PyAny&gt; (aka PyObject) with .into()
 let _: Py&lt;PyAny&gt; = list.into();
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <p>For a <code>#[pyclass] struct MyClass</code>, the conversions for <code>Py&lt;MyClass&gt;</code> are below:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::prelude::*;
-</span><span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
+</span><span class="boring">Python::with_gil(|py| {
 </span><span class="boring">#[pyclass] struct MyClass { }
 </span><span class="boring">Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {
 </span>let my_class: Py&lt;MyClass&gt; = Py::new(py, MyClass { })?;
@@ -2631,6 +2629,7 @@ let _: PyRef&lt;MyClass&gt; = my_class.try_borrow(py)?;
 let _: PyRefMut&lt;MyClass&gt; = my_class.try_borrow_mut(py)?;
 <span class="boring">Ok(())
 </span><span class="boring">}).unwrap();
+</span><span class="boring">});
 </span><span class="boring">}
 </span></code></pre></pre>
 <h3><a class="header" href="#pycellsometype" id="pycellsometype"><code>PyCell&lt;SomeType&gt;</code></a></h3>
@@ -3535,25 +3534,19 @@ To migrate, just pass a <code>py</code> argument to any calls to these methods.<
 <pre><pre class="playground"><code class="language-rust compile_fail">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use pyo3::prelude::*;
-
-let gil = Python::acquire_gil();
-let py = gil.python();
-
-py.None().get_refcnt();
-<span class="boring">}
+</span><span class="boring">pyo3::Python::with_gil(|py| {
+</span>py.None().get_refcnt();
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use pyo3::prelude::*;
-
-let gil = Python::acquire_gil();
-let py = gil.python();
-
-py.None().get_refcnt(py);
-<span class="boring">}
+</span><span class="boring">pyo3::Python::with_gil(|py| {
+</span>py.None().get_refcnt(py);
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#from-09-to-010" id="from-09-to-010">from 0.9.* to 0.10</a></h2>
 <h3><a class="header" href="#objectprotocol-is-removed" id="objectprotocol-is-removed"><code>ObjectProtocol</code> is removed</a></h3>
@@ -3567,21 +3560,23 @@ Or if you use <code>ObjectProtocol</code> by <code>use pyo3::prelude::*</code>, 
 </span><span class="boring">fn main() {
 </span>use pyo3::ObjectProtocol;
 
-let gil = pyo3::Python::acquire_gil();
-let obj = gil.python().eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
+<span class="boring">pyo3::Python::with_gil(|py| {
+</span>let obj = py.eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
 let hi: &amp;pyo3::types::PyString = obj.call0().unwrap().downcast().unwrap();
 assert_eq!(hi.len().unwrap(), 5);
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>let gil = pyo3::Python::acquire_gil();
-let obj = gil.python().eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
+</span><span class="boring">pyo3::Python::with_gil(|py| {
+</span>let obj = py.eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
 let hi: &amp;pyo3::types::PyString = obj.call0().unwrap().downcast().unwrap();
 assert_eq!(hi.len().unwrap(), 5);
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h3><a class="header" href="#no-featurespecialization-in-user-code" id="no-featurespecialization-in-user-code">No <code>#![feature(specialization)]</code> in user code</a></h3>
 <p>While PyO3 itself still requires specialization and nightly Rust,
@@ -3653,16 +3648,16 @@ impl Names {
         self.names.append(&amp;mut other.names)
     }
 }
-<span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
-</span><span class="boring">let names = PyCell::new(py, Names::new()).unwrap();
-</span><span class="boring">pyo3::py_run!(py, names, r&quot;
-</span><span class="boring">try:
-</span><span class="boring">   names.merge(names)
-</span><span class="boring">   assert False, 'Unreachable'
-</span><span class="boring">except RuntimeError as e:
-</span><span class="boring">   assert str(e) == 'Already borrowed'
-</span><span class="boring">&quot;);
+<span class="boring">Python::with_gil(|py| {
+</span><span class="boring">    let names = PyCell::new(py, Names::new()).unwrap();
+</span><span class="boring">    pyo3::py_run!(py, names, r&quot;
+</span><span class="boring">    try:
+</span><span class="boring">       names.merge(names)
+</span><span class="boring">       assert False, 'Unreachable'
+</span><span class="boring">    except RuntimeError as e:
+</span><span class="boring">       assert str(e) == 'Already borrowed'
+</span><span class="boring">    &quot;);
+</span><span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
 <p><code>Names</code> has a <code>merge</code> method, which takes <code>&amp;mut self</code> and another argument of type <code>&amp;mut Self</code>.
@@ -3683,10 +3678,10 @@ on the newly-created <code>PyCell</code>.</p>
 </span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">#[pyclass]
 </span><span class="boring">struct MyClass {}
-</span>let gil = Python::acquire_gil();
-let py = gil.python();
-let obj_ref = PyRef::new(py, MyClass {}).unwrap();
-<span class="boring">}
+</span><span class="boring">Python::with_gil(|py| {
+</span>let obj_ref = PyRef::new(py, MyClass {}).unwrap();
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -3695,11 +3690,11 @@ let obj_ref = PyRef::new(py, MyClass {}).unwrap();
 </span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">#[pyclass]
 </span><span class="boring">struct MyClass {}
-</span>let gil = Python::acquire_gil();
-let py = gil.python();
-let obj = PyCell::new(py, MyClass {}).unwrap();
+</span><span class="boring">Python::with_gil(|py| {
+</span>let obj = PyCell::new(py, MyClass {}).unwrap();
 let obj_ref = obj.borrow();
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h4><a class="header" href="#object-extraction" id="object-extraction">Object extraction</a></h4>
 <p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementations.
@@ -3719,8 +3714,7 @@ let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
 </span><span class="boring">use pyo3::types::IntoPyDict;
 </span><span class="boring">#[pyclass] #[derive(Clone)] struct MyClass {}
 </span><span class="boring">#[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
-</span><span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
+</span><span class="boring">Python::with_gil(|py| {
 </span><span class="boring">let typeobj = py.get_type::&lt;MyClass&gt;();
 </span><span class="boring">let d = [(&quot;c&quot;, typeobj)].into_py_dict(py);
 </span><span class="boring">let create_obj = || py.eval(&quot;c()&quot;, None, Some(d)).unwrap();
@@ -3732,7 +3726,8 @@ let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the ob
     // we need to drop obj_ref before we can extract a PyRefMut due to Rust's rules of references
 }
 let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h4><a class="header" href="#pyproto" id="pyproto"><code>#[pyproto]</code></a></h4>
 <p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a

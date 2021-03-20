@@ -304,9 +304,6 @@
 <span id="301">301</span>
 <span id="302">302</span>
 <span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
@@ -338,7 +335,7 @@
     <span class="doccomment">/// * If `init` returns `Err(e)`, `new_with` will return `Err(e)`.</span>
     <span class="doccomment">/// * If `init` returns `Ok(())`, `new_with` will return `Ok(&amp;PyByteArray)`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use pyo3::{prelude::*, types::PyByteArray};</span>
     <span class="doccomment">/// Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {</span>
@@ -438,15 +435,12 @@
 
     <span class="doccomment">/// Copies the contents of the bytearray to a Rust vector.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use pyo3::prelude::*;</span>
     <span class="doccomment">/// # use pyo3::types::PyByteArray;</span>
-    <span class="doccomment">/// # use pyo3::types::IntoPyDict;</span>
-    <span class="doccomment">/// # let gil = Python::acquire_gil();</span>
-    <span class="doccomment">/// # let py = gil.python();</span>
-    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// # Python::with_gil(|py| {</span>
     <span class="doccomment">/// let bytearray = PyByteArray::new(py, b&quot;Hello World.&quot;);</span>
     <span class="doccomment">/// let mut copied_message = bytearray.to_vec();</span>
     <span class="doccomment">/// assert_eq!(b&quot;Hello World.&quot;, copied_message.as_slice());</span>
@@ -454,8 +448,8 @@
     <span class="doccomment">/// copied_message[11] = b&#39;!&#39;;</span>
     <span class="doccomment">/// assert_eq!(b&quot;Hello World!&quot;, copied_message.as_slice());</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let locals = [(&quot;bytearray&quot;, bytearray)].into_py_dict(py);</span>
-    <span class="doccomment">/// py.run(&quot;assert bytearray == b&#39;Hello World.&#39;&quot;, None, Some(locals)).unwrap();</span>
+    <span class="doccomment">/// pyo3::py_run!(py, bytearray, &quot;assert bytearray == b&#39;Hello World.&#39;&quot;);</span>
+    <span class="doccomment">/// # });</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_vec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">as_bytes</span>() }.<span class="ident">to_vec</span>()

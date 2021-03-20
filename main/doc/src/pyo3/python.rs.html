@@ -755,6 +755,10 @@
 <span id="752">752</span>
 <span id="753">753</span>
 <span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -898,7 +902,7 @@
     <span class="doccomment">/// - If the `auto-initialize` feature is not enabled and the Python interpreter is not</span>
     <span class="doccomment">///   initialized.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use pyo3::prelude::*;</span>
     <span class="doccomment">/// Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {</span>
@@ -945,7 +949,7 @@
 
     <span class="doccomment">/// Temporarily releases the `GIL`, thus allowing other Python threads to run.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use pyo3::prelude::*; use pyo3::types::IntoPyDict; use pyo3::wrap_pyfunction;</span>
     <span class="doccomment">/// use pyo3::exceptions::PyRuntimeError;</span>
@@ -966,15 +970,16 @@
     <span class="doccomment">///         Ok(sum)</span>
     <span class="doccomment">///     })</span>
     <span class="doccomment">/// }</span>
-    <span class="doccomment">/// let gil = Python::acquire_gil();</span>
-    <span class="doccomment">/// let py = gil.python();</span>
-    <span class="doccomment">/// let m = PyModule::new(py, &quot;pcount&quot;).unwrap();</span>
-    <span class="doccomment">/// m.add_function(wrap_pyfunction!(parallel_count, m).unwrap()).unwrap();</span>
-    <span class="doccomment">/// let locals = [(&quot;pcount&quot;, m)].into_py_dict(py);</span>
-    <span class="doccomment">/// py.run(r#&quot;</span>
-    <span class="doccomment">///    s = [&quot;Flow&quot;, &quot;my&quot;, &quot;tears&quot;, &quot;the&quot;, &quot;Policeman&quot;, &quot;Said&quot;]</span>
-    <span class="doccomment">///    assert pcount.parallel_count(s, &quot;a&quot;) == 3</span>
-    <span class="doccomment">/// &quot;#, None, Some(locals));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Python::with_gil(|py| {</span>
+    <span class="doccomment">///     let m = PyModule::new(py, &quot;pcount&quot;).unwrap();</span>
+    <span class="doccomment">///     m.add_function(wrap_pyfunction!(parallel_count, m).unwrap()).unwrap();</span>
+    <span class="doccomment">///     let locals = [(&quot;pcount&quot;, m)].into_py_dict(py);</span>
+    <span class="doccomment">///     pyo3::py_run!(py, *locals, r#&quot;</span>
+    <span class="doccomment">///         s = [&quot;Flow&quot;, &quot;my&quot;, &quot;tears&quot;, &quot;the&quot;, &quot;Policeman&quot;, &quot;Said&quot;]</span>
+    <span class="doccomment">///         assert pcount.parallel_count(s, &quot;a&quot;) == 3</span>
+    <span class="doccomment">///     &quot;#);</span>
+    <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// **Note:**</span>
@@ -992,7 +997,7 @@
     <span class="doccomment">/// do much with those without a `Python&lt;&#39;p&gt;` token, for which you&#39;d need to</span>
     <span class="doccomment">/// reacquire the GIL.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```compile_fail</span>
     <span class="doccomment">/// # use pyo3::prelude::*;</span>
     <span class="doccomment">/// # use pyo3::types::PyString;</span>
@@ -1035,14 +1040,14 @@
     <span class="doccomment">/// If `globals` is `None`, it defaults to Python module `__main__`.</span>
     <span class="doccomment">/// If `locals` is `None`, it defaults to the value of `globals`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example:</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use pyo3::{types::{PyBytes, PyDict}, prelude::*};</span>
-    <span class="doccomment">/// # let gil = pyo3::Python::acquire_gil();</span>
-    <span class="doccomment">/// # let py = gil.python();</span>
+    <span class="doccomment">/// # Python::with_gil(|py| {</span>
     <span class="doccomment">/// let result = py.eval(&quot;[i * 10 for i in range(5)]&quot;, None, None).unwrap();</span>
     <span class="doccomment">/// let res: Vec&lt;i64&gt; = result.extract().unwrap();</span>
     <span class="doccomment">/// assert_eq!(res, vec![0, 10, 20, 30, 40])</span>
+    <span class="doccomment">/// # });</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(
         <span class="self">self</span>,
@@ -1058,25 +1063,29 @@
     <span class="doccomment">/// If `globals` is `None`, it defaults to Python module `__main__`.</span>
     <span class="doccomment">/// If `locals` is `None`, it defaults to the value of `globals`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example:</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use pyo3::{types::{PyBytes, PyDict}, prelude::*};</span>
-    <span class="doccomment">/// let gil = pyo3::Python::acquire_gil();</span>
-    <span class="doccomment">/// let py = gil.python();</span>
-    <span class="doccomment">/// let locals = PyDict::new(py);</span>
-    <span class="doccomment">/// py.run(</span>
-    <span class="doccomment">///     r#&quot;</span>
+    <span class="doccomment">/// Python::with_gil(|py| {</span>
+    <span class="doccomment">///     let locals = PyDict::new(py);</span>
+    <span class="doccomment">///     py.run(</span>
+    <span class="doccomment">///         r#&quot;</span>
     <span class="doccomment">/// import base64</span>
     <span class="doccomment">/// s = &#39;Hello Rust!&#39;</span>
     <span class="doccomment">/// ret = base64.b64encode(s.encode(&#39;utf-8&#39;))</span>
     <span class="doccomment">/// &quot;#,</span>
-    <span class="doccomment">///    None,</span>
-    <span class="doccomment">///    Some(locals),</span>
-    <span class="doccomment">/// ).unwrap();</span>
-    <span class="doccomment">/// let ret = locals.get_item(&quot;ret&quot;).unwrap();</span>
-    <span class="doccomment">/// let b64: &amp;PyBytes = ret.downcast().unwrap();</span>
-    <span class="doccomment">/// assert_eq!(b64.as_bytes(), b&quot;SGVsbG8gUnVzdCE=&quot;);</span>
+    <span class="doccomment">///       None,</span>
+    <span class="doccomment">///       Some(locals),</span>
+    <span class="doccomment">///     )</span>
+    <span class="doccomment">///     .unwrap();</span>
+    <span class="doccomment">///     let ret = locals.get_item(&quot;ret&quot;).unwrap();</span>
+    <span class="doccomment">///     let b64: &amp;PyBytes = ret.downcast().unwrap();</span>
+    <span class="doccomment">///     assert_eq!(b64.as_bytes(), b&quot;SGVsbG8gUnVzdCE=&quot;);</span>
+    <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// You can use [`py_run!`](macro.py_run.html) for a handy alternative of `run`</span>
+    <span class="doccomment">/// if you don&#39;t need `globals` and unwrapping is OK.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(
         <span class="self">self</span>,
         <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
@@ -1156,7 +1165,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is a wrapper around the ffi call Py_GetVersion.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use pyo3::Python;</span>
     <span class="doccomment">/// Python::with_gil(|py| {</span>
@@ -1176,7 +1185,7 @@
     <span class="doccomment">/// Gets the running Python interpreter version as a struct similar to</span>
     <span class="doccomment">/// `sys.version_info`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use pyo3::Python;</span>
     <span class="doccomment">/// Python::with_gil(|py| {</span>
@@ -1357,24 +1366,23 @@
     <span class="doccomment">/// to use this API to clear memory, as PyO3 usually does not clear memory until the GIL is</span>
     <span class="doccomment">/// released.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use pyo3::prelude::*;</span>
-    <span class="doccomment">/// let gil = Python::acquire_gil();</span>
-    <span class="doccomment">/// let py = gil.python();</span>
+    <span class="doccomment">/// Python::with_gil(|py| {</span>
+    <span class="doccomment">///     // Some long-running process like a webserver, which never releases the GIL.</span>
+    <span class="doccomment">///     loop {</span>
+    <span class="doccomment">///         // Create a new pool, so that PyO3 can clear memory at the end of the loop.</span>
+    <span class="doccomment">///         let pool = unsafe { py.new_pool() };</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// // Some long-running process like a webserver, which never releases the GIL.</span>
-    <span class="doccomment">/// loop {</span>
-    <span class="doccomment">///     // Create a new pool, so that PyO3 can clear memory at the end of the loop.</span>
-    <span class="doccomment">///     let pool = unsafe { py.new_pool() };</span>
+    <span class="doccomment">///         // It is recommended to *always* immediately set py to the pool&#39;s Python, to help</span>
+    <span class="doccomment">///         // avoid creating references with invalid lifetimes.</span>
+    <span class="doccomment">///         let py = unsafe { pool.python() };</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">///     // It is recommended to *always* immediately set py to the pool&#39;s Python, to help</span>
-    <span class="doccomment">///     // avoid creating references with invalid lifetimes.</span>
-    <span class="doccomment">///     let py = unsafe { pool.python() };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     // do stuff...</span>
-    <span class="doccomment">/// # break;  // Exit the loop so that doctest terminates!</span>
-    <span class="doccomment">/// }</span>
+    <span class="doccomment">///         // do stuff...</span>
+    <span class="doccomment">/// #       break;  // Exit the loop so that doctest terminates!</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Safety</span>

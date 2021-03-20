@@ -454,6 +454,9 @@
 <span id="451">451</span>
 <span id="452">452</span>
 <span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span> <span class="comment">// FIXME (#698)</span>
@@ -490,7 +493,7 @@
 <span class="doccomment">//! A `PyErr` represents a Python exception. Errors within the `PyO3` library are</span>
 <span class="doccomment">//! also exposed as Python exceptions.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! # Example</span>
+<span class="doccomment">//! # Examples</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Using Rust from Python</span>
 <span class="doccomment">//!</span>
@@ -743,7 +746,11 @@
 
 <span class="doccomment">/// A convenient macro to execute a Python code snippet, with some local variables set.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Panics</span>
+<span class="doccomment">/// This macro internally calls [`Python::run`](struct.Python.html#method.run) and panics</span>
+<span class="doccomment">/// if it returns `Err`, after printing the error to stdout.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use pyo3::{prelude::*, py_run, types::PyList};</span>
 <span class="doccomment">/// Python::with_gil(|py| {</span>
@@ -754,7 +761,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// You can use this macro to test pyfunctions or pyclasses quickly.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use pyo3::{prelude::*, py_run, PyCell};</span>
 <span class="doccomment">/// #[pyclass]</span>

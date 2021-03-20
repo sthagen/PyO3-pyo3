@@ -80,7 +80,6 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
-<span id="80">80</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="doccomment">//! Support for the Python `marshal` format. Not supported in limited API</span>
@@ -102,18 +101,17 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// See the [Python documentation](https://docs.python.org/3/library/marshal.html) for more details.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example:</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use pyo3::{marshal, types::PyDict};</span>
-<span class="doccomment">/// # let gil = pyo3::Python::acquire_gil();</span>
-<span class="doccomment">/// # let py = gil.python();</span>
-<span class="doccomment">/// #</span>
+<span class="doccomment">/// # pyo3::Python::with_gil(|py| {</span>
 <span class="doccomment">/// let dict = PyDict::new(py);</span>
 <span class="doccomment">/// dict.set_item(&quot;aap&quot;, &quot;noot&quot;).unwrap();</span>
 <span class="doccomment">/// dict.set_item(&quot;mies&quot;, &quot;wim&quot;).unwrap();</span>
 <span class="doccomment">/// dict.set_item(&quot;zus&quot;, &quot;jet&quot;).unwrap();</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let bytes = marshal::dumps(py, dict, marshal::VERSION);</span>
+<span class="doccomment">/// # });</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dumps</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">AsPyPointer</span>, <span class="ident">version</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyBytes</span><span class="op">&gt;</span> {
     <span class="kw">unsafe</span> {

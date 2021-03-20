@@ -507,17 +507,6 @@
 <span id="504">504</span>
 <span id="505">505</span>
 <span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -572,7 +561,7 @@
 <span class="doccomment">/// * `module` is the name of the containing module.</span>
 <span class="doccomment">/// * `MyError` is the name of the new exception type.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use pyo3::import_exception;</span>
 <span class="doccomment">/// use pyo3::types::IntoPyDict;</span>
@@ -581,16 +570,10 @@
 <span class="doccomment">/// import_exception!(socket, gaierror);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let gil = Python::acquire_gil();</span>
-<span class="doccomment">///     let py = gil.python();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let ctx = [(&quot;gaierror&quot;, py.get_type::&lt;gaierror&gt;())].into_py_dict(py);</span>
-<span class="doccomment">///     py.run(</span>
-<span class="doccomment">///         &quot;import socket; assert gaierror is socket.gaierror&quot;,</span>
-<span class="doccomment">///         None,</span>
-<span class="doccomment">///         Some(ctx),</span>
-<span class="doccomment">///     )</span>
-<span class="doccomment">///     .unwrap();</span>
+<span class="doccomment">///     Python::with_gil(|py| {</span>
+<span class="doccomment">///         let ctx = [(&quot;gaierror&quot;, py.get_type::&lt;gaierror&gt;())].into_py_dict(py);</span>
+<span class="doccomment">///         pyo3::py_run!(py, *ctx, &quot;import socket; assert gaierror is socket.gaierror&quot;);</span>
+<span class="doccomment">///     });</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
@@ -648,7 +631,7 @@
 <span class="doccomment">/// * `MyError` is the name of the new exception type.</span>
 <span class="doccomment">/// * `BaseException` is the superclass of `MyError`, usually `pyo3::exceptions::PyException`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">/// use pyo3::create_exception;</span>
@@ -658,22 +641,17 @@
 <span class="doccomment">/// create_exception!(mymodule, CustomError, PyException);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let gil = Python::acquire_gil();</span>
-<span class="doccomment">///     let py = gil.python();</span>
-<span class="doccomment">///     let error_type = py.get_type::&lt;CustomError&gt;();</span>
-<span class="doccomment">///     let ctx = [(&quot;CustomError&quot;, error_type)].into_py_dict(py);</span>
-<span class="doccomment">///     let type_description: String = py</span>
-<span class="doccomment">///         .eval(&quot;str(CustomError)&quot;, None, Some(&amp;ctx))</span>
-<span class="doccomment">///         .unwrap()</span>
-<span class="doccomment">///         .extract()</span>
-<span class="doccomment">///         .unwrap();</span>
-<span class="doccomment">///     assert_eq!(type_description, &quot;&lt;class &#39;mymodule.CustomError&#39;&gt;&quot;);</span>
-<span class="doccomment">///     py.run(</span>
-<span class="doccomment">///         &quot;assert CustomError(&#39;oops&#39;).args == (&#39;oops&#39;,)&quot;,</span>
-<span class="doccomment">///         None,</span>
-<span class="doccomment">///         Some(ctx),</span>
-<span class="doccomment">///     )</span>
-<span class="doccomment">///     .unwrap();</span>
+<span class="doccomment">///     Python::with_gil(|py| {</span>
+<span class="doccomment">///         let error_type = py.get_type::&lt;CustomError&gt;();</span>
+<span class="doccomment">///         let ctx = [(&quot;CustomError&quot;, error_type)].into_py_dict(py);</span>
+<span class="doccomment">///         let type_description: String = py</span>
+<span class="doccomment">///             .eval(&quot;str(CustomError)&quot;, None, Some(&amp;ctx))</span>
+<span class="doccomment">///             .unwrap()</span>
+<span class="doccomment">///             .extract()</span>
+<span class="doccomment">///             .unwrap();</span>
+<span class="doccomment">///         assert_eq!(type_description, &quot;&lt;class &#39;mymodule.CustomError&#39;&gt;&quot;);</span>
+<span class="doccomment">///         pyo3::py_run!(py, *ctx, &quot;assert CustomError(&#39;oops&#39;).args == (&#39;oops&#39;,)&quot;);</span>
+<span class="doccomment">///    });</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>

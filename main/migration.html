@@ -402,25 +402,19 @@ To migrate, just pass a <code>py</code> argument to any calls to these methods.<
 <pre><pre class="playground"><code class="language-rust compile_fail">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use pyo3::prelude::*;
-
-let gil = Python::acquire_gil();
-let py = gil.python();
-
-py.None().get_refcnt();
-<span class="boring">}
+</span><span class="boring">pyo3::Python::with_gil(|py| {
+</span>py.None().get_refcnt();
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use pyo3::prelude::*;
-
-let gil = Python::acquire_gil();
-let py = gil.python();
-
-py.None().get_refcnt(py);
-<span class="boring">}
+</span><span class="boring">pyo3::Python::with_gil(|py| {
+</span>py.None().get_refcnt(py);
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h2><a class="header" href="#from-09-to-010" id="from-09-to-010">from 0.9.* to 0.10</a></h2>
 <h3><a class="header" href="#objectprotocol-is-removed" id="objectprotocol-is-removed"><code>ObjectProtocol</code> is removed</a></h3>
@@ -434,21 +428,23 @@ Or if you use <code>ObjectProtocol</code> by <code>use pyo3::prelude::*</code>, 
 </span><span class="boring">fn main() {
 </span>use pyo3::ObjectProtocol;
 
-let gil = pyo3::Python::acquire_gil();
-let obj = gil.python().eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
+<span class="boring">pyo3::Python::with_gil(|py| {
+</span>let obj = py.eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
 let hi: &amp;pyo3::types::PyString = obj.call0().unwrap().downcast().unwrap();
 assert_eq!(hi.len().unwrap(), 5);
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>let gil = pyo3::Python::acquire_gil();
-let obj = gil.python().eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
+</span><span class="boring">pyo3::Python::with_gil(|py| {
+</span>let obj = py.eval(&quot;lambda: 'Hi :)'&quot;, None, None).unwrap();
 let hi: &amp;pyo3::types::PyString = obj.call0().unwrap().downcast().unwrap();
 assert_eq!(hi.len().unwrap(), 5);
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h3><a class="header" href="#no-featurespecialization-in-user-code" id="no-featurespecialization-in-user-code">No <code>#![feature(specialization)]</code> in user code</a></h3>
 <p>While PyO3 itself still requires specialization and nightly Rust,
@@ -520,16 +516,16 @@ impl Names {
         self.names.append(&amp;mut other.names)
     }
 }
-<span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
-</span><span class="boring">let names = PyCell::new(py, Names::new()).unwrap();
-</span><span class="boring">pyo3::py_run!(py, names, r&quot;
-</span><span class="boring">try:
-</span><span class="boring">   names.merge(names)
-</span><span class="boring">   assert False, 'Unreachable'
-</span><span class="boring">except RuntimeError as e:
-</span><span class="boring">   assert str(e) == 'Already borrowed'
-</span><span class="boring">&quot;);
+<span class="boring">Python::with_gil(|py| {
+</span><span class="boring">    let names = PyCell::new(py, Names::new()).unwrap();
+</span><span class="boring">    pyo3::py_run!(py, names, r&quot;
+</span><span class="boring">    try:
+</span><span class="boring">       names.merge(names)
+</span><span class="boring">       assert False, 'Unreachable'
+</span><span class="boring">    except RuntimeError as e:
+</span><span class="boring">       assert str(e) == 'Already borrowed'
+</span><span class="boring">    &quot;);
+</span><span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
 <p><code>Names</code> has a <code>merge</code> method, which takes <code>&amp;mut self</code> and another argument of type <code>&amp;mut Self</code>.
@@ -550,10 +546,10 @@ on the newly-created <code>PyCell</code>.</p>
 </span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">#[pyclass]
 </span><span class="boring">struct MyClass {}
-</span>let gil = Python::acquire_gil();
-let py = gil.python();
-let obj_ref = PyRef::new(py, MyClass {}).unwrap();
-<span class="boring">}
+</span><span class="boring">Python::with_gil(|py| {
+</span>let obj_ref = PyRef::new(py, MyClass {}).unwrap();
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -562,11 +558,11 @@ let obj_ref = PyRef::new(py, MyClass {}).unwrap();
 </span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">#[pyclass]
 </span><span class="boring">struct MyClass {}
-</span>let gil = Python::acquire_gil();
-let py = gil.python();
-let obj = PyCell::new(py, MyClass {}).unwrap();
+</span><span class="boring">Python::with_gil(|py| {
+</span>let obj = PyCell::new(py, MyClass {}).unwrap();
 let obj_ref = obj.borrow();
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h4><a class="header" href="#object-extraction" id="object-extraction">Object extraction</a></h4>
 <p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementations.
@@ -586,8 +582,7 @@ let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
 </span><span class="boring">use pyo3::types::IntoPyDict;
 </span><span class="boring">#[pyclass] #[derive(Clone)] struct MyClass {}
 </span><span class="boring">#[pymethods] impl MyClass { #[new]fn new() -&gt; Self { MyClass {} }}
-</span><span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
+</span><span class="boring">Python::with_gil(|py| {
 </span><span class="boring">let typeobj = py.get_type::&lt;MyClass&gt;();
 </span><span class="boring">let d = [(&quot;c&quot;, typeobj)].into_py_dict(py);
 </span><span class="boring">let create_obj = || py.eval(&quot;c()&quot;, None, Some(d)).unwrap();
@@ -599,7 +594,8 @@ let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the ob
     // we need to drop obj_ref before we can extract a PyRefMut due to Rust's rules of references
 }
 let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
-<span class="boring">}
+<span class="boring">})
+</span><span class="boring">}
 </span></code></pre></pre>
 <h4><a class="header" href="#pyproto" id="pyproto"><code>#[pyproto]</code></a></h4>
 <p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a

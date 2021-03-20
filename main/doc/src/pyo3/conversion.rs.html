@@ -522,6 +522,7 @@
 <span id="519">519</span>
 <span id="520">520</span>
 <span id="521">521</span>
+<span id="522">522</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -539,14 +540,15 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This trait is implemented for types that internally wrap a pointer to a Python object.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use pyo3::{AsPyPointer, prelude::*};</span>
-<span class="doccomment">/// let gil = Python::acquire_gil();</span>
-<span class="doccomment">/// let dict = pyo3::types::PyDict::new(gil.python());</span>
-<span class="doccomment">/// // All native object wrappers implement AsPyPointer!!!</span>
-<span class="doccomment">/// assert_ne!(dict.as_ptr(), std::ptr::null_mut());</span>
+<span class="doccomment">/// Python::with_gil(|py| {</span>
+<span class="doccomment">///     let dict = pyo3::types::PyDict::new(py);</span>
+<span class="doccomment">///     // All native object wrappers implement AsPyPointer!!!</span>
+<span class="doccomment">///     assert_ne!(dict.as_ptr(), std::ptr::null_mut());</span>
+<span class="doccomment">/// });</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AsPyPointer</span> {
     <span class="doccomment">/// Retrieves the underlying FFI pointer (as a borrowed pointer).</span>

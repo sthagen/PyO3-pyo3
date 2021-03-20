@@ -429,17 +429,12 @@ impl PyIterProtocol for Container {
     }
 }
 
-<span class="boring">let gil = Python::acquire_gil();
-</span><span class="boring">let py = gil.python();
-</span><span class="boring">let inst = pyo3::PyCell::new(
-</span><span class="boring">    py,
-</span><span class="boring">    Container {
-</span><span class="boring">        iter: vec![1, 2, 3, 4],
-</span><span class="boring">    },
-</span><span class="boring">)
-</span><span class="boring">.unwrap();
-</span><span class="boring">pyo3::py_run!(py, inst, &quot;assert list(inst) == [1, 2, 3, 4]&quot;);
-</span><span class="boring">pyo3::py_run!(py, inst, &quot;assert list(iter(iter(inst))) == [1, 2, 3, 4]&quot;);
+<span class="boring">Python::with_gil(|py| {
+</span><span class="boring">    let container = Container { iter: vec![1, 2, 3, 4] };
+</span><span class="boring">    let inst = pyo3::PyCell::new(py, container).unwrap();
+</span><span class="boring">    pyo3::py_run!(py, inst, &quot;assert list(inst) == [1, 2, 3, 4]&quot;);
+</span><span class="boring">    pyo3::py_run!(py, inst, &quot;assert list(iter(iter(inst))) == [1, 2, 3, 4]&quot;);
+</span><span class="boring">});
 </span><span class="boring">}
 </span></code></pre></pre>
 <p>For more details on Python's iteration protocols, check out <a href="https://docs.python.org/3/library/stdtypes.html#iterator-types">the &quot;Iterator Types&quot; section of the library
