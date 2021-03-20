@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["pyo3"] = [{"text":"impl&lt;'a, T:&nbsp;PyClass&gt; TryFrom&lt;&amp;'a PyCell&lt;T&gt;&gt; for PyRef&lt;'a, T&gt;","synthetic":false,"types":[]},{"text":"impl&lt;'a, T:&nbsp;PyClass&gt; TryFrom&lt;&amp;'a PyCell&lt;T&gt;&gt; for PyRefMut&lt;'a, T&gt;","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
