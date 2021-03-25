@@ -625,26 +625,23 @@ fn run_python_script(interpreter: &Path, script: &str) -> Result<String> {
 
 fn get_rustc_link_lib(config: &InterpreterConfig) -> String {
     let link_name = if env::var("CARGO_CFG_TARGET_OS").unwrap().as_str() == "windows" {
-        if env::var("CARGO_CFG_TARGET_ENV").unwrap().as_str() == "gnu" {
+        if is_abi3() {
+            // Link against python3.lib for the stable ABI on Windows.
+            // See https://www.python.org/dev/peps/pep-0384/#linkage
+            //
+            // This contains only the limited ABI symbols.
+            "pythonXY:python3".to_owned()
+        } else if env::var("CARGO_CFG_TARGET_ENV").unwrap().as_str() == "gnu" {
             // https://packages.msys2.org/base/mingw-w64-python
-            // TODO: ABI3?
             format!(
                 "pythonXY:python{}.{}",
                 config.version.major, config.version.minor
             )
         } else {
-            // Link against python3.lib for the stable ABI on Windows.
-            // See https://www.python.org/dev/peps/pep-0384/#linkage
-            //
-            // This contains only the limited ABI symbols.
-            if is_abi3() {
-                "pythonXY:python3".to_owned()
-            } else {
-                format!(
-                    "pythonXY:python{}{}",
-                    config.version.major, config.version.minor
-                )
-            }
+            format!(
+                "pythonXY:python{}{}",
+                config.version.major, config.version.minor
+            )
         }
     } else {
         match config.implementation {
@@ -806,7 +803,7 @@ fn configure(interpreter_config: &InterpreterConfig) -> Result<()> {
         println!("cargo:rustc-cfg=PyPy");
         if is_abi3 {
             warn!(
-                "PyPy does not yet support abi3 so the resulting wheel will be version-specific. \
+                "PyPy does not yet support abi3 so the build artifacts will be version-specific. \
                 See https://foss.heptapod.net/pypy/pypy/-/issues/3397 for more information."
             )
         }
@@ -886,13 +883,17 @@ fn abi3_without_interpreter() -> Result<()> {
     println!("cargo:rustc-cfg=py_sys_config=\"WITH_THREAD\"");
     println!("cargo:python_flags={}", flags);
 
-    // Unfortunately, on windows we can't build without at least providing
-    // python.lib to the linker. While maturin tells the linker the location
-    // of python.lib, we need to do the renaming here, otherwise cargo
-    // complains that the crate using pyo3 does not contains a `#[link(...)]`
-    // attribute with pythonXY.
     if env::var("CARGO_CFG_TARGET_FAMILY")? == "windows" {
+        // Unfortunately, on windows we can't build without at least providing
+        // python.lib to the linker. While maturin tells the linker the location
+        // of python.lib, we need to do the renaming here, otherwise cargo
+        // complains that the crate using pyo3 does not contains a `#[link(...)]`
+        // attribute with pythonXY.
         println!("cargo:rustc-link-lib=pythonXY:python3");
+
+        // Match `get_config_from_interpreter()` and `windows_hardcoded_cross_compile()`:
+        // assume "Py_ENABLE_SHARED" to be set on Windows.
+        println!("cargo:rustc-cfg=Py_SHARED");
     }
 
     Ok(())
