@@ -173,6 +173,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <ul>
 <li>Update <code>num-bigint</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1481">#1481</a></li>
 <li>Update <code>num-complex</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1482">#1482</a></li>
+<li>Extend <code>hashbrown</code> optional dependency supported versions to include 0.11. <a href="https://github.com/PyO3/pyo3/pull/1496">#1496</a></li>
 </ul>
 <h3><a class="header" href="#added" id="added">Added</a></h3>
 <ul>
@@ -216,6 +217,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Fix incorrect <code>TypeError</code> raised when keyword-only argument passed along with a positional argument in <code>*args</code>. <a href="https://github.com/PyO3/pyo3/pull/1440">#1440</a></li>
 <li>Fix inability to use a named lifetime for <code>&amp;PyTuple</code> of <code>*args</code> in <code>#[pyfunction]</code>. <a href="https://github.com/PyO3/pyo3/pull/1440">#1440</a></li>
 <li>Fix inability to add <code>#[text_signature]</code> to some <code>#[pyproto]</code> methods. <a href="https://github.com/PyO3/pyo3/pull/1483">#1483</a></li>
+<li>Fix use of Python argument for #[pymethods] inside macro expansions. <a href="https://github.com/PyO3/pyo3/pull/1505">#1505</a></li>
 </ul>
 <h2><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12" id="a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a href="https://github.com/pyo3/pyo3/compare/v0.13.1...v0.13.2">0.13.2</a> - 2021-02-12</a></h2>
 <h3><a class="header" href="#packaging-1" id="packaging-1">Packaging</a></h3>
