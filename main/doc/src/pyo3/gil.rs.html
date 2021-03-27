@@ -825,6 +825,9 @@
 <span id="822">822</span>
 <span id="823">823</span>
 <span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -1021,6 +1024,7 @@
 <span class="doccomment">///     let py = gil_guard.python();</span>
 <span class="doccomment">/// } // GIL is released when gil_guard is dropped</span>
 <span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
 <span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GILGuard</span> {
     <span class="ident">gstate</span>: <span class="ident">ffi</span>::<span class="ident">PyGILState_STATE</span>,
@@ -1195,6 +1199,7 @@
 <span class="kw">static</span> <span class="ident">POOL</span>: <span class="ident">ReferencePool</span> <span class="op">=</span> <span class="ident">ReferencePool</span>::<span class="ident">new</span>();
 
 <span class="doccomment">/// A RAII pool which PyO3 uses to store owned Python references.</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GILPool</span> {
     <span class="doccomment">/// Initial length of owned objects and anys.</span>
     <span class="doccomment">/// `Option` is used since TSL can be broken when `new` is called from `atexit`.</span>
@@ -1323,6 +1328,7 @@
 }
 
 <span class="doccomment">/// Struct used internally which avoids acquiring the GIL where it&#39;s not necessary.</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">EnsureGIL</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GILGuard</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">EnsureGIL</span> {

@@ -507,6 +507,7 @@
 <span id="504">504</span>
 <span id="505">505</span>
 <span id="506">506</span>
+<span id="507">507</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -707,6 +708,7 @@
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_native_exception</span> (
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>:<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> (
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span>);
 
         <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">impl_exception_boilerplate</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>);

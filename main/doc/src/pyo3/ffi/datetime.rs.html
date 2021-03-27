@@ -578,10 +578,6 @@
 <span id="575">575</span>
 <span id="576">576</span>
 <span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">type_complexity</span>))]</span>
 
@@ -950,14 +946,12 @@
     <span class="kw">pub</span> <span class="ident">TZInfoType</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyTypeObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_7</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
     <span class="kw">pub</span> <span class="ident">TimeZone_UTC</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyDate_FromDate&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">Date_FromDate</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
         <span class="ident">year</span>: <span class="ident">c_int</span>,
         <span class="ident">month</span>: <span class="ident">c_int</span>,
         <span class="ident">day</span>: <span class="ident">c_int</span>,
         <span class="ident">cls</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyTypeObject</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyDateTime_FromDateAndTime&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">DateTime_FromDateAndTime</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
         <span class="ident">year</span>: <span class="ident">c_int</span>,
         <span class="ident">month</span>: <span class="ident">c_int</span>,
@@ -969,7 +963,6 @@
         <span class="ident">tzinfo</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">cls</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyTypeObject</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyTime_FromTime&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">Time_FromTime</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
         <span class="ident">hour</span>: <span class="ident">c_int</span>,
         <span class="ident">minute</span>: <span class="ident">c_int</span>,
@@ -978,7 +971,6 @@
         <span class="ident">tzinfo</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">cls</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyTypeObject</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyDelta_FromDelta&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">Delta_FromDelta</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
         <span class="ident">days</span>: <span class="ident">c_int</span>,
         <span class="ident">seconds</span>: <span class="ident">c_int</span>,
