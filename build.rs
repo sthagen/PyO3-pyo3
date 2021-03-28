@@ -2,8 +2,8 @@ use std::{
     collections::{HashMap, HashSet},
     convert::AsRef,
     env,
-    fs::{self, DirEntry, File},
-    io::{self, BufRead, BufReader},
+    fs::{self, DirEntry},
+    io,
     path::{Path, PathBuf},
     process::{Command, Stdio},
     str::FromStr,
@@ -109,24 +109,15 @@ impl GetPrimitive for HashMap<String, String> {
 
 struct CrossCompileConfig {
     lib_dir: PathBuf,
-    include_dir: Option<PathBuf>,
     version: Option<String>,
     os: String,
     arch: String,
 }
 
 impl CrossCompileConfig {
-    fn both() -> Result<Self> {
-        Ok(CrossCompileConfig {
-            include_dir: env::var_os("PYO3_CROSS_INCLUDE_DIR").map(Into::into),
-            ..CrossCompileConfig::lib_only()?
-        })
-    }
-
-    fn lib_only() -> Result<Self> {
+    fn new() -> Result<Self> {
         Ok(CrossCompileConfig {
             lib_dir: CrossCompileConfig::validate_variable("PYO3_CROSS_LIB_DIR")?,
-            include_dir: None,
             os: env::var("CARGO_CFG_TARGET_OS").unwrap(),
             arch: env::var("CARGO_CFG_TARGET_ARCH").unwrap(),
             version: env::var_os("PYO3_CROSS_PYTHON_VERSION").map(|s| s.into_string().unwrap()),
@@ -151,45 +142,48 @@ impl CrossCompileConfig {
 }
 
 fn cross_compiling() -> Result<Option<CrossCompileConfig>> {
-    let target = env::var("TARGET")?;
-    let host = env::var("HOST")?;
-    if target == host {
-        // Not cross-compiling
-        return Ok(None);
-    }
+    if env::var_os("PYO3_CROSS").is_none()
+        && env::var_os("PYO3_CROSS_LIB_DIR").is_none()
+        && env::var_os("PYO3_CROSS_INCLUDE_DIR").is_none()
+        && env::var_os("PYO3_CROSS_VERSION").is_none()
+        && env::var_os("PYO3_CROSS_PYTHON_VERSION").is_none()
+    {
+        let target = env::var("TARGET")?;
+        let host = env::var("HOST")?;
+        if target == host {
+            // Not cross-compiling
+            return Ok(None);
+        }
 
-    if target == "i686-pc-windows-msvc" && host == "x86_64-pc-windows-msvc" {
-        // Not cross-compiling to compile for 32-bit Python from windows 64-bit
-        return Ok(None);
-    }
+        if target == "i686-pc-windows-msvc" && host == "x86_64-pc-windows-msvc" {
+            // Not cross-compiling to compile for 32-bit Python from windows 64-bit
+            return Ok(None);
+        }
 
-    if target == "x86_64-apple-darwin" && host == "aarch64-apple-darwin" {
-        // Not cross-compiling to compile for x86-64 Python from macOS arm64
-        return Ok(None);
-    }
-    if target == "aarch64-apple-darwin" && host == "x86_64-apple-darwin" {
-        // Not cross-compiling to compile for arm64 Python from macOS x86_64
-        return Ok(None);
-    }
+        if target == "x86_64-apple-darwin" && host == "aarch64-apple-darwin" {
+            // Not cross-compiling to compile for x86-64 Python from macOS arm64
+            return Ok(None);
+        }
 
-    if host.starts_with(&format!(
-        "{}-{}-{}",
-        env::var("CARGO_CFG_TARGET_ARCH")?,
-        env::var("CARGO_CFG_TARGET_VENDOR")?,
-        env::var("CARGO_CFG_TARGET_OS")?
-    )) {
-        // Not cross-compiling if arch-vendor-os is all the same
-        // e.g. x86_64-unknown-linux-musl on x86_64-unknown-linux-gnu host
-        return Ok(None);
-    }
+        if target == "aarch64-apple-darwin" && host == "x86_64-apple-darwin" {
+            // Not cross-compiling to compile for arm64 Python from macOS x86_64
+            return Ok(None);
+        }
 
-    if env::var("CARGO_CFG_TARGET_FAMILY")? == "windows" {
-        // Windows cross-compile uses both header includes and sysconfig
-        return Ok(Some(CrossCompileConfig::both()?));
+        if host.starts_with(&format!(
+            "{}-{}-{}",
+            env::var("CARGO_CFG_TARGET_ARCH")?,
+            env::var("CARGO_CFG_TARGET_VENDOR")?,
+            env::var("CARGO_CFG_TARGET_OS")?
+        )) {
+            // Not cross-compiling if arch-vendor-os is all the same
+            // e.g. x86_64-unknown-linux-musl on x86_64-unknown-linux-gnu host
+            return Ok(None);
+        }
     }
 
     // Cross-compiling on any other platform
-    Ok(Some(CrossCompileConfig::lib_only()?))
+    Ok(Some(CrossCompileConfig::new()?))
 }
 
 /// A list of python interpreter compile-time preprocessor defines that
@@ -298,23 +292,6 @@ impl BuildFlags {
             self.0.insert("WITH_THREAD");
         }
     }
-}
-
-/// Attempts to parse the header at the given path, returning a map of definitions to their values.
-/// Each entry in the map directly corresponds to a `#define` in the given header.
-fn parse_header_defines(header_path: impl AsRef<Path>) -> Result<HashMap<String, String>> {
-    let header_reader = BufReader::new(File::open(header_path.as_ref())?);
-    let mut definitions = HashMap::new();
-    for maybe_line in header_reader.lines() {
-        let line = maybe_line?;
-        let mut i = line.trim().split_whitespace();
-        if i.next() == Some("#define") {
-            if let (Some(key), Some(value), None) = (i.next(), i.next(), i.next()) {
-                definitions.insert(key.into(), value.into());
-            }
-        }
-    }
-    Ok(definitions)
 }
 
 fn parse_script_output(output: &str) -> HashMap<String, String> {
@@ -500,36 +477,6 @@ fn load_cross_compile_from_sysconfigdata(
     Ok((interpreter_config, build_flags))
 }
 
-fn load_cross_compile_from_headers(
-    cross_compile_config: CrossCompileConfig,
-) -> Result<(InterpreterConfig, BuildFlags)> {
-    let python_include_dir = cross_compile_config.include_dir.unwrap();
-    let python_include_dir = Path::new(&python_include_dir);
-    let patchlevel_defines = parse_header_defines(python_include_dir.join("patchlevel.h"))?;
-
-    let major = patchlevel_defines.get_numeric("PY_MAJOR_VERSION")?;
-    let minor = patchlevel_defines.get_numeric("PY_MINOR_VERSION")?;
-
-    let python_version = PythonVersion { major, minor };
-
-    let config_data = parse_header_defines(python_include_dir.join("pyconfig.h"))?;
-
-    let interpreter_config = InterpreterConfig {
-        version: python_version,
-        libdir: cross_compile_config.lib_dir.to_str().map(String::from),
-        shared: config_data.get_bool("Py_ENABLE_SHARED").unwrap_or(false),
-        ld_version: format!("{}.{}", major, minor),
-        base_prefix: "".to_string(),
-        executable: PathBuf::new(),
-        calcsize_pointer: None,
-        implementation: PythonInterpreterKind::CPython,
-    };
-
-    let build_flags = BuildFlags::from_config_map(&config_data);
-
-    Ok((interpreter_config, build_flags))
-}
-
 fn windows_hardcoded_cross_compile(
     cross_compile_config: CrossCompileConfig,
 ) -> Result<(InterpreterConfig, BuildFlags)> {
@@ -549,7 +496,7 @@ fn windows_hardcoded_cross_compile(
     } else if let Some(minor_version) = get_abi3_minor_version() {
         (3, minor_version)
     } else {
-        bail!("One of PYO3_CROSS_INCLUDE_DIR, PYO3_CROSS_PYTHON_VERSION, or an abi3-py3* feature must be specified when cross-compiling for Windows.")
+        bail!("PYO3_CROSS_PYTHON_VERSION or an abi3-py3* feature must be specified when cross-compiling for Windows.")
     };
 
     let python_version = PythonVersion { major, minor };
@@ -576,9 +523,6 @@ fn load_cross_compile_info(
     if target_family == "unix" {
         // Configure for unix platforms using the sysconfigdata file
         load_cross_compile_from_sysconfigdata(cross_compile_config)
-    } else if cross_compile_config.include_dir.is_some() {
-        // Must configure by headers on windows platform
-        load_cross_compile_from_headers(cross_compile_config)
     } else {
         windows_hardcoded_cross_compile(cross_compile_config)
     }
