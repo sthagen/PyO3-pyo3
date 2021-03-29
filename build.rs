@@ -144,8 +144,6 @@ impl CrossCompileConfig {
 fn cross_compiling() -> Result<Option<CrossCompileConfig>> {
     if env::var_os("PYO3_CROSS").is_none()
         && env::var_os("PYO3_CROSS_LIB_DIR").is_none()
-        && env::var_os("PYO3_CROSS_INCLUDE_DIR").is_none()
-        && env::var_os("PYO3_CROSS_VERSION").is_none()
         && env::var_os("PYO3_CROSS_PYTHON_VERSION").is_none()
     {
         let target = env::var("TARGET")?;
@@ -489,7 +487,7 @@ fn windows_hardcoded_cross_compile(
         ) {
             (Some(major), Some(minor), None) => (major, minor),
             _ => bail!(
-                "Expected major.minor version (e.g. 3.9) for PYO3_CROSS_VERSION, got `{}`",
+                "Expected major.minor version (e.g. 3.9) for PYO3_CROSS_PYTHON_VERSION, got `{}`",
                 version
             ),
         }
@@ -518,13 +516,18 @@ fn windows_hardcoded_cross_compile(
 fn load_cross_compile_info(
     cross_compile_config: CrossCompileConfig,
 ) -> Result<(InterpreterConfig, BuildFlags)> {
-    let target_family = env::var("CARGO_CFG_TARGET_FAMILY")?;
-    // Because compiling for windows on linux still includes the unix target family
-    if target_family == "unix" {
+    match env::var_os("CARGO_CFG_TARGET_FAMILY") {
         // Configure for unix platforms using the sysconfigdata file
-        load_cross_compile_from_sysconfigdata(cross_compile_config)
-    } else {
-        windows_hardcoded_cross_compile(cross_compile_config)
+        Some(os) if os == "unix" => load_cross_compile_from_sysconfigdata(cross_compile_config),
+        // Use hardcoded interpreter config when targeting Windows
+        Some(os) if os == "windows" => windows_hardcoded_cross_compile(cross_compile_config),
+        // Waiting for users to tell us what they expect on their target platform
+        Some(os) => bail!(
+            "Unsupported target OS family for cross-compilation: {:?}",
+            os
+        ),
+        // Unknown os family - try to do something useful
+        None => load_cross_compile_from_sysconfigdata(cross_compile_config),
     }
 }
 
@@ -849,6 +852,7 @@ fn main() -> Result<()> {
     if env::var_os("PYO3_NO_PYTHON").is_some()
         && env::var_os(format!("CARGO_FEATURE_ABI3_PY3{}", ABI3_MAX_MINOR)).is_some()
     {
+        println!("cargo:rerun-if-env-changed=PYO3_NO_PYTHON");
         return abi3_without_interpreter();
     }
     // 1. Setup cfg variables so we can do conditional compilation in this library based on the
@@ -881,7 +885,13 @@ fn main() -> Result<()> {
         // TODO: Find out how we can set -undefined dynamic_lookup here (if this is possible)
     }
 
-    for var in ["LIB", "LD_LIBRARY_PATH", "PYO3_PYTHON"].iter() {
+    for var in &[
+        "LIB",
+        "LD_LIBRARY_PATH",
+        "PYO3_PYTHON",
+        "PYO3_CROSS_LIB_DIR",
+        "PYO3_CROSS_PYTHON_VERSION",
+    ] {
         println!("cargo:rerun-if-env-changed={}", var);
     }
 
