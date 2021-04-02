@@ -506,8 +506,6 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -785,11 +783,9 @@
 <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="ident">PyProcessLookupError</span>, <span class="ident">PyExc_ProcessLookupError</span>);
 <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="ident">PyTimeoutError</span>, <span class="ident">PyExc_TimeoutError</span>);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">PyPy</span>)))]</span>
 <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="ident">PyEnvironmentError</span>, <span class="ident">PyExc_EnvironmentError</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">PyPy</span>)))]</span>
 <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="ident">PyIOError</span>, <span class="ident">PyExc_IOError</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
 <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="ident">PyWindowsError</span>, <span class="ident">PyExc_WindowsError</span>);
 
 <span class="kw">impl</span> <span class="ident">PyUnicodeDecodeError</span> {
@@ -1017,4 +1013,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "pyo3";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
