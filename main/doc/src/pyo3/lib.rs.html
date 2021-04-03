@@ -434,26 +434,6 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span> <span class="comment">// FIXME (#698)</span>
@@ -537,26 +517,6 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     Ok(())</span>
 <span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! On Windows and linux, you can build normally with `cargo build</span>
-<span class="doccomment">//! --release`. On macOS, you need to set additional linker arguments. One</span>
-<span class="doccomment">//! option is to compile with `cargo rustc --release -- -C link-arg=-undefined</span>
-<span class="doccomment">//! -C link-arg=dynamic_lookup`, the other is to create a `.cargo/config` with</span>
-<span class="doccomment">//! the following content:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```toml</span>
-<span class="doccomment">//! [target.x86_64-apple-darwin]</span>
-<span class="doccomment">//! rustflags = [</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=-undefined&quot;,</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,</span>
-<span class="doccomment">//! ]</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [target.aarch64-apple-darwin]</span>
-<span class="doccomment">//! rustflags = [</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=-undefined&quot;,</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,</span>
-<span class="doccomment">//! ]</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! While developing, you symlink (or copy) and rename the shared library from</span>

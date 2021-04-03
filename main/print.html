@@ -192,8 +192,7 @@
 <p>A comparison with rust-cpython can be found <a href="https://pyo3.rs/main/rust_cpython.html">in the guide</a>.</p>
 <h2><a class="header" href="#usage" id="usage">Usage</a></h2>
 <p>PyO3 supports Python 3.6 and up. The minimum required Rust version is 1.41.</p>
-<p>Building with PyPy is also possible (via cpyext) for Python 3.6, targeted PyPy version is 7.3+.
-Please refer to the <a href="https://pyo3.rs/main/building_and_distribution/pypy.html">pypy section in the guide</a>.</p>
+<p>PyPy is also supported. Some minor features are unavailable on PyPy - please refer to the <a href="https://pyo3.rs/main/building_and_distribution/pypy.html">pypy section in the guide</a> for more information.</p>
 <p>You can either write a native Python module in Rust, or use Python from a Rust binary.</p>
 <p>However, on some OSs, you need some additional packages. E.g. if you are on <em>Ubuntu 18.04</em>, please run</p>
 <pre><code class="language-bash">sudo apt install python3-dev python-dev
@@ -241,19 +240,6 @@ fn string_sum(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>On Windows and Linux, you can build normally with <code>cargo build --release</code>. On macOS, you need to set additional linker arguments. One option is to compile with <code>cargo rustc --release -- -C link-arg=-undefined -C link-arg=dynamic_lookup</code>, the other is to create a <code>.cargo/config</code> with the following content:</p>
-<pre><code class="language-toml">[target.x86_64-apple-darwin]
-rustflags = [
-  &quot;-C&quot;, &quot;link-arg=-undefined&quot;,
-  &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,
-]
-
-[target.aarch64-apple-darwin]
-rustflags = [
-  &quot;-C&quot;, &quot;link-arg=-undefined&quot;,
-  &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,
-]
-</code></pre>
 <p>While developing, you can symlink (or copy) and rename the shared library from the target folder: On MacOS, rename <code>libstring_sum.dylib</code> to <code>string_sum.so</code>, on Windows <code>libstring_sum.dll</code> to <code>string_sum.pyd</code>, and on Linux <code>libstring_sum.so</code> to <code>string_sum.so</code>. Then open a Python shell in the same folder and you'll be able to <code>import string_sum</code>.</p>
 <p>To build, test and publish your crate as a Python module, you can use <a href="https://github.com/PyO3/maturin">maturin</a> or <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a>. You can find an example for setuptools-rust in <a href="https://github.com/PyO3/pyo3/tree/main/examples/word-count">examples/word-count</a>, while maturin should work on your crate without any configuration.</p>
 <h2><a class="header" href="#using-python-from-rust" id="using-python-from-rust">Using Python from Rust</a></h2>
@@ -4361,6 +4347,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Update <code>num-bigint</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1481">#1481</a></li>
 <li>Update <code>num-complex</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1482">#1482</a></li>
 <li>Extend <code>hashbrown</code> optional dependency supported versions to include 0.11. <a href="https://github.com/PyO3/pyo3/pull/1496">#1496</a></li>
+<li>Support PyPy 3.7. <a href="https://github.com/PyO3/pyo3/pull/1538">#1538</a></li>
 </ul>
 <h3><a class="header" href="#added" id="added">Added</a></h3>
 <ul>
@@ -4379,6 +4366,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>The <code>auto-initialize</code> feature is no longer enabled by default. <a href="https://github.com/PyO3/pyo3/pull/1443">#1443</a></li>
 <li>Change <code>PyCFunction::new()</code> and <code>PyCFunction::new_with_keywords()</code> to take <code>&amp;'static str</code> arguments rather than implicitly copying (and leaking) them. <a href="https://github.com/PyO3/pyo3/pull/1450">#1450</a></li>
 <li>Deprecate <code>PyModule</code> methods <code>call</code>, <code>call0</code>, <code>call1</code> and <code>get</code>. <a href="https://github.com/PyO3/pyo3/pull/1492">#1492</a></li>
+<li>Automatically provide <code>-undefined</code> and <code>dynamic_lookup</code> linker arguments on macOS with <code>extension-module</code> feature. <a href="https://github.com/PyO3/pyo3/pull/1539">#1539</a></li>
 </ul>
 <h3><a class="header" href="#removed" id="removed">Removed</a></h3>
 <ul>
