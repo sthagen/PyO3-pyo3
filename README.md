@@ -22,8 +22,7 @@ A comparison with rust-cpython can be found [in the guide](https://pyo3.rs/main/
 
 PyO3 supports Python 3.6 and up. The minimum required Rust version is 1.41.
 
-Building with PyPy is also possible (via cpyext) for Python 3.6, targeted PyPy version is 7.3+.
-Please refer to the [pypy section in the guide](https://pyo3.rs/main/building_and_distribution/pypy.html).
+PyPy is also supported. Some minor features are unavailable on PyPy - please refer to the [pypy section in the guide](https://pyo3.rs/main/building_and_distribution/pypy.html) for more information.
 
 You can either write a native Python module in Rust, or use Python from a Rust binary.
 
@@ -78,22 +77,6 @@ fn string_sum(py: Python, m: &PyModule) -> PyResult<()> {
 
     Ok(())
 }
-```
-
-On Windows and Linux, you can build normally with `cargo build --release`. On macOS, you need to set additional linker arguments. One option is to compile with `cargo rustc --release -- -C link-arg=-undefined -C link-arg=dynamic_lookup`, the other is to create a `.cargo/config` with the following content:
-
-```toml
-[target.x86_64-apple-darwin]
-rustflags = [
-  "-C", "link-arg=-undefined",
-  "-C", "link-arg=dynamic_lookup",
-]
-
-[target.aarch64-apple-darwin]
-rustflags = [
-  "-C", "link-arg=-undefined",
-  "-C", "link-arg=dynamic_lookup",
-]
 ```
 
 While developing, you can symlink (or copy) and rename the shared library from the target folder: On MacOS, rename `libstring_sum.dylib` to `string_sum.so`, on Windows `libstring_sum.dll` to `string_sum.pyd`, and on Linux `libstring_sum.so` to `string_sum.so`. Then open a Python shell in the same folder and you'll be able to `import string_sum`.
