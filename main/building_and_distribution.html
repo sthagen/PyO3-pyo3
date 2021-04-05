@@ -163,15 +163,16 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#building-and-distribution" id="building-and-distribution">Building and Distribution</a></h1>
-<h2><a class="header" href="#python-version" id="python-version">Python version</a></h2>
+                        <h1 id="building-and-distribution"><a class="header" href="#building-and-distribution">Building and Distribution</a></h1>
+<h2 id="python-version"><a class="header" href="#python-version">Python version</a></h2>
 <p>PyO3 uses a build script to determine the Python version and set the correct linker arguments. By default it uses the <code>python3</code> executable. You can override the Python interpreter by setting <code>PYO3_PYTHON</code>, e.g., <code>PYO3_PYTHON=python3.6</code>.</p>
-<h2><a class="header" href="#linking" id="linking">Linking</a></h2>
+<h2 id="linking"><a class="header" href="#linking">Linking</a></h2>
 <p>Different linker arguments must be set for libraries/extension modules and binaries, which includes both standalone binaries and tests. (More specifically, binaries must be told where to find libpython and libraries must not link to libpython for <a href="https://www.python.org/dev/peps/pep-0513/">manylinux</a> compliance).</p>
 <p>Since PyO3's build script can't know whether you're building a binary or a library, you have to activate the <code>extension-module</code> feature to get the build options for a library, or it'll default to binary.</p>
 <p>If you have e.g. a library crate and a profiling crate alongside, you need to use optional features. E.g. you put the following in the library crate:</p>
 <pre><code class="language-toml">[dependencies]
-pyo3 = &quot;0.6&quot;
+pyo3 = { git = &quot;https://github.com/pyo3/pyo3&quot; }
+
 
 [lib]
 name = &quot;hyperjson&quot;
@@ -183,12 +184,12 @@ default = [&quot;pyo3/extension-module&quot;]
 <p>And this in the profiling crate:</p>
 <pre><code class="language-toml">[dependencies]
 my_main_crate = { path = &quot;..&quot;, default-features = false }
-pyo3 = &quot;0.6&quot;
+pyo3 = { git = &quot;https://github.com/pyo3/pyo3&quot; }
 </code></pre>
 <p>On Linux/macOS you might have to change <code>LD_LIBRARY_PATH</code> to include libpython, while on windows you might need to set <code>LIB</code> to include <code>pythonxy.lib</code> (where x and y are major and minor version), which is normally either in the <code>libs</code> or <code>Lib</code> folder of a Python installation.</p>
-<h2><a class="header" href="#distribution" id="distribution">Distribution</a></h2>
+<h2 id="distribution"><a class="header" href="#distribution">Distribution</a></h2>
 <p>There are two ways to distribute your module as a Python package: <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a> and <a href="https://github.com/PyO3/maturin">maturin</a>. setuptools-rust needs several configuration files (<code>setup.py</code>, <code>MANIFEST.in</code>, <code>build-wheels.sh</code>, etc.). It allows (and sometimes requires) writing custom workflows in python. maturin has only few options and works without any additional configuration, instead it requires a rigid project structure and does not support some functionality of setuptools such as package data (<a href="https://github.com/PyO3/maturin/issues/258">pyo3/maturin#258</a>), multiple extensions or running python scripts at build time.</p>
-<h2><a class="header" href="#py_limited_apiabi3" id="py_limited_apiabi3"><code>Py_LIMITED_API</code>/<code>abi3</code></a></h2>
+<h2 id="py_limited_apiabi3"><a class="header" href="#py_limited_apiabi3"><code>Py_LIMITED_API</code>/<code>abi3</code></a></h2>
 <p>By default, Python extension modules can only be used with the same Python version they were compiled against -- if you build an extension module with Python 3.5, you can't import it using Python 3.8. <a href="https://www.python.org/dev/peps/pep-0384/">PEP 384</a> introduced the idea of the limited Python API, which would have a stable ABI enabling extension modules built with it to be used against multiple Python versions. This is also known as <code>abi3</code>.</p>
 <p>Note that <a href="https://github.com/PyO3/maturin">maturin</a> &gt;= 0.9.0 or <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a> &gt;= 0.11.4 support <code>abi3</code> wheels.
 See the <a href="https://github.com/PyO3/maturin/pull/353">corresponding</a> <a href="https://github.com/PyO3/setuptools-rust/pull/82">PRs</a> for more.</p>
@@ -197,7 +198,7 @@ See the <a href="https://github.com/PyO3/maturin/pull/353">corresponding</a> <a 
 <li>Enable the <code>abi3</code> feature in <code>pyo3</code>. This ensures <code>pyo3</code> only calls Python C-API functions which are part of the stable API, and on Windows also ensures that the project links against the correct shared object (no special behavior is required on other platforms):</li>
 </ol>
 <pre><code class="language-toml">[dependencies]
-pyo3 = { version = &quot;...&quot;, features = [&quot;abi3&quot;]}
+pyo3 = { git = &quot;https://github.com/pyo3/pyo3&quot;, features = [&quot;abi3&quot;] }
 </code></pre>
 <ol start="2">
 <li>
@@ -207,13 +208,13 @@ pyo3 = { version = &quot;...&quot;, features = [&quot;abi3&quot;]}
 <p>Ensure that the <code>.whl</code> is correctly marked as <code>abi3</code>. For projects using <code>setuptools</code>, this is accomplished by passing <code>--py-limited-api=cp3x</code> (where <code>x</code> is the minimum Python version supported by the wheel, e.g. <code>--py-limited-api=cp35</code> for Python 3.5) to <code>setup.py bdist_wheel</code>.</p>
 </li>
 </ol>
-<h3><a class="header" href="#minimum-python-version-for-abi3" id="minimum-python-version-for-abi3">Minimum Python version for <code>abi3</code></a></h3>
+<h3 id="minimum-python-version-for-abi3"><a class="header" href="#minimum-python-version-for-abi3">Minimum Python version for <code>abi3</code></a></h3>
 <p>Because a single <code>abi3</code> wheel can be used with many different Python versions, PyO3 has feature flags <code>abi3-py36</code>, <code>abi3-py37</code>, <code>abi-py38</code> etc. to set the minimum required Python version for your <code>abi3</code> wheel.
 For example, if you set the <code>abi3-py36</code> feature, your extension wheel can be used on all Python 3 versions from Python 3.6 and up. <code>maturin</code> and <code>setuptools-rust</code> will give the wheel a name like <code>my-extension-1.0-cp36-abi3-manylinux2020_x86_64.whl</code>.
 If you set more that one of these api version feature flags the highest version always wins. For example, with both <code>abi3-py36</code> and <code>abi3-py38</code> set, PyO3 would build a wheel which supports Python 3.8 and up.
 PyO3 is only able to link your extension module to api3 version up to and including your host Python version. E.g., if you set <code>abi3-py38</code> and try to compile the crate with a host of Python 3.6, the build will fail.</p>
 <p>As an advanced feature, you can build PyO3 wheel without calling Python interpreter with the environment variable <code>PYO3_NO_PYTHON</code> set. On unix systems this works unconditionally; on Windows you must also set the <code>RUSTFLAGS</code> evironment variable to contain <code>-L native=/path/to/python/libs</code> so that the linker can find <code>python3.lib</code>.</p>
-<h3><a class="header" href="#missing-features" id="missing-features">Missing features</a></h3>
+<h3 id="missing-features"><a class="header" href="#missing-features">Missing features</a></h3>
 <p>Due to limitations in the Python API, there are a few <code>pyo3</code> features that do
 not work when compiling for <code>abi3</code>. These are:</p>
 <ul>
@@ -221,7 +222,7 @@ not work when compiling for <code>abi3</code>. These are:</p>
 <li>The <code>dict</code> and <code>weakref</code> options on classes are not supported until Python 3.9 or greater.</li>
 <li>The buffer API is not supported.</li>
 </ul>
-<h2><a class="header" href="#cross-compiling" id="cross-compiling">Cross Compiling</a></h2>
+<h2 id="cross-compiling"><a class="header" href="#cross-compiling">Cross Compiling</a></h2>
 <p>Cross compiling PyO3 modules is relatively straightforward and requires a few pieces of software:</p>
 <ul>
 <li>A toolchain for your target.</li>
@@ -253,7 +254,7 @@ export PYO3_CROSS_LIB_DIR=&quot;/home/pyo3/cross/sysroot/usr/lib&quot;
 cargo build --target x86_64-pc-windows-gnu
 </code></pre>
 <p>Any of the <code>abi3-py3*</code> features can be enabled instead of setting <code>PYO3_CROSS_PYTHON_VERSION</code> in the above examples.</p>
-<h2><a class="header" href="#bazel" id="bazel">Bazel</a></h2>
+<h2 id="bazel"><a class="header" href="#bazel">Bazel</a></h2>
 <p>For an example of how to build python extensions using Bazel, see https://github.com/TheButlah/rules_pyo3</p>
 
                     </main>

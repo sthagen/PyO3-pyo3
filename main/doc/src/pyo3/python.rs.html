@@ -754,11 +754,6 @@
 <span id="751">751</span>
 <span id="752">752</span>
 <span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -1457,11 +1452,6 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_allow_threads_panics_safely</span>() {
-        <span class="comment">// TODO replace with #[cfg(panic = &quot;unwind&quot;)] once stable</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="kw">crate</span>::<span class="ident">cfg_panic_unwind</span>() {
-            <span class="kw">return</span>;
-        }
-
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
 

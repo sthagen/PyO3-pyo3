@@ -163,7 +163,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#async--await" id="async--await">Async / Await</a></h1>
+                        <h1 id="async--await"><a class="header" href="#async--await">Async / Await</a></h1>
 <p>If you are working with a Python library that makes use of async functions or wish to provide 
 Python bindings for an async Rust library, <a href="https://github.com/awestlake87/pyo3-asyncio"><code>pyo3-asyncio</code></a>
 likely has the tools you need. It provides conversions between async functions in both Python and 
@@ -174,7 +174,7 @@ Python libraries.</p>
 <p>In the following sections, we'll give a general overview of <code>pyo3-asyncio</code> explaining how to call 
 async Python functions with PyO3, how to call async Rust functions from Python, and how to configure
 your codebase to manage the runtimes of both.</p>
-<h2><a class="header" href="#awaiting-an-async-python-function-in-rust" id="awaiting-an-async-python-function-in-rust">Awaiting an Async Python Function in Rust</a></h2>
+<h2 id="awaiting-an-async-python-function-in-rust"><a class="header" href="#awaiting-an-async-python-function-in-rust">Awaiting an Async Python Function in Rust</a></h2>
 <p>Let's take a look at a dead simple async Python function:</p>
 <pre><code class="language-python"># Sleep for 1 second
 async def py_sleep():
@@ -211,7 +211,7 @@ future.await;
 <p>If you're interested in learning more about <code>coroutines</code> and <code>awaitables</code> in general, check out the 
 <a href="https://docs.python.org/3/library/asyncio-task.html">Python 3 <code>asyncio</code> docs</a> for more information.</p>
 </blockquote>
-<h2><a class="header" href="#awaiting-a-rust-future-in-python" id="awaiting-a-rust-future-in-python">Awaiting a Rust Future in Python</a></h2>
+<h2 id="awaiting-a-rust-future-in-python"><a class="header" href="#awaiting-a-rust-future-in-python">Awaiting a Rust Future in Python</a></h2>
 <p>Here we have the same async function as before written in Rust using the 
 <a href="https://async.rs/"><code>async-std</code></a> runtime:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -252,7 +252,7 @@ fn call_rust_sleep(py: Python) -&gt; PyResult&lt;PyObject&gt; {
 async def rust_sleep():
     await call_rust_sleep()
 </code></pre>
-<h2><a class="header" href="#managing-event-loops" id="managing-event-loops">Managing Event Loops</a></h2>
+<h2 id="managing-event-loops"><a class="header" href="#managing-event-loops">Managing Event Loops</a></h2>
 <p>Python's event loop requires some special treatment, especially regarding the main thread. Some of
 Python's <code>asyncio</code> features, like proper signal handling, require control over the main thread, which
 doesn't always play well with Rust.</p>
@@ -260,7 +260,7 @@ doesn't always play well with Rust.</p>
 <code>pyo3-asyncio</code>, we decided the best way to handle Rust/Python interop was to just surrender the main
 thread to Python and run Rust's event loops in the background. Unfortunately, since most event loop 
 implementations <em>prefer</em> control over the main thread, this can still make some things awkward.</p>
-<h3><a class="header" href="#pyo3-asyncio-initialization" id="pyo3-asyncio-initialization">PyO3 Asyncio Initialization</a></h3>
+<h3 id="pyo3-asyncio-initialization"><a class="header" href="#pyo3-asyncio-initialization">PyO3 Asyncio Initialization</a></h3>
 <p>Because Python needs to control the main thread, we can't use the convenient proc macros from Rust
 runtimes to handle the <code>main</code> function or <code>#[test]</code> functions. Instead, the initialization for PyO3 has to be done from the <code>main</code> function and the main 
 thread must block on <a href="https://docs.rs/pyo3-asyncio/latest/pyo3_asyncio/fn.run_forever.html"><code>pyo3_asyncio::run_forever</code></a> or <a href="https://docs.rs/pyo3-asyncio/latest/pyo3_asyncio/async_std/fn.run_until_complete.html"><code>pyo3_asyncio::async_std::run_until_complete</code></a>.</p>
@@ -302,14 +302,14 @@ async fn main() -&gt; PyResult&lt;()&gt; {
     Ok(())
 }
 </code></pre></pre>
-<h2><a class="header" href="#pyo3-asyncio-in-cargo-tests" id="pyo3-asyncio-in-cargo-tests">PyO3 Asyncio in Cargo Tests</a></h2>
+<h2 id="pyo3-asyncio-in-cargo-tests"><a class="header" href="#pyo3-asyncio-in-cargo-tests">PyO3 Asyncio in Cargo Tests</a></h2>
 <p>The default Cargo Test harness does not currently allow test crates to provide their own <code>main</code> 
 function, so there doesn't seem to be a good way to allow Python to gain control over the main
 thread.</p>
 <p>We can, however, override the default test harness and provide our own. <code>pyo3-asyncio</code> provides some
 utilities to help us do just that! In the following sections, we will provide an overview for 
 constructing a Cargo integration test with <code>pyo3-asyncio</code> and adding your tests to it.</p>
-<h3><a class="header" href="#main-test-file" id="main-test-file">Main Test File</a></h3>
+<h3 id="main-test-file"><a class="header" href="#main-test-file">Main Test File</a></h3>
 <p>First, we need to create the test's main file. Although these tests are considered integration
 tests, we cannot put them in the <code>tests</code> directory since that is a special directory owned by
 Cargo. Instead, we put our tests in a <code>pytests</code> directory.</p>
@@ -330,7 +330,7 @@ async fn main() -&gt; pyo3::PyResult&lt;()&gt; {
     pyo3_asyncio::testing::main().await
 }
 </code></pre></pre>
-<h3><a class="header" href="#cargo-configuration" id="cargo-configuration">Cargo Configuration</a></h3>
+<h3 id="cargo-configuration"><a class="header" href="#cargo-configuration">Cargo Configuration</a></h3>
 <p>Next, we need to add our test file to the Cargo manifest by adding the following section to the
 <code>Cargo.toml</code></p>
 <pre><code class="language-toml">[[test]]
@@ -342,7 +342,7 @@ harness = false
 <pre><code class="language-toml">pyo3-asyncio = { version = &quot;0.13&quot;, features = [&quot;testing&quot;, &quot;attributes&quot;, &quot;async-std-runtime&quot;] }
 </code></pre>
 <p>At this point, you should be able to run the test via <code>cargo test</code></p>
-<h3><a class="header" href="#adding-tests-to-the-pyo3-asyncio-test-harness" id="adding-tests-to-the-pyo3-asyncio-test-harness">Adding Tests to the PyO3 Asyncio Test Harness</a></h3>
+<h3 id="adding-tests-to-the-pyo3-asyncio-test-harness"><a class="header" href="#adding-tests-to-the-pyo3-asyncio-test-harness">Adding Tests to the PyO3 Asyncio Test Harness</a></h3>
 <p>We can add tests anywhere in the test crate with the runtime's corresponding <code>#[test]</code> attribute:</p>
 <p>For <code>async-std</code> use the <a href="https://docs.rs/pyo3-asyncio/latest/pyo3_asyncio/async_std/attr.test.html"><code>pyo3_asyncio::async_std::test</code></a> attribute:</p>
 <pre><pre class="playground"><code class="language-rust">mod tests {

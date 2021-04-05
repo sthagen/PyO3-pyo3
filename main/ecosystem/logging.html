@@ -163,7 +163,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#logging" id="logging">Logging</a></h1>
+                        <h1 id="logging"><a class="header" href="#logging">Logging</a></h1>
 <p>It is desirable if both the Python and Rust parts of the application end up
 logging using the same configuration into the same place.</p>
 <p>This section of the guide briefly discusses how to connect the two languages'
@@ -171,7 +171,7 @@ logging ecosystems together. The recommended way for Python extension modules is
 to configure Rust's logger to send log messages to Python using the <code>pyo3-log</code>
 crate. For users who want to do the opposite and send Python log messages to
 Rust, see the note at the end of this guide.</p>
-<h2><a class="header" href="#using-pyo3-log-to-send-rust-log-messages-to-python" id="using-pyo3-log-to-send-rust-log-messages-to-python">Using <code>pyo3-log</code> to send Rust log messages to Python</a></h2>
+<h2 id="using-pyo3-log-to-send-rust-log-messages-to-python"><a class="header" href="#using-pyo3-log-to-send-rust-log-messages-to-python">Using <code>pyo3-log</code> to send Rust log messages to Python</a></h2>
 <p>The <a href="https://crates.io/crates/pyo3-log">pyo3-log</a> crate allows sending the messages from the Rust side to Python's
 <a href="https://docs.python.org/3/library/logging.html">logging</a> system. This is mostly suitable for writing native extensions for
 Python programs.</p>
@@ -213,7 +213,7 @@ my_module.log_something()
 <p>It is important to initialize the Python loggers first, before calling any Rust
 functions that may log. This limitation can be worked around if it is not
 possible to satisfy, read the documentation about <a href="https://docs.rs/pyo3-log/*/pyo3_log/#performance-filtering-and-caching">caching</a>.</p>
-<h2><a class="header" href="#the-python-to-rust-direction" id="the-python-to-rust-direction">The Python to Rust direction</a></h2>
+<h2 id="the-python-to-rust-direction"><a class="header" href="#the-python-to-rust-direction">The Python to Rust direction</a></h2>
 <p>To best of our knowledge nobody implemented the reverse direction yet, though it
 should be possible. If interested, the <code>pyo3</code> community would be happy to
 provide guidance.</p>

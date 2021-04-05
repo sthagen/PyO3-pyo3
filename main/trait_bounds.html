@@ -163,22 +163,22 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#using-in-python-a-rust-function-with-trait-bounds" id="using-in-python-a-rust-function-with-trait-bounds">Using in Python a Rust function with trait bounds</a></h1>
+                        <h1 id="using-in-python-a-rust-function-with-trait-bounds"><a class="header" href="#using-in-python-a-rust-function-with-trait-bounds">Using in Python a Rust function with trait bounds</a></h1>
 <p>PyO3 allows for easy conversion from Rust to Python for certain functions and classes (see the <a href="conversions/tables.html">conversion table</a>.
 However, it is not always straightforward to convert Rust code that requires a given trait implementation as an argument.</p>
 <p>This tutorial explains how to convert a Rust function that takes a trait as argument for use in Python with classes implementing the same methods as the trait.</p>
 <p>Why is this useful?</p>
-<h3><a class="header" href="#pros" id="pros">Pros</a></h3>
+<h3 id="pros"><a class="header" href="#pros">Pros</a></h3>
 <ul>
 <li>Make your Rust code available to Python users</li>
 <li>Code complex algorithms in Rust with the help of the borrow checker</li>
 </ul>
-<h3><a class="header" href="#cons" id="cons">Cons</a></h3>
+<h3 id="cons"><a class="header" href="#cons">Cons</a></h3>
 <ul>
 <li>Not as fast as native Rust (type conversion has to be performed and one part of the code runs in Python)</li>
 <li>You need to adapt your code to expose it</li>
 </ul>
-<h2><a class="header" href="#example" id="example">Example</a></h2>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
 <p>Let's work with the following basic example of an implementation of a optimization solver operating on a given model.</p>
 <p>Let's say we have a function <code>solve</code> that operates on a model and mutates its state.
 The argument of the function can be any model that implements the <code>Model</code> trait :</p>
@@ -203,7 +203,7 @@ pub fn solve&lt;T: Model&gt;(model: &amp;mut T) {
 Rewriting it in Python would be cumbersome and error-prone, as everything is already available in Rust.</li>
 </ul>
 <p>How could we expose this solver to Python thanks to PyO3 ?</p>
-<h2><a class="header" href="#implementation-of-the-trait-bounds-for-the-python-class" id="implementation-of-the-trait-bounds-for-the-python-class">Implementation of the trait bounds for the Python class</a></h2>
+<h2 id="implementation-of-the-trait-bounds-for-the-python-class"><a class="header" href="#implementation-of-the-trait-bounds-for-the-python-class">Implementation of the trait bounds for the Python class</a></h2>
 <p>If a Python class implements the same three methods as the <code>Model</code> trait, it seems logical it could be adapted to use the solver.
 However, it is not possible to pass a <code>PyObject</code> to it as it does not implement the Rust trait (even if the Python model has the required methods).</p>
 <p>In order to implement the trait, we must write a wrapper around the calls in Rust to the Python model.
@@ -427,9 +427,9 @@ Print value directly from Python:  [1.0]
 </code></pre>
 <p>We have now successfully exposed a Rust model that implements the <code>Model</code> trait to Python!</p>
 <p>We will now expose the <code>solve</code> function, but before, let's talk about types errors.</p>
-<h2><a class="header" href="#type-errors-in-python" id="type-errors-in-python">Type errors in Python</a></h2>
+<h2 id="type-errors-in-python"><a class="header" href="#type-errors-in-python">Type errors in Python</a></h2>
 <p>What happens if you have type errors when using Python and how can you improve the error messages?</p>
-<h3><a class="header" href="#wrong-types-in-python-function-arguments" id="wrong-types-in-python-function-arguments">Wrong types in Python function arguments</a></h3>
+<h3 id="wrong-types-in-python-function-arguments"><a class="header" href="#wrong-types-in-python-function-arguments">Wrong types in Python function arguments</a></h3>
 <p>Let's assume in the first case that you will use in your Python file <code>my_rust_model.set_variables(2.0)</code> instead of <code>my_rust_model.set_variables([2.0])</code>.</p>
 <p>The Rust signature expects a vector, which corresponds to a list in Python.
 What happens if instead of a vector, we pass a single value ?</p>
@@ -439,7 +439,7 @@ What happens if instead of a vector, we pass a single value ?</p>
 TypeError
 </code></pre>
 <p>It is a type error and Python points to it, so it's easy to identify and solve.</p>
-<h3><a class="header" href="#wrong-types-in-python-method-signatures" id="wrong-types-in-python-method-signatures">Wrong types in Python method signatures</a></h3>
+<h3 id="wrong-types-in-python-method-signatures"><a class="header" href="#wrong-types-in-python-method-signatures">Wrong types in Python method signatures</a></h3>
 <p>Let's assume now that the return type of one of the methods of our Model class is wrong, for example the <code>get_results</code> method that is expected to return a <code>Vec&lt;f64&gt;</code> in Rust, a list in Python.</p>
 <pre><code class="language-python">class Model:
     def set_variables(self, inputs):
@@ -575,7 +575,7 @@ impl Model for UserModel {
 the user could return a list of strings instead of a list of floats.
 In this case, a runtime panic would still occur due to PyO3, but with an error message much more difficult to decipher for non-rust user.</p>
 <p>It is up to the developer exposing the rust code to decide how much effort to invest into Python type error handling and improved error messages.</p>
-<h2><a class="header" href="#the-final-code" id="the-final-code">The final code</a></h2>
+<h2 id="the-final-code"><a class="header" href="#the-final-code">The final code</a></h2>
 <p>Now let's expose the <code>solve()</code> function to make it available from Python.</p>
 <p>It is not possible to directly expose the <code>solve</code> function to Python, as the type conversion cannot be performed.
 It requires an object implementing the <code>Model</code> trait as input.</p>

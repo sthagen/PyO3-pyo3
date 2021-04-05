@@ -163,7 +163,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#parallelism" id="parallelism">Parallelism</a></h1>
+                        <h1 id="parallelism"><a class="header" href="#parallelism">Parallelism</a></h1>
 <p>CPython has the infamous <a href="https://docs.python.org/3/glossary.html#term-global-interpreter-lock">Global Interpreter Lock</a>, which prevents several threads from executing Python bytecode in parallel. This makes threading in Python a bad fit for <a href="https://stackoverflow.com/questions/868568/">CPU-bound</a> tasks and often forces developers to accept the overhead of multiprocessing.</p>
 <p>In PyO3 parallelism can be easily achieved in Rust-only code. Let's take a look at our <a href="https://github.com/PyO3/pyo3/blob/main/examples/word-count/src/lib.rs">word-count</a> example, where we have a <code>search</code> function that utilizes the <a href="https://github.com/rayon-rs/rayon">rayon</a> crate to count words in parallel.</p>
 <pre><code class="language-rust ignore">#[pyfunction]
@@ -179,7 +179,7 @@ fn search(contents: &amp;str, needle: &amp;str) -&gt; usize {
     contents.lines().map(|line| count_line(line, needle)).sum()
 }
 </code></pre>
-<p>To enable parallel execution of this function, the <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> method can be used to temporarily release the GIL, thus allowing other Python threads to run. We then have a function exposed to the Python runtime which calls <code>search_sequential</code> inside a closure passed to <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> to enable true parallelism:</p>
+<p>To enable parallel execution of this function, the <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> method can be used to temporarily release the GIL, thus allowing other Python threads to run. We then have a function exposed to the Python runtime which calls <code>search_sequential</code> inside a closure passed to <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> to enable true parallelism:</p>
 <pre><code class="language-rust ignore">#[pyfunction]
 fn search_sequential_allow_threads(py: Python, contents: &amp;str, needle: &amp;str) -&gt; usize {
     py.allow_threads(|| search_sequential(contents, needle))
@@ -200,7 +200,7 @@ future_2 = executor.submit(
 result_1 = future_1.result()
 result_2 = future_2.result()
 </code></pre>
-<h2><a class="header" href="#benchmark" id="benchmark">Benchmark</a></h2>
+<h2 id="benchmark"><a class="header" href="#benchmark">Benchmark</a></h2>
 <p>Let's benchmark the <code>word-count</code> example to verify that we really did unlock parallelism with PyO3.</p>
 <p>We are using <code>pytest-benchmark</code> to benchmark four word count functions:</p>
 <ol>

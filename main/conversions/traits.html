@@ -163,9 +163,9 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2><a class="header" href="#conversion-traits" id="conversion-traits">Conversion traits</a></h2>
+                        <h2 id="conversion-traits"><a class="header" href="#conversion-traits">Conversion traits</a></h2>
 <p>PyO3 provides some handy traits to convert between Python types and Rust types.</p>
-<h3><a class="header" href="#extract-and-the-frompyobject-trait" id="extract-and-the-frompyobject-trait"><code>.extract()</code> and the <code>FromPyObject</code> trait</a></h3>
+<h3 id="extract-and-the-frompyobject-trait"><a class="header" href="#extract-and-the-frompyobject-trait"><code>.extract()</code> and the <code>FromPyObject</code> trait</a></h3>
 <p>The easiest way to convert a Python object to a Rust value is using
 <code>.extract()</code>.  It returns a <code>PyResult</code> with a type error if the conversion
 fails, so usually you will use something like</p>
@@ -173,19 +173,19 @@ fails, so usually you will use something like</p>
 </code></pre>
 <p>This method is available for many Python object types, and can produce a wide
 variety of Rust types, which you can check out in the implementor list of
-<a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a>.</p>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> is also implemented for your own Rust types wrapped as Python
+<a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a>.</p>
+<p><a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> is also implemented for your own Rust types wrapped as Python
 objects (see <a href="class.html">the chapter about classes</a>).  There, in order to both be
 able to operate on mutable references <em>and</em> satisfy Rust's rules of non-aliasing
-mutable references, you have to extract the PyO3 reference wrappers <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a>
-and <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>.  They work like the reference wrappers of
+mutable references, you have to extract the PyO3 reference wrappers <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a>
+and <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyRefMut.html"><code>PyRefMut</code></a>.  They work like the reference wrappers of
 <code>std::cell::RefCell</code> and ensure (at runtime) that Rust borrows are allowed.</p>
-<h4><a class="header" href="#deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta" id="deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta">Deriving <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a></a></h4>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> can be automatically derived for many kinds of structs and enums
+<h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a></a></h4>
+<p><a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> can be automatically derived for many kinds of structs and enums
 if the member types themselves implement <code>FromPyObject</code>. This even includes members
 with a generic type <code>T: FromPyObject</code>. Derivation for empty enums, enum variants and
 structs is not supported.</p>
-<h4><a class="header" href="#deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-structs" id="deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-structs">Deriving <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for structs</a></h4>
+<h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-structs"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-structs">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for structs</a></h4>
 <pre><code>use pyo3::prelude::*;
 
 #[derive(FromPyObject)]
@@ -220,7 +220,7 @@ struct RustyStruct {
 from a mapping with the key <code>&quot;key&quot;</code>. The arguments for <code>attribute</code> are restricted to
 non-empty string literals while <code>item</code> can take any valid literal that implements
 <code>ToBorrowedObject</code>.</p>
-<h4><a class="header" href="#deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-tuple-structs" id="deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-tuple-structs">Deriving <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for tuple structs</a></h4>
+<h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-tuple-structs"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-tuple-structs">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for tuple structs</a></h4>
 <p>Tuple structs are also supported but do not allow customizing the extraction. The input is
 always assumed to be a Python tuple with the same length as the Rust type, the <code>n</code>th field
 is extracted from the <code>n</code>th item in the Python tuple.</p>
@@ -237,7 +237,7 @@ specify the struct as</p>
 #[derive(FromPyObject)]
 struct RustyTuple((String,));
 </code></pre>
-<h4><a class="header" href="#deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-wrapper-types" id="deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-wrapper-types">Deriving <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for wrapper types</a></h4>
+<h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-wrapper-types"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-wrapper-types">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for wrapper types</a></h4>
 <p>The <code>pyo3(transparent)</code> attribute can be used on structs with exactly one field. This results
 in extracting directly from the input object, i.e. <code>obj.extract()</code>, rather than trying to access
 an item or attribute. This behaviour is enabled per default for newtype structs and tuple-variants
@@ -253,7 +253,7 @@ struct RustyTransparentStruct {
     inner: String,
 }
 </code></pre>
-<h4><a class="header" href="#deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums" id="deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums">Deriving <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for enums</a></h4>
+<h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for enums</a></h4>
 <p>The <code>FromPyObject</code> derivation for enums generates code that tries to extract the variants in the
 order of the fields. As soon as a variant can be extracted succesfully, that variant is returned.
 This makes it possible to extract Python types like <code>Union[str, int]</code>.</p>
@@ -300,7 +300,7 @@ enum RustyEnum {
 </code></pre>
 <p>If the input is neither a string nor an integer, the error message will be:
 <code>&quot;'&lt;INPUT_TYPE&gt;' cannot be converted to 'Union[str, int]'&quot;</code>.</p>
-<h4><a class="header" href="#derivefrompyobject-container-attributes" id="derivefrompyobject-container-attributes"><code>#[derive(FromPyObject)]</code> Container Attributes</a></h4>
+<h4 id="derivefrompyobject-container-attributes"><a class="header" href="#derivefrompyobject-container-attributes"><code>#[derive(FromPyObject)]</code> Container Attributes</a></h4>
 <ul>
 <li><code>pyo3(transparent)</code>
 <ul>
@@ -318,7 +318,7 @@ enum RustyEnum {
 </ul>
 </li>
 </ul>
-<h4><a class="header" href="#derivefrompyobject-field-attributes" id="derivefrompyobject-field-attributes"><code>#[derive(FromPyObject)]</code> Field Attributes</a></h4>
+<h4 id="derivefrompyobject-field-attributes"><a class="header" href="#derivefrompyobject-field-attributes"><code>#[derive(FromPyObject)]</code> Field Attributes</a></h4>
 <ul>
 <li><code>pyo3(attribute)</code>, <code>pyo3(attribute(&quot;name&quot;))</code>
 <ul>
@@ -333,7 +333,7 @@ enum RustyEnum {
 </ul>
 </li>
 </ul>
-<h3><a class="header" href="#intopyt" id="intopyt"><code>IntoPy&lt;T&gt;</code></a></h3>
+<h3 id="intopyt"><a class="header" href="#intopyt"><code>IntoPy&lt;T&gt;</code></a></h3>
 <p>This trait defines the to-python conversion for a Rust type. It is usually implemented as
 <code>IntoPy&lt;PyObject&gt;</code>, which is the trait needed for returning a value from <code>#[pyfunction]</code> and
 <code>#[pymethods]</code>.</p>
@@ -350,9 +350,9 @@ impl IntoPy&lt;PyObject&gt; for MyPyObjectWrapper {
     }
 }
 </code></pre>
-<h3><a class="header" href="#the-topyobject-trait" id="the-topyobject-trait">The <code>ToPyObject</code> trait</a></h3>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
-converted into <a href="https://docs.rs/pyo3/latest/pyo3/type.PyObject.html"><code>PyObject</code></a>. <code>IntoPy&lt;PyObject&gt;</code> serves the
+<h3 id="the-topyobject-trait"><a class="header" href="#the-topyobject-trait">The <code>ToPyObject</code> trait</a></h3>
+<p><a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.ToPyObject.html"><code>ToPyObject</code></a> is a conversion trait that allows various objects to be
+converted into <a href="https://pyo3.rs/main/doc/pyo3/type.PyObject.html"><code>PyObject</code></a>. <code>IntoPy&lt;PyObject&gt;</code> serves the
 same purpose, except that it consumes <code>self</code>.</p>
 
                     </main>

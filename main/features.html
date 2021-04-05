@@ -163,27 +163,27 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#features-reference" id="features-reference">Features Reference</a></h1>
+                        <h1 id="features-reference"><a class="header" href="#features-reference">Features Reference</a></h1>
 <p>PyO3 provides a number of Cargo features to customise functionality. This chapter of the guide provides detail on each of them.</p>
 <p>By default, only the <code>macros</code> feature is enabled.</p>
-<h2><a class="header" href="#features-for-extension-module-authors" id="features-for-extension-module-authors">Features for extension module authors</a></h2>
-<h3><a class="header" href="#extension-module" id="extension-module"><code>extension-module</code></a></h3>
+<h2 id="features-for-extension-module-authors"><a class="header" href="#features-for-extension-module-authors">Features for extension module authors</a></h2>
+<h3 id="extension-module"><a class="header" href="#extension-module"><code>extension-module</code></a></h3>
 <p>This feature is required when building a Python extension module using PyO3.</p>
 <p>It tells PyO3's build script to skip linking against <code>libpython.so</code> on Unix platforms, where this must not be done.</p>
 <p>See the <a href="building_and_distribution.html#linking">building and distribution</a> section for further detail.</p>
-<h3><a class="header" href="#abi3" id="abi3"><code>abi3</code></a></h3>
+<h3 id="abi3"><a class="header" href="#abi3"><code>abi3</code></a></h3>
 <p>This feature is used when building Python extension modules to create wheels which are compatible with multiple Python versions.</p>
 <p>It restricts PyO3's API to a subset of the full Python API which is guaranteed by <a href="https://www.python.org/dev/peps/pep-0384/">PEP 384</a> to be forwards-compatible with future Python versions.</p>
 <p>See the <a href="building_and_distribution.html#py_limited_apiabi3">building and distribution</a> section for further detail.</p>
-<h3><a class="header" href="#abi3-py36--abi3-py37--abi3-py38--abi3-py39" id="abi3-py36--abi3-py37--abi3-py38--abi3-py39"><code>abi3-py36</code> / <code>abi3-py37</code> / <code>abi3-py38</code> / <code>abi3-py39</code></a></h3>
+<h3 id="abi3-py36--abi3-py37--abi3-py38--abi3-py39"><a class="header" href="#abi3-py36--abi3-py37--abi3-py38--abi3-py39"><code>abi3-py36</code> / <code>abi3-py37</code> / <code>abi3-py38</code> / <code>abi3-py39</code></a></h3>
 <p>These features are an extension of the <code>abi3</code> feature to specify the exact minimum Python version which the multiple-version-wheel will support.</p>
 <p>See the <a href="building_and_distribution.html#minimum-python-version-for-abi3">building and distribution</a> section for further detail.</p>
-<h2><a class="header" href="#features-for-embedding-python-in-rust" id="features-for-embedding-python-in-rust">Features for embedding Python in Rust</a></h2>
-<h3><a class="header" href="#auto-initalize" id="auto-initalize"><code>auto-initalize</code></a></h3>
-<p>This feature changes <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.with_gil"><code>Python::with_gil</code></a> and <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.acquire_gil"><code>Python::acquire_gil</code></a> to automatically initialize a Python interpreter (by calling <a href="https://docs.rs/pyo3/latest/pyo3/fn.prepare_freethreaded_python.html"><code>prepare_freethreaded_python</code></a>) if needed.</p>
+<h2 id="features-for-embedding-python-in-rust"><a class="header" href="#features-for-embedding-python-in-rust">Features for embedding Python in Rust</a></h2>
+<h3 id="auto-initalize"><a class="header" href="#auto-initalize"><code>auto-initalize</code></a></h3>
+<p>This feature changes <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.with_gil"><code>Python::with_gil</code></a> and <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.acquire_gil"><code>Python::acquire_gil</code></a> to automatically initialize a Python interpreter (by calling <a href="https://pyo3.rs/main/doc/pyo3/fn.prepare_freethreaded_python.html"><code>prepare_freethreaded_python</code></a>) if needed.</p>
 <p>If you do not enable this feature, you should call <code>pyo3::prepare_freethreaded_python()</code> before attempting to call any other Python APIs.</p>
-<h2><a class="header" href="#advanced-features" id="advanced-features">Advanced Features</a></h2>
-<h3><a class="header" href="#macros" id="macros"><code>macros</code></a></h3>
+<h2 id="advanced-features"><a class="header" href="#advanced-features">Advanced Features</a></h2>
+<h3 id="macros"><a class="header" href="#macros"><code>macros</code></a></h3>
 <p>This feature enables a dependency on the <code>pyo3-macros</code> crate, which provides the procedural macros portion of PyO3's API:</p>
 <ul>
 <li><code>#[pymodule]</code></li>
@@ -198,17 +198,17 @@
 <blockquote>
 <p>This feature is enabled by default. To disable it, set <code>default-features = false</code> for the <code>pyo3</code> entry in your Cargo.toml.</p>
 </blockquote>
-<h3><a class="header" href="#multiple-pymethods" id="multiple-pymethods"><code>multiple-pymethods</code></a></h3>
+<h3 id="multiple-pymethods"><a class="header" href="#multiple-pymethods"><code>multiple-pymethods</code></a></h3>
 <p>This feature enables a dependency on <code>inventory</code>, which enables each <code>#[pyclass]</code> to have more than one <code>#[pymethods]</code> block.</p>
 <p>Most users should only need a single <code>#[pymethods]</code> per <code>#[pyclass]</code>. In addition, not all platforms (e.g. Wasm) are supported by <code>inventory</code>. For this reason this feature is not enabled by default, meaning fewer dependencies and faster compilation for the majority of users.</p>
 <p>See <a href="class.html#implementation-details">the <code>#[pyclass]</code> implementation details</a> for more information.</p>
-<h3><a class="header" href="#nightly" id="nightly"><code>nightly</code></a></h3>
+<h3 id="nightly"><a class="header" href="#nightly"><code>nightly</code></a></h3>
 <p>The <code>nightly</code> feature needs the nightly Rust compiler. This allows PyO3 to use Rust's unstable specialization feature to apply the following optimizations:</p>
 <ul>
 <li><code>FromPyObject</code> for <code>Vec</code> and <code>[T;N]</code> can perform a <code>memcpy</code> when the object supports the Python buffer protocol.</li>
 <li><code>ToBorrowedObject</code> can skip a reference count increase when the provided object is a Python native type.</li>
 </ul>
-<h3><a class="header" href="#serde" id="serde"><code>serde</code></a></h3>
+<h3 id="serde"><a class="header" href="#serde"><code>serde</code></a></h3>
 <p>The <code>serde</code> feature enables (de)serialization of Py<T> objects via <a href="https://serde.rs/">serde</a>.
 This allows to use <a href="https://serde.rs/derive.html"><code>#[derive(Serialize, Deserialize)</code></a> on structs that hold references to <code>#[pyclass]</code> instances</p>
 <pre><pre class="playground"><code class="language-rust">

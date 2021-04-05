@@ -163,13 +163,13 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#calling-python-in-rust-code" id="calling-python-in-rust-code">Calling Python in Rust code</a></h1>
+                        <h1 id="calling-python-in-rust-code"><a class="header" href="#calling-python-in-rust-code">Calling Python in Rust code</a></h1>
 <p>This chapter of the guide documents some ways to interact with Python code from Rust:</p>
 <ul>
 <li>How to call Python functions</li>
 <li>How to execute existing Python code</li>
 </ul>
-<h2><a class="header" href="#calling-python-functions" id="calling-python-functions">Calling Python functions</a></h2>
+<h2 id="calling-python-functions"><a class="header" href="#calling-python-functions">Calling Python functions</a></h2>
 <p>Any Python-native object reference (such as <code>&amp;PyAny</code>, <code>&amp;PyList</code>, or <code>&amp;PyCell&lt;MyClass&gt;</code>) can be used to call Python functions.</p>
 <p>PyO3 offers two APIs to make function calls:</p>
 <ul>
@@ -214,8 +214,8 @@ fn main() {
     });
 }
 </code></pre></pre>
-<h3><a class="header" href="#creating-keyword-arguments" id="creating-keyword-arguments">Creating keyword arguments</a></h3>
-<p>For the <code>call</code> and <code>call_method</code> APIs, <code>kwargs</code> can be <code>None</code> or <code>Some(&amp;PyDict)</code>. You can use the <a href="https://docs.rs/pyo3/latest/pyo3/types/trait.IntoPyDict.html"><code>IntoPyDict</code></a> trait to convert other dict-like containers, e.g. <code>HashMap</code> or <code>BTreeMap</code>, as well as tuples with up to 10 elements and <code>Vec</code>s where each element is a two-element tuple.</p>
+<h3 id="creating-keyword-arguments"><a class="header" href="#creating-keyword-arguments">Creating keyword arguments</a></h3>
+<p>For the <code>call</code> and <code>call_method</code> APIs, <code>kwargs</code> can be <code>None</code> or <code>Some(&amp;PyDict)</code>. You can use the <a href="https://pyo3.rs/main/doc/pyo3/types/trait.IntoPyDict.html"><code>IntoPyDict</code></a> trait to convert other dict-like containers, e.g. <code>HashMap</code> or <code>BTreeMap</code>, as well as tuples with up to 10 elements and <code>Vec</code>s where each element is a two-element tuple.</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::types::{IntoPyDict, PyDict};
 use std::collections::HashMap;
@@ -252,10 +252,10 @@ fn main() {
    });
 }
 </code></pre></pre>
-<h2><a class="header" href="#executing-existing-python-code" id="executing-existing-python-code">Executing existing Python code</a></h2>
+<h2 id="executing-existing-python-code"><a class="header" href="#executing-existing-python-code">Executing existing Python code</a></h2>
 <p>If you already have some existing Python code that you need to execute from Rust, the following FAQs can help you select the right PyO3 functionality for your situation:</p>
-<h3><a class="header" href="#want-to-access-python-apis-then-use-pymoduleimport" id="want-to-access-python-apis-then-use-pymoduleimport">Want to access Python APIs? Then use <code>PyModule::import</code>.</a></h3>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyModule.html#method.import"><code>Pymodule::import</code></a> can
+<h3 id="want-to-access-python-apis-then-use-pymoduleimport"><a class="header" href="#want-to-access-python-apis-then-use-pymoduleimport">Want to access Python APIs? Then use <code>PyModule::import</code>.</a></h3>
+<p><a href="https://pyo3.rs/main/doc/pyo3/types/struct.PyModule.html#method.import"><code>Pymodule::import</code></a> can
 be used to get handle to a Python module from Rust. You can use this to import and use any Python
 module available in your environment.</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
@@ -269,8 +269,8 @@ fn main() -&gt; PyResult&lt;()&gt; {
     })
 }
 </code></pre></pre>
-<h3><a class="header" href="#want-to-run-just-an-expression-then-use-eval" id="want-to-run-just-an-expression-then-use-eval">Want to run just an expression? Then use <code>eval</code>.</a></h3>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.eval"><code>Python::eval</code></a> is
+<h3 id="want-to-run-just-an-expression-then-use-eval"><a class="header" href="#want-to-run-just-an-expression-then-use-eval">Want to run just an expression? Then use <code>eval</code>.</a></h3>
+<p><a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.eval"><code>Python::eval</code></a> is
 a method to execute a <a href="https://docs.python.org/3.7/reference/expressions.html">Python expression</a>
 and return the evaluated value as a <code>&amp;PyAny</code> object.</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
@@ -287,13 +287,13 @@ use pyo3::types::IntoPyDict;
 })
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#want-to-run-statements-then-use-run" id="want-to-run-statements-then-use-run">Want to run statements? Then use <code>run</code>.</a></h3>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.run"><code>Python::run</code></a> is a method to execute one or more
+<h3 id="want-to-run-statements-then-use-run"><a class="header" href="#want-to-run-statements-then-use-run">Want to run statements? Then use <code>run</code>.</a></h3>
+<p><a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a> is a method to execute one or more
 <a href="https://docs.python.org/3.7/reference/simple_stmts.html">Python statements</a>.
 This method returns nothing (like any Python statement), but you can get
 access to manipulated objects via the <code>locals</code> dict.</p>
-<p>You can also use the <a href="https://docs.rs/pyo3/latest/pyo3/macro.py_run.html"><code>py_run!</code></a> macro, which is a shorthand for <a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.run"><code>Python::run</code></a>.
-Since <a href="https://docs.rs/pyo3/latest/pyo3/macro.py_run.html"><code>py_run!</code></a> panics on exceptions, we recommend you use this macro only for
+<p>You can also use the <a href="https://pyo3.rs/main/doc/pyo3/macro.py_run.html"><code>py_run!</code></a> macro, which is a shorthand for <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.run"><code>Python::run</code></a>.
+Since <a href="https://pyo3.rs/main/doc/pyo3/macro.py_run.html"><code>py_run!</code></a> panics on exceptions, we recommend you use this macro only for
 quickly testing your Python extensions.</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::{PyCell, PyObjectProtocol, py_run};
@@ -333,8 +333,8 @@ assert userdata.as_tuple() == userdata_as_tuple
 })
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#you-have-a-python-file-or-code-snippet-then-use-pymodulefrom_code" id="you-have-a-python-file-or-code-snippet-then-use-pymodulefrom_code">You have a Python file or code snippet? Then use <code>PyModule::from_code</code>.</a></h2>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyModule.html#method.from_code">PyModule::from_code</a>
+<h2 id="you-have-a-python-file-or-code-snippet-then-use-pymodulefrom_code"><a class="header" href="#you-have-a-python-file-or-code-snippet-then-use-pymodulefrom_code">You have a Python file or code snippet? Then use <code>PyModule::from_code</code>.</a></h2>
+<p><a href="https://pyo3.rs/main/doc/pyo3/types/struct.PyModule.html#method.from_code">PyModule::from_code</a>
 can be used to generate a Python module which can then be used just as if it was imported with
 <code>PyModule::import</code>.</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::{prelude::*, types::{IntoPyDict, PyModule}};
@@ -362,7 +362,7 @@ def leaky_relu(x, slope=0.01):
 </span>})
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#need-to-use-a-context-manager-from-rust" id="need-to-use-a-context-manager-from-rust">Need to use a context manager from Rust?</a></h2>
+<h2 id="need-to-use-a-context-manager-from-rust"><a class="header" href="#need-to-use-a-context-manager-from-rust">Need to use a context manager from Rust?</a></h2>
 <p>Use context managers by directly invoking <code>__enter__</code> and <code>__exit__</code>.</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::types::PyModule;

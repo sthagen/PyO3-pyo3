@@ -163,8 +163,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#frequently-asked-questions--troubleshooting" id="frequently-asked-questions--troubleshooting">Frequently Asked Questions / Troubleshooting</a></h1>
-<h2><a class="header" href="#im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell" id="im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell">I'm experiencing deadlocks using PyO3 with lazy_static or once_cell!</a></h2>
+                        <h1 id="frequently-asked-questions--troubleshooting"><a class="header" href="#frequently-asked-questions--troubleshooting">Frequently Asked Questions / Troubleshooting</a></h1>
+<h2 id="im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell"><a class="header" href="#im-experiencing-deadlocks-using-pyo3-with-lazy_static-or-once_cell">I'm experiencing deadlocks using PyO3 with lazy_static or once_cell!</a></h2>
 <p><code>lazy_static</code> and <code>once_cell::sync</code> both use locks to ensure that initialization is performed only by a single thread. Because the Python GIL is an additional lock this can lead to deadlocks in the following way:</p>
 <ol>
 <li>A thread (thread A) which has acquired the Python GIL starts initialization of a <code>lazy_static</code> value.</li>
@@ -174,17 +174,17 @@
 <li>Thread A is blocked, because it waits to re-aquire the GIL which thread B still holds.</li>
 <li>Deadlock.</li>
 </ol>
-<p>PyO3 provides a struct <a href="https://docs.rs/pyo3/latest/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> which works equivalently to <code>OnceCell</code> but relies solely on the Python GIL for thread safety. This means it can be used in place of <code>lazy_static</code> or <code>once_cell</code> where you are experiencing the deadlock described above. See the documentation for <a href="https://docs.rs/pyo3/latest/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> for an example how to use it.</p>
-<h2><a class="header" href="#i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror" id="i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">I can't run <code>cargo test</code>: I'm having linker issues like &quot;Symbol not found&quot; or &quot;Undefined reference to _PyExc_SystemError&quot;!</a></h2>
+<p>PyO3 provides a struct <a href="https://pyo3.rs/main/doc/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> which works equivalently to <code>OnceCell</code> but relies solely on the Python GIL for thread safety. This means it can be used in place of <code>lazy_static</code> or <code>once_cell</code> where you are experiencing the deadlock described above. See the documentation for <a href="https://pyo3.rs/main/doc/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> for an example how to use it.</p>
+<h2 id="i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror"><a class="header" href="#i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">I can't run <code>cargo test</code>: I'm having linker issues like &quot;Symbol not found&quot; or &quot;Undefined reference to _PyExc_SystemError&quot;!</a></h2>
 <p>Currently, <a href="https://github.com/PyO3/pyo3/issues/341">#341</a> causes <code>cargo test</code> to fail with linking errors when the <code>extension-module</code> feature is activated. For now you can work around this by making the <code>extension-module</code> feature optional and running the tests with <code>cargo test --no-default-features</code>:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;*&quot;
+version = &quot;{{#PYO3_VERSION}}&quot;
 
 [features]
 extension-module = [&quot;pyo3/extension-module&quot;]
 default = [&quot;extension-module&quot;]
 </code></pre>
-<h2><a class="header" href="#i-cant-run-cargo-test-my-crate-cannot-be-found-for-tests-in-tests-directory" id="i-cant-run-cargo-test-my-crate-cannot-be-found-for-tests-in-tests-directory">I can't run <code>cargo test</code>: my crate cannot be found for tests in <code>tests/</code> directory!</a></h2>
+<h2 id="i-cant-run-cargo-test-my-crate-cannot-be-found-for-tests-in-tests-directory"><a class="header" href="#i-cant-run-cargo-test-my-crate-cannot-be-found-for-tests-in-tests-directory">I can't run <code>cargo test</code>: my crate cannot be found for tests in <code>tests/</code> directory!</a></h2>
 <p>The Rust book suggests to <a href="https://doc.rust-lang.org/book/ch11-03-test-organization.html#integration-tests">put integration tests inside a <code>tests/</code> directory</a>.</p>
 <p>For a PyO3 <code>extension-module</code> project where the <code>crate-type</code> is set to <code>&quot;cdylib&quot;</code> in your <code>Cargo.toml</code>,
 the compiler won't be able to find your crate and will display errors such as <code>E0432</code> or <code>E0463</code>:</p>
@@ -199,7 +199,7 @@ the compiler won't be able to find your crate and will display errors such as <c
 [lib]
 crate-type = [&quot;cdylib&quot;, &quot;rlib&quot;]
 </code></pre>
-<h2><a class="header" href="#ctrl-c-doesnt-do-anything-while-my-rust-code-is-executing" id="ctrl-c-doesnt-do-anything-while-my-rust-code-is-executing">Ctrl-C doesn't do anything while my Rust code is executing!</a></h2>
+<h2 id="ctrl-c-doesnt-do-anything-while-my-rust-code-is-executing"><a class="header" href="#ctrl-c-doesnt-do-anything-while-my-rust-code-is-executing">Ctrl-C doesn't do anything while my Rust code is executing!</a></h2>
 <p>This is because Ctrl-C raises a SIGINT signal, which is handled by the calling Python process by simply setting a flag to action upon later. This flag isn't checked while Rust code called from Python is executing, only once control returns to the Python interpreter.</p>
 <p>You can give the Python interpreter a chance to process the signal properly by calling <code>Python::check_signals</code>. It's good practice to call this function regularly if you have a long-running Rust function so that your users can cancel it.</p>
 

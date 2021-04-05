@@ -631,12 +631,6 @@
 <span id="628">628</span>
 <span id="629">629</span>
 <span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -1197,12 +1191,6 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;new panic&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">fetching_panic_exception_resumes_unwind</span>() {
-        <span class="comment">// TODO replace with #[cfg(panic = &quot;unwind&quot;)] once stable</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="kw">crate</span>::<span class="ident">cfg_panic_unwind</span>() {
-            <span class="comment">// panic to meet the expected abort in panic=abort :-/</span>
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;new panic&quot;</span>);
-        }
-
         <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">panic</span>::<span class="ident">PanicException</span>;
 
         <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python</span>::<span class="ident">acquire_gil</span>();

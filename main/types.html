@@ -163,12 +163,12 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#gil-lifetimes-mutability-and-python-object-types" id="gil-lifetimes-mutability-and-python-object-types">GIL lifetimes, mutability and Python object types</a></h1>
+                        <h1 id="gil-lifetimes-mutability-and-python-object-types"><a class="header" href="#gil-lifetimes-mutability-and-python-object-types">GIL lifetimes, mutability and Python object types</a></h1>
 <p>On first glance, PyO3 provides a huge number of different types that can be used
 to wrap or refer to Python objects.  This page delves into the details and gives
 an overview of their intended meaning, with examples when each type is best
 used.</p>
-<h2><a class="header" href="#mutability-and-rust-types" id="mutability-and-rust-types">Mutability and Rust types</a></h2>
+<h2 id="mutability-and-rust-types"><a class="header" href="#mutability-and-rust-types">Mutability and Rust types</a></h2>
 <p>Since Python has no concept of ownership, and works solely with boxed objects,
 any Python object can be referenced any number of times, and mutation is allowed
 from any reference.</p>
@@ -181,16 +181,16 @@ that in PyO3.)</p>
 <code>Python&lt;'py&gt;</code>, which serves three purposes:</p>
 <ul>
 <li>It provides some global API for the Python interpreter, such as
-<a href="https://docs.rs/pyo3/latest/pyo3/struct.Python.html#method.eval"><code>eval</code></a>.</li>
+<a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.eval"><code>eval</code></a>.</li>
 <li>It can be passed to functions that require a proof of holding the GIL,
-such as <a href="https://docs.rs/pyo3/latest/pyo3/struct.Py.html#method.clone_ref"><code>Py::clone_ref</code></a>.</li>
+such as <a href="https://pyo3.rs/main/doc/pyo3/struct.Py.html#method.clone_ref"><code>Py::clone_ref</code></a>.</li>
 <li>Its lifetime can be used to create Rust references that implicitly guarantee
-holding the GIL, such as <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyAny.html"><code>&amp;'py PyAny</code></a>.</li>
+holding the GIL, such as <a href="https://pyo3.rs/main/doc/pyo3/types/struct.PyAny.html"><code>&amp;'py PyAny</code></a>.</li>
 </ul>
 <p>The latter two points are the reason why some APIs in PyO3 require the <code>py: Python</code> argument, while others don't.</p>
 <p>The PyO3 API for Python objects is written such that instead of requiring a
 mutable Rust reference for mutating operations such as
-<a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyList.html#method.append"><code>PyList::append</code></a>, a shared reference (which, in turn, can only
+<a href="https://pyo3.rs/main/doc/pyo3/types/struct.PyList.html#method.append"><code>PyList::append</code></a>, a shared reference (which, in turn, can only
 be created through <code>Python&lt;'_&gt;</code> with a GIL lifetime) is sufficient.</p>
 <p>However, Rust structs wrapped as Python objects (called <code>pyclass</code> types) usually
 <em>do</em> need <code>&amp;mut</code> access.  Due to the GIL, PyO3 <em>can</em> guarantee thread-safe acces
@@ -198,8 +198,8 @@ to them, but it cannot statically guarantee uniqueness of <code>&amp;mut</code> 
 an object's ownership has been passed to the Python interpreter, ensuring
 references is done at runtime using <code>PyCell</code>, a scheme very similar to
 <code>std::cell::RefCell</code>.</p>
-<h2><a class="header" href="#object-types" id="object-types">Object types</a></h2>
-<h3><a class="header" href="#a-hrefhttpsdocsrspyo3latestpyo3typesstructpyanyhtmlpyanya" id="a-hrefhttpsdocsrspyo3latestpyo3typesstructpyanyhtmlpyanya"><a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyAny.html"><code>PyAny</code></a></a></h3>
+<h2 id="object-types"><a class="header" href="#object-types">Object types</a></h2>
+<h3 id="a-hrefhttpspyo3rsmaindocpyo3typesstructpyanyhtmlpyanya"><a class="header" href="#a-hrefhttpspyo3rsmaindocpyo3typesstructpyanyhtmlpyanya"><a href="https://pyo3.rs/main/doc/pyo3/types/struct.PyAny.html"><code>PyAny</code></a></a></h3>
 <p><strong>Represents:</strong> a Python object of unspecified type, restricted to a GIL
 lifetime.  Currently, <code>PyAny</code> can only ever occur as a reference, <code>&amp;PyAny</code>.</p>
 <p><strong>Used:</strong> Whenever you want to refer to some Python object and will have the
@@ -260,7 +260,7 @@ let _: PyRefMut&lt;MyClass&gt; = obj.extract()?;
 </span><span class="boring">}).unwrap();
 </span><span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#pytuple-pydict-and-many-more" id="pytuple-pydict-and-many-more"><code>PyTuple</code>, <code>PyDict</code>, and many more</a></h3>
+<h3 id="pytuple-pydict-and-many-more"><a class="header" href="#pytuple-pydict-and-many-more"><code>PyTuple</code>, <code>PyDict</code>, and many more</a></h3>
 <p><strong>Represents:</strong> a native Python object of known type, restricted to a GIL
 lifetime just like <code>PyAny</code>.</p>
 <p><strong>Used:</strong> Whenever you want to operate with native Python types while holding
@@ -269,7 +269,7 @@ arguments and intermediate values.</p>
 <p>These types all implement <code>Deref&lt;Target = PyAny&gt;</code>, so they all expose the same
 methods which can be found on <code>PyAny</code>.</p>
 <p>To see all Python types exposed by <code>PyO3</code> you should consult the
-<a href="https://docs.rs/pyo3/latest/pyo3/types/index.html"><code>pyo3::types</code></a> module.</p>
+<a href="https://pyo3.rs/main/doc/pyo3/types/index.html"><code>pyo3::types</code></a> module.</p>
 <p><strong>Conversions:</strong></p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -297,7 +297,7 @@ let _: PyObject = list.into();
 </span><span class="boring">}).unwrap();
 </span><span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#pyt-and-pyobject" id="pyt-and-pyobject"><code>Py&lt;T&gt;</code> and <code>PyObject</code></a></h3>
+<h3 id="pyt-and-pyobject"><a class="header" href="#pyt-and-pyobject"><code>Py&lt;T&gt;</code> and <code>PyObject</code></a></h3>
 <p><strong>Represents:</strong> a GIL-independent reference to a Python object. This can be a Python native type
 (like <code>PyTuple</code>), or a <code>pyclass</code> type implemented in Rust. The most commonly-used variant,
 <code>Py&lt;PyAny&gt;</code>, is also known as <code>PyObject</code>.</p>
@@ -360,7 +360,7 @@ let _: PyRefMut&lt;MyClass&gt; = my_class.try_borrow_mut(py)?;
 </span><span class="boring">});
 </span><span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#pycellsometype" id="pycellsometype"><code>PyCell&lt;SomeType&gt;</code></a></h3>
+<h3 id="pycellsometype"><a class="header" href="#pycellsometype"><code>PyCell&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> a reference to a Rust object (instance of <code>PyClass</code>) which is
 wrapped in a Python object.  The cell part is an analog to stdlib's
 <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a> to allow access to <code>&amp;mut</code> references.</p>
@@ -414,16 +414,16 @@ let _: &amp;PyAny = cell.as_ref();
 </span><span class="boring">}).unwrap();
 </span><span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#pyrefsometype-and-pyrefmutsometype" id="pyrefsometype-and-pyrefmutsometype"><code>PyRef&lt;SomeType&gt;</code> and <code>PyRefMut&lt;SomeType&gt;</code></a></h3>
+<h3 id="pyrefsometype-and-pyrefmutsometype"><a class="header" href="#pyrefsometype-and-pyrefmutsometype"><code>PyRef&lt;SomeType&gt;</code> and <code>PyRefMut&lt;SomeType&gt;</code></a></h3>
 <p><strong>Represents:</strong> reference wrapper types employed by <code>PyCell</code> to keep track of
 borrows, analog to <code>Ref</code> and <code>RefMut</code> used by <code>RefCell</code>.</p>
 <p><strong>Used:</strong> while borrowing a <code>PyCell</code>.  They can also be used with <code>.extract()</code>
 on types like <code>Py&lt;T&gt;</code> and <code>PyAny</code> to get a reference quickly.</p>
-<h2><a class="header" href="#related-traits-and-types" id="related-traits-and-types">Related traits and types</a></h2>
-<h3><a class="header" href="#pyclass" id="pyclass"><code>PyClass</code></a></h3>
+<h2 id="related-traits-and-types"><a class="header" href="#related-traits-and-types">Related traits and types</a></h2>
+<h3 id="pyclass"><a class="header" href="#pyclass"><code>PyClass</code></a></h3>
 <p>This trait marks structs defined in Rust that are also usable as Python classes,
 usually defined using the <code>#[pyclass]</code> macro.</p>
-<h3><a class="header" href="#pynativetype" id="pynativetype"><code>PyNativeType</code></a></h3>
+<h3 id="pynativetype"><a class="header" href="#pynativetype"><code>PyNativeType</code></a></h3>
 <p>This trait marks structs that mirror native Python types, such as <code>PyList</code>.</p>
 
                     </main>

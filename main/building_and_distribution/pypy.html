@@ -163,13 +163,13 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#pypy-support" id="pypy-support">PyPy Support</a></h1>
+                        <h1 id="pypy-support"><a class="header" href="#pypy-support">PyPy Support</a></h1>
 <p>Using PyPy is supported via cpyext.</p>
 <p>Support is only provided for building Rust extension for code running under PyPy. This means that PyPy <strong>cannot</strong> be called from rust via cpyext. Note that there some differences in the ffi module between PyPy and CPython.</p>
 <p>This is a limitation of cpyext and support for embedding cpyext is not planned.</p>
 <p>Compilation against PyPy is done by exporting <code>PYO3_PYTHON</code> to point to a PyPy binary or by compiling in a PyPy virtualenv.</p>
 <p>For example, <code>PYO3_PYTHON=&quot;/path/to/pypy3&quot; /path/to/pypy3 setup.py install</code></p>
-<h2><a class="header" href="#unsupported-features" id="unsupported-features">Unsupported features</a></h2>
+<h2 id="unsupported-features"><a class="header" href="#unsupported-features">Unsupported features</a></h2>
 <p>These are features currently supported by PyO3, but not yet implemented in cpyext.</p>
 <ul>
 <li>Complex number functions (<code>_Py_c_sum</code>, <code>_Py_c_sum</code> ..)</li>

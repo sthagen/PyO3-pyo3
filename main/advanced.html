@@ -163,11 +163,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#advanced-topics" id="advanced-topics">Advanced topics</a></h1>
-<h2><a class="header" href="#ffi" id="ffi">FFI</a></h2>
+                        <h1 id="advanced-topics"><a class="header" href="#advanced-topics">Advanced topics</a></h1>
+<h2 id="ffi"><a class="header" href="#ffi">FFI</a></h2>
 <p>PyO3 exposes much of Python's C API through the <code>ffi</code> module.</p>
 <p>The C API is naturally unsafe and requires you to manage reference counts, errors and specific invariants yourself. Please refer to the <a href="https://docs.python.org/3/c-api/">C API Reference Manual</a> and <a href="https://doc.rust-lang.org/nightly/nomicon/ffi.html">The Rustonomicon</a> before using any function from that API.</p>
-<h2><a class="header" href="#memory-management" id="memory-management">Memory Management</a></h2>
+<h2 id="memory-management"><a class="header" href="#memory-management">Memory Management</a></h2>
 <p>PyO3's &quot;owned references&quot; (<code>&amp;PyAny</code> etc.) make PyO3 more ergonomic to use by ensuring that their lifetime can never be longer than the duration the Python GIL is held. This means that most of PyO3's API can assume the GIL is held. (If PyO3 could not assume this, every PyO3 API would need to take a <code>Python</code> GIL token to prove that the GIL is held.)</p>
 <p>The caveat to these &quot;owned references&quot; is that Rust references do not normally convey ownership (they are always <code>Copy</code>, and cannot implement <code>Drop</code>). Whenever a PyO3 API returns an owned reference, PyO3 stores it internally, so that PyO3 can decrease the reference count just before PyO3 releases the GIL.</p>
 <p>For most use cases this behaviour is invisible. Occasionally, however, users may need to clear memory usage sooner than PyO3 usually does. PyO3 exposes this functionality with the  the <code>GILPool</code> struct. When a <code>GILPool</code> is dropped, <em><strong>all</strong></em> owned references created after the <code>GILPool</code> was created will be cleared.</p>

@@ -163,9 +163,9 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#python-exceptions" id="python-exceptions">Python Exceptions</a></h1>
-<h2><a class="header" href="#defining-a-new-exception" id="defining-a-new-exception">Defining a new exception</a></h2>
-<p>You can use the <a href="https://docs.rs/pyo3/latest/pyo3/macro.create_exception.html"><code>create_exception!</code></a> macro to define a new exception type:</p>
+                        <h1 id="python-exceptions"><a class="header" href="#python-exceptions">Python Exceptions</a></h1>
+<h2 id="defining-a-new-exception"><a class="header" href="#defining-a-new-exception">Defining a new exception</a></h2>
+<p>You can use the <a href="https://pyo3.rs/main/doc/pyo3/macro.create_exception.html"><code>create_exception!</code></a> macro to define a new exception type:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -210,8 +210,8 @@ fn mymodule(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 }
 
 </code></pre>
-<h2><a class="header" href="#raising-an-exception" id="raising-an-exception">Raising an exception</a></h2>
-<p>To raise an exception, first you need to obtain an exception type and construct a new <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a>, then call the <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.restore"><code>PyErr::restore</code></a> method to write the exception back to the Python interpreter's global state.</p>
+<h2 id="raising-an-exception"><a class="header" href="#raising-an-exception">Raising an exception</a></h2>
+<p>To raise an exception, first you need to obtain an exception type and construct a new <a href="https://pyo3.rs/main/doc/pyo3/struct.PyErr.html"><code>PyErr</code></a>, then call the <a href="https://pyo3.rs/main/doc/pyo3/struct.PyErr.html#method.restore"><code>PyErr::restore</code></a> method to write the exception back to the Python interpreter's global state.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -227,12 +227,12 @@ Python::with_gil(|py| {
 </span></code></pre></pre>
 <p>From <code>pyfunction</code>s and <code>pyclass</code> methods, returning an <code>Err(PyErr)</code> is enough;
 PyO3 will handle restoring the exception on the Python interpreter side.</p>
-<p>If you already have a Python exception instance, you can simply call <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html#method.from_instance"><code>PyErr::from_instance</code></a>.</p>
+<p>If you already have a Python exception instance, you can simply call <a href="https://pyo3.rs/main/doc/pyo3/struct.PyErr.html#method.from_instance"><code>PyErr::from_instance</code></a>.</p>
 <pre><code class="language-rust ignore">PyErr::from_instance(py, err).restore(py);
 </code></pre>
 <p>If a Rust type exists for the exception, then it is possible to use the <code>new_err</code> method.
 For example, each standard exception defined in the <code>pyo3::exceptions</code> module
-has a corresponding Rust type, exceptions defined by <a href="https://docs.rs/pyo3/latest/pyo3/macro.create_exception.html"><code>create_exception!</code></a> and <a href="https://docs.rs/pyo3/latest/pyo3/macro.import_exception.html"><code>import_exception!</code></a> macro
+has a corresponding Rust type, exceptions defined by <a href="https://pyo3.rs/main/doc/pyo3/macro.create_exception.html"><code>create_exception!</code></a> and <a href="https://pyo3.rs/main/doc/pyo3/macro.import_exception.html"><code>import_exception!</code></a> macro
 have Rust types as well.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -249,9 +249,9 @@ have Rust types as well.</p>
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#checking-exception-types" id="checking-exception-types">Checking exception types</a></h2>
+<h2 id="checking-exception-types"><a class="header" href="#checking-exception-types">Checking exception types</a></h2>
 <p>Python has an <a href="https://docs.python.org/3/library/functions.html#isinstance"><code>isinstance</code></a> method to check an object's type.
-In PyO3 every native type has access to the <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyAny.html#method.is_instance"><code>PyAny::is_instance</code></a> method which does the same thing.</p>
+In PyO3 every native type has access to the <a href="https://pyo3.rs/main/doc/pyo3/struct.PyAny.html#method.is_instance"><code>PyAny::is_instance</code></a> method which does the same thing.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -266,7 +266,7 @@ Python::with_gil(|py| {
 });
 <span class="boring">}
 </span></code></pre></pre>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/struct.PyAny.html#method.is_instance"><code>PyAny::is_instance</code></a> calls the underlying <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyType.html#method.is_instance"><code>PyType::is_instance</code></a>
+<p><a href="https://pyo3.rs/main/doc/pyo3/struct.PyAny.html#method.is_instance"><code>PyAny::is_instance</code></a> calls the underlying <a href="https://pyo3.rs/main/doc/pyo3/types/struct.PyType.html#method.is_instance"><code>PyType::is_instance</code></a>
 method to do the actual work.</p>
 <p>To check the type of an exception, you can similarly do:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -280,11 +280,11 @@ method to do the actual work.</p>
 <span class="boring">});
 </span><span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#handling-rust-errors" id="handling-rust-errors">Handling Rust errors</a></h2>
+<h2 id="handling-rust-errors"><a class="header" href="#handling-rust-errors">Handling Rust errors</a></h2>
 <p>The vast majority of operations in this library will return
-<a href="https://docs.rs/pyo3/latest/pyo3/prelude/type.PyResult.html"><code>PyResult&lt;T&gt;</code></a>,
+<a href="https://pyo3.rs/main/doc/pyo3/prelude/type.PyResult.html"><code>PyResult&lt;T&gt;</code></a>,
 which is an alias for the type <code>Result&lt;T, PyErr&gt;</code>.</p>
-<p>A <a href="https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html"><code>PyErr</code></a> represents a Python exception. Errors within the PyO3 library are also exposed as
+<p>A <a href="https://pyo3.rs/main/doc/pyo3/struct.PyErr.html"><code>PyErr</code></a> represents a Python exception. Errors within the PyO3 library are also exposed as
 Python exceptions.</p>
 <p>If your code has a custom error type e.g. <code>MyError</code>, adding an implementation of
 <code>std::convert::From&lt;MyError&gt; for PyErr</code> is usually enough. PyO3 will then automatically convert
@@ -339,10 +339,10 @@ fn parse_int(s: String) -&gt; PyResult&lt;usize&gt; {
 </span></code></pre></pre>
 <p>The code snippet above will raise a <code>ValueError</code> in Python if <code>String::parse()</code> returns an error.</p>
 <p>If lazy construction of the Python exception instance is desired, the
-<a href="https://docs.rs/pyo3/latest/pyo3/trait.PyErrArguments.html"><code>PyErrArguments</code></a>
+<a href="https://pyo3.rs/main/doc/pyo3/trait.PyErrArguments.html"><code>PyErrArguments</code></a>
 trait can be implemented. In that case, actual exception argument creation is delayed
 until the <code>PyErr</code> is needed.</p>
-<h2><a class="header" href="#using-exceptions-defined-in-python-code" id="using-exceptions-defined-in-python-code">Using exceptions defined in Python code</a></h2>
+<h2 id="using-exceptions-defined-in-python-code"><a class="header" href="#using-exceptions-defined-in-python-code">Using exceptions defined in Python code</a></h2>
 <p>It is possible to use an exception defined in Python code as a native Rust type.
 The <code>import_exception!</code> macro allows importing a specific exception class and defines a Rust type
 for that exception.</p>
@@ -366,7 +366,7 @@ fn tell(file: &amp;PyAny) -&gt; PyResult&lt;u64&gt; {
 
 <span class="boring">}
 </span></code></pre></pre>
-<p><a href="https://docs.rs/pyo3/latest/pyo3/exceptions/index.html"><code>pyo3::exceptions</code></a>
+<p><a href="https://pyo3.rs/main/doc/pyo3/exceptions/index.html"><code>pyo3::exceptions</code></a>
 defines exceptions for several standard library modules.</p>
 
                     </main>

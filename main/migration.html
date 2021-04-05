@@ -163,19 +163,19 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#migrating-from-older-pyo3-versions" id="migrating-from-older-pyo3-versions">Migrating from older PyO3 versions</a></h1>
+                        <h1 id="migrating-from-older-pyo3-versions"><a class="header" href="#migrating-from-older-pyo3-versions">Migrating from older PyO3 versions</a></h1>
 <p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next.
 For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</a>.</p>
-<h2><a class="header" href="#from-013-to-014" id="from-013-to-014">from 0.13.* to 0.14</a></h2>
-<h3><a class="header" href="#auto-initialize-feature-is-now-opt-in" id="auto-initialize-feature-is-now-opt-in"><code>auto-initialize</code> feature is now opt-in</a></h3>
+<h2 id="from-013-to-014"><a class="header" href="#from-013-to-014">from 0.13.* to 0.14</a></h2>
+<h3 id="auto-initialize-feature-is-now-opt-in"><a class="header" href="#auto-initialize-feature-is-now-opt-in"><code>auto-initialize</code> feature is now opt-in</a></h3>
 <p>For projects embedding Python in Rust, PyO3 no longer automatically initalizes a Python interpreter on the first call to <code>Python::with_gil</code> (or <code>Python::acquire_gil</code>) unless the <a href="features.html#auto-initalize"><code>auto-initalize</code> feature</a> is enabled.</p>
-<h3><a class="header" href="#new-multiple-pymethods-feature" id="new-multiple-pymethods-feature">New <code>multiple-pymethods</code> feature</a></h3>
+<h3 id="new-multiple-pymethods-feature"><a class="header" href="#new-multiple-pymethods-feature">New <code>multiple-pymethods</code> feature</a></h3>
 <p><code>#[pymethods]</code> have been reworked with a simpler default implementation which removes the dependency on the <code>inventory</code> crate. This reduces dependencies and compile times for the majority of users.</p>
 <p>The limitation of the new default implementation is that it cannot support multiple <code>#[pymethods]</code> blocks for the same <code>#[pyclass]</code>. If you need this functionality, you must enable the <code>multiple-pymethods</code> feature which will switch <code>#[pymethods]</code> to the inventory-based implementation.</p>
-<h2><a class="header" href="#from-012-to-013" id="from-012-to-013">from 0.12.* to 0.13</a></h2>
-<h3><a class="header" href="#minimum-rust-version-increased-to-rust-145" id="minimum-rust-version-increased-to-rust-145">Minimum Rust version increased to Rust 1.45</a></h3>
+<h2 id="from-012-to-013"><a class="header" href="#from-012-to-013">from 0.12.* to 0.13</a></h2>
+<h3 id="minimum-rust-version-increased-to-rust-145"><a class="header" href="#minimum-rust-version-increased-to-rust-145">Minimum Rust version increased to Rust 1.45</a></h3>
 <p>PyO3 <code>0.13</code> makes use of new Rust language features stabilised between Rust 1.40 and Rust 1.45. If you are using a Rust compiler older than Rust 1.45, you will need to update your toolchain to be able to continue using PyO3.</p>
-<h3><a class="header" href="#runtime-changes-to-support-the-cpython-limited-api" id="runtime-changes-to-support-the-cpython-limited-api">Runtime changes to support the CPython limited API</a></h3>
+<h3 id="runtime-changes-to-support-the-cpython-limited-api"><a class="header" href="#runtime-changes-to-support-the-cpython-limited-api">Runtime changes to support the CPython limited API</a></h3>
 <p>In PyO3 <code>0.13</code> support was added for compiling against the CPython limited API. This had a number of implications for <em>all</em> PyO3 users, described here.</p>
 <p>The largest of these is that all types created from PyO3 are what CPython calls &quot;heap&quot; types. The specific implications of this are:</p>
 <ul>
@@ -183,27 +183,27 @@ For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</
 <li>Type objects are now mutable - Python code can set attributes on them.</li>
 <li><code>__module__</code> on types without <code>#[pyclass(module=&quot;mymodule&quot;)]</code> no longer returns <code>builtins</code>, it now raises <code>AttributeError</code>.</li>
 </ul>
-<h2><a class="header" href="#from-011-to-012" id="from-011-to-012">from 0.11.* to 0.12</a></h2>
-<h3><a class="header" href="#pyerr-has-been-reworked" id="pyerr-has-been-reworked"><code>PyErr</code> has been reworked</a></h3>
+<h2 id="from-011-to-012"><a class="header" href="#from-011-to-012">from 0.11.* to 0.12</a></h2>
+<h3 id="pyerr-has-been-reworked"><a class="header" href="#pyerr-has-been-reworked"><code>PyErr</code> has been reworked</a></h3>
 <p>In PyO3 <code>0.12</code> the <code>PyErr</code> type has been re-implemented to be significantly more compatible with
 the standard Rust error handling ecosystem. Specificially <code>PyErr</code> now implements
 <code>Error + Send + Sync</code>, which are the standard traits used for error types.</p>
 <p>While this has necessitated the removal of a number of APIs, the resulting <code>PyErr</code> type should now
 be much more easier to work with. The following sections list the changes in detail and how to
 migrate to the new APIs.</p>
-<h4><a class="header" href="#pyerrnew-and-pyerrfrom_type-now-require-send--sync-for-their-argument" id="pyerrnew-and-pyerrfrom_type-now-require-send--sync-for-their-argument"><code>PyErr::new</code> and <code>PyErr::from_type</code> now require <code>Send + Sync</code> for their argument</a></h4>
+<h4 id="pyerrnew-and-pyerrfrom_type-now-require-send--sync-for-their-argument"><a class="header" href="#pyerrnew-and-pyerrfrom_type-now-require-send--sync-for-their-argument"><code>PyErr::new</code> and <code>PyErr::from_type</code> now require <code>Send + Sync</code> for their argument</a></h4>
 <p>For most uses no change will be needed. If you are trying to construct <code>PyErr</code> from a value that is
 not <code>Send + Sync</code>, you will need to first create the Python object and then use
 <code>PyErr::from_instance</code>.</p>
 <p>Similarly, any types which implemented <code>PyErrArguments</code> will now need to be <code>Send + Sync</code>.</p>
-<h4><a class="header" href="#pyerrs-contents-are-now-private" id="pyerrs-contents-are-now-private"><code>PyErr</code>'s contents are now private</a></h4>
+<h4 id="pyerrs-contents-are-now-private"><a class="header" href="#pyerrs-contents-are-now-private"><code>PyErr</code>'s contents are now private</a></h4>
 <p>It is no longer possible to access the fields <code>.ptype</code>, <code>.pvalue</code> and <code>.ptraceback</code> of a <code>PyErr</code>.
 You should instead now use the new methods <code>PyErr::ptype()</code>, <code>PyErr::pvalue()</code> and <code>PyErr::ptraceback()</code>.</p>
-<h4><a class="header" href="#pyerrvalue-and-pyerrfrom_value-have-been-removed" id="pyerrvalue-and-pyerrfrom_value-have-been-removed"><code>PyErrValue</code> and <code>PyErr::from_value</code> have been removed</a></h4>
+<h4 id="pyerrvalue-and-pyerrfrom_value-have-been-removed"><a class="header" href="#pyerrvalue-and-pyerrfrom_value-have-been-removed"><code>PyErrValue</code> and <code>PyErr::from_value</code> have been removed</a></h4>
 <p>As these were part the internals of <code>PyErr</code> which have been reworked, these APIs no longer exist.</p>
 <p>If you used this API, it is recommended to use <code>PyException::new_err</code> (see <a href="#exception-types-have-been-reworked">the section on
 Exception types</a>).</p>
-<h4><a class="header" href="#intopyresultt-for-pyerr-has-been-removed" id="intopyresultt-for-pyerr-has-been-removed"><code>Into&lt;PyResult&lt;T&gt;&gt;</code> for <code>PyErr</code> has been removed</a></h4>
+<h4 id="intopyresultt-for-pyerr-has-been-removed"><a class="header" href="#intopyresultt-for-pyerr-has-been-removed"><code>Into&lt;PyResult&lt;T&gt;&gt;</code> for <code>PyErr</code> has been removed</a></h4>
 <p>This implementation was redundant. Just construct the <code>Result::Err</code> variant directly.</p>
 <p>Before:</p>
 <pre><code class="language-rust ignore">let result: PyResult&lt;()&gt; = PyErr::new::&lt;TypeError, _&gt;(&quot;error message&quot;).into();
@@ -216,7 +216,7 @@ Exception types</a>).</p>
 </span>let result: PyResult&lt;()&gt; = Err(PyTypeError::new_err(&quot;error message&quot;));
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#exception-types-have-been-reworked" id="exception-types-have-been-reworked">Exception types have been reworked</a></h3>
+<h3 id="exception-types-have-been-reworked"><a class="header" href="#exception-types-have-been-reworked">Exception types have been reworked</a></h3>
 <p>Previously exception types were zero-sized marker types purely used to construct <code>PyErr</code>. In PyO3
 0.12, these types have been replaced with full definitions and are usable in the same way as <code>PyAny</code>, <code>PyDict</code> etc. This
 makes it possible to interact with Python exception objects.</p>
@@ -242,7 +242,7 @@ assert_eq!(instance.getattr(&quot;__class__&quot;)?, PyTypeError::type_object(py
 </span><span class="boring">}).unwrap();
 </span><span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#frompy-has-been-removed" id="frompy-has-been-removed"><code>FromPy</code> has been removed</a></h3>
+<h3 id="frompy-has-been-removed"><a class="header" href="#frompy-has-been-removed"><code>FromPy</code> has been removed</a></h3>
 <p>To simplify the PyO3 conversion traits, the <code>FromPy</code> trait has been removed. Previously there were
 two ways to define the to-Python conversion for a type:
 <code>FromPy&lt;T&gt; for PyObject</code> and <code>IntoPy&lt;PyObject&gt; for T</code>.</p>
@@ -289,10 +289,10 @@ impl IntoPy&lt;PyObject&gt; for MyPyObjectWrapper {
 <span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#pyobject-is-now-a-type-alias-of-pypyany" id="pyobject-is-now-a-type-alias-of-pypyany"><code>PyObject</code> is now a type alias of <code>Py&lt;PyAny&gt;</code></a></h3>
+<h3 id="pyobject-is-now-a-type-alias-of-pypyany"><a class="header" href="#pyobject-is-now-a-type-alias-of-pypyany"><code>PyObject</code> is now a type alias of <code>Py&lt;PyAny&gt;</code></a></h3>
 <p>This should change very little from a usage perspective. If you implemented traits for both
 <code>PyObject</code> and <code>Py&lt;T&gt;</code>, you may find you can just remove the <code>PyObject</code> implementation.</p>
-<h3><a class="header" href="#aspyref-has-been-removed" id="aspyref-has-been-removed"><code>AsPyRef</code> has been removed</a></h3>
+<h3 id="aspyref-has-been-removed"><a class="header" href="#aspyref-has-been-removed"><code>AsPyRef</code> has been removed</a></h3>
 <p>As <code>PyObject</code> has been changed to be just a type alias, the only remaining implementor of <code>AsPyRef</code>
 was <code>Py&lt;T&gt;</code>. This removed the need for a trait, so the <code>AsPyRef::as_ref</code> method has been moved to
 <code>Py::as_ref</code>.</p>
@@ -316,10 +316,10 @@ let list_ref: &amp;PyList = list_py.as_ref(py);
 <span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#from-010-to-011" id="from-010-to-011">from 0.10.* to 0.11</a></h2>
-<h3><a class="header" href="#stable-rust" id="stable-rust">Stable Rust</a></h3>
+<h2 id="from-010-to-011"><a class="header" href="#from-010-to-011">from 0.10.* to 0.11</a></h2>
+<h3 id="stable-rust"><a class="header" href="#stable-rust">Stable Rust</a></h3>
 <p>PyO3 now supports the stable Rust toolchain. The minimum required version is 1.39.0.</p>
-<h3><a class="header" href="#pyclass-structs-must-now-be-send-or-unsendable" id="pyclass-structs-must-now-be-send-or-unsendable"><code>#[pyclass]</code> structs must now be <code>Send</code> or <code>unsendable</code></a></h3>
+<h3 id="pyclass-structs-must-now-be-send-or-unsendable"><a class="header" href="#pyclass-structs-must-now-be-send-or-unsendable"><code>#[pyclass]</code> structs must now be <code>Send</code> or <code>unsendable</code></a></h3>
 <p>Because <code>#[pyclass]</code> structs can be sent between threads by the Python interpreter, they must implement
 <code>Send</code> or declared as <code>unsendable</code> (by <code>#[pyclass(unsendable)]</code>).
 Note that <code>unsendable</code> is added in PyO3 <code>0.11.1</code> and <code>Send</code> is always required in PyO3 <code>0.11.0</code>.</p>
@@ -394,7 +394,7 @@ struct Unsendable {
 </span></code></pre></pre>
 </li>
 </ol>
-<h3><a class="header" href="#all-pyobject-and-pyt-methods-now-take-python-as-an-argument" id="all-pyobject-and-pyt-methods-now-take-python-as-an-argument">All <code>PyObject</code> and <code>Py&lt;T&gt;</code> methods now take <code>Python</code> as an argument</a></h3>
+<h3 id="all-pyobject-and-pyt-methods-now-take-python-as-an-argument"><a class="header" href="#all-pyobject-and-pyt-methods-now-take-python-as-an-argument">All <code>PyObject</code> and <code>Py&lt;T&gt;</code> methods now take <code>Python</code> as an argument</a></h3>
 <p>Previously, a few methods such as <code>Object::get_refcnt</code> did not take <code>Python</code> as an argument (to
 ensure that the Python GIL was held by the current thread). Technically, this was not sound.
 To migrate, just pass a <code>py</code> argument to any calls to these methods.</p>
@@ -416,9 +416,9 @@ To migrate, just pass a <code>py</code> argument to any calls to these methods.<
 <span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
-<h2><a class="header" href="#from-09-to-010" id="from-09-to-010">from 0.9.* to 0.10</a></h2>
-<h3><a class="header" href="#objectprotocol-is-removed" id="objectprotocol-is-removed"><code>ObjectProtocol</code> is removed</a></h3>
-<p>All methods are moved to <a href="https://docs.rs/pyo3/latest/pyo3/types/struct.PyAny.html"><code>PyAny</code></a>.
+<h2 id="from-09-to-010"><a class="header" href="#from-09-to-010">from 0.9.* to 0.10</a></h2>
+<h3 id="objectprotocol-is-removed"><a class="header" href="#objectprotocol-is-removed"><code>ObjectProtocol</code> is removed</a></h3>
+<p>All methods are moved to <a href="https://pyo3.rs/main/doc/pyo3/types/struct.PyAny.html"><code>PyAny</code></a>.
 And since now all native types (e.g., <code>PyList</code>) implements <code>Deref&lt;Target=PyAny&gt;</code>,
 all you need to do is remove <code>ObjectProtocol</code> from your code.
 Or if you use <code>ObjectProtocol</code> by <code>use pyo3::prelude::*</code>, you have to do nothing.</p>
@@ -446,11 +446,11 @@ assert_eq!(hi.len().unwrap(), 5);
 <span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#no-featurespecialization-in-user-code" id="no-featurespecialization-in-user-code">No <code>#![feature(specialization)]</code> in user code</a></h3>
+<h3 id="no-featurespecialization-in-user-code"><a class="header" href="#no-featurespecialization-in-user-code">No <code>#![feature(specialization)]</code> in user code</a></h3>
 <p>While PyO3 itself still requires specialization and nightly Rust,
 now you don't have to use <code>#![feature(specialization)]</code> in your crate.</p>
-<h2><a class="header" href="#from-08-to-09" id="from-08-to-09">from 0.8.* to 0.9</a></h2>
-<h3><a class="header" href="#new-interface" id="new-interface"><code>#[new]</code> interface</a></h3>
+<h2 id="from-08-to-09"><a class="header" href="#from-08-to-09">from 0.8.* to 0.9</a></h2>
+<h3 id="new-interface"><a class="header" href="#new-interface"><code>#[new]</code> interface</a></h3>
 <p><a href="https://docs.rs/pyo3/0.8.5/pyo3/type_object/struct.PyRawObject.html"><code>PyRawObject</code></a>
 is now removed and our syntax for constructors has changed.</p>
 <p>Before:</p>
@@ -488,8 +488,8 @@ impl MyClass {
 </span></code></pre></pre>
 <p>Basically you can return <code>Self</code> or <code>Result&lt;Self&gt;</code> directly.
 For more, see <a href="class.html#constructor">the constructor section</a> of this guide.</p>
-<h3><a class="header" href="#pycell" id="pycell">PyCell</a></h3>
-<p>PyO3 0.9 introduces <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
+<h3 id="pycell"><a class="header" href="#pycell">PyCell</a></h3>
+<p>PyO3 0.9 introduces <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyCell.html"><code>PyCell</code></a>, which is a <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a>-like object wrapper
 for ensuring Rust's rules regarding aliasing of references are upheld.
 For more detail, see the
 <a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html#the-rules-of-references">Rust Book's section on Rust's rules of references</a></p>
@@ -530,14 +530,14 @@ impl Names {
 </span></code></pre></pre>
 <p><code>Names</code> has a <code>merge</code> method, which takes <code>&amp;mut self</code> and another argument of type <code>&amp;mut Self</code>.
 Given this <code>#[pyclass]</code>, calling <code>names.merge(names)</code> in Python raises
-a <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyBorrowMutError.html"><code>PyBorrowMutError</code></a> exception, since it requires two mutable borrows of <code>names</code>.</p>
+a <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyBorrowMutError.html"><code>PyBorrowMutError</code></a> exception, since it requires two mutable borrows of <code>names</code>.</p>
 <p>However, for <code>#[pyproto]</code> and some functions, you need to manually fix the code.</p>
-<h4><a class="header" href="#object-creation" id="object-creation">Object creation</a></h4>
+<h4 id="object-creation"><a class="header" href="#object-creation">Object creation</a></h4>
 <p>In 0.8 object creation was done with <code>PyRef::new</code> and <code>PyRefMut::new</code>.
 In 0.9 these have both been removed.
 To upgrade code, please use
-<a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyCell.html#method.new"><code>PyCell::new</code></a> instead.
-If you need <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRefMut</code></a>, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
+<a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyCell.html#method.new"><code>PyCell::new</code></a> instead.
+If you need <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyRef.html"><code>PyRefMut</code></a>, just call <code>.borrow()</code> or <code>.borrow_mut()</code>
 on the newly-created <code>PyCell</code>.</p>
 <p>Before:</p>
 <pre><pre class="playground"><code class="language-rust compile_fail">
@@ -564,8 +564,8 @@ let obj_ref = obj.borrow();
 <span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
-<h4><a class="header" href="#object-extraction" id="object-extraction">Object extraction</a></h4>
-<p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementations.
+<h4 id="object-extraction"><a class="header" href="#object-extraction">Object extraction</a></h4>
+<p>For <code>PyClass</code> types <code>T</code>, <code>&amp;T</code> and <code>&amp;mut T</code> no longer have <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementations.
 Instead you should extract <code>PyRef&lt;T&gt;</code> or <code>PyRefMut&lt;T&gt;</code>, respectively.
 If <code>T</code> implements <code>Clone</code>, you can extract <code>T</code> itself.
 In addition, you can also extract <code>&amp;PyCell&lt;T&gt;</code>, though you rarely need it.</p>
@@ -597,11 +597,11 @@ let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
 <span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>
-<h4><a class="header" href="#pyproto" id="pyproto"><code>#[pyproto]</code></a></h4>
+<h4 id="pyproto"><a class="header" href="#pyproto"><code>#[pyproto]</code></a></h4>
 <p>Most of the arguments to methods in <code>#[pyproto]</code> impls require a
-<a href="https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementation.
+<a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> implementation.
 So if your protocol methods take <code>&amp;T</code> or <code>&amp;mut T</code> (where <code>T: PyClass</code>),
-please use <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://docs.rs/pyo3/latest/pyo3/pycell/struct.PyRef.html"><code>PyRefMut</code></a> instead.</p>
+please use <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyRef.html"><code>PyRef</code></a> or <a href="https://pyo3.rs/main/doc/pyo3/pycell/struct.PyRef.html"><code>PyRefMut</code></a> instead.</p>
 <p>Before:</p>
 <pre><pre class="playground"><code class="language-rust compile_fail">
 <span class="boring">#![allow(unused)]
