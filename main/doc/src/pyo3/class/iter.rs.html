@@ -164,7 +164,7 @@
 <span class="doccomment">/// # Python::with_gil(|py| {</span>
 <span class="doccomment">/// #     let inst = Py::new(py, Iter { count: 0 }).unwrap();</span>
 <span class="doccomment">/// #     pyo3::py_run!(py, inst, &quot;assert next(inst) == 1&quot;);</span>
-<span class="doccomment">/// # }); // test of StopIteration is done in examples/rustapi_module/pyclass_iter.rs</span>
+<span class="doccomment">/// # }); // test of StopIteration is done in examples/pyo3-pytests/pyclass_iter.rs</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {

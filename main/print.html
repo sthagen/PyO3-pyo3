@@ -1436,9 +1436,9 @@ method implementation is infallible. In addition, if the return type is <code>()
 <h4 id="attribute-access"><a class="header" href="#attribute-access">Attribute access</a></h4>
 <p>To customize object attribute access, define the following methods:</p>
 <ul>
-<li><code>fn __getattr__(&amp;self, name: FromPyObject) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
-<li><code>fn __setattr__(&amp;mut self, name: FromPyObject, value: FromPyObject) -&gt; PyResult&lt;()&gt;</code></li>
-<li><code>fn __delattr__(&amp;mut self, name: FromPyObject) -&gt; PyResult&lt;()&gt;</code></li>
+<li><code>fn __getattr__(&amp;self, name: impl FromPyObject) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
+<li><code>fn __setattr__(&amp;mut self, name: impl FromPyObject, value: impl FromPyObject) -&gt; PyResult&lt;()&gt;</code></li>
+<li><code>fn __delattr__(&amp;mut self, name: impl FromPyObject) -&gt; PyResult&lt;()&gt;</code></li>
 </ul>
 <p>Each method corresponds to Python's <code>self.attr</code>, <code>self.attr = value</code> and <code>del self.attr</code> code.</p>
 <h4 id="string-conversions"><a class="header" href="#string-conversions">String Conversions</a></h4>
@@ -1484,7 +1484,7 @@ The return type must be <code>PyResult&lt;T&gt;</code> where <code>T</code> is o
 </li>
 </ul>
 <h3 id="emulating-numeric-types"><a class="header" href="#emulating-numeric-types">Emulating numeric types</a></h3>
-<p>The <a href="https://pyo3.rs/main/doc/pyo3/class/number/trait.PyNumberProtocol.html"><code>PyNumberProtocol</code></a> trait allows <a href="https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types">emulate numeric types</a>.</p>
+<p>The <a href="https://pyo3.rs/main/doc/pyo3/class/number/trait.PyNumberProtocol.html"><code>PyNumberProtocol</code></a> trait can be implemented to emulate <a href="https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types">numeric types</a>.</p>
 <ul>
 <li><code>fn __add__(lhs: impl FromPyObject, rhs: impl FromPyObject) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 <li><code>fn __sub__(lhs: impl FromPyObject, rhs: impl FromPyObject) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
@@ -1525,10 +1525,6 @@ which must match signature or else raise a TypeError.</p>
 </ul>
 <p>The code generated for these methods expect that all arguments match the
 signature, or raise a TypeError.</p>
-<p><em>Note</em>: Currently implementing the method for a binary arithmetic operations
-(e.g, <code>__add__</code>) shadows the reflected operation (e.g, <code>__radd__</code>).  This is
-being addressed in <a href="https://github.com/PyO3/pyo3/issues/844">#844</a>.  to make
-these methods</p>
 <p>This trait also has support the augmented arithmetic assignments (<code>+=</code>, <code>-=</code>,
 <code>*=</code>, <code>@=</code>, <code>/=</code>, <code>//=</code>, <code>%=</code>, <code>**=</code>, <code>&lt;&lt;=</code>, <code>&gt;&gt;=</code>, <code>&amp;=</code>, <code>^=</code>, <code>|=</code>):</p>
 <ul>
@@ -1563,6 +1559,105 @@ these methods</p>
 <ul>
 <li><code>fn __index__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 <li><code>fn __round__(&amp;'p self, ndigits: Option&lt;impl FromPyObject&gt;) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
+</ul>
+<h3 id="emulating-sequential-containers-such-as-lists-or-tuples"><a class="header" href="#emulating-sequential-containers-such-as-lists-or-tuples">Emulating sequential containers (such as lists or tuples)</a></h3>
+<p>The <a href="https://pyo3.rs/main/doc/pyo3/class/sequence/trait.PySequenceProtocol.html"><code>PySequenceProtocol</code></a> trait can be implemented to emulate
+<a href="https://docs.python.org/3/reference/datamodel.html#emulating-container-types">sequential container types</a>.</p>
+<p>For a sequence, the keys are the integers <em>k</em> for which <em>0 &lt;= k &lt; N</em>,
+where <em>N</em> is the length of the sequence.</p>
+<ul>
+<li>
+<p><code>fn __len__(&amp;self) -&gt; PyResult&lt;usize&gt;</code></p>
+<p>Implements the built-in function <code>len()</code> for the sequence.</p>
+</li>
+<li>
+<p><code>fn __getitem__(&amp;self, idx: isize) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
+<p>Implements evaluation of the <code>self[idx]</code> element.
+If the <code>idx</code> value is outside the set of indexes for the sequence, <code>IndexError</code> should be raised.</p>
+<p><em>Note:</em> Negative integer indexes are handled as follows: if <code>__len__()</code> is defined,
+it is called and the sequence length is used to compute a positive index,
+which is passed to <code>__getitem__()</code>.
+If <code>__len__()</code> is not defined, the index is passed as is to the function.</p>
+</li>
+<li>
+<p><code>fn __setitem__(&amp;mut self, idx: isize, value: impl FromPyObject) -&gt; PyResult&lt;()&gt;</code></p>
+<p>Implements assignment to the <code>self[idx]</code> element. Same note as for <code>__getitem__()</code>.
+Should only be implemented if sequence elements can be replaced.</p>
+</li>
+<li>
+<p><code>fn __delitem__(&amp;mut self, idx: isize) -&gt; PyResult&lt;()&gt;</code></p>
+<p>Implements deletion of the <code>self[idx]</code> element. Same note as for <code>__getitem__()</code>.
+Should only be implemented if sequence elements can be deleted.</p>
+</li>
+<li>
+<p><code>fn __contains__(&amp;self, item: impl FromPyObject) -&gt; PyResult&lt;bool&gt;</code></p>
+<p>Implements membership test operators.
+Should return true if <code>item</code> is in <code>self</code>, false otherwise.
+For objects that don’t define <code>__contains__()</code>, the membership test simply
+traverses the sequence until it finds a match.</p>
+</li>
+<li>
+<p><code>fn __concat__(&amp;self, other: impl FromPyObject) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
+<p>Concatenates two sequences.
+Used by the <code>+</code> operator, after trying the numeric addition via
+the <code>PyNumberProtocol</code> trait method.</p>
+</li>
+<li>
+<p><code>fn __repeat__(&amp;self, count: isize) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
+<p>Repeats the sequence <code>count</code> times.
+Used by the <code>*</code> operator, after trying the numeric multiplication via
+the <code>PyNumberProtocol</code> trait method.</p>
+</li>
+<li>
+<p><code>fn __inplace_concat__(&amp;mut self, other: impl FromPyObject) -&gt; PyResult&lt;Self&gt;</code></p>
+<p>Concatenates two sequences in place. Returns the modified first operand.
+Used by the <code>+=</code> operator, after trying the numeric in place addition via
+the <code>PyNumberProtocol</code> trait method.</p>
+</li>
+<li>
+<p><code>fn __inplace_repeat__(&amp;mut self, count: isize) -&gt; PyResult&lt;Self&gt;</code></p>
+<p>Repeats the sequence <code>count</code> times in place. Returns the modified first operand.
+Used by the <code>*=</code> operator, after trying the numeric in place multiplication via
+the <code>PyNumberProtocol</code> trait method.</p>
+</li>
+</ul>
+<h3 id="emulating-mapping-containers-such-as-dictionaries"><a class="header" href="#emulating-mapping-containers-such-as-dictionaries">Emulating mapping containers (such as dictionaries)</a></h3>
+<p>The <a href="https://pyo3.rs/main/doc/pyo3/class/mapping/trait.PyMappingProtocol.html"><code>PyMappingProtocol</code></a> trait allows to emulate
+<a href="https://docs.python.org/3/reference/datamodel.html#emulating-container-types">mapping container types</a>.</p>
+<p>For a mapping, the keys may be Python objects of arbitrary type.</p>
+<ul>
+<li>
+<p><code>fn __len__(&amp;self) -&gt; PyResult&lt;usize&gt;</code></p>
+<p>Implements the built-in function <code>len()</code> for the mapping.</p>
+</li>
+<li>
+<p><code>fn __getitem__(&amp;self, key: impl FromPyObject) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
+<p>Implements evaluation of the <code>self[key]</code> element.
+If <code>key</code> is of an inappropriate type, <code>TypeError</code> may be raised;
+if <code>key</code> is missing (not in the container), <code>KeyError</code> should be raised.</p>
+</li>
+<li>
+<p><code>fn __setitem__(&amp;mut self, key: impl FromPyObject, value: impl FromPyObject) -&gt; PyResult&lt;()&gt;</code></p>
+<p>Implements assignment to the <code>self[key]</code> element or insertion of a new <code>key</code>
+mapping to <code>value</code>.
+Should only be implemented if the mapping support changes to the values for keys,
+or if new keys can be added.
+The same exceptions should be raised for improper key values as
+for the <code>__getitem__()</code> method.</p>
+</li>
+<li>
+<p><code>fn __delitem__(&amp;mut self, key: impl FromPyObject) -&gt; PyResult&lt;()&gt;</code></p>
+<p>Implements deletion of the <code>self[key]</code> element.
+Should only be implemented if the mapping supports removal of keys.
+The same exceptions should be raised for improper key values as
+for the <code>__getitem__()</code> method.</p>
+</li>
+<li>
+<p><code>fn __reversed__(&amp;self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
+<p>Called (if present) by the <code>reversed()</code> built-in to implement reverse iteration.
+It should return a new iterator object that iterates over all the objects in
+the container in reverse order.</p>
+</li>
 </ul>
 <h3 id="garbage-collector-integration"><a class="header" href="#garbage-collector-integration">Garbage Collector Integration</a></h3>
 <p>If your type owns references to other Python objects, you will need to
