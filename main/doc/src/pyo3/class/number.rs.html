@@ -784,7 +784,6 @@
 <span id="781">781</span>
 <span id="782">782</span>
 <span id="783">783</span>
-<span id="784">784</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -1530,7 +1529,6 @@
     <span class="kw">crate</span>::<span class="macro">callback_body</span><span class="macro">!</span>(<span class="ident">py</span>, {
         <span class="kw">let</span> <span class="ident">slf_cell</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
         <span class="kw">let</span> <span class="ident">other</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">other</span>);
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">needless_question_mark</span>)]</span>
         <span class="macro">call_operator_mut</span><span class="macro">!</span>(<span class="ident">py</span>, <span class="ident">slf_cell</span>, <span class="ident">__ipow__</span>, <span class="ident">other</span>).<span class="ident">convert</span>(<span class="ident">py</span>)<span class="question-mark">?</span>;
         <span class="ident">ffi</span>::<span class="ident">Py_INCREF</span>(<span class="ident">slf</span>);
         <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">PyErr</span><span class="op">&gt;</span>(<span class="ident">slf</span>)

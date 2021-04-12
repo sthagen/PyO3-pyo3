@@ -193,6 +193,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>The <code>auto-initialize</code> feature is no longer enabled by default. <a href="https://github.com/PyO3/pyo3/pull/1443">#1443</a></li>
 <li>Change <code>PyCFunction::new()</code> and <code>PyCFunction::new_with_keywords()</code> to take <code>&amp;'static str</code> arguments rather than implicitly copying (and leaking) them. <a href="https://github.com/PyO3/pyo3/pull/1450">#1450</a></li>
 <li>Deprecate <code>PyModule</code> methods <code>call</code>, <code>call0</code>, <code>call1</code> and <code>get</code>. <a href="https://github.com/PyO3/pyo3/pull/1492">#1492</a></li>
+<li>Add length information to <code>PyBufferError</code>s raised from <code>PyBuffer::copy_to_slice</code> and <code>PyBuffer::copy_from_slice</code>. <a href="https://github.com/PyO3/pyo3/pull/1534">#1534</a></li>
 <li>Automatically provide <code>-undefined</code> and <code>dynamic_lookup</code> linker arguments on macOS with <code>extension-module</code> feature. <a href="https://github.com/PyO3/pyo3/pull/1539">#1539</a></li>
 </ul>
 <h3 id="removed"><a class="header" href="#removed">Removed</a></h3>

@@ -34,6 +34,10 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">abstract_</span>;
 <span class="comment">// skipped bytearrayobject.h</span>
@@ -41,6 +45,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">bytesobject</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ceval</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">code</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">compile</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dictobject</span>;
 <span class="comment">// skipped fileobject.h</span>
@@ -51,6 +56,7 @@
 <span class="comment">// skipped interpreteridobject.h</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">listobject</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">object</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pydebug</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pylifecycle</span>;
 
@@ -59,6 +65,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">bytesobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ceval</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">code</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">compile</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">dictobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">frameobject</span>::<span class="kw-2">*</span>;
@@ -66,6 +73,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">initconfig</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">listobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">object</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">pydebug</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">pylifecycle</span>::<span class="kw-2">*</span>;
 </pre></div>

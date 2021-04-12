@@ -212,9 +212,9 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">object</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">pyarena</span>::<span class="ident">PyArena</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">FILE</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
 
 <span class="comment">// TODO: PyCF_MASK etc. constants</span>
 
@@ -373,10 +373,10 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">PyPy</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">Py_CompileString</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>, <span class="ident">p</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>, <span class="ident">s</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-    <span class="kw">return</span> <span class="ident">Py_CompileStringExFlags</span>(<span class="ident">string</span>, <span class="ident">p</span>, <span class="ident">s</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="op">-</span><span class="number">1</span>);
+    <span class="kw">return</span> <span class="ident">Py_CompileStringExFlags</span>(<span class="ident">string</span>, <span class="ident">p</span>, <span class="ident">s</span>, <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="op">-</span><span class="number">1</span>);
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
-    <span class="ident">Py_CompileStringFlags</span>(<span class="ident">string</span>, <span class="ident">p</span>, <span class="ident">s</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>())
+    <span class="ident">Py_CompileStringFlags</span>(<span class="ident">string</span>, <span class="ident">p</span>, <span class="ident">s</span>, <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>())
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
