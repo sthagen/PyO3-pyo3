@@ -559,7 +559,7 @@
     <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyErrArguments</span>, <span class="ident">PyResult</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_SHARED</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::{<span class="ident">prepare_freethreaded_python</span>, <span class="ident">with_embedded_python_interpreter</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">gil</span>::{<span class="ident">GILGuard</span>, <span class="ident">GILPool</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">instance</span>::{<span class="ident">Py</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>};

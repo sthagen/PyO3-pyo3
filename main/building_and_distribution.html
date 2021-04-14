@@ -254,6 +254,35 @@ export PYO3_CROSS_LIB_DIR=&quot;/home/pyo3/cross/sysroot/usr/lib&quot;
 cargo build --target x86_64-pc-windows-gnu
 </code></pre>
 <p>Any of the <code>abi3-py3*</code> features can be enabled instead of setting <code>PYO3_CROSS_PYTHON_VERSION</code> in the above examples.</p>
+<h2 id="embedding-python-in-rust"><a class="header" href="#embedding-python-in-rust">Embedding Python in Rust</a></h2>
+<p>If you want to embed the Python interpreter inside a Rust program, there are two modes in which this can be done: dynamically and statically. We'll cover each of these modes in the following sections. Each of them affect how you must distribute your program. Instead of learning how to do this yourself, you might want to consider using a project like <a href="https://github.com/indygreg/PyOxidizer">PyOxidizer</a> to ship your application and all of its dependencies in a single file.</p>
+<p>PyO3 automatically switches between the two linking modes depending on whether the Python distribution you have configured PyO3 to use (<a href="#python-version">see above</a>) contains a shared library or a static library. The static library is most often seen in Python distributions compiled from source without the <code>--enable-shared</code> configuration option. For example, this is the default for <code>pyenv</code> on macOS.</p>
+<h3 id="dynamically-embedding-the-python-interpreter"><a class="header" href="#dynamically-embedding-the-python-interpreter">Dynamically embedding the Python interpreter</a></h3>
+<p>Embedding the Python interpreter dynamically is much easier than doing so statically. This is done by linking your program against a Python shared library (such as <code>libpython.3.9.so</code> on UNIX, or <code>python39.dll</code> on Windows). The implementation of the Python interpreter resides inside the shared library. This means that when the OS runs your Rust program it also needs to be able to find the Python shared library.</p>
+<p>This mode of embedding works well for Rust tests which need access to the Python interpreter. It is also great for Rust software which is installed inside a Python virtualenv, because the virtualenv sets up appropriate environment variables to locate the correct Python shared library.</p>
+<p>For distributing your program to non-technical users, you will have to consider including the Python shared library in your distribution as well as setting up wrapper scripts to set the right environment variables (such as <code>LD_LIBRARY_PATH</code> on UNIX, or <code>PATH</code> on Windows).</p>
+<h3 id="statically-embedding-the-python-interpreter"><a class="header" href="#statically-embedding-the-python-interpreter">Statically embedding the Python interpreter</a></h3>
+<p>Embedding the Python interpreter statically means including the contents of a Python static library directly inside your Rust binary. This means that to distribute your program you only need to ship your binary file: it contains the Python interpreter inside the binary!</p>
+<p>On Windows static linking is almost never done, so Python distributions don't usually include a static library. The information below applies only to UNIX.</p>
+<p>The Python static library is usually called <code>libpython.a</code>.</p>
+<p>Static linking has a lot of complications, listed below. For these reasons PyO3 does not yet have first-class support for this embedding mode. See <a href="https://github.com/PyO3/pyo3/issues/416">issue 416 on PyO3's Github</a> for more information and to discuss any issues you encounter.</p>
+<p>The <a href="features.html#auto-initialize"><code>auto-initialize</code></a> feature is deliberately disabled when embedding the interpreter statically because this is often unintentionally done by new users to PyO3 running test programs. Trying out PyO3 is much easier using dynamic embedding.</p>
+<p>The known complications are:</p>
+<ul>
+<li>
+<p>To import compiled extension modules (such as other Rust extension modules, or those written in C), your binary must have the correct linker flags set during compilation to export the original contents of <code>libpython.a</code> so that extensions can use them (e.g. <code>-Wl,--export-dynamic</code>).</p>
+</li>
+<li>
+<p>The C compiler and flags which were used to create <code>libpython.a</code> must be compatible with your Rust compiler and flags, else you will experience compilation failures.</p>
+<p>Significantly different compiler versions may see errors like this:</p>
+<pre><code class="language-ignore">lto1: fatal error: bytecode stream in file 'rust-numpy/target/release/deps/libpyo3-6a7fb2ed970dbf26.rlib' generated with LTO version 6.0 instead of the expected 6.2
+</code></pre>
+<p>Mismatching flags may lead to errors like this:</p>
+<pre><code class="language-ignore">/usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/libpython3.9.a(zlibmodule.o): relocation R_X86_64_32 against `.data' can not be used when making a PIE object; recompile with -fPIE
+</code></pre>
+</li>
+</ul>
+<p>If you encounter these or other complications when linking the interpreter statically, discuss them on <a href="https://github.com/PyO3/pyo3/issues/416">issue 416 on PyO3's Github</a>. It is hoped that eventually that discussion will contain enough information and solutions that PyO3 can offer first-class support for static embedding.</p>
 <h2 id="bazel"><a class="header" href="#bazel">Bazel</a></h2>
 <p>For an example of how to build python extensions using Bazel, see https://github.com/TheButlah/rules_pyo3</p>
 

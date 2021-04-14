@@ -179,7 +179,7 @@
 <p>These features are an extension of the <code>abi3</code> feature to specify the exact minimum Python version which the multiple-version-wheel will support.</p>
 <p>See the <a href="building_and_distribution.html#minimum-python-version-for-abi3">building and distribution</a> section for further detail.</p>
 <h2 id="features-for-embedding-python-in-rust"><a class="header" href="#features-for-embedding-python-in-rust">Features for embedding Python in Rust</a></h2>
-<h3 id="auto-initalize"><a class="header" href="#auto-initalize"><code>auto-initalize</code></a></h3>
+<h3 id="auto-initialize"><a class="header" href="#auto-initialize"><code>auto-initialize</code></a></h3>
 <p>This feature changes <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.with_gil"><code>Python::with_gil</code></a> and <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.acquire_gil"><code>Python::acquire_gil</code></a> to automatically initialize a Python interpreter (by calling <a href="https://pyo3.rs/main/doc/pyo3/fn.prepare_freethreaded_python.html"><code>prepare_freethreaded_python</code></a>) if needed.</p>
 <p>If you do not enable this feature, you should call <code>pyo3::prepare_freethreaded_python()</code> before attempting to call any other Python APIs.</p>
 <h2 id="advanced-features"><a class="header" href="#advanced-features">Advanced Features</a></h2>

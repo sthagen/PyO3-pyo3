@@ -805,29 +805,6 @@
 <span id="802">802</span>
 <span id="803">803</span>
 <span id="804">804</span>
-<span id="805">805</span>
-<span id="806">806</span>
-<span id="807">807</span>
-<span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -877,9 +854,6 @@
 <span class="doccomment">/// this function has no effect.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Availability</span>
-<span class="doccomment">/// This function is only available when linking against Python distributions that contain a</span>
-<span class="doccomment">/// shared library.</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// This function is not available on PyPy.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
@@ -901,7 +875,7 @@
 <span class="doccomment">///     });</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_SHARED</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">clippy</span>::<span class="ident">collapsible_if</span>)]</span> <span class="comment">// for if cfg!</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prepare_freethreaded_python</span>() {
     <span class="comment">// Protect against race conditions when Python is not yet initialized and multiple threads</span>
@@ -941,9 +915,6 @@
 <span class="doccomment">/// initialize correctly on the second run.)</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Availability</span>
-<span class="doccomment">/// This function is only available when linking against Python distributions that contain a shared</span>
-<span class="doccomment">/// library.</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// This function is not available on PyPy.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
@@ -968,7 +939,7 @@
 <span class="doccomment">///     }</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_SHARED</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">clippy</span>::<span class="ident">collapsible_if</span>)]</span> <span class="comment">// for if cfg!</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">with_embedded_python_interpreter</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>
 <span class="kw">where</span>
@@ -1050,32 +1021,9 @@
         <span class="comment">//    auto-initialize so this avoids breaking existing builds.</span>
         <span class="comment">//  - Otherwise, just check the GIL is initialized.</span>
         <span class="ident">cfg_if</span>::<span class="macro">cfg_if</span><span class="macro">!</span> {
-            <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;auto-initialize&quot;</span>, <span class="ident">Py_SHARED</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span> {
+            <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;auto-initialize&quot;</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span> {
                 <span class="ident">prepare_freethreaded_python</span>();
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;auto-initialize&quot;</span>, <span class="ident">not</span>(<span class="ident">Py_SHARED</span>), <span class="ident">not</span>(<span class="ident">__pyo3_ci</span>)))]</span> {
-                <span class="macro">compile_error</span><span class="macro">!</span>(<span class="macro">concat</span><span class="macro">!</span>(
-                    <span class="string">&quot;The `auto-initialize` feature is not supported when linking Python &quot;</span>,
-                    <span class="string">&quot;statically instead of with a shared library.\n\n&quot;</span>,
-                    <span class="string">&quot;Please disable the `auto-initialize` feature, for example by entering the following &quot;</span>,
-                    <span class="string">&quot;in your cargo.toml:\n\n&quot;</span>,
-                    <span class="string">&quot;    pyo3 = { version = \&quot;&quot;</span>,
-                    <span class="macro">env</span><span class="macro">!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>),
-                    <span class="string">&quot;\&quot;, default-features = false }\n\n&quot;</span>,
-                    <span class="string">&quot;Alternatively, compile PyO3 using a Python distribution which contains a shared &quot;</span>,
-                    <span class="string">&quot;libary.&quot;</span>
-                ));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;auto-initialize&quot;</span>, <span class="ident">PyPy</span>, <span class="ident">not</span>(<span class="ident">__pyo3_ci</span>)))]</span> {
-                <span class="macro">compile_error</span><span class="macro">!</span>(<span class="macro">concat</span><span class="macro">!</span>(
-                    <span class="string">&quot;The `auto-initialize` feature is not supported by PyPy.\n\n&quot;</span>,
-                    <span class="string">&quot;Please disable the `auto-initialize` feature, for example by entering the following &quot;</span>,
-                    <span class="string">&quot;in your cargo.toml:\n\n&quot;</span>,
-                    <span class="string">&quot;    pyo3 = { version = \&quot;&quot;</span>,
-                    <span class="macro">env</span><span class="macro">!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>),
-                    <span class="string">&quot;\&quot;, default-features = false }\n\n&quot;</span>,
-                ));
             } <span class="kw">else</span> {
-                <span class="comment">// extension module feature enabled and PyPy or static linking</span>
-                <span class="comment">// OR auto-initialize feature not enabled</span>
                 <span class="ident">START</span>.<span class="ident">call_once_force</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">unsafe</span> {
                     <span class="comment">// Use call_once_force because if there is a panic because the interpreter is</span>
                     <span class="comment">// not initialized, it&#39;s fine for the user to initialize the interpreter and</span>
@@ -1083,12 +1031,18 @@
                     <span class="macro">assert_ne</span><span class="macro">!</span>(
                         <span class="ident">ffi</span>::<span class="ident">Py_IsInitialized</span>(),
                         <span class="number">0</span>,
-                        <span class="string">&quot;The Python interpreter is not initalized and the `auto-initialize` feature is not enabled.&quot;</span>
+                        <span class="string">&quot;The Python interpreter is not initalized and the `auto-initialize` \
+                         feature is not enabled.\n\n\
+                         Consider calling `pyo3::prepare_freethreaded_python()` before attempting \
+                         to use Python APIs.&quot;</span>
                     );
                     <span class="macro">assert_ne</span><span class="macro">!</span>(
                         <span class="ident">ffi</span>::<span class="ident">PyEval_ThreadsInitialized</span>(),
                         <span class="number">0</span>,
-                        <span class="string">&quot;Python threading is not initalized and the `auto-initialize` feature is not enabled.&quot;</span>
+                        <span class="string">&quot;Python threading is not initalized and the `auto-initialize` feature is \
+                         not enabled.\n\n\
+                         Consider calling `pyo3::prepare_freethreaded_python()` before attempting \
+                         to use Python APIs.&quot;</span>
                     );
                 });
             }
