@@ -4529,6 +4529,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Fix use of Python argument for #[pymethods] inside macro expansions. <a href="https://github.com/PyO3/pyo3/pull/1505">#1505</a></li>
 <li>Always use cross-compiling configuration if any of the environment variables are set. <a href="https://github.com/PyO3/pyo3/pull/1514">#1514</a></li>
 <li>Support <code>EnvironmentError</code>, <code>IOError</code>, and <code>WindowsError</code> on PyPy. <a href="https://github.com/PyO3/pyo3/pull/1533">#1533</a></li>
+<li>Segfault when dereferencing <code>ffi::PyDateTimeAPI</code> without the GIL. <a href="https://github.com/PyO3/pyo3/pull/1563">#1563</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a href="https://github.com/pyo3/pyo3/compare/v0.13.1...v0.13.2">0.13.2</a> - 2021-02-12</a></h2>
 <h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>
