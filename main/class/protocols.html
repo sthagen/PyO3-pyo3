@@ -164,12 +164,11 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="class-customizations"><a class="header" href="#class-customizations">Class customizations</a></h2>
-<p>Python's object model defines several protocols for different object behavior, like sequence,
-mapping or number protocols. PyO3 defines separate traits for each of them. To provide specific
-Python object behavior, you need to implement the specific trait for your struct. Important note,
-each protocol implementation block has to be annotated with the <code>#[pyproto]</code> attribute.</p>
-<p>All <code>#[pyproto]</code> methods which can be defined below can return <code>T</code> instead of <code>PyResult&lt;T&gt;</code> if the
-method implementation is infallible. In addition, if the return type is <code>()</code>, it can be omitted altogether.</p>
+<p>PyO3 uses the <code>#[pyproto]</code> attribute in combination with special traits to implement certain protocol (aka <code>__dunder__</code>) methods of Python classes. The special traits are listed in this chapter of the guide. See also the <a href="https://pyo3.rs/main/doc/pyo3/class/index.html">documentation for the <code>pyo3::class</code> module</a>.</p>
+<p>Python's object model defines several protocols for different object behavior, such as the sequence, mapping, and number protocols. You may be familiar with implementing these protocols in Python classes by &quot;dunder&quot; methods, such as <code>__str__</code> or <code>__repr__</code>.</p>
+<p>In the Python C-API which PyO3 is dependent upon, many of these protocol methods have to be provided into special &quot;slots&quot; on the class type object. To fill these slots PyO3 uses the <code>#[pyproto]</code> attribute in combination with special traits.</p>
+<p>All <code>#[pyproto]</code> methods can return <code>T</code> instead of <code>PyResult&lt;T&gt;</code> if the method implementation is infallible. In addition, if the return type is <code>()</code>, it can be omitted altogether.</p>
+<p>There are many &quot;dunder&quot; methods which are not included in any of PyO3's protocol traits, such as <code>__dir__</code>. These methods can be implemented in <code>#[pymethods]</code> as already covered in the previous section.</p>
 <h3 id="basic-object-customization"><a class="header" href="#basic-object-customization">Basic object customization</a></h3>
 <p>The <a href="https://pyo3.rs/main/doc/pyo3/class/basic/trait.PyObjectProtocol.html"><code>PyObjectProtocol</code></a> trait provides several basic customizations.</p>
 <h4 id="attribute-access"><a class="header" href="#attribute-access">Attribute access</a></h4>
@@ -188,15 +187,6 @@ method implementation is infallible. In addition, if the return type is <code>()
 <li>
 <p><code>fn __str__(&amp;self) -&gt; PyResult&lt;impl ToPyObject&lt;ObjectType=PyString&gt;&gt;</code></p>
 <p>Possible return types for <code>__str__</code> and <code>__repr__</code> are <code>PyResult&lt;String&gt;</code> or <code>PyResult&lt;PyString&gt;</code>.</p>
-</li>
-<li>
-<p><code>fn __bytes__(&amp;self) -&gt; PyResult&lt;PyBytes&gt;</code></p>
-<p>Provides the conversion to <code>bytes</code>.</p>
-</li>
-<li>
-<p><code>fn __format__(&amp;self, format_spec: &amp;str) -&gt; PyResult&lt;impl ToPyObject&lt;ObjectType=PyString&gt;&gt;</code></p>
-<p>Special method that is used by the <code>format()</code> builtin and the <code>str.format()</code> method.
-Possible return types are <code>PyResult&lt;String&gt;</code> or <code>PyResult&lt;PyString&gt;</code>.</p>
 </li>
 </ul>
 <h4 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison operators</a></h4>
@@ -290,14 +280,12 @@ signature, or raise a TypeError.</p>
 </ul>
 <p>Support for coercions:</p>
 <ul>
-<li><code>fn __complex__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 <li><code>fn __int__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 <li><code>fn __float__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 </ul>
 <p>Other:</p>
 <ul>
 <li><code>fn __index__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
-<li><code>fn __round__(&amp;'p self, ndigits: Option&lt;impl FromPyObject&gt;) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 </ul>
 <h3 id="emulating-sequential-containers-such-as-lists-or-tuples"><a class="header" href="#emulating-sequential-containers-such-as-lists-or-tuples">Emulating sequential containers (such as lists or tuples)</a></h3>
 <p>The <a href="https://pyo3.rs/main/doc/pyo3/class/sequence/trait.PySequenceProtocol.html"><code>PySequenceProtocol</code></a> trait can be implemented to emulate
@@ -390,12 +378,6 @@ for the <code>__getitem__()</code> method.</p>
 Should only be implemented if the mapping supports removal of keys.
 The same exceptions should be raised for improper key values as
 for the <code>__getitem__()</code> method.</p>
-</li>
-<li>
-<p><code>fn __reversed__(&amp;self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
-<p>Called (if present) by the <code>reversed()</code> built-in to implement reverse iteration.
-It should return a new iterator object that iterates over all the objects in
-the container in reverse order.</p>
 </li>
 </ul>
 <h3 id="garbage-collector-integration"><a class="header" href="#garbage-collector-integration">Garbage Collector Integration</a></h3>

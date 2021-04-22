@@ -172,6 +172,41 @@ For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</
 <h3 id="new-multiple-pymethods-feature"><a class="header" href="#new-multiple-pymethods-feature">New <code>multiple-pymethods</code> feature</a></h3>
 <p><code>#[pymethods]</code> have been reworked with a simpler default implementation which removes the dependency on the <code>inventory</code> crate. This reduces dependencies and compile times for the majority of users.</p>
 <p>The limitation of the new default implementation is that it cannot support multiple <code>#[pymethods]</code> blocks for the same <code>#[pyclass]</code>. If you need this functionality, you must enable the <code>multiple-pymethods</code> feature which will switch <code>#[pymethods]</code> to the inventory-based implementation.</p>
+<h3 id="deprecated-pyproto-methods"><a class="header" href="#deprecated-pyproto-methods">Deprecated <code>#[pyproto]</code> methods</a></h3>
+<p>Some protocol (aka <code>__dunder__</code>) methods such as <code>__bytes__</code> and <code>__format__</code> have been possible to implement two ways in PyO3 for some time: via a <code>#[pyproto]</code> (e.g. <code>PyBasicProtocol</code> for the methods listed here), or by writing them directly in <code>#[pymethods]</code>. This is only true for a handful of the <code>#[pyproto]</code> methods (for technical reasons to do with the way PyO3 currently interacts with the Python C-API).</p>
+<p>In the interest of having onle one way to do things, the <code>#[pyproto]</code> forms of these methods have been deprecated.</p>
+<p>To migrate just move the affected methods from a <code>#[pyproto]</code> to a <code>#[pymethods]</code> block.</p>
+<p>Before:</p>
+<pre><code class="language-rust ignore">use pyo3::prelude::*;
+use pyo3::class::basic::PyBasicProtocol;
+
+#[pyclass]
+struct MyClass { }
+
+#[pyproto]
+impl PyBasicProtocol for MyClass {
+    fn __bytes__(&amp;self) -&gt; &amp;'static [u8] {
+        b&quot;hello, world&quot;
+    }
+}
+</code></pre>
+<p>After:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
+
+#[pyclass]
+struct MyClass { }
+
+#[pymethods]
+impl MyClass {
+    fn __bytes__(&amp;self) -&gt; &amp;'static [u8] {
+        b&quot;hello, world&quot;
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="from-012-to-013"><a class="header" href="#from-012-to-013">from 0.12.* to 0.13</a></h2>
 <h3 id="minimum-rust-version-increased-to-rust-145"><a class="header" href="#minimum-rust-version-increased-to-rust-145">Minimum Rust version increased to Rust 1.45</a></h3>
 <p>PyO3 <code>0.13</code> makes use of new Rust language features stabilised between Rust 1.40 and Rust 1.45. If you are using a Rust compiler older than Rust 1.45, you will need to update your toolchain to be able to continue using PyO3.</p>

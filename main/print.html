@@ -1425,12 +1425,11 @@ impl pyo3::class::impl_::PyClassImpl for MyClass {
 </span><span class="boring">}
 </span></code></pre></pre>
 <h2 id="class-customizations"><a class="header" href="#class-customizations">Class customizations</a></h2>
-<p>Python's object model defines several protocols for different object behavior, like sequence,
-mapping or number protocols. PyO3 defines separate traits for each of them. To provide specific
-Python object behavior, you need to implement the specific trait for your struct. Important note,
-each protocol implementation block has to be annotated with the <code>#[pyproto]</code> attribute.</p>
-<p>All <code>#[pyproto]</code> methods which can be defined below can return <code>T</code> instead of <code>PyResult&lt;T&gt;</code> if the
-method implementation is infallible. In addition, if the return type is <code>()</code>, it can be omitted altogether.</p>
+<p>PyO3 uses the <code>#[pyproto]</code> attribute in combination with special traits to implement certain protocol (aka <code>__dunder__</code>) methods of Python classes. The special traits are listed in this chapter of the guide. See also the <a href="https://pyo3.rs/main/doc/pyo3/class/index.html">documentation for the <code>pyo3::class</code> module</a>.</p>
+<p>Python's object model defines several protocols for different object behavior, such as the sequence, mapping, and number protocols. You may be familiar with implementing these protocols in Python classes by &quot;dunder&quot; methods, such as <code>__str__</code> or <code>__repr__</code>.</p>
+<p>In the Python C-API which PyO3 is dependent upon, many of these protocol methods have to be provided into special &quot;slots&quot; on the class type object. To fill these slots PyO3 uses the <code>#[pyproto]</code> attribute in combination with special traits.</p>
+<p>All <code>#[pyproto]</code> methods can return <code>T</code> instead of <code>PyResult&lt;T&gt;</code> if the method implementation is infallible. In addition, if the return type is <code>()</code>, it can be omitted altogether.</p>
+<p>There are many &quot;dunder&quot; methods which are not included in any of PyO3's protocol traits, such as <code>__dir__</code>. These methods can be implemented in <code>#[pymethods]</code> as already covered in the previous section.</p>
 <h3 id="basic-object-customization"><a class="header" href="#basic-object-customization">Basic object customization</a></h3>
 <p>The <a href="https://pyo3.rs/main/doc/pyo3/class/basic/trait.PyObjectProtocol.html"><code>PyObjectProtocol</code></a> trait provides several basic customizations.</p>
 <h4 id="attribute-access"><a class="header" href="#attribute-access">Attribute access</a></h4>
@@ -1449,15 +1448,6 @@ method implementation is infallible. In addition, if the return type is <code>()
 <li>
 <p><code>fn __str__(&amp;self) -&gt; PyResult&lt;impl ToPyObject&lt;ObjectType=PyString&gt;&gt;</code></p>
 <p>Possible return types for <code>__str__</code> and <code>__repr__</code> are <code>PyResult&lt;String&gt;</code> or <code>PyResult&lt;PyString&gt;</code>.</p>
-</li>
-<li>
-<p><code>fn __bytes__(&amp;self) -&gt; PyResult&lt;PyBytes&gt;</code></p>
-<p>Provides the conversion to <code>bytes</code>.</p>
-</li>
-<li>
-<p><code>fn __format__(&amp;self, format_spec: &amp;str) -&gt; PyResult&lt;impl ToPyObject&lt;ObjectType=PyString&gt;&gt;</code></p>
-<p>Special method that is used by the <code>format()</code> builtin and the <code>str.format()</code> method.
-Possible return types are <code>PyResult&lt;String&gt;</code> or <code>PyResult&lt;PyString&gt;</code>.</p>
 </li>
 </ul>
 <h4 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison operators</a></h4>
@@ -1551,14 +1541,12 @@ signature, or raise a TypeError.</p>
 </ul>
 <p>Support for coercions:</p>
 <ul>
-<li><code>fn __complex__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 <li><code>fn __int__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 <li><code>fn __float__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 </ul>
 <p>Other:</p>
 <ul>
 <li><code>fn __index__(&amp;'p self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
-<li><code>fn __round__(&amp;'p self, ndigits: Option&lt;impl FromPyObject&gt;) -&gt; PyResult&lt;impl ToPyObject&gt;</code></li>
 </ul>
 <h3 id="emulating-sequential-containers-such-as-lists-or-tuples"><a class="header" href="#emulating-sequential-containers-such-as-lists-or-tuples">Emulating sequential containers (such as lists or tuples)</a></h3>
 <p>The <a href="https://pyo3.rs/main/doc/pyo3/class/sequence/trait.PySequenceProtocol.html"><code>PySequenceProtocol</code></a> trait can be implemented to emulate
@@ -1651,12 +1639,6 @@ for the <code>__getitem__()</code> method.</p>
 Should only be implemented if the mapping supports removal of keys.
 The same exceptions should be raised for improper key values as
 for the <code>__getitem__()</code> method.</p>
-</li>
-<li>
-<p><code>fn __reversed__(&amp;self) -&gt; PyResult&lt;impl ToPyObject&gt;</code></p>
-<p>Called (if present) by the <code>reversed()</code> built-in to implement reverse iteration.
-It should return a new iterator object that iterates over all the objects in
-the container in reverse order.</p>
 </li>
 </ul>
 <h3 id="garbage-collector-integration"><a class="header" href="#garbage-collector-integration">Garbage Collector Integration</a></h3>
@@ -3012,6 +2994,7 @@ not work when compiling for <code>abi3</code>. These are:</p>
 <p>See <a href="https://github.com/japaric/rust-cross">github.com/japaric/rust-cross</a> for a primer on cross compiling Rust in general.</p>
 <p>After you've obtained the above, you can build a cross compiled PyO3 module by setting a few extra environment variables:</p>
 <ul>
+<li><code>PYO3_CROSS</code>: If present this variable forces PyO3 to configure as a cross-compilation.</li>
 <li><code>PYO3_CROSS_LIB_DIR</code>: This variable must be set to the directory containing the target's libpython DSO and the associated <code>_sysconfigdata*.py</code> file for Unix-like targets, or the Python DLL import libraries for the Windows target.</li>
 <li><code>PYO3_CROSS_PYTHON_VERSION</code>: Major and minor version (e.g. 3.9) of the target Python installation. This variable is only needed if PyO3 cannot determine the version to target from <code>abi3-py3*</code> features, or if there are multiple versions of Python present in <code>PYO3_CROSS_LIB_DIR</code>.</li>
 </ul>
@@ -3416,6 +3399,41 @@ For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</
 <h3 id="new-multiple-pymethods-feature"><a class="header" href="#new-multiple-pymethods-feature">New <code>multiple-pymethods</code> feature</a></h3>
 <p><code>#[pymethods]</code> have been reworked with a simpler default implementation which removes the dependency on the <code>inventory</code> crate. This reduces dependencies and compile times for the majority of users.</p>
 <p>The limitation of the new default implementation is that it cannot support multiple <code>#[pymethods]</code> blocks for the same <code>#[pyclass]</code>. If you need this functionality, you must enable the <code>multiple-pymethods</code> feature which will switch <code>#[pymethods]</code> to the inventory-based implementation.</p>
+<h3 id="deprecated-pyproto-methods"><a class="header" href="#deprecated-pyproto-methods">Deprecated <code>#[pyproto]</code> methods</a></h3>
+<p>Some protocol (aka <code>__dunder__</code>) methods such as <code>__bytes__</code> and <code>__format__</code> have been possible to implement two ways in PyO3 for some time: via a <code>#[pyproto]</code> (e.g. <code>PyBasicProtocol</code> for the methods listed here), or by writing them directly in <code>#[pymethods]</code>. This is only true for a handful of the <code>#[pyproto]</code> methods (for technical reasons to do with the way PyO3 currently interacts with the Python C-API).</p>
+<p>In the interest of having onle one way to do things, the <code>#[pyproto]</code> forms of these methods have been deprecated.</p>
+<p>To migrate just move the affected methods from a <code>#[pyproto]</code> to a <code>#[pymethods]</code> block.</p>
+<p>Before:</p>
+<pre><code class="language-rust ignore">use pyo3::prelude::*;
+use pyo3::class::basic::PyBasicProtocol;
+
+#[pyclass]
+struct MyClass { }
+
+#[pyproto]
+impl PyBasicProtocol for MyClass {
+    fn __bytes__(&amp;self) -&gt; &amp;'static [u8] {
+        b&quot;hello, world&quot;
+    }
+}
+</code></pre>
+<p>After:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
+
+#[pyclass]
+struct MyClass { }
+
+#[pymethods]
+impl MyClass {
+    fn __bytes__(&amp;self) -&gt; &amp;'static [u8] {
+        b&quot;hello, world&quot;
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="from-012-to-013"><a class="header" href="#from-012-to-013">from 0.12.* to 0.13</a></h2>
 <h3 id="minimum-rust-version-increased-to-rust-145"><a class="header" href="#minimum-rust-version-increased-to-rust-145">Minimum Rust version increased to Rust 1.45</a></h3>
 <p>PyO3 <code>0.13</code> makes use of new Rust language features stabilised between Rust 1.40 and Rust 1.45. If you are using a Rust compiler older than Rust 1.45, you will need to update your toolchain to be able to continue using PyO3.</p>
@@ -4500,6 +4518,16 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Deprecate <code>PyModule</code> methods <code>call</code>, <code>call0</code>, <code>call1</code> and <code>get</code>. <a href="https://github.com/PyO3/pyo3/pull/1492">#1492</a></li>
 <li>Add length information to <code>PyBufferError</code>s raised from <code>PyBuffer::copy_to_slice</code> and <code>PyBuffer::copy_from_slice</code>. <a href="https://github.com/PyO3/pyo3/pull/1534">#1534</a></li>
 <li>Automatically provide <code>-undefined</code> and <code>dynamic_lookup</code> linker arguments on macOS with <code>extension-module</code> feature. <a href="https://github.com/PyO3/pyo3/pull/1539">#1539</a></li>
+<li>Deprecate <code>#[pyproto]</code> methods which are easier to implement as <code>#[pymethods]</code>: <a href="https://github.com/PyO3/pyo3/pull/1560">#1560</a>
+<ul>
+<li><code>PyBasicProtocol::__bytes__</code> and <code>PyBasicProtocol::__format__</code></li>
+<li><code>PyContextProtocol::__enter__</code> and <code>PyContextProtocol::__exit__</code></li>
+<li><code>PyDescrProtocol::__delete__</code> and <code>PyDescrProtocol::__set_name__</code></li>
+<li><code>PyMappingProtocol::__reversed__</code></li>
+<li><code>PyNumberProtocol::__complex__</code> and <code>PyNumberProtocol::__round__</code></li>
+<li><code>PyAsyncProtocol::__aenter__</code> and <code>PyAsyncProtocol::__aexit__</code></li>
+</ul>
+</li>
 </ul>
 <h3 id="removed"><a class="header" href="#removed">Removed</a></h3>
 <ul>
@@ -4529,7 +4557,8 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Fix use of Python argument for #[pymethods] inside macro expansions. <a href="https://github.com/PyO3/pyo3/pull/1505">#1505</a></li>
 <li>Always use cross-compiling configuration if any of the environment variables are set. <a href="https://github.com/PyO3/pyo3/pull/1514">#1514</a></li>
 <li>Support <code>EnvironmentError</code>, <code>IOError</code>, and <code>WindowsError</code> on PyPy. <a href="https://github.com/PyO3/pyo3/pull/1533">#1533</a></li>
-<li>Segfault when dereferencing <code>ffi::PyDateTimeAPI</code> without the GIL. <a href="https://github.com/PyO3/pyo3/pull/1563">#1563</a></li>
+<li>Fix unneccessary rebuilds when cycling between <code>cargo check</code> and <code>cargo clippy</code> in a Python virtualenv. <a href="https://github.com/PyO3/pyo3/pull/1557">#1557</a></li>
+<li>Fix segfault when dereferencing <code>ffi::PyDateTimeAPI</code> without the GIL. <a href="https://github.com/PyO3/pyo3/pull/1563">#1563</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a href="https://github.com/pyo3/pyo3/compare/v0.13.1...v0.13.2">0.13.2</a> - 2021-02-12</a></h2>
 <h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>

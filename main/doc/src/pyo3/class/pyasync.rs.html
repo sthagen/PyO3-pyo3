@@ -135,6 +135,14 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -177,6 +185,10 @@
         <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__aenter__` in `#[pymethods]` instead of in a protocol&quot;</span>
+    )]</span>
     <span class="kw">fn</span> <span class="ident">__aenter__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyAsyncAenterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -184,6 +196,10 @@
         <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__aexit__` in `#[pymethods]` instead of in a protocol&quot;</span>
+    )]</span>
     <span class="kw">fn</span> <span class="ident">__aexit__</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">exc_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">ExcType</span><span class="op">&gt;</span>,

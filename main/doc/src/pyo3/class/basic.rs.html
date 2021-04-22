@@ -206,6 +206,14 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -270,6 +278,10 @@
         <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__format__` in `#[pymethods]` instead of in a protocol&quot;</span>
+    )]</span>
     <span class="kw">fn</span> <span class="ident">__format__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">format_spec</span>: <span class="self">Self</span>::<span class="ident">Format</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectFormatProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -284,6 +296,10 @@
         <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__bytes__` in `#[pymethods]` instead of in a protocol&quot;</span>
+    )]</span>
     <span class="kw">fn</span> <span class="ident">__bytes__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="prelude-ty">Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectBytesProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
