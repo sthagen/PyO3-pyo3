@@ -29,6 +29,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Deprecate `PyModule` methods `call`, `call0`, `call1` and `get`. [#1492](https://github.com/PyO3/pyo3/pull/1492)
 - Add length information to `PyBufferError`s raised from `PyBuffer::copy_to_slice` and `PyBuffer::copy_from_slice`. [#1534](https://github.com/PyO3/pyo3/pull/1534)
 - Automatically provide `-undefined` and `dynamic_lookup` linker arguments on macOS with `extension-module` feature. [#1539](https://github.com/PyO3/pyo3/pull/1539)
+- Deprecate `#[pyproto]` methods which are easier to implement as `#[pymethods]`: [#1560](https://github.com/PyO3/pyo3/pull/1560)
+  - `PyBasicProtocol::__bytes__` and `PyBasicProtocol::__format__`
+  - `PyContextProtocol::__enter__` and `PyContextProtocol::__exit__`
+  - `PyDescrProtocol::__delete__` and `PyDescrProtocol::__set_name__`
+  - `PyMappingProtocol::__reversed__`
+  - `PyNumberProtocol::__complex__` and `PyNumberProtocol::__round__`
+  - `PyAsyncProtocol::__aenter__` and `PyAsyncProtocol::__aexit__`
 
 ### Removed
 - Remove deprecated exception names `BaseException` etc. [#1426](https://github.com/PyO3/pyo3/pull/1426)
@@ -53,7 +60,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix use of Python argument for #[pymethods] inside macro expansions. [#1505](https://github.com/PyO3/pyo3/pull/1505)
 - Always use cross-compiling configuration if any of the environment variables are set. [#1514](https://github.com/PyO3/pyo3/pull/1514)
 - Support `EnvironmentError`, `IOError`, and `WindowsError` on PyPy. [#1533](https://github.com/PyO3/pyo3/pull/1533)
-- Segfault when dereferencing `ffi::PyDateTimeAPI` without the GIL. [#1563](https://github.com/PyO3/pyo3/pull/1563)
+- Fix unneccessary rebuilds when cycling between `cargo check` and `cargo clippy` in a Python virtualenv. [#1557](https://github.com/PyO3/pyo3/pull/1557)
+- Fix segfault when dereferencing `ffi::PyDateTimeAPI` without the GIL. [#1563](https://github.com/PyO3/pyo3/pull/1563)
 
 ## [0.13.2] - 2021-02-12
 ### Packaging
