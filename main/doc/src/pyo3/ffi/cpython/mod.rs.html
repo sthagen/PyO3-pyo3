@@ -38,6 +38,7 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
+<span id="38">38</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">abstract_</span>;
 <span class="comment">// skipped bytearrayobject.h</span>
@@ -50,7 +51,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dictobject</span>;
 <span class="comment">// skipped fileobject.h</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">frameobject</span>;
-<span class="comment">// skipped import.h</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">import</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">initconfig</span>;
 <span class="comment">// skipped interpreteridobject.h</span>
@@ -69,6 +70,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">dictobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">frameobject</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">import</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">initconfig</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">listobject</span>::<span class="kw-2">*</span>;
