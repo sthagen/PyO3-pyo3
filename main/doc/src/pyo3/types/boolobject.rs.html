@@ -97,7 +97,7 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBool</span>(<span class="ident">PyAny</span>);
 
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PyBool</span>, <span class="ident">ffi</span>::<span class="ident">PyObject</span>, <span class="ident">ffi</span>::<span class="ident">PyBool_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyBool_Check</span>);
+<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PyBool</span>, <span class="ident">ffi</span>::<span class="ident">PyObject</span>, <span class="ident">ffi</span>::<span class="ident">PyBool_Type</span>, #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi</span>::<span class="ident">PyBool_Check</span>);
 
 <span class="kw">impl</span> <span class="ident">PyBool</span> {
     <span class="doccomment">/// Depending on `val`, returns `true` or `false`.</span>

@@ -590,6 +590,93 @@
 <span id="587">587</span>
 <span id="588">588</span>
 <span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! FFI bindings to the functions and structs defined in `datetime.h`</span>
 <span class="doccomment">//!</span>
@@ -992,13 +1079,11 @@
     <span class="kw">pub</span> <span class="ident">TimeZone_FromTimeZone</span>:
         <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">offset</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">name</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
 
-    <span class="comment">// Defined for PyPy as `PyDateTime_FromTimestamp`</span>
     <span class="kw">pub</span> <span class="ident">DateTime_FromTimestamp</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
         <span class="ident">cls</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyTypeObject</span>,
         <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">kwargs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    <span class="comment">// Defined for PyPy as `PyDate_FromTimestamp`</span>
     <span class="kw">pub</span> <span class="ident">Date_FromTimestamp</span>:
         <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">cls</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyTypeObject</span>, <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
@@ -1038,6 +1123,17 @@
 <span class="doccomment">/// will automatically be acquired and [`PyDateTime_IMPORT()`] called.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">PyDateTimeAPI</span>: <span class="ident">_PyDateTimeAPI_impl</span> <span class="op">=</span> <span class="ident">_PyDateTimeAPI_impl</span> {
     <span class="ident">inner</span>: <span class="ident">GILOnceCell</span>::<span class="ident">new</span>(),
+};
+
+<span class="doccomment">/// Safe wrapper around the Python C-API global `PyDateTime_TimeZone_UTC`. This follows a similar</span>
+<span class="doccomment">/// strategy as [`PyDateTimeAPI`]: the Python datetime C-API will automatically be imported if this</span>
+<span class="doccomment">/// type is deferenced.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The type obtained by dereferencing this object is `&amp;&#39;static PyObject`. This may change in the</span>
+<span class="doccomment">/// future to be a more specific type representing that this is a `datetime.timezone` object.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_7</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">PyDateTime_TimeZone_UTC</span>: <span class="ident">_PyDateTime_TimeZone_UTC_impl</span> <span class="op">=</span> <span class="ident">_PyDateTime_TimeZone_UTC_impl</span> {
+    <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="ident">PyDateTimeAPI</span>,
 };
 
 <span class="doccomment">/// Populates the `PyDateTimeAPI` object</span>
@@ -1152,6 +1248,16 @@
 <span class="comment">// skipped non-limited PyTimeZone_FromOffset</span>
 <span class="comment">// skipped non-limited PyTimeZone_FromOffsetAndName</span>
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyDateTime_FromTimestamp</span>(<span class="ident">args</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+    (<span class="ident">PyDateTimeAPI</span>.<span class="ident">DateTime_FromTimestamp</span>)(<span class="ident">PyDateTimeAPI</span>.<span class="ident">DateTimeType</span>, <span class="ident">args</span>, <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>())
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyDate_FromTimestamp</span>(<span class="ident">args</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+    (<span class="ident">PyDateTimeAPI</span>.<span class="ident">Date_FromTimestamp</span>)(<span class="ident">PyDateTimeAPI</span>.<span class="ident">DateType</span>, <span class="ident">args</span>)
+}
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDate_FromTimestamp&quot;</span>]</span>
@@ -1159,6 +1265,7 @@
     <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDateTime_FromTimestamp&quot;</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyDateTime_FromTimestamp</span>(<span class="ident">args</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 }
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyDateTime_Import&quot;</span>]</span>
@@ -1178,6 +1285,73 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyDateTime_CAPI</span> {
         <span class="kw">unsafe</span> { <span class="ident">PyDateTime_IMPORT</span>() }
+    }
+}
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_7</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">_PyDateTime_TimeZone_UTC_impl</span> {
+    <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">_PyDateTimeAPI_impl</span>,
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_7</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">_PyDateTime_TimeZone_UTC_impl</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">PyObject</span>;
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">PyObject</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw-2">&amp;</span><span class="kw-2">*</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">TimeZone_UTC</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">PyObject</span>
+                <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">crate</span>::<span class="ident">PyObject</span>)
+        }
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">py_run</span>, <span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">Python</span>};
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_datetime_fromtimestamp</span>() {
+        <span class="ident">Python</span>::<span class="ident">with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">args</span>: <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">100</span>,).<span class="ident">into_py</span>(<span class="ident">py</span>);
+            <span class="kw">unsafe</span> { <span class="ident">PyDateTime_IMPORT</span>() };
+            <span class="kw">let</span> <span class="ident">dt</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">PyDateTime_FromTimestamp</span>(<span class="ident">args</span>.<span class="ident">as_ptr</span>())) };
+            <span class="macro">py_run</span><span class="macro">!</span>(
+                <span class="ident">py</span>,
+                <span class="ident">dt</span>,
+                <span class="string">&quot;import datetime; assert dt == datetime.datetime.fromtimestamp(100)&quot;</span>
+            );
+        })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_date_fromtimestamp</span>() {
+        <span class="ident">Python</span>::<span class="ident">with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">args</span>: <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">100</span>,).<span class="ident">into_py</span>(<span class="ident">py</span>);
+            <span class="macro">dbg</span><span class="macro">!</span>(<span class="ident">args</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>));
+            <span class="kw">unsafe</span> { <span class="ident">PyDateTime_IMPORT</span>() };
+            <span class="kw">let</span> <span class="ident">dt</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">PyDate_FromTimestamp</span>(<span class="ident">args</span>.<span class="ident">as_ptr</span>())) };
+            <span class="macro">py_run</span><span class="macro">!</span>(
+                <span class="ident">py</span>,
+                <span class="ident">dt</span>,
+                <span class="string">&quot;import datetime; assert dt == datetime.date.fromtimestamp(100)&quot;</span>
+            );
+        })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_7</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+    <span class="kw">fn</span> <span class="ident">test_utc_timezone</span>() {
+        <span class="ident">Python</span>::<span class="ident">with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">utc_timezone</span> <span class="op">=</span> <span class="ident">PyDateTime_TimeZone_UTC</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>);
+            <span class="macro">py_run</span><span class="macro">!</span>(
+                <span class="ident">py</span>,
+                <span class="ident">utc_timezone</span>,
+                <span class="string">&quot;import datetime; assert utc_timezone is datetime.timezone.utc&quot;</span>
+            );
+        })
     }
 }
 </pre></div>

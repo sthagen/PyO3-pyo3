@@ -322,7 +322,7 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyModule</span>(<span class="ident">PyAny</span>);
 
-<span class="macro">pyobject_native_var_type</span><span class="macro">!</span>(<span class="ident">PyModule</span>, <span class="ident">ffi</span>::<span class="ident">PyModule_Type</span>, <span class="ident">ffi</span>::<span class="ident">PyModule_Check</span>);
+<span class="macro">pyobject_native_type_core</span><span class="macro">!</span>(<span class="ident">PyModule</span>, <span class="ident">ffi</span>::<span class="ident">PyModule_Type</span>, #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi</span>::<span class="ident">PyModule_Check</span>);
 
 <span class="kw">impl</span> <span class="ident">PyModule</span> {
     <span class="doccomment">/// Creates a new module object with the `__name__` attribute set to name.</span>

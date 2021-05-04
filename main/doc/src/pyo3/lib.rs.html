@@ -425,6 +425,8 @@
 <span id="422">422</span>
 <span id="423">423</span>
 <span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>)]</span> <span class="comment">// FIXME (#698)</span>
@@ -618,11 +620,13 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">serde</span>;
 
-<span class="doccomment">/// The proc macros, which are also part of the prelude.</span>
+<span class="doccomment">/// The proc macros, all of which are part of the prelude.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Import these with `use pyo3::prelude::*;`</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">proc_macro</span> {
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros</span>::<span class="ident">pymodule</span>;
-    <span class="doccomment">/// The proc macro attributes</span>
+
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros</span>::{<span class="ident">pyfunction</span>, <span class="ident">pyproto</span>};
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multiple-pymethods&quot;</span>))]</span>

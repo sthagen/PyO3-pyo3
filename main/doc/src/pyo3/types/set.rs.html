@@ -611,12 +611,12 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyFrozenSet</span>(<span class="ident">PyAny</span>);
 
-<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PySet</span>, <span class="ident">ffi</span>::<span class="ident">PySetObject</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Type</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Check</span>);
+<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="ident">PySet</span>, <span class="ident">ffi</span>::<span class="ident">PySetObject</span>, <span class="ident">ffi</span>::<span class="ident">PySet_Type</span>, #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi</span>::<span class="ident">PySet_Check</span>);
 <span class="macro">pyobject_native_type</span><span class="macro">!</span>(
     <span class="ident">PyFrozenSet</span>,
     <span class="ident">ffi</span>::<span class="ident">PySetObject</span>,
     <span class="ident">ffi</span>::<span class="ident">PyFrozenSet_Type</span>,
-    <span class="ident">ffi</span>::<span class="ident">PyFrozenSet_Check</span>
+    #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi</span>::<span class="ident">PyFrozenSet_Check</span>
 );
 
 <span class="kw">impl</span> <span class="ident">PySet</span> {

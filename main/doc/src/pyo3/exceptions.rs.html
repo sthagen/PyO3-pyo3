@@ -501,17 +501,11 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Exception types defined by Python.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">type_object</span>::<span class="ident">PySizedLayout</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>;
@@ -587,9 +581,8 @@
 
         <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">pyobject_native_type_core</span><span class="macro">!</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ffi</span>::<span class="ident">PyBaseExceptionObject</span>,
             <span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>::<span class="ident">type_object_raw</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>()),
-            <span class="prelude-val">Some</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
+            #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
         );
 
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
@@ -673,9 +666,8 @@
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span>: <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">pyobject_native_type_core</span><span class="macro">!</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">ffi</span>::<span class="ident">PyBaseExceptionObject</span>,
             <span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>::<span class="ident">type_object_raw</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">Python</span>::<span class="ident">assume_gil_acquired</span>()),
-            <span class="prelude-val">Some</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
+            #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
         );
 
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
@@ -710,14 +702,12 @@
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">PyAny</span>);
 
         <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">impl_exception_boilerplate</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>);
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">pyobject_native_type_core</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>, <span class="kw-2">*</span>(<span class="ident">ffi</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;builtins&quot;</span>));
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">pyobject_native_type</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>, <span class="kw-2">*</span>(<span class="ident">ffi</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">PyTypeObject</span>));
     );
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> (
         <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span>, <span class="ident">ffi</span>::<span class="ident">PyBaseExceptionObject</span>);
     )
 );
-
-<span class="kw">impl</span> <span class="ident">PySizedLayout</span><span class="op">&lt;</span><span class="ident">PyBaseException</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ffi</span>::<span class="ident">PyBaseExceptionObject</span> {}
 
 <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="ident">PyBaseException</span>, <span class="ident">PyExc_BaseException</span>);
 <span class="macro">impl_native_exception</span><span class="macro">!</span>(<span class="ident">PyException</span>, <span class="ident">PyExc_Exception</span>);
