@@ -11,6 +11,12 @@ impl MyClass {
 
 #[pymethods]
 impl MyClass {
+    #[classattr(foobar)]
+    const CLASS_ATTR_WITH_ATTRIBUTE_ARG: i32 = 3;
+}
+
+#[pymethods]
+impl MyClass {
     fn staticmethod_without_attribute() {}
 }
 
@@ -95,6 +101,11 @@ impl MyClass {
 #[pymethods]
 impl MyClass {
     fn impl_trait_method_second_arg(&self, impl_trait: impl AsRef<PyAny>) {}
+}
+
+#[pymethods]
+impl MyClass {
+    async fn async_method(&self) {}
 }
 
 fn main() {}

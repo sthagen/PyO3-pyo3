@@ -37,6 +37,7 @@ impl PyDict {
     /// Returns an error on invalid input. In the case of key collisions,
     /// this keeps the last entry seen.
     #[cfg(not(PyPy))]
+    #[cfg_attr(docsrs, doc(cfg(not(PyPy))))]
     pub fn from_sequence(py: Python, seq: PyObject) -> PyResult<&PyDict> {
         unsafe {
             let dict = py.from_owned_ptr::<PyDict>(ffi::PyDict_New());
@@ -527,8 +528,8 @@ mod test {
         v.insert(7, 32);
         let ob = v.to_object(py);
         let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
-        assert_eq!(true, dict.contains(7i32).unwrap());
-        assert_eq!(false, dict.contains(8i32).unwrap());
+        assert!(dict.contains(7i32).unwrap());
+        assert!(!dict.contains(8i32).unwrap());
     }
 
     #[test]

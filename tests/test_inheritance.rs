@@ -153,12 +153,13 @@ except Exception as e:
 #[cfg(not(Py_LIMITED_API))]
 mod inheriting_native_type {
     use super::*;
-    use pyo3::types::{PyDict, PySet};
+    use pyo3::exceptions::PyException;
+    use pyo3::types::{IntoPyDict, PyDict, PySet};
 
     #[pyclass(extends=PySet)]
     #[derive(Debug)]
     struct SetWithName {
-        #[pyo3(get(name))]
+        #[pyo3(get, name = "name")]
         _name: &'static str,
     }
 
@@ -178,14 +179,14 @@ mod inheriting_native_type {
         py_run!(
             py,
             set_sub,
-            r#"set_sub.add(10); assert list(set_sub) == [10]; assert set_sub._name == "Hello :)""#
+            r#"set_sub.add(10); assert list(set_sub) == [10]; assert set_sub.name == "Hello :)""#
         );
     }
 
     #[pyclass(extends=PyDict)]
     #[derive(Debug)]
     struct DictWithName {
-        #[pyo3(get(name))]
+        #[pyo3(get, name = "name")]
         _name: &'static str,
     }
 
@@ -205,8 +206,51 @@ mod inheriting_native_type {
         py_run!(
             py,
             dict_sub,
-            r#"dict_sub[0] = 1; assert dict_sub[0] == 1; assert dict_sub._name == "Hello :)""#
+            r#"dict_sub[0] = 1; assert dict_sub[0] == 1; assert dict_sub.name == "Hello :)""#
         );
+    }
+
+    #[pyclass(extends=PyException)]
+    struct CustomException {
+        #[pyo3(get)]
+        context: &'static str,
+    }
+
+    #[pymethods]
+    impl CustomException {
+        #[new]
+        fn new() -> Self {
+            CustomException {
+                context: "Hello :)",
+            }
+        }
+    }
+
+    #[test]
+    fn custom_exception() {
+        Python::with_gil(|py| {
+            let cls = py.get_type::<CustomException>();
+            let dict = [("cls", cls)].into_py_dict(py);
+            let res = py.run(
+            "e = cls('hello'); assert str(e) == 'hello'; assert e.context == 'Hello :)'; raise e",
+            None,
+            Some(dict)
+            );
+            let err = res.unwrap_err();
+            assert!(err.matches(py, cls), "{}", err);
+
+            // catching the exception in Python also works:
+            py_run!(
+                py,
+                cls,
+                r#"
+                    try:
+                        raise cls("foo")
+                    except cls:
+                        pass
+                "#
+            )
+        })
     }
 }
 

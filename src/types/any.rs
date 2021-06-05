@@ -11,31 +11,28 @@ use std::cell::UnsafeCell;
 use std::cmp::Ordering;
 use std::os::raw::c_int;
 
-/// A Python object with GIL lifetime
+/// Represents any Python object.  
 ///
-/// Represents any Python object.  All Python objects can be cast to `PyAny`.
-/// In addition, if the inner object is an instance of type `T`, we can downcast
-/// `PyAny` into `T`.
+/// It currently only appears as a *reference*, `&PyAny`,
+/// with a lifetime that represents the scope during which the GIL is held.
 ///
-/// `PyAny` is used as a reference with a lifetime that represents that the GIL
-/// is held, therefore its API does not require a `Python<'py>` token.
+/// `PyAny` has some interesting properties, which it shares
+/// with the other [native Python types](crate::types):
+///
+/// - It can only be obtained and used while the GIL is held,
+/// therefore its API does not require a [`Python<'py>`](crate::Python) token.
+/// - It can't be used in situations where the GIL is temporarily released,
+/// such as [`Python::allow_threads`](crate::Python::allow_threads)'s closure.
+/// - The underlying Python object, if mutable, can be mutated through any reference.
+/// - It can be converted to the GIL-independent [`Py`]`<`[`PyAny`]`>`,
+/// allowing it to outlive the GIL scope. However, using [`Py`]`<`[`PyAny`]`>`'s API
+/// *does* require a [`Python<'py>`](crate::Python) token.
+///
+/// It can be cast to a concrete type with PyAny::downcast (for native Python types only)
+/// and FromPyObject::extract. See their documentation for more information.
 ///
 /// See [the guide](https://pyo3.rs/main/types.html) for an explanation
 /// of the different Python object types.
-///
-/// # Examples
-///
-/// ```
-/// use pyo3::prelude::*;
-/// use pyo3::types::{PyAny, PyDict, PyList};
-/// Python::with_gil(|py| {
-///     let dict = PyDict::new(py);
-///     assert!(dict.is_instance::<PyAny>().unwrap());
-///     let any: &PyAny = dict.as_ref();
-///     assert!(any.downcast::<PyDict>().is_ok());
-///     assert!(any.downcast::<PyList>().is_err());
-/// });
-/// ```
 #[repr(transparent)]
 pub struct PyAny(UnsafeCell<ffi::PyObject>);
 
@@ -46,9 +43,6 @@ impl crate::AsPyPointer for PyAny {
     }
 }
 
-unsafe impl crate::type_object::PyLayout<PyAny> for ffi::PyObject {}
-impl crate::type_object::PySizedLayout<PyAny> for ffi::PyObject {}
-
 #[allow(non_snake_case)]
 // Copied here as the macro does not accept deprecated functions.
 // Originally ffi::object::PyObject_Check, but this is not in the Python C API.
@@ -56,9 +50,10 @@ fn PyObject_Check(_: *mut ffi::PyObject) -> c_int {
     1
 }
 
+pyobject_native_type_base!(PyAny);
+
 pyobject_native_type_info!(
     PyAny,
-    ffi::PyObject,
     ffi::PyBaseObject_Type,
     Some("builtins"),
     #checkfunction=PyObject_Check
@@ -66,10 +61,25 @@ pyobject_native_type_info!(
 
 pyobject_native_type_extract!(PyAny);
 
-pyobject_native_type_base!(PyAny);
+pyobject_native_type_sized!(PyAny, ffi::PyObject);
 
 impl PyAny {
-    /// Convert this PyAny to a concrete Python type.
+    /// Converts this `PyAny` to a concrete Python type.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::{PyAny, PyDict, PyList};
+    ///
+    /// Python::with_gil(|py| {
+    ///     let dict = PyDict::new(py);
+    ///     assert!(dict.is_instance::<PyAny>().unwrap());
+    ///     let any: &PyAny = dict.as_ref();
+    ///     assert!(any.downcast::<PyDict>().is_ok());
+    ///     assert!(any.downcast::<PyList>().is_err());
+    /// });
+    /// ```
     pub fn downcast<T>(&self) -> Result<&T, PyDowncastError>
     where
         for<'py> T: PyTryFrom<'py>,
@@ -122,7 +132,7 @@ impl PyAny {
 
     /// Deletes an attribute.
     ///
-    /// This is equivalent to the Python expression `del self.attr_name`.
+    /// This is equivalent to the Python statement `del self.attr_name`.
     pub fn delattr<N>(&self, attr_name: N) -> PyResult<()>
     where
         N: ToPyObject,
@@ -132,9 +142,9 @@ impl PyAny {
         })
     }
 
-    /// Compares two Python objects.
+    /// Returns an [`Ordering`] between `self` and `other`.
     ///
-    /// This is equivalent to:
+    /// This is equivalent to the following Python code:
     /// ```python
     /// if self == other:
     ///     return Equal
@@ -144,6 +154,39 @@ impl PyAny {
     ///     return Greater
     /// else:
     ///     raise TypeError("PyAny::compare(): All comparisons returned false")
+    /// ```
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::PyFloat;
+    /// use std::cmp::Ordering;
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let a = PyFloat::new(py, 0_f64);
+    ///     let b = PyFloat::new(py, 42_f64);
+    ///     assert_eq!(a.compare(b)?, Ordering::Less);
+    ///     Ok(())
+    /// })?;
+    /// # Ok(())}
+    /// ```
+    ///
+    /// It will return `PyErr` for values that cannot be compared:
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::{PyFloat, PyString};
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let a = PyFloat::new(py, 0_f64);
+    ///     let b = PyString::new(py, "zero");
+    ///     assert!(a.compare(b).is_err());
+    ///     Ok(())
+    /// })?;
+    /// # Ok(())}
     /// ```
     pub fn compare<O>(&self, other: O) -> PyResult<Ordering>
     where
@@ -171,16 +214,40 @@ impl PyAny {
         })
     }
 
-    /// Compares two Python objects.
+    /// Tests whether two Python objects obey a given [`CompareOp`].
     ///
     /// Depending on the value of `compare_op`, this is equivalent to one of the
     /// following Python expressions:
-    ///   * CompareOp::Eq: `self == other`
-    ///   * CompareOp::Ne: `self != other`
-    ///   * CompareOp::Lt: `self < other`
-    ///   * CompareOp::Le: `self <= other`
-    ///   * CompareOp::Gt: `self > other`
-    ///   * CompareOp::Ge: `self >= other`
+    ///
+    /// <div style="width:1px">
+    ///
+    /// | `compare_op` | <span style="white-space: pre">Python expression</span> |
+    /// | :---: | :----: |
+    /// | [`CompareOp::Eq`] | <span style="white-space: pre">`self == other`</span> |
+    /// | [`CompareOp::Ne`] | <span style="white-space: pre">`self != other`</span> |
+    /// | [`CompareOp::Lt`] | <span style="white-space: pre">`self < other`</span> |
+    /// | [`CompareOp::Le`] | <span style="white-space: pre">`self <= other`</span> |
+    /// | [`CompareOp::Gt`] | <span style="white-space: pre">`self > other`</span> |
+    /// | [`CompareOp::Ge`] | <span style="white-space: pre">`self >= other`</span> |
+    ///
+    /// </div>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::PyInt;
+    /// use pyo3::class::basic::CompareOp;
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let a: &PyInt = 0_u8.into_py(py).into_ref(py).downcast()?;
+    ///     let b: &PyInt = 42_u8.into_py(py).into_ref(py).downcast()?;
+    ///     assert!(a.rich_compare(b, CompareOp::Le)?.is_true()?);
+    ///     Ok(())
+    ///   })?;
+    /// # Ok(())}
+    /// ```
     pub fn rich_compare<O>(&self, other: O, compare_op: CompareOp) -> PyResult<&PyAny>
     where
         O: ToPyObject,
@@ -196,7 +263,33 @@ impl PyAny {
         }
     }
 
-    /// Determines whether this object is callable.
+    /// Determines whether this object appears callable.
+    ///
+    /// This is equivalent to Python's [`callable()`][1] function.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///        let builtins = PyModule::import(py, "builtins")?;
+    ///        let print = builtins.getattr("print")?;
+    ///        assert!(print.is_callable());
+    ///        Ok(())
+    /// })?;
+    /// # Ok(())}
+    /// ```
+    ///
+    /// This is equivalent to the Python statement `assert callable(print)`.
+    ///
+    /// Note that unless an API needs to distinguish between callable and
+    /// non-callable objects, there is no point in checking for callability.
+    /// Instead, it is better to just do the call and handle potential
+    /// exceptions.
+    ///
+    /// [1]: https://docs.python.org/3/library/functions.html#callable
     pub fn is_callable(&self) -> bool {
         unsafe { ffi::PyCallable_Check(self.as_ptr()) != 0 }
     }
@@ -225,6 +318,23 @@ impl PyAny {
     /// Calls the object without arguments.
     ///
     /// This is equivalent to the Python expression `self()`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use pyo3::prelude::*;
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let module = PyModule::import(py, "builtins")?;
+    ///     let help = module.getattr("help")?;
+    ///     help.call0()?;
+    ///     Ok(())
+    /// })?;
+    /// # Ok(())}
+    /// ```
+    ///
+    /// This is equivalent to the Python expression `help()`.
     pub fn call0(&self) -> PyResult<&PyAny> {
         cfg_if::cfg_if! {
             // TODO: Use PyObject_CallNoArgs instead after https://bugs.python.org/issue42415.
@@ -243,6 +353,32 @@ impl PyAny {
     /// Calls the object with only positional arguments.
     ///
     /// This is equivalent to the Python expression `self(*args)`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let module = PyModule::import(py, "operator")?;
+    ///     let add = module.getattr("add")?;
+    ///     let args = (1,2);
+    ///     let value = add.call1(args)?;
+    ///     assert_eq!(value.extract::<i32>()?, 3);
+    ///     Ok(())
+    /// })?;
+    /// # Ok(())}
+    /// ```
+    ///
+    /// This is equivalent to the following Python code:
+    ///
+    /// ```python
+    /// from operator import add
+    ///
+    /// value = add(1,2)
+    /// assert value == 3
+    /// ```   
     pub fn call1(&self, args: impl IntoPy<Py<PyTuple>>) -> PyResult<&PyAny> {
         self.call(args, None)
     }
@@ -252,20 +388,30 @@ impl PyAny {
     /// This is equivalent to the Python expression `self.name(*args, **kwargs)`.
     ///
     /// # Examples
+    ///
     /// ```rust
-    /// # use pyo3::prelude::*;
-    /// use pyo3::types::IntoPyDict;
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::{PyDict, PyList};
+    /// use crate::pyo3::types::IntoPyDict;
     ///
-    /// Python::with_gil(|py| {
-    ///     let list = vec![3, 6, 5, 4, 7].to_object(py);
-    ///     let dict = vec![("reverse", true)].into_py_dict(py);
-    ///     list.call_method(py, "sort", (), Some(dict)).unwrap();
-    ///     assert_eq!(list.extract::<Vec<i32>>(py).unwrap(), vec![7, 6, 5, 4, 3]);
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let list = PyList::new(py, vec![3, 6, 5, 4, 7]);
+    ///     let kwargs = vec![("reverse", true)].into_py_dict(py);
     ///
-    ///     let new_element = 1.to_object(py);
-    ///     list.call_method(py, "append", (new_element,), None).unwrap();
-    ///     assert_eq!(list.extract::<Vec<i32>>(py).unwrap(), vec![7, 6, 5, 4, 3, 1]);
-    /// });
+    ///     list.call_method("sort", (), Some(kwargs))?;
+    ///     assert_eq!(list.extract::<Vec<i32>>()?, vec![7, 6, 5, 4, 3]);
+    ///     Ok(())
+    /// })?;
+    /// # Ok(())}
+    /// ```
+    ///
+    /// This is equivalent to the following Python code:
+    ///
+    /// ```python
+    /// my_list = [3, 6, 5, 4, 7]
+    /// my_list.sort(reverse = True)
+    /// assert my_list == [7, 6, 5, 4, 3]
     /// ```
     pub fn call_method(
         &self,
@@ -293,6 +439,33 @@ impl PyAny {
     /// Calls a method on the object without arguments.
     ///
     /// This is equivalent to the Python expression `self.name()`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::PyFloat;
+    /// use std::f64::consts::PI;
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let pi = PyFloat::new(py, PI);
+    ///     let ratio = pi.call_method0("as_integer_ratio")?;
+    ///     let (a, b) = ratio.extract::<(u64, u64)>()?;
+    ///     assert_eq!(a, 884_279_719_003_555);
+    ///     assert_eq!(b, 281_474_976_710_656);
+    ///     Ok(())
+    /// })?;
+    /// # Ok(())}
+    /// ```
+    ///
+    /// This is equivalent to the following Python code:
+    ///
+    /// ```python
+    /// import math
+    ///
+    /// a, b = math.pi.as_integer_ratio()
+    /// ```
     pub fn call_method0(&self, name: &str) -> PyResult<&PyAny> {
         cfg_if::cfg_if! {
             if #[cfg(all(Py_3_9, not(Py_LIMITED_API)))] {
@@ -310,6 +483,30 @@ impl PyAny {
     /// Calls a method on the object with only positional arguments.
     ///
     /// This is equivalent to the Python expression `self.name(*args)`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::PyList;
+    ///
+    /// # fn main() -> PyResult<()> {
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let list = PyList::new(py, vec![1, 3, 4]);
+    ///     list.call_method1("insert", (1, 2))?;
+    ///     assert_eq!(list.extract::<Vec<u8>>()?, [1, 2, 3, 4]);
+    ///     Ok(())
+    /// })?;
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// This is equivalent to the following Python code:
+    ///
+    /// ```python
+    /// list_ = [1,3,4]
+    /// list_.insert(1,2)
+    /// assert list_ == [1,2,3,4]
+    /// ```
     pub fn call_method1(&self, name: &str, args: impl IntoPy<Py<PyTuple>>) -> PyResult<&PyAny> {
         self.call_method(name, args, None)
     }
@@ -459,6 +656,7 @@ impl PyAny {
     /// Returns the length of the sequence or mapping.
     ///
     /// This is equivalent to the Python expression `len(self)`.
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> PyResult<usize> {
         let v = unsafe { ffi::PyObject_Size(self.as_ptr()) };
         if v == -1 {

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `num-complex` optional dependency to 0.4. [#1482](https://github.com/PyO3/pyo3/pull/1482)
 - Extend `hashbrown` optional dependency supported versions to include 0.11. [#1496](https://github.com/PyO3/pyo3/pull/1496)
 - Support PyPy 3.7. [#1538](https://github.com/PyO3/pyo3/pull/1538)
+- Try harder to filter sysconfigdata candidates on arch.config
 
 ### Added
 - Add conversions for `[T; N]` for all `N` on Rust 1.51 and up. [#1128](https://github.com/PyO3/pyo3/pull/1128)
@@ -21,9 +22,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add FFI definition `_Py_InitializeMain`. [#1473](https://github.com/PyO3/pyo3/pull/1473)
 - Add FFI definitions from `cpython/import.h`.[#1475](https://github.com/PyO3/pyo3/pull/1475)
 - Add tuple and unit struct support for `#[pyclass]` macro. [#1504](https://github.com/PyO3/pyo3/pull/1504)
+- Add `#[pyo3(name = "...")]` syntax for setting Python names. [#1567](https://github.com/PyO3/pyo3/pull/1567)
 - Add FFI definition `PyDateTime_TimeZone_UTC`. [#1572](https://github.com/PyO3/pyo3/pull/1572)
+- Add support for `#[pyclass(extends=Exception)]`. [#1591](https://github.com/PyO3/pyo3/pull/1591)
+- Add support for extracting `PathBuf` from `pathlib.Path`. [#1654](https://github.com/PyO3/pyo3/pull/1654)
 
 ### Changed
+- Allow only one `#[pymethods]` block per `#[pyclass]` by default, to simplify the proc macro implementations. Add `multiple-pymethods` feature to opt-in to the more complex full behavior. [#1457](https://github.com/PyO3/pyo3/pull/1457)
 - Change `PyTimeAcces::get_fold()` to return a `bool` instead of a `u8`. [#1397](https://github.com/PyO3/pyo3/pull/1397)
 - Deprecate FFI definition `PyCFunction_Call` for Python 3.9 and later. [#1425](https://github.com/PyO3/pyo3/pull/1425)
 - Deprecate FFI definitions `PyModule_GetFilename`. [#1425](https://github.com/PyO3/pyo3/pull/1425)
@@ -39,6 +44,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - `PyMappingProtocol::__reversed__`
   - `PyNumberProtocol::__complex__` and `PyNumberProtocol::__round__`
   - `PyAsyncProtocol::__aenter__` and `PyAsyncProtocol::__aexit__`
+- Deprecate `#[name = "..."]` attributes in favor of `#[pyo3(name = "...")]`. [#1567](https://github.com/PyO3/pyo3/pull/1567)
+- Reduce LLVM line counts to improve compilation times. [#1604](https://github.com/PyO3/pyo3/pull/1604)
+- Deprecate string-literal second argument to `#[pyfn(m, "name")]`. [#1610](https://github.com/PyO3/pyo3/pull/1610)
+- No longer call `PyEval_InitThreads()` in `#[pymodule]` init code. [#1630](https://github.com/PyO3/pyo3/pull/1630)
+- Use `METH_FASTCALL` argument passing convention, when possible, to improve `#[pyfunction]` performance. [#1619](https://github.com/PyO3/pyo3/pull/1619)
 
 ### Removed
 - Remove deprecated exception names `BaseException` etc. [#1426](https://github.com/PyO3/pyo3/pull/1426)
@@ -48,9 +58,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - `PyMethodDef_INIT` [#1426](https://github.com/PyO3/pyo3/pull/1426)
   - `PyTypeObject_INIT` [#1429](https://github.com/PyO3/pyo3/pull/1429)
   - `PyObject_Check`, `PySuper_Check`, and `FreeFunc` [#1438](https://github.com/PyO3/pyo3/pull/1438)
-- Remove pyclass implementation details `Type`, `DESCRIPTION`, and `FLAGS` from `PyTypeInfo`. [#1456](https://github.com/PyO3/pyo3/pull/1456)
+- Remove pyclass implementation details from `PyTypeInfo`:
+  - `Type`, `DESCRIPTION`, and `FLAGS` [#1456](https://github.com/PyO3/pyo3/pull/1456)
+  - `BaseType`, `BaseLayout`, `Layout`, `Initializer` [#1596](https://github.com/PyO3/pyo3/pull/1596)
+  - `PyModuleDef_INIT` [#1630](https://github.com/PyO3/pyo3/pull/1630)
 - Remove `__doc__` from module's `__all__`. [#1509](https://github.com/PyO3/pyo3/pull/1509)
-- Remove `PYO3_CROSS_INCLUDE_DIR` environment variable and the associated C header parsing functionality.
+- Remove `PYO3_CROSS_INCLUDE_DIR` environment variable and the associated C header parsing functionality. [#1521](https://github.com/PyO3/pyo3/pull/1521)
+- Remove `raw_pycfunction!` macro. [#1619](https://github.com/PyO3/pyo3/pull/1619)
 
 ### Fixed
 - Remove FFI definition `PyCFunction_ClearFreeList` for Python 3.9 and later. [#1425](https://github.com/PyO3/pyo3/pull/1425)
@@ -65,6 +79,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support `EnvironmentError`, `IOError`, and `WindowsError` on PyPy. [#1533](https://github.com/PyO3/pyo3/pull/1533)
 - Fix unneccessary rebuilds when cycling between `cargo check` and `cargo clippy` in a Python virtualenv. [#1557](https://github.com/PyO3/pyo3/pull/1557)
 - Fix segfault when dereferencing `ffi::PyDateTimeAPI` without the GIL. [#1563](https://github.com/PyO3/pyo3/pull/1563)
+- Fix memory leak when converting to u128 and i128. [#1638](https://github.com/PyO3/pyo3/pull/1638)
 
 ## [0.13.2] - 2021-02-12
 ### Packaging

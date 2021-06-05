@@ -5,7 +5,11 @@
 use crate::{ffi, internal_tricks::Unsendable, Python};
 use parking_lot::{const_mutex, Mutex, Once};
 use std::cell::{Cell, RefCell};
-use std::{mem::ManuallyDrop, ptr::NonNull};
+use std::{
+    mem::{self, ManuallyDrop},
+    ptr::NonNull,
+    sync::atomic,
+};
 
 static START: Once = Once::new();
 
@@ -45,9 +49,6 @@ pub(crate) fn gil_is_acquired() -> bool {
 /// If both the Python interpreter and Python threading are already initialized,
 /// this function has no effect.
 ///
-/// # Availability
-/// This function is not available on PyPy.
-///
 /// # Panics
 /// - If the Python interpreter is initialized but Python threading is not,
 ///   a panic occurs.
@@ -68,7 +69,8 @@ pub(crate) fn gil_is_acquired() -> bool {
 /// }
 /// ```
 #[cfg(not(PyPy))]
-#[allow(clippy::clippy::collapsible_if)] // for if cfg!
+#[cfg_attr(docsrs, doc(cfg(not(PyPy))))]
+#[allow(clippy::collapsible_if)] // for if cfg!
 pub fn prepare_freethreaded_python() {
     // Protect against race conditions when Python is not yet initialized and multiple threads
     // concurrently call 'prepare_freethreaded_python()'. Note that we do not protect against
@@ -106,9 +108,6 @@ pub fn prepare_freethreaded_python() {
 /// single process, it is not safe to call this function more than once. (Many such modules will not
 /// initialize correctly on the second run.)
 ///
-/// # Availability
-/// This function is not available on PyPy.
-///
 /// # Panics
 /// - If the Python interpreter is already initalized before calling this function.
 ///
@@ -132,7 +131,8 @@ pub fn prepare_freethreaded_python() {
 /// }
 /// ```
 #[cfg(not(PyPy))]
-#[allow(clippy::clippy::collapsible_if)] // for if cfg!
+#[cfg_attr(docsrs, doc(cfg(not(PyPy))))]
+#[allow(clippy::collapsible_if)] // for if cfg!
 pub unsafe fn with_embedded_python_interpreter<F, R>(f: F) -> R
 where
     F: for<'p> FnOnce(Python<'p>) -> R,
@@ -291,50 +291,51 @@ impl Drop for GILGuard {
     }
 }
 
+// Vector of PyObject(
+type PyObjVec = Vec<NonNull<ffi::PyObject>>;
+
 /// Thread-safe storage for objects which were inc_ref / dec_ref while the GIL was not held.
 struct ReferencePool {
-    pointers_to_incref: Mutex<Vec<NonNull<ffi::PyObject>>>,
-    pointers_to_decref: Mutex<Vec<NonNull<ffi::PyObject>>>,
+    dirty: atomic::AtomicBool,
+    // .0 is INCREFs, .1 is DECREFs
+    pointer_ops: Mutex<(PyObjVec, PyObjVec)>,
 }
 
 impl ReferencePool {
     const fn new() -> Self {
         Self {
-            pointers_to_incref: const_mutex(Vec::new()),
-            pointers_to_decref: const_mutex(Vec::new()),
+            dirty: atomic::AtomicBool::new(false),
+            pointer_ops: const_mutex((Vec::new(), Vec::new())),
         }
     }
 
     fn register_incref(&self, obj: NonNull<ffi::PyObject>) {
-        self.pointers_to_incref.lock().push(obj)
+        self.pointer_ops.lock().0.push(obj);
+        self.dirty.store(true, atomic::Ordering::Release);
     }
 
     fn register_decref(&self, obj: NonNull<ffi::PyObject>) {
-        self.pointers_to_decref.lock().push(obj)
+        self.pointer_ops.lock().1.push(obj);
+        self.dirty.store(true, atomic::Ordering::Release);
     }
 
     fn update_counts(&self, _py: Python) {
-        macro_rules! swap_vec_with_lock {
-            // Get vec from one of ReferencePool's mutexes via lock, swap vec if needed, unlock.
-            ($cell:expr) => {{
-                let mut locked = $cell.lock();
-                let mut out = Vec::new();
-                if !locked.is_empty() {
-                    std::mem::swap(&mut out, &mut *locked);
-                }
-                drop(locked);
-                out
-            }};
+        let prev = self.dirty.swap(false, atomic::Ordering::Acquire);
+        if !prev {
+            return;
         }
 
+        let mut ops = self.pointer_ops.lock();
+        let (increfs, decrefs) = mem::take(&mut *ops);
+        drop(ops);
         // Always increase reference counts first - as otherwise objects which have a
         // nonzero total reference count might be incorrectly dropped by Python during
         // this update.
-        for ptr in swap_vec_with_lock!(self.pointers_to_incref) {
+        for ptr in increfs {
             unsafe { ffi::Py_INCREF(ptr.as_ptr()) };
         }
 
-        for ptr in swap_vec_with_lock!(self.pointers_to_decref) {
+        for ptr in decrefs {
             unsafe { ffi::Py_DECREF(ptr.as_ptr()) };
         }
     }
@@ -757,15 +758,15 @@ mod test {
 
         // The pointer should appear once in the incref pool, and once in the
         // decref pool (for the clone being created and also dropped)
-        assert_eq!(&*POOL.pointers_to_incref.lock(), &vec![ptr]);
-        assert_eq!(&*POOL.pointers_to_decref.lock(), &vec![ptr]);
+        assert_eq!(&POOL.pointer_ops.lock().0, &vec![ptr]);
+        assert_eq!(&POOL.pointer_ops.lock().1, &vec![ptr]);
 
         // Re-acquring GIL will clear these pending changes
         drop(gil);
         let gil = Python::acquire_gil();
 
-        assert!(POOL.pointers_to_incref.lock().is_empty());
-        assert!(POOL.pointers_to_decref.lock().is_empty());
+        assert!(POOL.pointer_ops.lock().0.is_empty());
+        assert!(POOL.pointer_ops.lock().1.is_empty());
 
         // Overall count is still unchanged
         assert_eq!(count, obj.get_refcnt(gil.python()));

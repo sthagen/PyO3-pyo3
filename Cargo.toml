@@ -11,7 +11,6 @@ documentation = "https://docs.rs/crate/pyo3/"
 categories = ["api-bindings", "development-tools::ffi"]
 license = "Apache-2.0"
 exclude = ["/.gitignore", ".cargo/config", "/codecov.yml", "/Makefile", "/pyproject.toml", "/tox.ini"]
-build = "build.rs"
 edition = "2018"
 
 [dependencies]
@@ -32,12 +31,16 @@ serde = {version = "1.0", optional = true}
 
 [dev-dependencies]
 assert_approx_eq = "1.1.0"
+criterion = "0.3"
 trybuild = "1.0.23"
 rustversion = "1.0"
 proptest = { version = "0.10.1", default-features = false, features = ["std"] }
 # features needed to run the PyO3 test suite
 pyo3 = { path = ".", default-features = false, features = ["macros", "auto-initialize"] }
 serde_json = "1.0.61"
+
+[build-dependencies]
+pyo3-build-config = { path = "pyo3-build-config", version = "=0.14.0-alpha.0" }
 
 [features]
 default = ["macros"]
@@ -54,13 +57,13 @@ multiple-pymethods = ["inventory"]
 extension-module = []
 
 # Use the Python limited API. See https://www.python.org/dev/peps/pep-0384/ for more.
-abi3 = []
+abi3 = ["pyo3-build-config/abi3"]
 
 # With abi3, we can manually set the minimum Python version.
-abi3-py36 = ["abi3-py37"]
-abi3-py37 = ["abi3-py38"]
-abi3-py38 = ["abi3-py39"]
-abi3-py39 = ["abi3"]
+abi3-py36 = ["abi3-py37", "pyo3-build-config/abi3-py36"]
+abi3-py37 = ["abi3-py38", "pyo3-build-config/abi3-py37"]
+abi3-py38 = ["abi3-py39", "pyo3-build-config/abi3-py38"]
+abi3-py39 = ["abi3", "pyo3-build-config/abi3-py39"]
 
 # Changes `Python::with_gil` and `Python::acquire_gil` to automatically initialize the
 # Python interpreter if needed.
@@ -68,6 +71,38 @@ auto-initialize = []
 
 # Optimizes PyObject to Vec conversion and so on.
 nightly = []
+
+[[bench]]
+name = "bench_call"
+harness = false
+
+[[bench]]
+name = "bench_dict"
+harness = false
+
+[[bench]]
+name = "bench_gil"
+harness = false
+
+[[bench]]
+name = "bench_list"
+harness = false
+
+[[bench]]
+name = "bench_pyclass"
+harness = false
+
+[[bench]]
+name = "bench_pyobject"
+harness = false
+
+[[bench]]
+name = "bench_set"
+harness = false
+
+[[bench]]
+name = "bench_tuple"
+harness = false
 
 [workspace]
 members = [
@@ -79,3 +114,8 @@ members = [
     "examples/setuptools-rust-starter",
     "examples/word-count"
 ]
+
+[package.metadata.docs.rs]
+no-default-features = true
+features = ["macros", "num-bigint", "num-complex", "hashbrown", "serde", "multiple-pymethods"]
+rustdoc-args = ["--cfg", "docsrs"]

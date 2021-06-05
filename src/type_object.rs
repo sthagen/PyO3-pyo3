@@ -4,7 +4,6 @@
 use crate::internal_tricks::extract_cstr_or_leak_cstring;
 use crate::once_cell::GILOnceCell;
 use crate::pyclass::{create_type_object, PyClass};
-use crate::pyclass_init::PyObjectInit;
 use crate::types::{PyAny, PyType};
 use crate::{conversion::IntoPyPointer, PyMethodDefType};
 use crate::{ffi, AsPyPointer, PyErr, PyNativeType, PyObject, PyResult, Python};
@@ -16,11 +15,8 @@ use std::thread::{self, ThreadId};
 /// is of `PyAny`.
 ///
 /// This trait is intended to be used internally.
-pub unsafe trait PyLayout<T: PyTypeInfo> {
+pub unsafe trait PyLayout<T> {
     const IS_NATIVE_TYPE: bool = true;
-    fn get_super(&mut self) -> Option<&mut T::BaseLayout> {
-        None
-    }
     fn py_init(&mut self, _value: T) {}
     unsafe fn py_drop(&mut self, _py: Python) {}
 }
@@ -28,23 +24,7 @@ pub unsafe trait PyLayout<T: PyTypeInfo> {
 /// `T: PySizedLayout<U>` represents `T` is not a instance of
 /// [`PyVarObject`](https://docs.python.org/3.8/c-api/structures.html?highlight=pyvarobject#c.PyVarObject).
 /// , in addition that `T` is a concrete representaion of `U`.
-pub trait PySizedLayout<T: PyTypeInfo>: PyLayout<T> + Sized {}
-
-/// Marker type indicates that `Self` can be a base layout of `PyClass`.
-///
-/// # Safety
-///
-/// Self should be laid out as follows:
-/// ```ignore
-/// #[repr(C)]
-/// struct Self {
-///     obj: ffi::PyObject,
-///     borrow_flag: u64,
-///     ...
-/// }
-/// ```
-/// Otherwise, implementing this trait is undefined behavior.
-pub unsafe trait PyBorrowFlagLayout<T: PyTypeInfo>: PyLayout<T> + Sized {}
+pub trait PySizedLayout<T>: PyLayout<T> + Sized {}
 
 /// Python type information.
 /// All Python native types(e.g., `PyDict`) and `#[pyclass]` structs implement this trait.
@@ -58,18 +38,6 @@ pub unsafe trait PyTypeInfo: Sized {
 
     /// Module name, if any
     const MODULE: Option<&'static str>;
-
-    /// Base class
-    type BaseType: PyTypeInfo + PyTypeObject;
-
-    /// Layout
-    type Layout: PyLayout<Self>;
-
-    /// Layout of Basetype.
-    type BaseLayout: PySizedLayout<Self::BaseType>;
-
-    /// Initializer for layout
-    type Initializer: PyObjectInit<Self>;
 
     /// Utility type to make Py::as_ref work
     type AsRefTarget: crate::PyNativeType;
@@ -136,6 +104,17 @@ impl LazyStaticType {
             })
         });
 
+        self.ensure_init(py, type_object, T::NAME, &T::for_each_method_def);
+        type_object
+    }
+
+    fn ensure_init(
+        &self,
+        py: Python,
+        type_object: *mut ffi::PyTypeObject,
+        name: &str,
+        for_each_method_def: &dyn Fn(&mut dyn FnMut(&[PyMethodDefType])),
+    ) {
         // We might want to fill the `tp_dict` with python instances of `T`
         // itself. In order to do so, we must first initialize the type object
         // with an empty `tp_dict`: now we can create instances of `T`.
@@ -149,7 +128,7 @@ impl LazyStaticType {
 
         if self.tp_dict_filled.get(py).is_some() {
             // `tp_dict` is already filled: ok.
-            return type_object;
+            return;
         }
 
         {
@@ -158,7 +137,7 @@ impl LazyStaticType {
             if threads.contains(&thread_id) {
                 // Reentrant call: just return the type object, even if the
                 // `tp_dict` is not filled yet.
-                return type_object;
+                return;
             }
             threads.push(thread_id);
         }
@@ -168,17 +147,21 @@ impl LazyStaticType {
         // means that another thread can continue the initialization in the
         // meantime: at worst, we'll just make a useless computation.
         let mut items = vec![];
-        T::for_each_method_def(|def| {
-            if let PyMethodDefType::ClassAttribute(attr) = def {
-                items.push((
-                    extract_cstr_or_leak_cstring(
+        for_each_method_def(&mut |method_defs| {
+            items.extend(method_defs.iter().filter_map(|def| {
+                if let PyMethodDefType::ClassAttribute(attr) = def {
+                    let key = extract_cstr_or_leak_cstring(
                         attr.name,
                         "class attribute name cannot contain nul bytes",
                     )
-                    .unwrap(),
-                    (attr.meth.0)(py),
-                ));
-            }
+                    .unwrap();
+
+                    let val = (attr.meth.0)(py);
+                    Some((key, val))
+                } else {
+                    None
+                }
+            }));
         });
 
         // Now we hold the GIL and we can assume it won't be released until we
@@ -194,10 +177,8 @@ impl LazyStaticType {
 
         if let Err(err) = result {
             err.clone_ref(py).print(py);
-            panic!("An error occured while initializing `{}.__dict__`", T::NAME);
+            panic!("An error occured while initializing `{}.__dict__`", name);
         }
-
-        type_object
     }
 }
 

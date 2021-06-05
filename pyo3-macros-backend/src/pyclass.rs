@@ -1,6 +1,6 @@
 // Copyright (c) 2017-present PyO3 Project and Contributors
 
-use crate::method::{FnType, SelfType};
+use crate::attributes::{self, take_pyo3_options, NameAttribute};
 use crate::pyimpl::PyClassMethodsType;
 use crate::pymethod::{impl_py_getter_def, impl_py_setter_def, PropertyType};
 use crate::utils;
@@ -9,7 +9,7 @@ use quote::quote;
 use syn::ext::IdentExt;
 use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
-use syn::{parse_quote, spanned::Spanned, Expr, Token};
+use syn::{parse_quote, spanned::Spanned, Expr, Result, Token};
 
 /// The parsed arguments of the pyclass macro
 pub struct PyClassArgs {
@@ -26,7 +26,7 @@ pub struct PyClassArgs {
 }
 
 impl Parse for PyClassArgs {
-    fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+    fn parse(input: ParseStream) -> Result<Self> {
         let mut slf = PyClassArgs::default();
 
         let vars = Punctuated::<Expr, Token![,]>::parse_terminated(input)?;
@@ -57,7 +57,7 @@ impl Default for PyClassArgs {
 impl PyClassArgs {
     /// Adda single expression from the comma separated list in the attribute, which is
     /// either a single word or an assignment expression
-    fn add_expr(&mut self, expr: &Expr) -> syn::parse::Result<()> {
+    fn add_expr(&mut self, expr: &Expr) -> Result<()> {
         match expr {
             syn::Expr::Path(exp) if exp.path.segments.len() == 1 => self.add_path(exp),
             syn::Expr::Assign(assign) => self.add_assign(assign),
@@ -172,63 +172,102 @@ pub fn build_py_class(
         &get_class_python_name(&class.ident, attr),
     )?;
     let doc = utils::get_doc(&class.attrs, text_signature, true)?;
-    let mut descriptors = Vec::new();
 
     ensure_spanned!(
         class.generics.params.is_empty(),
         class.generics.span() => "#[pyclass] cannot have generic parameters"
     );
 
-    match &mut class.fields {
-        syn::Fields::Named(fields) => {
-            for field in fields.named.iter_mut() {
-                let field_descs = parse_descriptors(field)?;
-                if !field_descs.is_empty() {
-                    descriptors.push((field.clone(), field_descs));
-                }
-            }
+    let field_options = match &mut class.fields {
+        syn::Fields::Named(fields) => fields
+            .named
+            .iter_mut()
+            .map(|field| {
+                FieldPyO3Options::take_pyo3_options(&mut field.attrs)
+                    .map(move |options| (&*field, options))
+            })
+            .collect::<Result<_>>()?,
+        syn::Fields::Unnamed(fields) => fields
+            .unnamed
+            .iter_mut()
+            .map(|field| {
+                FieldPyO3Options::take_pyo3_options(&mut field.attrs)
+                    .map(move |options| (&*field, options))
+            })
+            .collect::<Result<_>>()?,
+        syn::Fields::Unit => {
+            // No fields for unit struct
+            Vec::new()
         }
-        syn::Fields::Unnamed(fields) => {
-            for field in fields.unnamed.iter_mut() {
-                let field_descs = parse_descriptors(field)?;
-                if !field_descs.is_empty() {
-                    descriptors.push((field.clone(), field_descs));
-                }
-            }
-        }
-        syn::Fields::Unit => { /* No fields for unit struct */ }
-    }
+    };
 
-    impl_class(&class.ident, &attr, doc, descriptors, methods_type)
+    impl_class(&class.ident, &attr, doc, field_options, methods_type)
 }
 
-/// Parses `#[pyo3(get, set)]`
-fn parse_descriptors(item: &mut syn::Field) -> syn::Result<Vec<FnType>> {
-    let mut descs = Vec::new();
-    let mut new_attrs = Vec::new();
-    for attr in item.attrs.drain(..) {
-        if let Ok(syn::Meta::List(list)) = attr.parse_meta() {
-            if list.path.is_ident("pyo3") {
-                for meta in list.nested.iter() {
-                    if let syn::NestedMeta::Meta(metaitem) = meta {
-                        if metaitem.path().is_ident("get") {
-                            descs.push(FnType::Getter(SelfType::Receiver { mutable: false }));
-                        } else if metaitem.path().is_ident("set") {
-                            descs.push(FnType::Setter(SelfType::Receiver { mutable: true }));
-                        } else {
-                            bail_spanned!(metaitem.span() => "only get and set are supported");
-                        }
-                    }
-                }
-            } else {
-                new_attrs.push(attr)
-            }
+/// `#[pyo3()]` options for pyclass fields
+struct FieldPyO3Options {
+    get: bool,
+    set: bool,
+    name: Option<NameAttribute>,
+}
+
+enum FieldPyO3Option {
+    Get(attributes::kw::get),
+    Set(attributes::kw::set),
+    Name(NameAttribute),
+}
+
+impl Parse for FieldPyO3Option {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let lookahead = input.lookahead1();
+        if lookahead.peek(attributes::kw::get) {
+            input.parse().map(FieldPyO3Option::Get)
+        } else if lookahead.peek(attributes::kw::set) {
+            input.parse().map(FieldPyO3Option::Set)
+        } else if lookahead.peek(attributes::kw::name) {
+            input.parse().map(FieldPyO3Option::Name)
         } else {
-            new_attrs.push(attr);
+            Err(lookahead.error())
         }
     }
-    item.attrs = new_attrs;
-    Ok(descs)
+}
+
+impl FieldPyO3Options {
+    fn take_pyo3_options(attrs: &mut Vec<syn::Attribute>) -> Result<Self> {
+        let mut options = FieldPyO3Options {
+            get: false,
+            set: false,
+            name: None,
+        };
+
+        for option in take_pyo3_options(attrs)? {
+            match option {
+                FieldPyO3Option::Get(kw) => {
+                    ensure_spanned!(
+                        !options.get,
+                        kw.span() => "`get` may only be specified once"
+                    );
+                    options.get = true;
+                }
+                FieldPyO3Option::Set(kw) => {
+                    ensure_spanned!(
+                        !options.set,
+                        kw.span() => "`set` may only be specified once"
+                    );
+                    options.set = true;
+                }
+                FieldPyO3Option::Name(name) => {
+                    ensure_spanned!(
+                        options.name.is_none(),
+                        name.0.span() => "`name` may only be specified once"
+                    );
+                    options.name = Some(name);
+                }
+            }
+        }
+
+        Ok(options)
+    }
 }
 
 /// To allow multiple #[pymethods] block, we define inventory types.
@@ -267,12 +306,12 @@ fn impl_class(
     cls: &syn::Ident,
     attr: &PyClassArgs,
     doc: syn::LitStr,
-    descriptors: Vec<(syn::Field, Vec<FnType>)>,
+    field_options: Vec<(&syn::Field, FieldPyO3Options)>,
     methods_type: PyClassMethodsType,
 ) -> syn::Result<TokenStream> {
     let cls_name = get_class_python_name(cls, attr).to_string();
 
-    let extra = {
+    let alloc = {
         if let Some(freelist) = &attr.freelist {
             quote! {
                 impl pyo3::freelist::PyClassWithFreeList for #cls {
@@ -296,30 +335,20 @@ fn impl_class(
         }
     };
 
-    let extra = if !descriptors.is_empty() {
-        let path = syn::Path::from(syn::PathSegment::from(cls.clone()));
-        let ty = syn::Type::from(syn::TypePath { path, qself: None });
-        let desc_impls = impl_descriptors(&ty, descriptors)?;
-        quote! {
-            #desc_impls
-            #extra
-        }
-    } else {
-        extra
-    };
+    let descriptors = impl_descriptors(cls, field_options)?;
 
     // insert space for weak ref
     let weakref = if attr.has_weaklist {
         quote! { pyo3::pyclass_slots::PyClassWeakRefSlot }
     } else if attr.has_extends {
-        quote! { <Self::BaseType as pyo3::derive_utils::PyBaseTypeUtils>::WeakRef }
+        quote! { <Self::BaseType as pyo3::class::impl_::PyClassBaseType>::WeakRef }
     } else {
         quote! { pyo3::pyclass_slots::PyClassDummySlot }
     };
     let dict = if attr.has_dict {
         quote! { pyo3::pyclass_slots::PyClassDictSlot }
     } else if attr.has_extends {
-        quote! { <Self::BaseType as pyo3::derive_utils::PyBaseTypeUtils>::Dict }
+        quote! { <Self::BaseType as pyo3::class::impl_::PyClassBaseType>::Dict }
     } else {
         quote! { pyo3::pyclass_slots::PyClassDummySlot }
     };
@@ -345,26 +374,21 @@ fn impl_class(
         quote! {}
     };
 
-    let (impl_inventory, iter_py_methods) = match methods_type {
-        PyClassMethodsType::Specialization => (None, quote! { collector.py_methods().iter() }),
+    let (impl_inventory, for_each_py_method) = match methods_type {
+        PyClassMethodsType::Specialization => (None, quote! { visitor(collector.py_methods()); }),
         PyClassMethodsType::Inventory => (
             Some(impl_methods_inventory(&cls)),
             quote! {
-                pyo3::inventory::iter::<<Self as pyo3::class::impl_::HasMethodsInventory>::Methods>
-                    .into_iter()
-                    .flat_map(pyo3::class::impl_::PyMethodsInventory::get)
+                for inventory in pyo3::inventory::iter::<<Self as pyo3::class::impl_::HasMethodsInventory>::Methods>() {
+                    visitor(pyo3::class::impl_::PyMethodsInventory::get(inventory));
+                }
             },
         ),
     };
 
     let base = &attr.base;
-    let base_layout = if attr.has_extends {
-        quote! { <Self::BaseType as pyo3::derive_utils::PyBaseTypeUtils>::LayoutAsBase }
-    } else {
-        quote! { pyo3::pycell::PyCellBase<pyo3::PyAny> }
-    };
     let base_nativetype = if attr.has_extends {
-        quote! { <Self::BaseType as pyo3::derive_utils::PyBaseTypeUtils>::BaseNativeType }
+        quote! { <Self::BaseType as pyo3::class::impl_::PyClassBaseType>::BaseNativeType }
     } else {
         quote! { pyo3::PyAny }
     };
@@ -386,7 +410,7 @@ fn impl_class(
         quote! { pyo3::class::impl_::ThreadCheckerImpl<#cls> }
     } else if attr.has_extends {
         quote! {
-            pyo3::class::impl_::ThreadCheckerInherited<#cls, <#cls as pyo3::type_object::PyTypeInfo>::BaseType>
+            pyo3::class::impl_::ThreadCheckerInherited<#cls, <#cls as pyo3::class::impl_::PyClassImpl>::BaseType>
         }
     } else {
         quote! { pyo3::class::impl_::ThreadCheckerStub<#cls> }
@@ -398,10 +422,6 @@ fn impl_class(
 
     Ok(quote! {
         unsafe impl pyo3::type_object::PyTypeInfo for #cls {
-            type BaseType = #base;
-            type Layout = pyo3::PyCell<Self>;
-            type BaseLayout = #base_layout;
-            type Initializer = pyo3::pyclass_init::PyClassInitializer<Self>;
             type AsRefTarget = pyo3::PyCell<Self>;
 
             const NAME: &'static str = #cls_name;
@@ -441,20 +461,21 @@ fn impl_class(
             const IS_BASETYPE: bool = #is_basetype;
             const IS_SUBCLASS: bool = #is_subclass;
 
+            type Layout = PyCell<Self>;
+            type BaseType = #base;
             type ThreadChecker = #thread_checker;
 
-            fn for_each_method_def(visitor: impl FnMut(&pyo3::class::PyMethodDefType)) {
+            fn for_each_method_def(visitor: &mut dyn FnMut(&[pyo3::class::PyMethodDefType])) {
                 use pyo3::class::impl_::*;
                 let collector = PyClassImplCollector::<Self>::new();
-                #iter_py_methods
-                    .chain(collector.py_class_descriptors())
-                    .chain(collector.object_protocol_methods())
-                    .chain(collector.async_protocol_methods())
-                    .chain(collector.context_protocol_methods())
-                    .chain(collector.descr_protocol_methods())
-                    .chain(collector.mapping_protocol_methods())
-                    .chain(collector.number_protocol_methods())
-                    .for_each(visitor)
+                #for_each_py_method;
+                visitor(collector.py_class_descriptors());
+                visitor(collector.object_protocol_methods());
+                visitor(collector.async_protocol_methods());
+                visitor(collector.context_protocol_methods());
+                visitor(collector.descr_protocol_methods());
+                visitor(collector.mapping_protocol_methods());
+                visitor(collector.number_protocol_methods());
             }
             fn get_new() -> Option<pyo3::ffi::newfunc> {
                 use pyo3::class::impl_::*;
@@ -467,21 +488,19 @@ fn impl_class(
                 collector.call_impl()
             }
 
-            fn for_each_proto_slot(visitor: impl FnMut(&pyo3::ffi::PyType_Slot)) {
+            fn for_each_proto_slot(visitor: &mut dyn FnMut(&[pyo3::ffi::PyType_Slot])) {
                 // Implementation which uses dtolnay specialization to load all slots.
                 use pyo3::class::impl_::*;
                 let collector = PyClassImplCollector::<Self>::new();
-                collector.object_protocol_slots()
-                    .iter()
-                    .chain(collector.number_protocol_slots())
-                    .chain(collector.iter_protocol_slots())
-                    .chain(collector.gc_protocol_slots())
-                    .chain(collector.descr_protocol_slots())
-                    .chain(collector.mapping_protocol_slots())
-                    .chain(collector.sequence_protocol_slots())
-                    .chain(collector.async_protocol_slots())
-                    .chain(collector.buffer_protocol_slots())
-                    .for_each(visitor);
+                visitor(collector.object_protocol_slots());
+                visitor(collector.number_protocol_slots());
+                visitor(collector.iter_protocol_slots());
+                visitor(collector.gc_protocol_slots());
+                visitor(collector.descr_protocol_slots());
+                visitor(collector.mapping_protocol_slots());
+                visitor(collector.sequence_protocol_slots());
+                visitor(collector.async_protocol_slots());
+                visitor(collector.buffer_protocol_slots());
             }
 
             fn get_buffer() -> Option<&'static pyo3::class::impl_::PyBufferProcs> {
@@ -491,39 +510,50 @@ fn impl_class(
             }
         }
 
-        #extra
+        #alloc
+
+        #descriptors
 
         #gc_impl
     })
 }
 
 fn impl_descriptors(
-    cls: &syn::Type,
-    descriptors: Vec<(syn::Field, Vec<FnType>)>,
+    cls: &syn::Ident,
+    field_options: Vec<(&syn::Field, FieldPyO3Options)>,
 ) -> syn::Result<TokenStream> {
-    let py_methods: Vec<TokenStream> = descriptors
-        .iter()
-        .flat_map(|(field, fns)| {
-            fns.iter()
-                .map(|desc| {
-                    if let Some(name) = field.ident.as_ref().map(|ident| ident.unraw()) {
-                        let doc = utils::get_doc(&field.attrs, None, true)
-                            .unwrap_or_else(|_| syn::LitStr::new(&name.to_string(), name.span()));
-                        let property_type = PropertyType::Descriptor(&field);
-                        match desc {
-                            FnType::Getter(self_ty) => {
-                                impl_py_getter_def(cls, property_type, self_ty, &name, &doc)
-                            }
-                            FnType::Setter(self_ty) => {
-                                impl_py_setter_def(cls, property_type, self_ty, &name, &doc)
-                            }
-                            _ => unreachable!(),
-                        }
-                    } else {
-                        bail_spanned!(field.span() => "get/set are not supported on tuple struct field");
-                    }
-                })
-                .collect::<Vec<syn::Result<TokenStream>>>()
+    let ty = syn::parse_quote!(#cls);
+    let py_methods: Vec<TokenStream> = field_options
+        .into_iter()
+        .enumerate()
+        .flat_map(|(field_index, (field, options))| {
+            let name_err = if options.name.is_some() && !options.get && !options.set {
+                Some(Err(err_spanned!(options.name.as_ref().unwrap().0.span() => "`name` is useless without `get` or `set`")))
+            } else {
+                None
+            };
+
+            let getter = if options.get {
+                Some(impl_py_getter_def(&ty, PropertyType::Descriptor {
+                    field_index,
+                    field,
+                    python_name: options.name.as_ref()
+                }))
+            } else {
+                None
+            };
+
+            let setter = if options.set {
+                Some(impl_py_setter_def(&ty, PropertyType::Descriptor {
+                    field_index,
+                    field,
+                    python_name: options.name.as_ref()
+                }))
+            } else {
+                None
+            };
+
+            name_err.into_iter().chain(getter).chain(setter)
         })
         .collect::<syn::Result<_>>()?;
 

@@ -1,8 +1,8 @@
 //! `PyClass` and related traits.
-use crate::class::impl_::PyClassImpl;
 use crate::class::methods::PyMethodDefType;
 use crate::pyclass_slots::{PyClassDict, PyClassWeakRef};
 use crate::type_object::PyLayout;
+use crate::{class::impl_::PyClassBaseType, class::impl_::PyClassImpl};
 use crate::{ffi, PyCell, PyErr, PyNativeType, PyResult, PyTypeInfo, Python};
 use std::convert::TryInto;
 use std::ffi::CString;
@@ -45,7 +45,7 @@ pub(crate) unsafe fn default_new<T: PyTypeInfo + PyClassImpl>(
     subtype: *mut ffi::PyTypeObject,
 ) -> *mut ffi::PyObject {
     // if the class derives native types(e.g., PyDict), call special new
-    if T::IS_SUBCLASS && T::BaseLayout::IS_NATIVE_TYPE {
+    if T::IS_SUBCLASS && <T::BaseType as PyClassBaseType>::LayoutAsBase::IS_NATIVE_TYPE {
         #[cfg(not(Py_LIMITED_API))]
         {
             let base_tp = T::BaseType::type_object_raw(py);
@@ -83,7 +83,7 @@ pub trait PyClassAlloc: PyTypeInfo + PyClassImpl {
     ///
     /// # Safety
     /// `self_` must be a valid pointer to the Python heap.
-    #[allow(clippy::clippy::collapsible_if)] // for if cfg!
+    #[allow(clippy::collapsible_if)] // for if cfg!
     unsafe fn dealloc(py: Python, self_: *mut Self::Layout) {
         (*self_).py_drop(py);
         let obj = self_ as *mut ffi::PyObject;
@@ -137,7 +137,7 @@ pub(crate) unsafe fn tp_free_fallback(ty: *mut ffi::PyTypeObject) -> ffi::freefu
 /// The `#[pyclass]` attribute automatically implements this trait for your Rust struct,
 /// so you don't have to use this trait directly.
 pub trait PyClass:
-    PyTypeInfo<Layout = PyCell<Self>, AsRefTarget = PyCell<Self>> + Sized + PyClassAlloc + PyClassImpl
+    PyTypeInfo<AsRefTarget = PyCell<Self>> + Sized + PyClassAlloc + PyClassImpl<Layout = PyCell<Self>>
 {
     /// Specify this class has `#[pyclass(dict)]` or not.
     type Dict: PyClassDict;
@@ -206,23 +206,24 @@ where
     }
 
     // normal methods
-    let methods = py_class_method_defs::<T>();
+    let methods = py_class_method_defs(&T::for_each_method_def);
     if !methods.is_empty() {
         slots.push(ffi::Py_tp_methods, into_raw(methods));
     }
 
     // properties
-    let props = py_class_properties::<T>();
+    let props = py_class_properties(T::Dict::IS_DUMMY, &T::for_each_method_def);
     if !props.is_empty() {
         slots.push(ffi::Py_tp_getset, into_raw(props));
     }
 
     // protocol methods
     let mut has_gc_methods = false;
-    T::for_each_proto_slot(|slot| {
-        has_gc_methods |= slot.slot == ffi::Py_tp_clear;
-        has_gc_methods |= slot.slot == ffi::Py_tp_traverse;
-        slots.0.push(*slot);
+    T::for_each_proto_slot(&mut |proto_slots| {
+        has_gc_methods |= proto_slots
+            .iter()
+            .any(|slot| slot.slot == ffi::Py_tp_clear || slot.slot == ffi::Py_tp_traverse);
+        slots.0.extend_from_slice(proto_slots);
     });
 
     slots.push(0, ptr::null_mut());
@@ -230,7 +231,7 @@ where
         name: get_type_name::<T>(module_name)?,
         basicsize: std::mem::size_of::<T::Layout>() as c_int,
         itemsize: 0,
-        flags: py_class_flags::<T>(has_gc_methods),
+        flags: py_class_flags(has_gc_methods, T::IS_GC, T::IS_BASETYPE),
         slots: slots.0.as_mut_ptr(),
     };
 
@@ -299,28 +300,30 @@ fn tp_init_additional<T: PyClass>(type_object: *mut ffi::PyTypeObject) {
 #[cfg(any(Py_LIMITED_API, Py_3_10))]
 fn tp_init_additional<T: PyClass>(_type_object: *mut ffi::PyTypeObject) {}
 
-fn py_class_flags<T: PyClass + PyTypeInfo>(has_gc_methods: bool) -> c_uint {
-    let mut flags = if has_gc_methods || T::IS_GC {
+fn py_class_flags(has_gc_methods: bool, is_gc: bool, is_basetype: bool) -> c_uint {
+    let mut flags = if has_gc_methods || is_gc {
         ffi::Py_TPFLAGS_DEFAULT | ffi::Py_TPFLAGS_HAVE_GC
     } else {
         ffi::Py_TPFLAGS_DEFAULT
     };
-    if T::IS_BASETYPE {
+    if is_basetype {
         flags |= ffi::Py_TPFLAGS_BASETYPE;
     }
     flags.try_into().unwrap()
 }
 
-fn py_class_method_defs<T: PyClassImpl>() -> Vec<ffi::PyMethodDef> {
+fn py_class_method_defs(
+    for_each_method_def: &dyn Fn(&mut dyn FnMut(&[PyMethodDefType])),
+) -> Vec<ffi::PyMethodDef> {
     let mut defs = Vec::new();
 
-    T::for_each_method_def(|def| match def {
-        PyMethodDefType::Method(def)
-        | PyMethodDefType::Class(def)
-        | PyMethodDefType::Static(def) => {
-            defs.push(def.as_method_def().unwrap());
-        }
-        _ => (),
+    for_each_method_def(&mut |method_defs| {
+        defs.extend(method_defs.iter().filter_map(|def| match def {
+            PyMethodDefType::Method(def)
+            | PyMethodDefType::Class(def)
+            | PyMethodDefType::Static(def) => Some(def.as_method_def().unwrap()),
+            _ => None,
+        }));
     });
 
     if !defs.is_empty() {
@@ -380,25 +383,32 @@ const PY_GET_SET_DEF_INIT: ffi::PyGetSetDef = ffi::PyGetSetDef {
     closure: ptr::null_mut(),
 };
 
-#[allow(clippy::clippy::collapsible_if)] // for if cfg!
-fn py_class_properties<T: PyClass>() -> Vec<ffi::PyGetSetDef> {
+#[allow(clippy::collapsible_if)] // for if cfg!
+fn py_class_properties(
+    is_dummy: bool,
+    for_each_method_def: &dyn Fn(&mut dyn FnMut(&[PyMethodDefType])),
+) -> Vec<ffi::PyGetSetDef> {
     let mut defs = std::collections::HashMap::new();
 
-    T::for_each_method_def(|def| match def {
-        PyMethodDefType::Getter(getter) => {
-            getter.copy_to(defs.entry(getter.name).or_insert(PY_GET_SET_DEF_INIT));
+    for_each_method_def(&mut |method_defs| {
+        for def in method_defs {
+            match def {
+                PyMethodDefType::Getter(getter) => {
+                    getter.copy_to(defs.entry(getter.name).or_insert(PY_GET_SET_DEF_INIT));
+                }
+                PyMethodDefType::Setter(setter) => {
+                    setter.copy_to(defs.entry(setter.name).or_insert(PY_GET_SET_DEF_INIT));
+                }
+                _ => (),
+            }
         }
-        PyMethodDefType::Setter(setter) => {
-            setter.copy_to(defs.entry(setter.name).or_insert(PY_GET_SET_DEF_INIT));
-        }
-        _ => (),
     });
 
     let mut props: Vec<_> = defs.values().cloned().collect();
 
     // PyPy doesn't automatically adds __dict__ getter / setter.
     // PyObject_GenericGetDict not in the limited API until Python 3.10.
-    push_dict_getset::<T>(&mut props);
+    push_dict_getset(&mut props, is_dummy);
 
     if !props.is_empty() {
         props.push(unsafe { std::mem::zeroed() });
@@ -407,8 +417,8 @@ fn py_class_properties<T: PyClass>() -> Vec<ffi::PyGetSetDef> {
 }
 
 #[cfg(not(any(PyPy, all(Py_LIMITED_API, not(Py_3_10)))))]
-fn push_dict_getset<T: PyClass>(props: &mut Vec<ffi::PyGetSetDef>) {
-    if !T::Dict::IS_DUMMY {
+fn push_dict_getset(props: &mut Vec<ffi::PyGetSetDef>, is_dummy: bool) {
+    if !is_dummy {
         props.push(ffi::PyGetSetDef {
             name: "__dict__\0".as_ptr() as *mut c_char,
             get: Some(ffi::PyObject_GenericGetDict),
@@ -420,4 +430,4 @@ fn push_dict_getset<T: PyClass>(props: &mut Vec<ffi::PyGetSetDef>) {
 }
 
 #[cfg(any(PyPy, all(Py_LIMITED_API, not(Py_3_10))))]
-fn push_dict_getset<T: PyClass>(_: &mut Vec<ffi::PyGetSetDef>) {}
+fn push_dict_getset(_: &mut Vec<ffi::PyGetSetDef>, _is_dummy: bool) {}
