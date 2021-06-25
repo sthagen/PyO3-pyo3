@@ -190,11 +190,11 @@ pyo3 = { git = &quot;https://github.com/pyo3/pyo3&quot; }
 <h2 id="testing-building-and-distribution"><a class="header" href="#testing-building-and-distribution">Testing, building and distribution</a></h2>
 <p>There are two main ways to test, build and distribute your module as a Python package: <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a> and <a href="https://github.com/PyO3/maturin">maturin</a>. setuptools-rust needs several configuration files (<code>setup.py</code>, <code>MANIFEST.in</code>, <code>build-wheels.sh</code>, etc.). It allows (and sometimes requires) writing custom workflows in python. maturin has only few options and works without any additional configuration, instead it requires a rigid project structure and does not support some functionality of setuptools such as package data (<a href="https://github.com/PyO3/maturin/issues/258">pyo3/maturin#258</a>), multiple extensions or running python scripts at build time.</p>
 <h3 id="manual-builds"><a class="header" href="#manual-builds">Manual builds</a></h3>
-<p>You can also symlink (or copy) and rename the shared library from the <code>target</code> folder: </p>
+<p>You can also symlink (or copy) and rename the shared library from the <code>target</code> folder:</p>
 <ul>
 <li>on macOS, rename <code>libyour_module.dylib</code> to <code>your_module.so</code>.</li>
 <li>on Windows, rename  <code>libyour_module.dll</code> to <code>your_module.pyd</code>.</li>
-<li>on Linux, rename <code>libyour_module.so</code> to <code>your_module.so</code>. </li>
+<li>on Linux, rename <code>libyour_module.so</code> to <code>your_module.so</code>.</li>
 </ul>
 <p>You can then open a Python shell in the same folder and you'll be able to use <code>import your_module</code>.</p>
 <h2 id="py_limited_apiabi3"><a class="header" href="#py_limited_apiabi3"><code>Py_LIMITED_API</code>/<code>abi3</code></a></h2>
@@ -229,7 +229,7 @@ For example, if you set the <code>abi3-py36</code> feature, your extension wheel
 <p>Due to limitations in the Python API, there are a few <code>pyo3</code> features that do
 not work when compiling for <code>abi3</code>. These are:</p>
 <ul>
-<li><code>#[text_signature]</code> does not work on classes until Python 3.10 or greater.</li>
+<li><code>#[pyo3(text_signature = &quot;...&quot;)]</code> does not work on classes until Python 3.10 or greater.</li>
 <li>The <code>dict</code> and <code>weakref</code> options on classes are not supported until Python 3.9 or greater.</li>
 <li>The buffer API is not supported.</li>
 <li>Optimizations which rely on knowledge of the exact Python version compiled against.</li>

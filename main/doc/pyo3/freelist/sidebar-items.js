@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Slot","Represents a slot of a [`FreeList`]."]],"struct":[["FreeList",""]],"trait":[["PyClassWithFreeList","Implements a freelist."]]});

@@ -200,9 +200,12 @@ or <code>.pyd</code> file; the default is the Rust function's name.</p>
 <p>If the name of the module (the default being the function name) does not match the name of the <code>.so</code> or
 <code>.pyd</code> file, you will get an import error in Python with the following message:
 <code>ImportError: dynamic module does not define module export function (PyInit_name_of_your_module)</code></p>
-<p>To import the module, either copy the shared library as described in <a href="https://github.com/PyO3/pyo3">the README</a>
-or use a tool, e.g. <code>maturin develop</code> with <a href="https://github.com/PyO3/maturin">maturin</a> or
-<code>python setup.py develop</code> with <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a>.</p>
+<p>To import the module, either:</p>
+<ul>
+<li>copy the shared library as described in <a href="building_and_distribution.html#manual-builds">Manual builds</a>, or</li>
+<li>use a tool, e.g. <code>maturin develop</code> with <a href="https://github.com/PyO3/maturin">maturin</a> or
+<code>python setup.py develop</code> with <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a>.</li>
+</ul>
 <h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
 <p>The <a href="https://doc.rust-lang.org/stable/book/first-edition/comments.html">Rust doc comments</a> of the module
 initialization function will be applied automatically as the Python docstring of your module.</p>
@@ -218,7 +221,7 @@ dicts or other modules:</p>
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use pyo3::prelude::*;
-use pyo3::{wrap_pyfunction, wrap_pymodule};
+use pyo3::wrap_pymodule;
 use pyo3::types::IntoPyDict;
 
 #[pyfunction]

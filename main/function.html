@@ -167,7 +167,6 @@
 <p>PyO3 supports two ways to define a free function in Python. Both require registering the function to a <a href="./module.html">module</a>.</p>
 <p>One way is annotating a function with <code>#[pyfunction]</code> and then adding it to the module using the <code>wrap_pyfunction!</code> macro.</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 
 #[pyfunction]
 fn double(x: usize) -&gt; usize {
@@ -209,7 +208,7 @@ fn rust2py(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
         Ok(format!(&quot;{}&quot;, a + b))
     }
 
-    m.add_function(pyo3::wrap_pyfunction!(sum_as_string, m)?)?;
+    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
 
     Ok(())
 }
@@ -226,7 +225,6 @@ fn rust2py(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 
 #[pyfunction]
 #[pyo3(name = &quot;no_args&quot;)]
@@ -250,7 +248,6 @@ fn module_with_functions(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; 
 <h2 id="argument-parsing"><a class="header" href="#argument-parsing">Argument parsing</a></h2>
 <p>The <code>#[pyfunction]</code> attribute supports specifying details of argument parsing. The details are given in the section <a href="class.html#method-arguments">&quot;Method arguments&quot; of the Classes chapter</a>.  Here is an example for a function that accepts arbitrary keyword arguments (<code>**kwargs</code> in Python syntax) and returns the number that was passed:</p>
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 use pyo3::types::PyDict;
 
 #[pyfunction(kwds=&quot;**&quot;)]
@@ -268,7 +265,7 @@ fn module_with_functions(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; 
 </span></code></pre></pre>
 <h2 id="making-the-function-signature-available-to-python"><a class="header" href="#making-the-function-signature-available-to-python">Making the function signature available to Python</a></h2>
 <p>In order to make the function signature available to Python to be retrieved via
-<code>inspect.signature</code>, use the <code>#[text_signature]</code> annotation as in the example
+<code>inspect.signature</code>, use the <code>#[pyo3(text_signature)]</code> annotation as in the example
 below. The <code>/</code> signifies the end of positional-only arguments. (This
 is not a feature of this library in particular, but the general format used by
 CPython for annotating signatures of built-in functions.)</p>
@@ -279,7 +276,7 @@ CPython for annotating signatures of built-in functions.)</p>
 
 /// This function adds two unsigned 64-bit integers.
 #[pyfunction]
-#[text_signature = &quot;(a, b, /)&quot;]
+#[pyo3(text_signature = &quot;(a, b, /)&quot;)]
 fn add(a: u64, b: u64) -&gt; u64 {
     a + b
 }
@@ -295,7 +292,7 @@ use pyo3::types::PyType;
 // it works even if the item is not documented:
 
 #[pyclass]
-#[text_signature = &quot;(c, d, /)&quot;]
+#[pyo3(text_signature = &quot;(c, d, /)&quot;)]
 struct MyClass {}
 
 #[pymethods]
@@ -307,17 +304,17 @@ impl MyClass {
         Self {}
     }
     // the self argument should be written $self
-    #[text_signature = &quot;($self, e, f)&quot;]
+    #[pyo3(text_signature = &quot;($self, e, f)&quot;)]
     fn my_method(&amp;self, e: i32, f: i32) -&gt; i32 {
         e + f
     }
     #[classmethod]
-    #[text_signature = &quot;(cls, e, f)&quot;]
+    #[pyo3(text_signature = &quot;(cls, e, f)&quot;)]
     fn my_class_method(cls: &amp;PyType, e: i32, f: i32) -&gt; i32 {
         e + f
     }
     #[staticmethod]
-    #[text_signature = &quot;(e, f)&quot;]
+    #[pyo3(text_signature = &quot;(e, f)&quot;)]
     fn my_static_method(e: i32, f: i32) -&gt; i32 {
         e + f
     }
@@ -330,7 +327,7 @@ impl MyClass {
 <p>Alternatively, simply make sure the first line of your docstring is
 formatted like in the following example. Please note that the newline after the
 <code>--</code> is mandatory. The <code>/</code> signifies the end of positional-only arguments.</p>
-<p><code>#[text_signature]</code> should be preferred, since it will override automatically
+<p><code>#[pyo3(text_signature)]</code> should be preferred, since it will override automatically
 generated signatures when those are added in a future version of PyO3.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -386,11 +383,11 @@ then use a <code>#[pyclass]</code> struct with that container as a field as a wa
 the FFI barrier. You can even make that class callable with <code>__call__</code> so it looks like a function
 in Python code.</p>
 <h3 id="accessing-the-module-of-a-function"><a class="header" href="#accessing-the-module-of-a-function">Accessing the module of a function</a></h3>
-<p>It is possible to access the module of a <code>#[pyfunction]</code> in the function body by passing the <code>pass_module</code> argument to the attribute:</p>
-<pre><pre class="playground"><code class="language-rust">use pyo3::wrap_pyfunction;
-use pyo3::prelude::*;
+<p>It is possible to access the module of a <code>#[pyfunction]</code> in the function body by using <code>#[pyo3(pass_module)]</code> option:</p>
+<pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
 
-#[pyfunction(pass_module)]
+#[pyfunction]
+#[pyo3(pass_module)]
 fn pyfunction_with_module(module: &amp;PyModule) -&gt; PyResult&lt;&amp;str&gt; {
     module.name()
 }

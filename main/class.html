@@ -332,6 +332,25 @@ impl MyClass {
 }
 <span class="boring">}
 </span></code></pre></pre>
+<p>Alternatively, if your <code>new</code> method may fail you can return <code>PyResult&lt;Self&gt;</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass]
+struct MyClass {
+    num: i32,
+}
+
+#[pymethods]
+impl MyClass {
+    #[new]
+    fn new(num: i32) -&gt; PyResult&lt;Self&gt; {
+        Ok(MyClass { num })
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
 <p>If no method marked with <code>#[new]</code> is declared, object instances can only be
 created from Rust, but not from Python.</p>
 <p>For arguments, see the <code>Method arguments</code> section below.</p>
@@ -861,8 +880,6 @@ struct MyClass {
     debug: bool,
 }
 
-impl pyo3::pyclass::PyClassAlloc for MyClass {}
-
 unsafe impl pyo3::PyTypeInfo for MyClass {
     type AsRefTarget = PyCell&lt;Self&gt;;
 
@@ -914,6 +931,16 @@ impl pyo3::class::impl_::PyClassImpl for MyClass {
         use pyo3::class::impl_::*;
         let collector = PyClassImplCollector::&lt;Self&gt;::new();
         collector.new_impl()
+    }
+    fn get_alloc() -&gt; Option&lt;pyo3::ffi::allocfunc&gt; {
+        use pyo3::class::impl_::*;
+        let collector = PyClassImplCollector::&lt;Self&gt;::new();
+        collector.alloc_impl()
+    }
+    fn get_free() -&gt; Option&lt;pyo3::ffi::freefunc&gt; {
+        use pyo3::class::impl_::*;
+        let collector = PyClassImplCollector::&lt;Self&gt;::new();
+        collector.free_impl()
     }
     fn get_call() -&gt; Option&lt;pyo3::ffi::PyCFunctionWithKeywords&gt; {
         use pyo3::class::impl_::*;
