@@ -1,6 +1,5 @@
 #![cfg_attr(feature = "nightly", feature(specialization))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![allow(clippy::missing_safety_doc)] // FIXME (#698)
 
 //! Rust bindings to the Python interpreter.
 //!
@@ -80,12 +79,12 @@
 //! [`#[pyclass]`](crate::proc_macro::pyclass). This adds a dependency on the
 //! [`inventory`](https://docs.rs/inventory) crate, which is not supported on all platforms.
 //
-//! - `num-bigint`: Enables conversions between Python objects and
+//! - [`num-bigint`](./num_bigint/index.html): Enables conversions between Python objects and
 //! [num-bigint](https://docs.rs/num-bigint)'s
 //! [`BigInt`](https://docs.rs/num-bigint/latest/num_bigint/struct.BigInt.html) and
 //! [`BigUint`](https://docs.rs/num-bigint/latest/num_bigint/struct.BigUint.html) types.
 //
-//! - `num-complex`: Enables conversions between Python objects and
+//! - [`num-complex`](crate::num_complex): Enables conversions between Python objects and
 //! [num-complex](https://docs.rs/num-complex)'s
 //! [`Complex`](https://docs.rs/num-complex/latest/num_complex/struct.Complex.html) type.
 //
@@ -150,7 +149,9 @@
 //! crate-type = ["cdylib"]
 //!
 //! [dependencies.pyo3]
-//! version = "0.13.2"
+// workaround for `extended_key_value_attributes`: https://github.com/rust-lang/rust/issues/82768#issuecomment-803935643
+#![cfg_attr(docsrs, cfg_attr(docsrs, doc = concat!("version = \"", env!("CARGO_PKG_VERSION"),  "\"")))]
+#![cfg_attr(not(docsrs), doc = "version = \"*\"")]
 //! features = ["extension-module"]
 //! ```
 //!
@@ -158,7 +159,6 @@
 //!
 //! ```rust
 //! use pyo3::prelude::*;
-//! use pyo3::wrap_pyfunction;
 //!
 //! /// Formats the sum of two numbers as string.
 //! #[pyfunction]
@@ -202,7 +202,9 @@
 //!
 //! ```toml
 //! [dependencies.pyo3]
-//! version = "0.13.2"
+// workaround for `extended_key_value_attributes`: https://github.com/rust-lang/rust/issues/82768#issuecomment-803935643
+#![cfg_attr(docsrs, cfg_attr(docsrs, doc = concat!("version = \"", env!("CARGO_PKG_VERSION"),  "\"")))]
+#![cfg_attr(not(docsrs), doc = "version = \"*\"")]
 //! # this is necessary to automatically initialize the Python interpreter
 //! features = ["auto-initialize"]
 //! ```
@@ -277,7 +279,6 @@ pub mod derive_utils;
 mod err;
 pub mod exceptions;
 pub mod ffi;
-pub mod freelist;
 mod gil;
 pub mod impl_;
 mod instance;
@@ -297,6 +298,10 @@ mod python;
 
 pub mod type_object;
 pub mod types;
+
+pub mod num_bigint;
+
+pub mod num_complex;
 
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 #[cfg(feature = "serde")]

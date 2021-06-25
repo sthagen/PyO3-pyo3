@@ -6,7 +6,6 @@ One way is annotating a function with `#[pyfunction]` and then adding it to the 
 
 ```rust
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 
 #[pyfunction]
 fn double(x: usize) -> usize {
@@ -54,7 +53,7 @@ fn rust2py(py: Python, m: &PyModule) -> PyResult<()> {
         Ok(format!("{}", a + b))
     }
 
-    m.add_function(pyo3::wrap_pyfunction!(sum_as_string, m)?)?;
+    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
 
     Ok(())
 }
@@ -72,7 +71,6 @@ The `#[pyo3]` attribute can be used to modify properties of the generated Python
 
     ```rust
     use pyo3::prelude::*;
-    use pyo3::wrap_pyfunction;
 
     #[pyfunction]
     #[pyo3(name = "no_args")]
@@ -97,7 +95,6 @@ The `#[pyfunction]` attribute supports specifying details of argument parsing. T
 
 ```rust
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 use pyo3::types::PyDict;
 
 #[pyfunction(kwds="**")]
@@ -117,7 +114,7 @@ fn module_with_functions(py: Python, m: &PyModule) -> PyResult<()> {
 ## Making the function signature available to Python
 
 In order to make the function signature available to Python to be retrieved via
-`inspect.signature`, use the `#[text_signature]` annotation as in the example
+`inspect.signature`, use the `#[pyo3(text_signature)]` annotation as in the example
 below. The `/` signifies the end of positional-only arguments. (This
 is not a feature of this library in particular, but the general format used by
 CPython for annotating signatures of built-in functions.)
@@ -127,7 +124,7 @@ use pyo3::prelude::*;
 
 /// This function adds two unsigned 64-bit integers.
 #[pyfunction]
-#[text_signature = "(a, b, /)"]
+#[pyo3(text_signature = "(a, b, /)")]
 fn add(a: u64, b: u64) -> u64 {
     a + b
 }
@@ -142,7 +139,7 @@ use pyo3::types::PyType;
 // it works even if the item is not documented:
 
 #[pyclass]
-#[text_signature = "(c, d, /)"]
+#[pyo3(text_signature = "(c, d, /)")]
 struct MyClass {}
 
 #[pymethods]
@@ -154,17 +151,17 @@ impl MyClass {
         Self {}
     }
     // the self argument should be written $self
-    #[text_signature = "($self, e, f)"]
+    #[pyo3(text_signature = "($self, e, f)")]
     fn my_method(&self, e: i32, f: i32) -> i32 {
         e + f
     }
     #[classmethod]
-    #[text_signature = "(cls, e, f)"]
+    #[pyo3(text_signature = "(cls, e, f)")]
     fn my_class_method(cls: &PyType, e: i32, f: i32) -> i32 {
         e + f
     }
     #[staticmethod]
-    #[text_signature = "(e, f)"]
+    #[pyo3(text_signature = "(e, f)")]
     fn my_static_method(e: i32, f: i32) -> i32 {
         e + f
     }
@@ -180,7 +177,7 @@ Alternatively, simply make sure the first line of your docstring is
 formatted like in the following example. Please note that the newline after the
 `--` is mandatory. The `/` signifies the end of positional-only arguments.
 
-`#[text_signature]` should be preferred, since it will override automatically
+`#[pyo3(text_signature)]` should be preferred, since it will override automatically
 generated signatures when those are added in a future version of PyO3.
 
 ```rust
@@ -255,13 +252,13 @@ in Python code.
 
 ### Accessing the module of a function
 
-It is possible to access the module of a `#[pyfunction]` in the function body by passing the `pass_module` argument to the attribute:
+It is possible to access the module of a `#[pyfunction]` in the function body by using `#[pyo3(pass_module)]` option:
 
 ```rust
-use pyo3::wrap_pyfunction;
 use pyo3::prelude::*;
 
-#[pyfunction(pass_module)]
+#[pyfunction]
+#[pyo3(pass_module)]
 fn pyfunction_with_module(module: &PyModule) -> PyResult<&str> {
     module.name()
 }

@@ -1,6 +1,7 @@
 # PyO3
 
 [![actions status](https://github.com/PyO3/pyo3/workflows/CI/badge.svg)](https://github.com/PyO3/pyo3/actions)
+[![benchmark](https://github.com/PyO3/pyo3/actions/workflows/bench.yml/badge.svg)](https://pyo3.rs/dev/bench/)
 [![codecov](https://codecov.io/gh/PyO3/pyo3/branch/main/graph/badge.svg)](https://codecov.io/gh/PyO3/pyo3)
 [![crates.io](https://meritbadge.herokuapp.com/pyo3)](https://crates.io/crates/pyo3)
 [![minimum rustc 1.41](https://img.shields.io/badge/rustc-1.41+-blue.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
@@ -57,7 +58,6 @@ features = ["extension-module"]
 
 ```rust
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 
 /// Formats the sum of two numbers as string.
 #[pyfunction]
@@ -149,6 +149,7 @@ about this topic.
  * [css-inline](https://github.com/Stranger6667/css-inline/tree/master/bindings/python) _CSS inlining for Python implemented in Rust_
  * [cryptography](https://github.com/pyca/cryptography/tree/main/src/rust) _Python cryptography library with some functionality in Rust_
  * [polaroid](https://github.com/daggy1234/polaroid) _Hyper Fast and safe image manipulation library for Python written in Rust_
+ * [ormsgpack](https://github.com/aviramha/ormsgpack) _Fast Python msgpack library_
 
 ## Contributing
 

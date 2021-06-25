@@ -1,9 +1,13 @@
 // Copyright (c) 2017-present PyO3 Project and Contributors
 
-use crate::attributes::{self, take_pyo3_options, NameAttribute};
+use crate::attributes::{
+    self, take_deprecated_text_signature_attribute, take_pyo3_options, NameAttribute,
+    TextSignatureAttribute,
+};
+use crate::deprecations::Deprecations;
 use crate::pyimpl::PyClassMethodsType;
 use crate::pymethod::{impl_py_getter_def, impl_py_setter_def, PropertyType};
-use crate::utils;
+use crate::utils::{self, unwrap_group};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::ext::IdentExt;
@@ -89,7 +93,7 @@ impl PyClassArgs {
                 // We allow arbitrary expressions here so you can e.g. use `8*64`
                 self.freelist = Some(syn::Expr::clone(right));
             }
-            "name" => match &**right {
+            "name" => match unwrap_group(&**right) {
                 syn::Expr::Lit(syn::ExprLit {
                     lit: syn::Lit::Str(lit),
                     ..
@@ -110,7 +114,7 @@ impl PyClassArgs {
                 }
                 _ => expected!("type name (e.g. \"Name\")"),
             },
-            "extends" => match &**right {
+            "extends" => match unwrap_group(&**right) {
                 syn::Expr::Path(exp) => {
                     self.base = syn::TypePath {
                         path: exp.path.clone(),
@@ -120,7 +124,7 @@ impl PyClassArgs {
                 }
                 _ => expected!("type path (e.g., my_mod::BaseClass)"),
             },
-            "module" => match &**right {
+            "module" => match unwrap_group(&**right) {
                 syn::Expr::Lit(syn::ExprLit {
                     lit: syn::Lit::Str(lit),
                     ..
@@ -162,16 +166,71 @@ impl PyClassArgs {
     }
 }
 
+#[derive(Default)]
+pub struct PyClassPyO3Options {
+    pub text_signature: Option<TextSignatureAttribute>,
+    pub deprecations: Deprecations,
+}
+
+enum PyClassPyO3Option {
+    TextSignature(TextSignatureAttribute),
+}
+
+impl Parse for PyClassPyO3Option {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let lookahead = input.lookahead1();
+        if lookahead.peek(attributes::kw::text_signature) {
+            input.parse().map(PyClassPyO3Option::TextSignature)
+        } else {
+            Err(lookahead.error())
+        }
+    }
+}
+
+impl PyClassPyO3Options {
+    pub fn take_pyo3_options(attrs: &mut Vec<syn::Attribute>) -> syn::Result<Self> {
+        let mut options: PyClassPyO3Options = Default::default();
+        for option in take_pyo3_options(attrs)? {
+            match option {
+                PyClassPyO3Option::TextSignature(text_signature) => {
+                    options.set_text_signature(text_signature)?;
+                }
+            }
+        }
+        Ok(options)
+    }
+
+    pub fn set_text_signature(
+        &mut self,
+        text_signature: TextSignatureAttribute,
+    ) -> syn::Result<()> {
+        ensure_spanned!(
+            self.text_signature.is_none(),
+            text_signature.kw.span() => "`text_signature` may only be specified once"
+        );
+        self.text_signature = Some(text_signature);
+        Ok(())
+    }
+}
+
 pub fn build_py_class(
     class: &mut syn::ItemStruct,
-    attr: &PyClassArgs,
+    args: &PyClassArgs,
     methods_type: PyClassMethodsType,
 ) -> syn::Result<TokenStream> {
-    let text_signature = utils::parse_text_signature_attrs(
-        &mut class.attrs,
-        &get_class_python_name(&class.ident, attr),
+    let mut options = PyClassPyO3Options::take_pyo3_options(&mut class.attrs)?;
+    if let Some(text_signature) =
+        take_deprecated_text_signature_attribute(&mut class.attrs, &mut options.deprecations)?
+    {
+        options.set_text_signature(text_signature)?;
+    }
+    let doc = utils::get_doc(
+        &class.attrs,
+        options
+            .text_signature
+            .as_ref()
+            .map(|attr| (get_class_python_name(&class.ident, args), attr)),
     )?;
-    let doc = utils::get_doc(&class.attrs, text_signature, true)?;
 
     ensure_spanned!(
         class.generics.params.is_empty(),
@@ -201,7 +260,14 @@ pub fn build_py_class(
         }
     };
 
-    impl_class(&class.ident, &attr, doc, field_options, methods_type)
+    impl_class(
+        &class.ident,
+        &args,
+        doc,
+        field_options,
+        methods_type,
+        options.deprecations,
+    )
 }
 
 /// `#[pyo3()]` options for pyclass fields
@@ -308,32 +374,41 @@ fn impl_class(
     doc: syn::LitStr,
     field_options: Vec<(&syn::Field, FieldPyO3Options)>,
     methods_type: PyClassMethodsType,
+    deprecations: Deprecations,
 ) -> syn::Result<TokenStream> {
     let cls_name = get_class_python_name(cls, attr).to_string();
 
-    let alloc = {
-        if let Some(freelist) = &attr.freelist {
+    let alloc = attr.freelist.as_ref().map(|freelist| {
             quote! {
-                impl pyo3::freelist::PyClassWithFreeList for #cls {
+                impl pyo3::class::impl_::PyClassWithFreeList for #cls {
                     #[inline]
-                    fn get_free_list(_py: pyo3::Python) -> &mut pyo3::freelist::FreeList<*mut pyo3::ffi::PyObject> {
-                        static mut FREELIST: *mut pyo3::freelist::FreeList<*mut pyo3::ffi::PyObject> = 0 as *mut _;
+                    fn get_free_list(_py: pyo3::Python<'_>) -> &mut pyo3::impl_::freelist::FreeList<*mut pyo3::ffi::PyObject> {
+                        static mut FREELIST: *mut pyo3::impl_::freelist::FreeList<*mut pyo3::ffi::PyObject> = 0 as *mut _;
                         unsafe {
                             if FREELIST.is_null() {
                                 FREELIST = Box::into_raw(Box::new(
-                                    pyo3::freelist::FreeList::with_capacity(#freelist)));
+                                    pyo3::impl_::freelist::FreeList::with_capacity(#freelist)));
                             }
                             &mut *FREELIST
                         }
                     }
                 }
+
+                impl pyo3::class::impl_::PyClassAllocImpl<#cls> for pyo3::class::impl_::PyClassImplCollector<#cls> {
+                    #[inline]
+                    fn alloc_impl(self) -> Option<pyo3::ffi::allocfunc> {
+                        Some(pyo3::class::impl_::alloc_with_freelist::<#cls>)
+                    }
+                }
+
+                impl pyo3::class::impl_::PyClassFreeImpl<#cls> for pyo3::class::impl_::PyClassImplCollector<#cls> {
+                    #[inline]
+                    fn free_impl(self) -> Option<pyo3::ffi::freefunc> {
+                        Some(pyo3::class::impl_::free_with_freelist::<#cls>)
+                    }
+                }
             }
-        } else {
-            quote! {
-                impl pyo3::pyclass::PyClassAlloc for #cls {}
-            }
-        }
-    };
+        });
 
     let descriptors = impl_descriptors(cls, field_options)?;
 
@@ -428,7 +503,9 @@ fn impl_class(
             const MODULE: Option<&'static str> = #module;
 
             #[inline]
-            fn type_object_raw(py: pyo3::Python) -> *mut pyo3::ffi::PyTypeObject {
+            fn type_object_raw(py: pyo3::Python<'_>) -> *mut pyo3::ffi::PyTypeObject {
+                #deprecations
+
                 use pyo3::type_object::LazyStaticType;
                 static TYPE_OBJECT: LazyStaticType = LazyStaticType::new();
                 TYPE_OBJECT.get_or_init::<Self>(py)
@@ -481,6 +558,16 @@ fn impl_class(
                 use pyo3::class::impl_::*;
                 let collector = PyClassImplCollector::<Self>::new();
                 collector.new_impl()
+            }
+            fn get_alloc() -> Option<pyo3::ffi::allocfunc> {
+                use pyo3::class::impl_::*;
+                let collector = PyClassImplCollector::<Self>::new();
+                collector.alloc_impl()
+            }
+            fn get_free() -> Option<pyo3::ffi::freefunc> {
+                use pyo3::class::impl_::*;
+                let collector = PyClassImplCollector::<Self>::new();
+                collector.free_impl()
             }
             fn get_call() -> Option<pyo3::ffi::PyCFunctionWithKeywords> {
                 use pyo3::class::impl_::*;
