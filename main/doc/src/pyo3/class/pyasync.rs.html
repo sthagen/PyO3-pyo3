@@ -140,6 +140,11 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -241,11 +246,16 @@
 <span class="macro">py_unarys_func!</span>(<span class="ident">anext</span>, <span class="ident">PyAsyncAnextProtocol</span>, <span class="self">Self</span><span class="ident">::__anext__</span>);
 
 <span class="doccomment">/// Output of `__anext__`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// &lt;https://docs.python.org/3/reference/expressions.html#agen.__anext__&gt;</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">IterANextOutput</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// An expression which the generator yielded.</span>
     <span class="ident">Yield</span>(<span class="ident">T</span>),
+    <span class="doccomment">/// A `StopAsyncIteration` object.</span>
     <span class="ident">Return</span>(<span class="ident">U</span>),
 }
 
+<span class="doccomment">/// An [IterANextOutput] of Python objects.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PyIterANextOutput</span> <span class="op">=</span> <span class="ident">IterANextOutput</span><span class="op">&lt;</span><span class="ident">PyObject</span>, <span class="ident">PyObject</span><span class="op">&gt;</span>;
 
 <span class="kw">impl</span> <span class="ident">IntoPyCallbackOutput</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyIterANextOutput</span> {

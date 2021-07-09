@@ -715,6 +715,15 @@
 <span id="715">715</span>
 <span id="716">716</span>
 <span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017 Daniel Grunwald</span>
 <span class="comment">//</span>
@@ -773,16 +782,23 @@
     }
 }
 
+<span class="doccomment">/// Represents the type of a Python buffer element.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ElementType</span> {
+    <span class="doccomment">/// A signed integer type and its width in bytes.</span>
     <span class="ident">SignedInteger</span> { <span class="ident">bytes</span>: <span class="ident">usize</span> },
+    <span class="doccomment">/// An unsigned integer type and its width in bytes.</span>
     <span class="ident">UnsignedInteger</span> { <span class="ident">bytes</span>: <span class="ident">usize</span> },
+    <span class="doccomment">/// A boolean type.</span>
     <span class="ident">Bool</span>,
+    <span class="doccomment">/// A float type and its width in bytes.</span>
     <span class="ident">Float</span> { <span class="ident">bytes</span>: <span class="ident">usize</span> },
+    <span class="doccomment">/// An unknown type. This may occur when parsing has failed.</span>
     <span class="ident">Unknown</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ElementType</span> {
+    <span class="doccomment">/// Determines the `ElementType` from a Python `struct` module format string.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_format</span>(<span class="ident">format</span>: <span class="kw-2">&amp;</span><span class="ident">CStr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ElementType</span> {
         <span class="kw">match</span> <span class="ident">format</span>.<span class="ident">to_bytes</span>() {
             [<span class="ident">char</span>] <span class="op">|</span> [<span class="string">b&#39;@&#39;</span>, <span class="ident">char</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="ident">native_element_type_from_type_char</span>(<span class="kw-2">*</span><span class="ident">char</span>),
@@ -1308,7 +1324,7 @@
     }
 }
 
-<span class="doccomment">/// Like `std::mem::cell`, but only provides read-only access to the data.</span>
+<span class="doccomment">/// Like [std::cell::Cell], but only provides read-only access to the data.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// `&amp;ReadOnlyCell&lt;T&gt;` is basically a safe version of `*const T`:</span>
 <span class="doccomment">///  The data cannot be modified through the reference, but other references may</span>
@@ -1317,11 +1333,13 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReadOnlyCell</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Element</span><span class="op">&gt;</span>(<span class="ident">cell::UnsafeCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Element</span><span class="op">&gt;</span> <span class="ident">ReadOnlyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns a copy of the current value.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
         <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>() }
     }
 
+    <span class="doccomment">/// Returns a pointer to the current value.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>()

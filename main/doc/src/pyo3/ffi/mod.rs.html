@@ -225,12 +225,23 @@
 <span id="225">225</span>
 <span id="226">226</span>
 <span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Raw FFI declarations for Python&#39;s C API.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module provides low level bindings to the Python interpreter.</span>
 <span class="doccomment">//! It is meant for advanced users only - regular PyO3 users shouldn&#39;t</span>
 <span class="doccomment">//! need to interact with this module at all.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The contents of this module are not documented here, as it would entail</span>
+<span class="doccomment">//! basically copying the documentation from CPython. Consult the [Python/C API Reference</span>
+<span class="doccomment">//! Manual][capi] for up-to-date documentation.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Safety</span>
 <span class="doccomment">//!</span>
@@ -240,9 +251,12 @@
 <span class="doccomment">//! although null pointers are sometimes valid input.</span>
 <span class="doccomment">//! - The vast majority can only be used safely while the GIL is held.</span>
 <span class="doccomment">//! - Some functions have additional safety requirements, consult the</span>
-<span class="doccomment">//! [Python/C API Reference Manual](https://docs.python.org/3/c-api/index.html)</span>
+<span class="doccomment">//! [Python/C API Reference Manual][capi]</span>
 <span class="doccomment">//! for more information.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [capi]: https://docs.python.org/3/c-api/index.html</span>
 <span class="attribute">#![<span class="ident">allow</span>(
+    <span class="ident">missing_docs</span>,
     <span class="ident">non_camel_case_types</span>,
     <span class="ident">non_snake_case</span>,
     <span class="ident">non_upper_case_globals</span>,

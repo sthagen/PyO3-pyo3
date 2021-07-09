@@ -211,6 +211,12 @@
 <span id="211">211</span>
 <span id="212">212</span>
 <span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -226,14 +232,20 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>};
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
-<span class="doccomment">/// Operators for the __richcmp__ method</span>
+<span class="doccomment">/// Operators for the `__richcmp__` method</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CompareOp</span> {
+    <span class="doccomment">/// The *less than* operator.</span>
     <span class="ident">Lt</span> <span class="op">=</span> <span class="ident">ffi::Py_LT</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="doccomment">/// The *less than or equal to* operator.</span>
     <span class="ident">Le</span> <span class="op">=</span> <span class="ident">ffi::Py_LE</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="doccomment">/// The equality operator.</span>
     <span class="ident">Eq</span> <span class="op">=</span> <span class="ident">ffi::Py_EQ</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="doccomment">/// The *not equal to* operator.</span>
     <span class="ident">Ne</span> <span class="op">=</span> <span class="ident">ffi::Py_NE</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="doccomment">/// The *greater than* operator.</span>
     <span class="ident">Gt</span> <span class="op">=</span> <span class="ident">ffi::Py_GT</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="doccomment">/// The *greater than or equal to* operator.</span>
     <span class="ident">Ge</span> <span class="op">=</span> <span class="ident">ffi::Py_GE</span> <span class="kw">as</span> <span class="ident">isize</span>,
 }
 

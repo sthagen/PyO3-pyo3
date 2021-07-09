@@ -180,7 +180,7 @@
 <p>User Guide: <a href="https://pyo3.rs">stable</a> | <a href="https://pyo3.rs/main">main</a></p>
 </li>
 <li>
-<p>API Documentation: <a href="https://docs.rs/pyo3/">stable</a> |  <a href="https://pyo3.rs/main/doc">main</a></p>
+<p>API Documentation: <a href="https://docs.rs/pyo3/">stable</a> | <a href="https://pyo3.rs/main/doc">main</a></p>
 </li>
 </ul>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
@@ -208,7 +208,7 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies.pyo3]
-version = &quot;0.13.2&quot;
+version = &quot;0.14.1&quot;
 features = [&quot;extension-module&quot;]
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
@@ -238,7 +238,7 @@ fn string_sum(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 <p>If you want your Rust application to create a Python interpreter internally and
 use it to run Python code, add <code>pyo3</code> to your <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;0.13.2&quot;
+version = &quot;0.14.1&quot;
 features = [&quot;auto-initialize&quot;]
 </code></pre>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>
@@ -288,7 +288,7 @@ about this topic.</p>
 <li>Contains an example of building wheels on TravisCI and appveyor using <a href="https://github.com/joerick/cibuildwheel">cibuildwheel</a></li>
 </ul>
 </li>
-<li><a href="https://github.com/ijl/orjson">orjson</a>  <em>Fast Python JSON library</em></li>
+<li><a href="https://github.com/ijl/orjson">orjson</a> <em>Fast Python JSON library</em></li>
 <li><a href="https://github.com/dronesforwork/inline-python">inline-python</a> <em>Inline Python code directly in your Rust code</em></li>
 <li><a href="https://github.com/kngwyu/rogue-gym">Rogue-Gym</a> <em>Customizable rogue-like game for AI experiments</em>
 <ul>

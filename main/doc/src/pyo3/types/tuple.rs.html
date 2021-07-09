@@ -443,6 +443,22 @@
 <span id="443">443</span>
 <span id="444">444</span>
 <span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -472,9 +488,9 @@
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::PyTuple_New</span>(<span class="ident">len</span> <span class="kw">as</span> <span class="ident">Py_ssize_t</span>);
             <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">e</span>) <span class="kw">in</span> <span class="ident">elements_iter</span>.<span class="ident">enumerate</span>() {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>)))]</span>
                 <span class="ident">ffi::PyTuple_SET_ITEM</span>(<span class="ident">ptr</span>, <span class="ident">i</span> <span class="kw">as</span> <span class="ident">Py_ssize_t</span>, <span class="ident">e</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>());
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_LIMITED_API</span>)]</span>
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>))]</span>
                 <span class="ident">ffi::PyTuple_SetItem</span>(<span class="ident">ptr</span>, <span class="ident">i</span> <span class="kw">as</span> <span class="ident">Py_ssize_t</span>, <span class="ident">e</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>());
             }
             <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">ptr</span>)
@@ -489,9 +505,9 @@
     <span class="doccomment">/// Gets the length of the tuple.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">unsafe</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>)))]</span>
             <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">ffi::PyTuple_GET_SIZE</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_LIMITED_API</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>))]</span>
             <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">ffi::PyTuple_Size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
             <span class="comment">// non-negative Py_ssize_t should always fit into Rust uint</span>
             <span class="ident">size</span> <span class="kw">as</span> <span class="ident">usize</span>
@@ -525,9 +541,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PyAny</span> {
         <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>());
         <span class="kw">unsafe</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>)))]</span>
             <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">ffi::PyTuple_GET_ITEM</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">index</span> <span class="kw">as</span> <span class="ident">Py_ssize_t</span>);
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_LIMITED_API</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>))]</span>
             <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">ffi::PyTuple_GetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">index</span> <span class="kw">as</span> <span class="ident">Py_ssize_t</span>);
 
             <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_borrowed_ptr</span>(<span class="ident">item</span>)
@@ -576,6 +592,14 @@
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
+        (
+            <span class="self">self</span>.<span class="ident">length</span>.<span class="ident">saturating_sub</span>(<span class="self">self</span>.<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>),
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">length</span>.<span class="ident">saturating_sub</span>(<span class="self">self</span>.<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>)),
+        )
     }
 }
 
@@ -792,9 +816,17 @@
         <span class="kw">let</span> <span class="ident">tuple</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyTuple</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">tuple</span>.<span class="ident">len</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">iter</span>();
+
+        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>)));
+
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">2</span>, <span class="prelude-val">Some</span>(<span class="number">2</span>)));
+
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)));
+
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
