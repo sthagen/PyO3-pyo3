@@ -7,10 +7,9 @@ holding the lock.</p>
 <p>Note that the GIL can be temporarily released by the Python interpreter during a function call
 (e.g. importing a module), even when you’re holding a GILGuard. In general, you don’t need to
 worry about this because the GIL is reacquired before returning to the Rust code:</p>
-<pre><code class="language-text">`Python` exists   |=====================================|
+<div class="example-wrap"><pre class="language-text">`Python` exists   |=====================================|
 GIL actually held |==========|         |================|
-Rust code running |=======|                |==|  |======|
-</code></pre>
+Rust code running |=======|                |==|  |======|</pre></div>
 <p>This behaviour can cause deadlocks when trying to lock a Rust mutex while
 holding the GIL:</p>
 <ul>

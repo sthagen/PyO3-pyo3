@@ -2,10 +2,9 @@
 <p>This is useful for converting Python integers when they may not fit in Rust’s built-in integer types.</p>
 <h1 id="setup" class="section-header"><a href="#setup">Setup</a></h1>
 <p>To use this feature, add this to your <strong><code>Cargo.toml</code></strong>:</p>
-<pre><code class="language-toml">[dependencies]
+<div class="example-wrap"><pre class="language-toml">[dependencies]
 num-bigint = &quot;*&quot;
-pyo3 = { version = &quot;0.14.1&quot;, features = [&quot;num-bigint&quot;] }
-</code></pre>
+pyo3 = { version = &quot;0.14.1&quot;, features = [&quot;num-bigint&quot;] }</pre></div>
 <p>Note that you must use compatible versions of num-bigint and PyO3.
 The required num-bigint version may vary based on the version of PyO3.</p>
 <h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
@@ -28,13 +27,11 @@ in which case it will fail its conversion and raise <code>OverflowError</code>.<
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p>Python code:</p>
-<pre><code class="language-python">from my_module import add_one
+<div class="example-wrap"><pre class="language-python">from my_module import add_one
 
 n = 1 &lt;&lt; 1337
 value = add_one(n)
 
-assert n + 1 == value
-</code></pre>
-</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+assert n + 1 == value</pre></div></div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>

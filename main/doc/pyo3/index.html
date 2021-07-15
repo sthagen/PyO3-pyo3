@@ -96,24 +96,18 @@ in the guide for more information.</p>
 for more information.</p>
 <p>Add these files to your crate’s root:</p>
 <p><strong><code>Cargo.toml</code></strong></p>
-<pre><code class="language-toml">[package]
+<div class="example-wrap"><pre class="language-toml">[package]
 name = &quot;string-sum&quot;
 version = &quot;0.1.0&quot;
 edition = &quot;2018&quot;
 
 [lib]
 name = &quot;string_sum&quot;
-# &quot;cdylib&quot; is necessary to produce a shared library for Python to import from.
-#
-# Downstream Rust code (including code in `bin/`, `examples/`, and `tests/`) will not be able
-# to `use string_sum;` unless the &quot;rlib&quot; or &quot;lib&quot; crate type is also included, e.g.:
-# crate-type = [&quot;cdylib&quot;, &quot;rlib&quot;]
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies.pyo3]
 version = &quot;0.14.1&quot;
-features = [&quot;extension-module&quot;]
-</code></pre>
+features = [&quot;extension-module&quot;]</pre></div>
 <p><strong><code>src/lib.rs</code></strong></p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -133,10 +127,7 @@ features = [&quot;extension-module&quot;]
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p><strong><code>.cargo/config.toml</code></strong></p>
-<pre><code class="language-toml"># These flags must be passed to rustc when compiling for macOS
-# They can be omitted if you pass the flags yourself
-# or don't care about macOS
-
+<div class="example-wrap"><pre class="language-toml">
 [target.x86_64-apple-darwin]
 rustflags = [
   &quot;-C&quot;, &quot;link-arg=-undefined&quot;,
@@ -147,16 +138,12 @@ rustflags = [
 rustflags = [
   &quot;-C&quot;, &quot;link-arg=-undefined&quot;,
   &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,
-]
-</code></pre>
-<h1 id="example-using-python-from-rust" class="section-header"><a href="#example-using-python-from-rust">Example: Using Python from Rust</a></h1>
+]</pre></div><h1 id="example-using-python-from-rust" class="section-header"><a href="#example-using-python-from-rust">Example: Using Python from Rust</a></h1>
 <p>You can use PyO3 to call Python functions from Rust.</p>
 <p>Add <code>pyo3</code> to your <code>Cargo.toml</code>:</p>
-<pre><code class="language-toml">[dependencies.pyo3]
+<div class="example-wrap"><pre class="language-toml">[dependencies.pyo3]
 version = &quot;0.14.1&quot;
-# this is necessary to automatically initialize the Python interpreter
-features = [&quot;auto-initialize&quot;]
-</code></pre>
+features = [&quot;auto-initialize&quot;]</pre></div>
 <p>Example program displaying the value of <code>sys.version</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -217,7 +204,7 @@ Python layout is known).</p>
 </div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.GILGuard.html" title="pyo3::GILGuard struct">GILGuard</a></div><div class="item-right docblock-short"><p>RAII type that represents the Global Interpreter Lock acquisition.</p>
 </div><div class="item-left module-item"><a class="struct" href="struct.GILPool.html" title="pyo3::GILPool struct">GILPool</a></div><div class="item-right docblock-short"><p>A RAII pool which PyO3 uses to store owned Python references.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.Py.html" title="pyo3::Py struct">Py</a></div><div class="item-right docblock-short"><p>A Python object of known type T.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Py.html" title="pyo3::Py struct">Py</a></div><div class="item-right docblock-short"><p>A GIL-independent reference to an object allocated on the Python heap.</p>
 </div><div class="item-left module-item"><a class="struct" href="struct.PyAny.html" title="pyo3::PyAny struct">PyAny</a></div><div class="item-right docblock-short"><p>Represents any Python object.</p>
 </div><div class="item-left module-item"><a class="struct" href="struct.PyDowncastError.html" title="pyo3::PyDowncastError struct">PyDowncastError</a></div><div class="item-right docblock-short"><p>Error that indicates a failure to convert a PyAny to a more specific Python type.</p>
 </div><div class="item-left module-item"><a class="struct" href="struct.PyErr.html" title="pyo3::PyErr struct">PyErr</a></div><div class="item-right docblock-short"><p>Represents a Python exception that was raised.</p>

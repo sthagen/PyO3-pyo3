@@ -4,11 +4,9 @@
 and can be used with the rest of the Rust ecosystem.</p>
 <h1 id="setup" class="section-header"><a href="#setup">Setup</a></h1>
 <p>To use this feature, add this to your <strong><code>Cargo.toml</code></strong>:</p>
-<pre><code class="language-toml">[dependencies]
-# change * to the latest versions
+<div class="example-wrap"><pre class="language-toml">[dependencies]
 num-complex = &quot;*&quot;
-pyo3 = { version = &quot;0.14.1&quot;, features = [&quot;num-complex&quot;] }
-</code></pre>
+pyo3 = { version = &quot;0.14.1&quot;, features = [&quot;num-complex&quot;] }</pre></div>
 <p>Note that you must use compatible versions of num-complex and PyO3.
 The required num-complex version may vary based on the version of PyO3.</p>
 <h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
@@ -38,7 +36,7 @@ to create a pyfunction that calculates the eigenvalues of a 2x2 matrix.</p>
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <p>Python code:</p>
-<pre><code class="language-python">from my_module import get_eigenvalues
+<div class="example-wrap"><pre class="language-python">from my_module import get_eigenvalues
 
 m11 = complex(0,-1)
 m12 = complex(1,0)
@@ -46,8 +44,6 @@ m21 = complex(2,-1)
 m22 = complex(-1,0)
 
 result = get_eigenvalues(m11,m12,m21,m22)
-assert result == [complex(1,-1), complex(-2,0)]
-</code></pre>
-</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+assert result == [complex(1,-1), complex(-2,0)]</pre></div></div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>
