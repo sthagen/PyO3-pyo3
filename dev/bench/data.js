@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1626723511058,
+  "lastUpdate": 1626723896551,
   "repoUrl": "https://github.com/sthagen/pyo3",
   "entries": {
     "pytest-bench": [
@@ -2341,6 +2341,168 @@ window.BENCHMARK_DATA = {
             "name": "tuple_get_item",
             "value": 405682,
             "range": "± 3828",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stefan@hagen.link",
+            "name": "Stefan Hagen",
+            "username": "sthagen"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b855dd55aa7c5451cb61af65ae2b1dc615ef77d6",
+          "message": "Merge pull request #117 from PyO3/main\n\nSync Fork from Upstream Repo",
+          "timestamp": "2021-07-19T21:37:05+02:00",
+          "tree_id": "eda4ca0ee426b19ed89888775022910f997770c0",
+          "url": "https://github.com/sthagen/pyo3/commit/b855dd55aa7c5451cb61af65ae2b1dc615ef77d6"
+        },
+        "date": 1626723884427,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "call_0",
+            "value": 71477,
+            "range": "± 7216",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "call_method_0",
+            "value": 226468,
+            "range": "± 18940",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "iter_dict",
+            "value": 2358396,
+            "range": "± 150496",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "dict_new",
+            "value": 4954702,
+            "range": "± 281904",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "dict_get_item",
+            "value": 2719985,
+            "range": "± 167168",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "extract_hashmap",
+            "value": 8585985,
+            "range": "± 511965",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "extract_btreemap",
+            "value": 11454745,
+            "range": "± 826939",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "extract_hashbrown_map",
+            "value": 7002205,
+            "range": "± 472526",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "clean_gilpool_new",
+            "value": 16,
+            "range": "± 1",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "clean_acquire_gil",
+            "value": 93,
+            "range": "± 6",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "dirty_acquire_gil",
+            "value": 108,
+            "range": "± 9",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "iter_list",
+            "value": 1323036,
+            "range": "± 115940",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "list_new",
+            "value": 1474829,
+            "range": "± 115684",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "list_get_item",
+            "value": 677384,
+            "range": "± 71626",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "first_time_init",
+            "value": 4511,
+            "range": "± 22294",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "drop_many_objects",
+            "value": 3762,
+            "range": "± 243",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "iter_set",
+            "value": 1941497,
+            "range": "± 136951",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "extract_hashset",
+            "value": 8381273,
+            "range": "± 411410",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "extract_btreeset",
+            "value": 9677930,
+            "range": "± 761738",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "extract_hashbrown_set",
+            "value": 5058770,
+            "range": "± 272974",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "iter_tuple",
+            "value": 766351,
+            "range": "± 38750",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "tuple_new",
+            "value": 1720655,
+            "range": "± 142368",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "tuple_get_item",
+            "value": 436712,
+            "range": "± 37201",
             "unit": "ns/iter"
           }
         ]
