@@ -146,7 +146,10 @@
                         <h1 id="python-functions"><a class="header" href="#python-functions">Python Functions</a></h1>
 <p>PyO3 supports two ways to define a free function in Python. Both require registering the function to a <a href="./module.html">module</a>.</p>
 <p>One way is annotating a function with <code>#[pyfunction]</code> and then adding it to the module using the <code>wrap_pyfunction!</code> macro.</p>
-<pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 
 #[pyfunction]
 fn double(x: usize) -&gt; usize {
@@ -154,46 +157,50 @@ fn double(x: usize) -&gt; usize {
 }
 
 #[pymodule]
-fn module_with_functions(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(double, m)?)?;
     Ok(())
 }
-
-<span class="boring">fn main() {}
+<span class="boring">}
 </span></code></pre></pre>
-<p>Alternatively there is a shorthand; the function can be placed inside the module definition and annotated with <code>#[pyfn]</code>, as below:</p>
-<pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
+<p>Alternatively, there is a shorthand: the function can be placed inside the module definition and
+annotated with <code>#[pyfn]</code>, as below:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 
 #[pymodule]
-fn rust2py(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
     #[pyfn(m)]
-    fn sum_as_string(_py: Python, a:i64, b:i64) -&gt; PyResult&lt;String&gt; {
-        Ok(format!(&quot;{}&quot;, a + b))
+    fn double(x: usize) -&gt; usize {
+        x * 2
     }
 
     Ok(())
 }
-
-<span class="boring">fn main() {}
+<span class="boring">}
 </span></code></pre></pre>
-<p><code>#[pyfn(m)]</code> is just syntax sugar for <code>#[pyfunction]</code>, and takes all the same options documented in the rest of this chapter. The code above is expanded to the following:</p>
-<pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
+<p><code>#[pyfn(m)]</code> is just syntactic sugar for <code>#[pyfunction]</code>, and takes all the same options
+documented in the rest of this chapter. The code above is expanded to the following:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 
 #[pymodule]
-fn rust2py(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
     #[pyfunction]
-    fn sum_as_string(_py: Python, a:i64, b:i64) -&gt; PyResult&lt;String&gt; {
-        Ok(format!(&quot;{}&quot;, a + b))
+    fn double(x: usize) -&gt; usize {
+        x * 2
     }
 
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
-
+    m.add_function(wrap_pyfunction!(double, m)?)?;
     Ok(())
 }
-
-<span class="boring">fn main() {}
+<span class="boring">}
 </span></code></pre></pre>
 <h2 id="function-options"><a class="header" href="#function-options">Function options</a></h2>
 <p>The <code>#[pyo3]</code> attribute can be used to modify properties of the generated Python function. It can take any combination of the following options:</p>

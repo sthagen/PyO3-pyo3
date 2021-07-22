@@ -158,7 +158,7 @@
 <tr><td><code>float</code></td><td align="center"><code>f32</code>, <code>f64</code></td><td align="center"><code>&amp;PyFloat</code></td></tr>
 <tr><td><code>complex</code></td><td align="center"><code>num_complex::Complex</code><sup class="footnote-reference"><a href="#1">1</a></sup></td><td align="center"><code>&amp;PyComplex</code></td></tr>
 <tr><td><code>list[T]</code></td><td align="center"><code>Vec&lt;T&gt;</code></td><td align="center"><code>&amp;PyList</code></td></tr>
-<tr><td><code>dict[K, V]</code></td><td align="center"><code>HashMap&lt;K, V&gt;</code>, <code>BTreeMap&lt;K, V&gt;</code>, <code>hashbrown::HashMap&lt;K, V&gt;</code><sup class="footnote-reference"><a href="#2">2</a></sup></td><td align="center"><code>&amp;PyDict</code></td></tr>
+<tr><td><code>dict[K, V]</code></td><td align="center"><code>HashMap&lt;K, V&gt;</code>, <code>BTreeMap&lt;K, V&gt;</code>, <code>hashbrown::HashMap&lt;K, V&gt;</code><sup class="footnote-reference"><a href="#2">2</a></sup>, <code>indexmap::IndexMap&lt;K, V&gt;</code><sup class="footnote-reference"><a href="#3">3</a></sup></td><td align="center"><code>&amp;PyDict</code></td></tr>
 <tr><td><code>tuple[T, U]</code></td><td align="center"><code>(T, U)</code>, <code>Vec&lt;T&gt;</code></td><td align="center"><code>&amp;PyTuple</code></td></tr>
 <tr><td><code>set[T]</code></td><td align="center"><code>HashSet&lt;T&gt;</code>, <code>BTreeSet&lt;T&gt;</code>, <code>hashbrown::HashSet&lt;T&gt;</code><sup class="footnote-reference"><a href="#2">2</a></sup></td><td align="center"><code>&amp;PySet</code></td></tr>
 <tr><td><code>frozenset[T]</code></td><td align="center"><code>HashSet&lt;T&gt;</code>, <code>BTreeSet&lt;T&gt;</code>, <code>hashbrown::HashSet&lt;T&gt;</code><sup class="footnote-reference"><a href="#2">2</a></sup></td><td align="center"><code>&amp;PyFrozenSet</code></td></tr>
@@ -223,6 +223,9 @@
 </div>
 <div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
 <p>Requires the <code>hashbrown</code> optional feature.</p>
+</div>
+<div class="footnote-definition" id="3"><sup class="footnote-definition-label">3</sup>
+<p>Requires the <code>indexmap</code> optional feature.</p>
 </div>
 
                     </main>

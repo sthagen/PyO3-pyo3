@@ -514,6 +514,14 @@
 <span id="514">514</span>
 <span id="515">515</span>
 <span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
@@ -590,6 +598,10 @@
 <span class="doccomment">//! [hashbrown](https://docs.rs/hashbrown)&#39;s</span>
 <span class="doccomment">//! [`HashMap`](https://docs.rs/hashbrown/latest/hashbrown/struct.HashMap.html) and</span>
 <span class="doccomment">//! [`HashSet`](https://docs.rs/hashbrown/latest/hashbrown/struct.HashSet.html) types.</span>
+<span class="comment">//</span>
+<span class="doccomment">//! - [`indexmap`](crate::indexmap): Enables conversions between Python dictionary and</span>
+<span class="doccomment">//! [indexmap](https://docs.rs/indexmap)&#39;s</span>
+<span class="doccomment">//! [`IndexMap`](https://docs.rs/indexmap/latest/indexmap/map/struct.IndexMap.html).</span>
 <span class="comment">//</span>
 <span class="doccomment">//! - `multiple-pymethods`: Enables the use of multiple</span>
 <span class="doccomment">//! [`#[pymethods]`](crate::proc_macro::pymethods) blocks per</span>
@@ -819,6 +831,10 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num_bigint</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num_complex</span>;
+
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::conversions::indexmap</span>;
 
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
