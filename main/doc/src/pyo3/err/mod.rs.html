@@ -682,6 +682,27 @@
 <span id="682">682</span>
 <span id="683">683</span>
 <span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -766,7 +787,10 @@
         <span class="ident">T</span>: <span class="ident">PyTypeObject</span>,
         <span class="ident">A</span>: <span class="ident">PyErrArguments</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> <span class="ident">PyErr::from_type</span>(<span class="ident">T::type_object</span>(<span class="ident">py</span>), <span class="ident">args</span>))
+        <span class="ident">PyErr::from_state</span>(<span class="ident">PyErrState::LazyTypeAndValue</span> {
+            <span class="ident">ptype</span>: <span class="ident">T::type_object</span>,
+            <span class="ident">pvalue</span>: <span class="ident">boxed_args</span>(<span class="ident">args</span>),
+        })
     }
 
     <span class="doccomment">/// Constructs a new error, with the usual lazy initialization of Python exceptions.</span>
@@ -782,7 +806,7 @@
             <span class="kw">return</span> <span class="ident">exceptions_must_derive_from_base_exception</span>(<span class="ident">ty</span>.<span class="ident">py</span>());
         }
 
-        <span class="ident">PyErr::from_state</span>(<span class="ident">PyErrState::Lazy</span> {
+        <span class="ident">PyErr::from_state</span>(<span class="ident">PyErrState::LazyValue</span> {
             <span class="ident">ptype</span>: <span class="ident">ty</span>.<span class="ident">into</span>(),
             <span class="ident">pvalue</span>: <span class="ident">boxed_args</span>(<span class="ident">args</span>),
         })
@@ -1004,7 +1028,7 @@
         <span class="ident">T</span>: <span class="ident">ToBorrowedObject</span>,
     {
         <span class="ident">exc</span>.<span class="ident">with_borrowed_ptr</span>(<span class="ident">py</span>, <span class="op">|</span><span class="ident">exc</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="ident">ffi::PyErr_GivenExceptionMatches</span>(<span class="self">self</span>.<span class="ident">ptype_ptr</span>(), <span class="ident">exc</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
+            <span class="ident">ffi::PyErr_GivenExceptionMatches</span>(<span class="self">self</span>.<span class="ident">ptype_ptr</span>(<span class="ident">py</span>), <span class="ident">exc</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
         })
     }
 
@@ -1014,7 +1038,7 @@
         <span class="ident">T</span>: <span class="ident">PyTypeObject</span>,
     {
         <span class="kw">unsafe</span> {
-            <span class="ident">ffi::PyErr_GivenExceptionMatches</span>(<span class="self">self</span>.<span class="ident">ptype_ptr</span>(), <span class="ident">T::type_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>()) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
+            <span class="ident">ffi::PyErr_GivenExceptionMatches</span>(<span class="self">self</span>.<span class="ident">ptype_ptr</span>(<span class="ident">py</span>), <span class="ident">T::type_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>()) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
         }
     }
 
@@ -1104,9 +1128,12 @@
     }
 
     <span class="doccomment">/// Returns borrowed reference to this Err&#39;s type</span>
-    <span class="kw">fn</span> <span class="ident">ptype_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">ptype_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span> {
         <span class="kw">match</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get</span>() } {
-            <span class="prelude-val">Some</span>(<span class="ident">PyErrState::Lazy</span> { <span class="ident">ptype</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ptype</span>.<span class="ident">as_ptr</span>(),
+            <span class="comment">// In lazy type case, normalize before returning ptype in case the type is not a valid</span>
+            <span class="comment">// exception type.</span>
+            <span class="prelude-val">Some</span>(<span class="ident">PyErrState::LazyTypeAndValue</span> { .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">normalized</span>(<span class="ident">py</span>).<span class="ident">ptype</span>.<span class="ident">as_ptr</span>(),
+            <span class="prelude-val">Some</span>(<span class="ident">PyErrState::LazyValue</span> { <span class="ident">ptype</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ptype</span>.<span class="ident">as_ptr</span>(),
             <span class="prelude-val">Some</span>(<span class="ident">PyErrState::FfiTuple</span> { <span class="ident">ptype</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ptype</span>.<span class="ident">as_ptr</span>(),
             <span class="prelude-val">Some</span>(<span class="ident">PyErrState::Normalized</span>(<span class="ident">n</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">ptype</span>.<span class="ident">as_ptr</span>(),
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Cannot access exception type while normalizing&quot;</span>),
@@ -1239,10 +1266,7 @@
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">fn</span> <span class="ident">exceptions_must_derive_from_base_exception</span>(<span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
-    <span class="ident">PyErr::from_state</span>(<span class="ident">PyErrState::Lazy</span> {
-        <span class="ident">ptype</span>: <span class="ident">exceptions::PyTypeError::type_object</span>(<span class="ident">py</span>).<span class="ident">into</span>(),
-        <span class="ident">pvalue</span>: <span class="ident">boxed_args</span>(<span class="string">&quot;exceptions must derive from BaseException&quot;</span>),
-    })
+    <span class="ident">PyErr::from_state</span>(<span class="ident">PyErrState::exceptions_must_derive_from_base_exception</span>(<span class="ident">py</span>))
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -1252,13 +1276,31 @@
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyErr</span>, <span class="ident">Python</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">set_typeerror</span>() {
-        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python::acquire_gil</span>();
-        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
-        <span class="kw">let</span> <span class="ident">err</span>: <span class="ident">PyErr</span> <span class="op">=</span> <span class="ident">exceptions::PyTypeError::new_err</span>(());
-        <span class="ident">err</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
-        <span class="macro">assert!</span>(<span class="ident">PyErr::occurred</span>(<span class="ident">py</span>));
-        <span class="ident">drop</span>(<span class="ident">PyErr::fetch</span>(<span class="ident">py</span>));
+    <span class="kw">fn</span> <span class="ident">set_valueerror</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">err</span>: <span class="ident">PyErr</span> <span class="op">=</span> <span class="ident">exceptions::PyValueError::new_err</span>(<span class="string">&quot;some exception message&quot;</span>);
+            <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">is_instance</span>::<span class="op">&lt;</span><span class="ident">exceptions::PyValueError</span><span class="op">&gt;</span>(<span class="ident">py</span>));
+            <span class="ident">err</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">PyErr::occurred</span>(<span class="ident">py</span>));
+            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">PyErr::fetch</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">is_instance</span>::<span class="op">&lt;</span><span class="ident">exceptions::PyValueError</span><span class="op">&gt;</span>(<span class="ident">py</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="string">&quot;ValueError: some exception message&quot;</span>);
+        })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">invalid_error_type</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">err</span>: <span class="ident">PyErr</span> <span class="op">=</span> <span class="ident">PyErr::new</span>::<span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::types::PyString</span>, <span class="kw">_</span><span class="op">&gt;</span>(());
+            <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">is_instance</span>::<span class="op">&lt;</span><span class="ident">exceptions::PyTypeError</span><span class="op">&gt;</span>(<span class="ident">py</span>));
+            <span class="ident">err</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">PyErr::fetch</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">is_instance</span>::<span class="op">&lt;</span><span class="ident">exceptions::PyTypeError</span><span class="op">&gt;</span>(<span class="ident">py</span>));
+            <span class="macro">assert_eq!</span>(
+                <span class="ident">err</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;TypeError: exceptions must derive from BaseException&quot;</span>
+            );
+        })
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
