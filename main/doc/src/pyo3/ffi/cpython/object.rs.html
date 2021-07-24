@@ -369,6 +369,21 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi::PyObject</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
@@ -388,6 +403,9 @@
     <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_void</span>};
     <span class="kw">use</span> <span class="ident">std::ptr</span>;
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="kw">const</span> <span class="ident">Py_MAX_NDIMS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">36</span>;
+
     <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Py_buffer</span> {
@@ -403,6 +421,12 @@
         <span class="kw">pub</span> <span class="ident">strides</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="kw">pub</span> <span class="ident">suboffsets</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="kw">pub</span> <span class="ident">internal</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+        <span class="kw">pub</span> <span class="ident">flags</span>: <span class="ident">c_int</span>,
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+        <span class="kw">pub</span> <span class="ident">_strides</span>: [<span class="ident">Py_ssize_t</span>; <span class="ident">Py_MAX_NDIMS</span>],
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+        <span class="kw">pub</span> <span class="ident">_shape</span>: [<span class="ident">Py_ssize_t</span>; <span class="ident">Py_MAX_NDIMS</span>],
     }
 
     <span class="kw">impl</span> <span class="ident">Py_buffer</span> {
@@ -419,6 +443,12 @@
                 <span class="ident">strides</span>: <span class="ident">ptr::null_mut</span>(),
                 <span class="ident">suboffsets</span>: <span class="ident">ptr::null_mut</span>(),
                 <span class="ident">internal</span>: <span class="ident">ptr::null_mut</span>(),
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+                <span class="ident">flags</span>: <span class="number">0</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+                <span class="ident">_strides</span>: [<span class="number">0</span>; <span class="ident">Py_MAX_NDIMS</span>],
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+                <span class="ident">_shape</span>: [<span class="number">0</span>; <span class="ident">Py_MAX_NDIMS</span>],
             }
         }
     }
