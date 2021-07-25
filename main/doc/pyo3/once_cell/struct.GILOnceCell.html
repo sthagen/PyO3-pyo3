@@ -2,7 +2,7 @@
 <p>Unlike <code>once_cell::sync</code> which blocks threads to achieve thread safety, this implementation
 uses the Python GIL to mediate concurrent access. This helps in cases where <code>once_sync</code> or
 <code>lazy_static</code>’s synchronization strategy can lead to deadlocks when interacting with the Python
-GIL. For an example, see <a href="https://pyo3.rs/main/faq.html">the FAQ section</a> of the guide.</p>
+GIL. For an example, see <a href="https://pyo3.rs/latest/faq.html">the FAQ section</a> of the guide.</p>
 <h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
 <p>The following example shows how to use <code>GILOnceCell</code> to share a reference to a Python list
 between threads:</p>

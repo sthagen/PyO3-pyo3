@@ -944,7 +944,7 @@
 <span class="doccomment">///  - [`Py::as_ref`], to borrow a GIL-bound reference to the contained object.</span>
 <span class="doccomment">///  - [`Py::borrow`], [`Py::try_borrow`], [`Py::borrow_mut`], or [`Py::try_borrow_mut`],</span>
 <span class="doccomment">/// to get a (mutable) reference to a contained pyclass, using a scheme similar to std&#39;s [`RefCell`].</span>
-<span class="doccomment">/// See the [`PyCell` guide entry](https://pyo3.rs/main/class.html#pycell-and-interior-mutability)</span>
+<span class="doccomment">/// See the [`PyCell` guide entry](https://pyo3.rs/latest/class.html#pycell-and-interior-mutability)</span>
 <span class="doccomment">/// for more information.</span>
 <span class="doccomment">///  - You can call methods directly on `Py` with [`Py::call`], [`Py::call_method`] and friends.</span>
 <span class="doccomment">/// These require passing in the [`Python&lt;&#39;py&gt;`](crate::Python) token but are otherwise similar to the corresponding</span>
@@ -970,7 +970,7 @@
 <span class="doccomment">///             // `py` will only last for this scope.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///             // `&amp;PyDict` derives its lifetime from `py` and</span>
-<span class="doccomment">///             // so won&#39;t be able to outlive this closure.           </span>
+<span class="doccomment">///             // so won&#39;t be able to outlive this closure.</span>
 <span class="doccomment">///             let dict: &amp;PyDict = PyDict::new(py);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///             // because `Foo` contains `dict` its lifetime</span>

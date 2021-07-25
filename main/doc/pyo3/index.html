@@ -15,7 +15,7 @@ into Python functions and objects.</p>
 These are only ever seen as references, with a lifetime that is only valid for as long
 as the GIL is held, which is why using them doesn’t require a  <a href="prelude/struct.Python.html"><code>Python&lt;'py&gt;</code></a> token.
 The underlying Python object, if mutable, can be mutated through any reference.</p>
-<p>See the <a href="https://pyo3.rs/main/types.html">guide</a> for an explanation of the different Python object types.</p>
+<p>See the <a href="https://pyo3.rs/latest/types.html">guide</a> for an explanation of the different Python object types.</p>
 <h2 id="the-gil-independent-types" class="section-header"><a href="#the-gil-independent-types">The GIL-independent types</a></h2>
 <p>When wrapped in <a href="prelude/struct.Py.html" title="Py"><code>Py</code></a><code>&lt;...&gt;</code>, like with <a href="prelude/struct.Py.html" title="Py"><code>Py</code></a><code>&lt;</code><a href="prelude/struct.PyAny.html"><code>PyAny</code></a><code>&gt;</code> or <a href="prelude/struct.Py.html" title="Py"><code>Py</code></a><code>&lt;SomePyClass&gt;</code>, Python objects
 no longer have a limited lifetime which makes them easier to store in structs and pass between functions.
@@ -29,7 +29,7 @@ Errors from <code>PyO3</code> itself are also exposed as Python exceptions.</p>
 <h1 id="feature-flags" class="section-header"><a href="#feature-flags">Feature flags</a></h1>
 <p>PyO3 uses <a href="https://doc.rust-lang.org/cargo/reference/features.html">feature flags</a>
 to enable you to opt-in to additional functionality. For a detailed description, see
-the <a href="https://pyo3.rs/main/features.html#features-reference">Features Reference chapter of the guide</a>.</p>
+the <a href="https://pyo3.rs/latest/features.html#features-reference">Features Reference chapter of the guide</a>.</p>
 <h2 id="default-feature-flags" class="section-header"><a href="#default-feature-flags">Default feature flags</a></h2>
 <p>The following features are turned on by default:</p>
 <ul>
@@ -89,13 +89,13 @@ If you want to do this for your own crate, you can do so with the <a href="https
 <p>PyO3 supports Python 3.6+ and Rust 1.41+.</p>
 <p>Building with PyPy is also possible (via cpyext) for Python 3.6,
 targeted PyPy version is 7.3+. Please refer to the
-<a href="https://pyo3.rs/main/building_and_distribution/pypy.html">pypy section</a>
+<a href="https://pyo3.rs/latest/building_and_distribution/pypy.html">pypy section</a>
 in the guide for more information.</p>
 <h1 id="example-building-a-native-python-module" class="section-header"><a href="#example-building-a-native-python-module">Example: Building a native Python module</a></h1>
 <p>To build, test and publish your crate as a Python module, it is recommended that you use
 <a href="https://github.com/PyO3/maturin">maturin</a> or
 <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a>. You can also do this manually. See the
-<a href="https://pyo3.rs/main/building_and_distribution.html">Building and Distribution chapter of the guide</a>
+<a href="https://pyo3.rs/latest/building_and_distribution.html">Building and Distribution chapter of the guide</a>
 for more information.</p>
 <p>Add these files to your crate’s root:</p>
 <p><strong><code>Cargo.toml</code></strong></p>

@@ -5,7 +5,7 @@ Instead, call one of its methods to access the inner object:</p>
 <li><a href="struct.Py.html#method.as_ref" title="Py::as_ref"><code>Py::as_ref</code></a>, to borrow a GIL-bound reference to the contained object.</li>
 <li><a href="struct.Py.html#method.borrow" title="Py::borrow"><code>Py::borrow</code></a>, <a href="struct.Py.html#method.try_borrow" title="Py::try_borrow"><code>Py::try_borrow</code></a>, <a href="struct.Py.html#method.borrow_mut" title="Py::borrow_mut"><code>Py::borrow_mut</code></a>, or <a href="struct.Py.html#method.try_borrow_mut" title="Py::try_borrow_mut"><code>Py::try_borrow_mut</code></a>,
 to get a (mutable) reference to a contained pyclass, using a scheme similar to std’s <a href="https://doc.rust-lang.org/nightly/core/cell/struct.RefCell.html"><code>RefCell</code></a>.
-See the <a href="https://pyo3.rs/main/class.html#pycell-and-interior-mutability"><code>PyCell</code> guide entry</a>
+See the <a href="https://pyo3.rs/latest/class.html#pycell-and-interior-mutability"><code>PyCell</code> guide entry</a>
 for more information.</li>
 <li>You can call methods directly on <code>Py</code> with <a href="struct.Py.html#method.call" title="Py::call"><code>Py::call</code></a>, <a href="struct.Py.html#method.call_method" title="Py::call_method"><code>Py::call_method</code></a> and friends.
 These require passing in the <a href="struct.Python.html"><code>Python&lt;'py&gt;</code></a> token but are otherwise similar to the corresponding
@@ -27,7 +27,7 @@ For example, this won’t compile:</p>
             <span class="comment">// `py` will only last for this scope.</span>
 
             <span class="comment">// `&amp;PyDict` derives its lifetime from `py` and</span>
-            <span class="comment">// so won&#39;t be able to outlive this closure.           </span>
+            <span class="comment">// so won&#39;t be able to outlive this closure.</span>
             <span class="kw">let</span> <span class="ident">dict</span>: <span class="kw-2">&amp;</span><span class="ident">PyDict</span> <span class="op">=</span> <span class="ident">PyDict::new</span>(<span class="ident">py</span>);
 
             <span class="comment">// because `Foo` contains `dict` its lifetime</span>
