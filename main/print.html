@@ -167,12 +167,10 @@
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <p>PyO3 supports Python 3.6 and up. The minimum required Rust version is 1.41.</p>
 <p>PyPy is also supported. Some minor features are unavailable on PyPy - please refer to the <a href="https://pyo3.rs/latest/building_and_distribution/pypy.html">pypy section in the guide</a> for more information.</p>
-<p>You can either write a native Python module in Rust, or use Python from a Rust binary.</p>
-<p>However, on some OSs, you need some additional packages. E.g. if you are on <em>Ubuntu 18.04</em>, please run</p>
-<pre><code class="language-bash">sudo apt install python3-dev python-dev
-</code></pre>
-<h2 id="using-rust-from-python"><a class="header" href="#using-rust-from-python">Using Rust from Python</a></h2>
-<p>PyO3 can be used to generate a native Python module.</p>
+<p>You can use PyO3 to write a native Python module in Rust, or to embed Python in a Rust binary. The following sections explain each of these in turn.</p>
+<h3 id="using-rust-from-python"><a class="header" href="#using-rust-from-python">Using Rust from Python</a></h3>
+<p>PyO3 can be used to generate a native Python module. The easiest way to try this out for the first time is to use <a href="https://github.com/PyO3/maturin"><code>maturin</code></a>. <code>maturin</code> is a tool for building and publishing Rust-based Python packages with minimal configuration. The following steps set up some files for an example Python module, install <code>maturin</code>, and then show how build and import the Python module.</p>
+<p>First, create a new folder (let's call it <code>string_sum</code>) containing the following two files:</p>
 <p><strong><code>Cargo.toml</code></strong></p>
 <pre><code class="language-toml">[package]
 name = &quot;string-sum&quot;
@@ -204,20 +202,38 @@ fn sum_as_string(a: usize, b: usize) -&gt; PyResult&lt;String&gt; {
     Ok((a + b).to_string())
 }
 
-/// A Python module implemented in Rust.
+/// A Python module implemented in Rust. The name of this function must match
+/// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
+/// import the module.
 #[pymodule]
-fn string_sum(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn string_sum(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
 
     Ok(())
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>While developing, you can symlink (or copy) and rename the shared library from the target folder: On MacOS, rename <code>libstring_sum.dylib</code> to <code>string_sum.so</code>, on Windows <code>libstring_sum.dll</code> to <code>string_sum.pyd</code>, and on Linux <code>libstring_sum.so</code> to <code>string_sum.so</code>. Then open a Python shell in the same folder and you'll be able to <code>import string_sum</code>.</p>
-<p>To build, test and publish your crate as a Python module, you can use <a href="https://github.com/PyO3/maturin">maturin</a> or <a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a>. You can find an example for setuptools-rust in <a href="https://github.com/PyO3/pyo3/tree/main/examples/word-count">examples/word-count</a>, while maturin should work on your crate without any configuration.</p>
-<h2 id="using-python-from-rust"><a class="header" href="#using-python-from-rust">Using Python from Rust</a></h2>
-<p>If you want your Rust application to create a Python interpreter internally and
-use it to run Python code, add <code>pyo3</code> to your <code>Cargo.toml</code> like this:</p>
+<p>With those two files in place, now <code>maturin</code> needs to be installed. This can be done using Python's package manager <code>pip</code>. First, load up a new Python <code>virtualenv</code>, and install <code>maturin</code> into it:</p>
+<pre><code class="language-bash">$ cd string_sum
+$ python -m venv .env
+$ source .env/bin/activate
+$ pip install maturin
+</code></pre>
+<p>Now build and execute the module:</p>
+<pre><code class="language-bash">$ maturin develop
+# lots of progress output as maturin runs the compilation...
+$ python
+&gt;&gt;&gt; import string_sum
+&gt;&gt;&gt; string_sum.sum_as_string(5, 20)
+'25'
+</code></pre>
+<p>As well as with <code>maturin</code>, it is possible to build using <a href="https://github.com/PyO3/setuptools-rust"><code>setuptools-rust</code></a> or <a href="https://pyo3.rs/latest/building_and_distribution.html#manual-builds">manually</a>. Both offer more flexibility than <code>maturin</code> but require further configuration.</p>
+<h3 id="using-python-from-rust"><a class="header" href="#using-python-from-rust">Using Python from Rust</a></h3>
+<p>To embed Python into a Rust binary, you need to ensure that your Python installation contains a shared library. The following steps demonstrate how to ensure this (for Ubuntu), and then give some example code which runs an embedded Python interpreter.</p>
+<p>To install the Python shared library, if you are on Ubuntu, you can run:</p>
+<pre><code class="language-bash">sudo apt install python3-dev
+</code></pre>
+<p>Start a new project with <code>cargo new</code>. Next, add  <code>pyo3</code> to your <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
 version = &quot;0.14.1&quot;
 features = [&quot;auto-initialize&quot;]
@@ -246,7 +262,7 @@ fn main_(py: Python) -&gt; PyResult&lt;()&gt; {
     Ok(())
 }
 </code></pre></pre>
-<p>Our guide has <a href="https://pyo3.rs/latest/python_from_rust.html">a section</a> with lots of examples
+<p>The guide has <a href="https://pyo3.rs/latest/python_from_rust.html">a section</a> with lots of examples
 about this topic.</p>
 <h2 id="tools-and-libraries"><a class="header" href="#tools-and-libraries">Tools and libraries</a></h2>
 <ul>
@@ -3083,7 +3099,7 @@ pyo3 = { git = &quot;https://github.com/pyo3/pyo3&quot; }
 <li>on Windows, rename  <code>libyour_module.dll</code> to <code>your_module.pyd</code>.</li>
 <li>on Linux, rename <code>libyour_module.so</code> to <code>your_module.so</code>.</li>
 </ul>
-<p>You can then open a Python shell in the same folder and you'll be able to use <code>import your_module</code>.</p>
+<p>You can then open a Python shell in the same folder and you'll be able to run <code>import your_module</code>.</p>
 <h2 id="py_limited_apiabi3"><a class="header" href="#py_limited_apiabi3"><code>Py_LIMITED_API</code>/<code>abi3</code></a></h2>
 <p>By default, Python extension modules can only be used with the same Python version they were compiled against -- if you build an extension module with Python 3.5, you can't import it using Python 3.8. <a href="https://www.python.org/dev/peps/pep-0384/">PEP 384</a> introduced the idea of the limited Python API, which would have a stable ABI enabling extension modules built with it to be used against multiple Python versions. This is also known as <code>abi3</code>.</p>
 <p>The advantage of building extension module using the limited Python API is that you only need to build and distribute a single copy (for each OS / architecture), and your users can install it on all Python versions from your <a href="building_and_distribution.html#minimum-python-version-for-abi3">minimum version</a> and up. The downside of this is that PyO3 can't use optimizations which rely on being compiled against a known exact Python version. It's up to you to decide whether this matters for your extension module. It's also possible to design your extension module such that you can distribute <code>abi3</code> wheels but allow users compiling from source to benefit from additional optimizations - see the <a href="./building_and_distribution/multiple_python_versions.html">support for multiple python versions</a> section of this guide, in particular the <code>#[cfg(Py_LIMITED_API)]</code> flag.</p>
@@ -4780,6 +4796,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Fix regression in 0.14.0 rejecting usage of <code>#[doc(hidden)]</code> on structs and functions annotated with PyO3 macros. <a href="https://github.com/PyO3/pyo3/pull/1722">#1722</a></li>
 <li>Fix regression in 0.14.0 leading to incorrect code coverage being computed for <code>#[pyfunction]</code>s. <a href="https://github.com/PyO3/pyo3/pull/1726">#1726</a></li>
 <li>Fix incorrect FFI definition of <code>Py_Buffer</code> on PyPy. <a href="https://github.com/PyO3/pyo3/pull/1737">#1737</a></li>
+<li>Fix incorrect calculation of <code>dictoffset</code> on 32-bit Windows. <a href="https://github.com/PyO3/pyo3/pull/1475">#1475</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0140v01410141a---2021-07-04"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0140v01410141a---2021-07-04"><a href="https://github.com/pyo3/pyo3/compare/v0.14.0...v0.14.1">0.14.1</a> - 2021-07-04</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
