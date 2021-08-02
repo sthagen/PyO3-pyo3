@@ -91,11 +91,11 @@
 <span id="91">91</span>
 <span id="92">92</span>
 </pre><pre class="rust">
-<span class="doccomment">//! This module contains additional fields for `#[pyclass]`..</span>
-<span class="doccomment">//! Mainly used by our proc-macro codes.</span>
+<span class="doccomment">//! This module contains additional fields for `#[pyclass]`.</span>
+<span class="doccomment">//! Mainly used by PyO3&#39;s proc-macro code.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">Python</span>};
 
-<span class="doccomment">/// Represents `__dict__` field for `#[pyclass]`.</span>
+<span class="doccomment">/// Represents the `__dict__` field for `#[pyclass]`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyClassDict</span> {
     <span class="doccomment">/// Whether this `__dict__` field is capable of holding a dictionary.</span>
     <span class="kw">const</span> <span class="ident">IS_DUMMY</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -107,7 +107,7 @@
     <span class="macro">private_decl!</span> {}
 }
 
-<span class="doccomment">/// Represents `__weakref__` field for `#[pyclass]`.</span>
+<span class="doccomment">/// Represents the `__weakref__` field for `#[pyclass]`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyClassWeakRef</span> {
     <span class="doccomment">/// Whether this `weakref` type is capable of holding weak references.</span>
     <span class="kw">const</span> <span class="ident">IS_DUMMY</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;

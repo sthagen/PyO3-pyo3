@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["PyClass","If `PyClass` is implemented for `T`, then we can use `T` in the Python world, via `PyCell`."]]});
+initSidebarItems({"trait":[["PyClass","If `PyClass` is implemented for a Rust type `T`, then we can use `T` in the Python world, via `PyCell`."]]});

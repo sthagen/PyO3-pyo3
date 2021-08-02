@@ -515,13 +515,6 @@
 <span id="515">515</span>
 <span id="516">516</span>
 <span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
@@ -643,12 +636,9 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Minimum supported Rust and Python versions</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! PyO3 supports Python 3.6+ and Rust 1.41+.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Building with PyPy is also possible (via cpyext) for Python 3.6,</span>
-<span class="doccomment">//! targeted PyPy version is 7.3+. Please refer to the</span>
-<span class="doccomment">//! [pypy section](https://pyo3.rs/latest/building_and_distribution/pypy.html)</span>
-<span class="doccomment">//! in the guide for more information.</span>
+<span class="doccomment">//! PyO3 supports the following software versions:</span>
+<span class="doccomment">//!   - Python 3.6 and up (CPython and PyPy)</span>
+<span class="doccomment">//!   - Rust 1.41 and up</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Example: Building a native Python module</span>
 <span class="doccomment">//!</span>
@@ -1019,10 +1009,6 @@
     <span class="macro">doctest!</span>(
         <span class="string">&quot;guide/src/building_and_distribution.md&quot;</span>,
         <span class="ident">guide_building_and_distribution_md</span>
-    );
-    <span class="macro">doctest!</span>(
-        <span class="string">&quot;guide/src/building_and_distribution/pypy.md&quot;</span>,
-        <span class="ident">guide_building_and_distribution_pypy_md</span>
     );
     <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/class.md&quot;</span>, <span class="ident">guide_class_md</span>);
     <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/class/protocols.md&quot;</span>, <span class="ident">guide_class_protocols_md</span>);

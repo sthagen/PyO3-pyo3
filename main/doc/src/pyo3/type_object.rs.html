@@ -226,6 +226,8 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! Python type object information</span>
@@ -240,32 +242,34 @@
 <span class="kw">use</span> <span class="ident">parking_lot</span>::{<span class="ident">const_mutex</span>, <span class="ident">Mutex</span>};
 <span class="kw">use</span> <span class="ident">std::thread</span>::{<span class="self">self</span>, <span class="ident">ThreadId</span>};
 
-<span class="doccomment">/// `T: PyLayout&lt;U&gt;` represents that `T` is a concrete representaion of `U` in Python heap.</span>
+<span class="doccomment">/// `T: PyLayout&lt;U&gt;` represents that `T` is a concrete representation of `U` in the Python heap.</span>
 <span class="doccomment">/// E.g., `PyCell` is a concrete representaion of all `pyclass`es, and `ffi::PyObject`</span>
 <span class="doccomment">/// is of `PyAny`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This trait is intended to be used internally.</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">PyLayout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
-<span class="doccomment">/// `T: PySizedLayout&lt;U&gt;` represents `T` is not a instance of</span>
+<span class="doccomment">/// `T: PySizedLayout&lt;U&gt;` represents that `T` is not a instance of</span>
 <span class="doccomment">/// [`PyVarObject`](https://docs.python.org/3.8/c-api/structures.html?highlight=pyvarobject#c.PyVarObject).</span>
-<span class="doccomment">/// , in addition that `T` is a concrete representaion of `U`.</span>
+<span class="doccomment">/// In addition, that `T` is a concrete representaion of `U`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PySizedLayout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="ident">PyLayout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span> {}
 
 <span class="doccomment">/// Python type information.</span>
-<span class="doccomment">/// All Python native types(e.g., `PyDict`) and `#[pyclass]` structs implement this trait.</span>
+<span class="doccomment">/// All Python native types (e.g., `PyDict`) and `#[pyclass]` structs implement this trait.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This trait is marked unsafe because:</span>
 <span class="doccomment">///  - specifying the incorrect layout can lead to memory errors</span>
 <span class="doccomment">///  - the return value of type_object must always point to the same PyTypeObject instance</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It is safely implemented by the `pyclass` macro.</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">PyTypeInfo</span>: <span class="ident">Sized</span> {
-    <span class="doccomment">/// Class name</span>
+    <span class="doccomment">/// Class name.</span>
     <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
 
-    <span class="doccomment">/// Module name, if any</span>
+    <span class="doccomment">/// Module name, if any.</span>
     <span class="kw">const</span> <span class="ident">MODULE</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Utility type to make Py::as_ref work</span>
+    <span class="doccomment">/// Utility type to make Py::as_ref work.</span>
     <span class="kw">type</span> <span class="ident">AsRefTarget</span>: <span class="kw">crate</span><span class="ident">::PyNativeType</span>;
 
     <span class="doccomment">/// PyTypeObject instance for this type.</span>
@@ -302,7 +306,7 @@
     }
 }
 
-<span class="doccomment">/// Lazy type object for PyClass</span>
+<span class="doccomment">/// Lazy type object for PyClass.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LazyStaticType</span> {
     <span class="comment">// Boxed because Python expects the type object to have a stable address.</span>

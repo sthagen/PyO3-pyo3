@@ -803,10 +803,11 @@
 <span id="803">803</span>
 <span id="804">804</span>
 <span id="805">805</span>
+<span id="806">806</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
-<span class="doccomment">//! Interaction with python&#39;s global interpreter lock</span>
+<span class="doccomment">//! Interaction with Python&#39;s global interpreter lock</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">internal_tricks::Unsendable</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">parking_lot</span>::{<span class="ident">const_mutex</span>, <span class="ident">Mutex</span>, <span class="ident">Once</span>};
@@ -820,21 +821,21 @@
 <span class="kw">static</span> <span class="ident">START</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">Once::new</span>();
 
 <span class="macro">thread_local!</span> {
-    <span class="doccomment">/// This is a internal counter in pyo3 monitoring whether this thread has the GIL.</span>
+    <span class="doccomment">/// This is an internal counter in pyo3 monitoring whether this thread has the GIL.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// It will be incremented whenever a GILGuard or GILPool is created, and decremented whenever</span>
     <span class="doccomment">/// they are dropped.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// As a result, if this thread has the GIL, GIL_COUNT is greater than zero.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// pub(crate) because it is manipulated temporarily by Python::allow_threads</span>
+    <span class="doccomment">/// pub(crate) because it is manipulated temporarily by `Python::allow_threads`.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="ident">GIL_COUNT</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Cell::new</span>(<span class="number">0</span>);
 
-    <span class="doccomment">/// Temporally hold objects that will be released when the GILPool drops.</span>
+    <span class="doccomment">/// Temporarily hold objects that will be released when the GILPool drops.</span>
     <span class="kw">static</span> <span class="ident">OWNED_OBJECTS</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi::PyObject</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="ident">Vec::with_capacity</span>(<span class="number">256</span>));
 }
 
-<span class="doccomment">/// Check whether the GIL is acquired.</span>
+<span class="doccomment">/// Checks whether the GIL is acquired.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note: This uses pyo3&#39;s internal count rather than PyGILState_Check for two reasons:</span>
 <span class="doccomment">///  1) for performance</span>
@@ -846,21 +847,22 @@
 
 <span class="doccomment">/// Prepares the use of Python in a free-threaded context.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// If the Python interpreter is not already initialized, this function</span>
-<span class="doccomment">/// will initialize it with disabled signal handling</span>
-<span class="doccomment">/// (Python will not raise the `KeyboardInterrupt` exception).</span>
-<span class="doccomment">/// Python signal handling depends on the notion of a &#39;main thread&#39;, which must be</span>
-<span class="doccomment">/// the thread that initializes the Python interpreter.</span>
+<span class="doccomment">/// If the Python interpreter is not already initialized, this function will initialize it with</span>
+<span class="doccomment">/// signal handling disabled (Python will not raise the `KeyboardInterrupt` exception). Python</span>
+<span class="doccomment">/// signal handling depends on the notion of a &#39;main thread&#39;, which must be the thread that</span>
+<span class="doccomment">/// initializes the Python interpreter.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// If both the Python interpreter and Python threading are already initialized,</span>
-<span class="doccomment">/// this function has no effect.</span>
+<span class="doccomment">/// If both the Python interpreter and Python threading are already initialized, this function has</span>
+<span class="doccomment">/// no effect.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This function is unavailable under PyPy because PyPy cannot be embedded in Rust (or any other</span>
+<span class="doccomment">/// software). Support for this is tracked on the</span>
+<span class="doccomment">/// [PyPy issue tracker](https://foss.heptapod.net/pypy/pypy/-/issues/3286).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// - If the Python interpreter is initialized but Python threading is not,</span>
-<span class="doccomment">///   a panic occurs.</span>
-<span class="doccomment">///   It is not possible to safely access the Python runtime unless the main</span>
-<span class="doccomment">///   thread (the thread which originally initialized Python) also initializes</span>
-<span class="doccomment">///   threading.</span>
+<span class="doccomment">/// - If the Python interpreter is initialized but Python threading is not, a panic occurs.</span>
+<span class="doccomment">///   It is not possible to safely access the Python runtime unless the main thread (the thread</span>
+<span class="doccomment">///   which originally initialized Python) also initializes threading.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```rust</span>
@@ -980,7 +982,7 @@
 
 <span class="doccomment">/// RAII type that represents the Global Interpreter Lock acquisition.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Users are strongly encouraged to [`Python::with_gil`](struct.Python.html#method.with_gil)</span>
+<span class="doccomment">/// Users are strongly encouraged to use [`Python::with_gil`](struct.Python.html#method.with_gil)</span>
 <span class="doccomment">/// instead of directly constructing this type.</span>
 <span class="doccomment">/// See [`Python::acquire_gil`](struct.Python.html#method.acquire_gil) for more.</span>
 <span class="doccomment">///</span>
@@ -1161,7 +1163,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">GILPool</span> {
-    <span class="doccomment">/// Create a new `GILPool`. This function should only ever be called with the GIL.</span>
+    <span class="doccomment">/// Creates a new `GILPool`. This function should only ever be called with the GIL held.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// It is recommended not to use this API directly, but instead to use `Python::new_pool`, as</span>
     <span class="doccomment">/// that guarantees the GIL is held.</span>
@@ -1208,8 +1210,8 @@
     }
 }
 
-<span class="doccomment">/// Register a Python object pointer inside the release pool, to have reference count increased</span>
-<span class="doccomment">/// next time the GIL is acquired in pyo3.</span>
+<span class="doccomment">/// Registers a Python object pointer inside the release pool, to have its reference count increased</span>
+<span class="doccomment">/// the next time the GIL is acquired in pyo3.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// If the GIL is held, the reference count will be increased immediately instead of being queued</span>
 <span class="doccomment">/// for later.</span>
@@ -1224,8 +1226,8 @@
     }
 }
 
-<span class="doccomment">/// Register a Python object pointer inside the release pool, to have reference count decreased</span>
-<span class="doccomment">/// next time the GIL is acquired in pyo3.</span>
+<span class="doccomment">/// Registers a Python object pointer inside the release pool, to have its reference count decreased</span>
+<span class="doccomment">/// the next time the GIL is acquired in pyo3.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// If the GIL is held, the reference count will be decreased immediately instead of being queued</span>
 <span class="doccomment">/// for later.</span>
@@ -1240,7 +1242,7 @@
     }
 }
 
-<span class="doccomment">/// Register an owned object inside the GILPool.</span>
+<span class="doccomment">/// Registers an owned object inside the GILPool, to be released when the GILPool drops.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Safety</span>
 <span class="doccomment">/// The object must be an owned Python reference.</span>
@@ -1250,14 +1252,14 @@
     <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">OWNED_OBJECTS</span>.<span class="ident">try_with</span>(<span class="op">|</span><span class="ident">holder</span><span class="op">|</span> <span class="ident">holder</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">obj</span>));
 }
 
-<span class="doccomment">/// Increment pyo3&#39;s internal GIL count - to be called whenever GILPool or GILGuard is created.</span>
+<span class="doccomment">/// Increments pyo3&#39;s internal GIL count - to be called whenever GILPool or GILGuard is created.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">fn</span> <span class="ident">increment_gil_count</span>() {
     <span class="comment">// Ignores the error in case this function called from `atexit`.</span>
     <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">GIL_COUNT</span>.<span class="ident">try_with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">set</span>(<span class="ident">c</span>.<span class="ident">get</span>() <span class="op">+</span> <span class="number">1</span>));
 }
 
-<span class="doccomment">/// Decrement pyo3&#39;s internal GIL count - to be called whenever GILPool or GILGuard is dropped.</span>
+<span class="doccomment">/// Decrements pyo3&#39;s internal GIL count - to be called whenever GILPool or GILGuard is dropped.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">fn</span> <span class="ident">decrement_gil_count</span>() {
     <span class="comment">// Ignores the error in case this function called from `atexit`.</span>
@@ -1271,7 +1273,7 @@
     });
 }
 
-<span class="doccomment">/// Ensure the GIL is held, used in the implementation of Python::with_gil</span>
+<span class="doccomment">/// Ensures the GIL is held, used in the implementation of `Python::with_gil`.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">ensure_gil</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EnsureGIL</span> {
     <span class="kw">if</span> <span class="ident">gil_is_acquired</span>() {
         <span class="ident">EnsureGIL</span>(<span class="prelude-val">None</span>)
