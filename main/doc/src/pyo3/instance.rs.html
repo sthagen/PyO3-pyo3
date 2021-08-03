@@ -899,8 +899,6 @@
 <span id="899">899</span>
 <span id="900">900</span>
 <span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::conversion</span>::{<span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>};
@@ -1732,9 +1730,7 @@
     <span class="ident">T::AsRefTarget</span>: <span class="ident">std::fmt::Display</span>,
 {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::fmt::Result</span> {
-        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python::acquire_gil</span>();
-        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
-        <span class="ident">std::fmt::Display::fmt</span>(<span class="self">self</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>), <span class="ident">f</span>)
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> <span class="ident">std::fmt::Display::fmt</span>(<span class="self">self</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>), <span class="ident">f</span>))
     }
 }
 

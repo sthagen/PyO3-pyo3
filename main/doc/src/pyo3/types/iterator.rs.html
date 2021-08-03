@@ -214,6 +214,7 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
@@ -232,12 +233,13 @@
 <span class="doccomment">/// use pyo3::types::PyIterator;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt; {</span>
-<span class="doccomment">/// let gil = Python::acquire_gil();</span>
-<span class="doccomment">/// let py = gil.python();</span>
-<span class="doccomment">/// let list = py.eval(&quot;iter([1, 2, 3, 4])&quot;, None, None)?;</span>
-<span class="doccomment">/// let numbers: PyResult&lt;Vec&lt;usize&gt;&gt; = list.iter()?.map(|i| i.and_then(PyAny::extract::&lt;usize&gt;)).collect();</span>
-<span class="doccomment">/// let sum: usize = numbers?.iter().sum();</span>
-<span class="doccomment">/// assert_eq!(sum, 10);</span>
+<span class="doccomment">/// Python::with_gil(|py| -&gt;  PyResult&lt;()&gt; {</span>
+<span class="doccomment">///     let list = py.eval(&quot;iter([1, 2, 3, 4])&quot;, None, None)?;</span>
+<span class="doccomment">///     let numbers: PyResult&lt;Vec&lt;usize&gt;&gt; = list.iter()?.map(|i| i.and_then(PyAny::extract::&lt;usize&gt;)).collect();</span>
+<span class="doccomment">///     let sum: usize = numbers?.iter().sum();</span>
+<span class="doccomment">///     assert_eq!(sum, 10);</span>
+<span class="doccomment">///     Ok(())</span>
+<span class="doccomment">/// });</span>
 <span class="doccomment">/// # Ok(())</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
