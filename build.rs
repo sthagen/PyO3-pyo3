@@ -121,27 +121,12 @@ fn emit_cargo_configuration(interpreter_config: &InterpreterConfig) -> Result<()
                 println!("cargo:rustc-link-search=native={}\\libs", base_prefix);
             }
         }
-        (true, "macos") => {
-            // with extension module on macos some extra linker arguments are needed
-            println!("cargo:rustc-cdylib-link-arg=-undefined");
-            println!("cargo:rustc-cdylib-link-arg=dynamic_lookup");
-        }
         (false, _) | (_, "android") => {
             // other systems, only link libs if not extension module
             // android always link.
             println!("{}", get_rustc_link_lib(interpreter_config)?);
             if let Some(libdir) = &interpreter_config.libdir {
                 println!("cargo:rustc-link-search=native={}", libdir);
-            }
-            if interpreter_config.implementation == PythonImplementation::PyPy {
-                // PyPy 7.3.4 changed LIBDIR to point to base_prefix/lib as a regression, so need
-                // to hard-code /bin search path too: https://foss.heptapod.net/pypy/pypy/-/issues/3442
-                //
-                // TODO: this workaround can probably be removed when PyPy 7.3.5 is released (and we
-                // can call it a PyPy bug).
-                if let Some(base_prefix) = &interpreter_config.base_prefix {
-                    println!("cargo:rustc-link-search=native={}/bin", base_prefix);
-                }
             }
         }
         _ => {}
