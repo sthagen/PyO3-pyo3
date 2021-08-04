@@ -232,10 +232,10 @@ $ python
 <p>As well as with <code>maturin</code>, it is possible to build using <a href="https://github.com/PyO3/setuptools-rust"><code>setuptools-rust</code></a> or <a href="https://pyo3.rs/latest/building_and_distribution.html#manual-builds">manually</a>. Both offer more flexibility than <code>maturin</code> but require further configuration.</p>
 <h3 id="using-python-from-rust"><a class="header" href="#using-python-from-rust">Using Python from Rust</a></h3>
 <p>To embed Python into a Rust binary, you need to ensure that your Python installation contains a shared library. The following steps demonstrate how to ensure this (for Ubuntu), and then give some example code which runs an embedded Python interpreter.</p>
-<p>To install the Python shared library, if you are on Ubuntu, you can run:</p>
+<p>To install the Python shared library on Ubuntu:</p>
 <pre><code class="language-bash">sudo apt install python3-dev
 </code></pre>
-<p>Start a new project with <code>cargo new</code>. Next, add  <code>pyo3</code> to your <code>Cargo.toml</code> like this:</p>
+<p>Start a new project with <code>cargo new</code> and add  <code>pyo3</code> to the <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
 version = &quot;0.14.1&quot;
 features = [&quot;auto-initialize&quot;]
@@ -244,24 +244,18 @@ features = [&quot;auto-initialize&quot;]
 <pre><pre class="playground"><code class="language-rust">use pyo3::prelude::*;
 use pyo3::types::IntoPyDict;
 
-fn main() -&gt; Result&lt;(), ()&gt; {
+fn main() -&gt; PyResult&lt;()&gt; {
     Python::with_gil(|py| {
-        main_(py).map_err(|e| {
-          // We can't display Python exceptions via std::fmt::Display,
-          // so print the error here manually.
-          e.print_and_set_sys_last_vars(py);
-        })
-    })
-}
+        let sys = py.import(&quot;sys&quot;)?;
+        let version: String = sys.get(&quot;version&quot;)?.extract()?;
 
-fn main_(py: Python) -&gt; PyResult&lt;()&gt; {
-    let sys = py.import(&quot;sys&quot;)?;
-    let version: String = sys.get(&quot;version&quot;)?.extract()?;
-    let locals = [(&quot;os&quot;, py.import(&quot;os&quot;)?)].into_py_dict(py);
-    let code = &quot;os.getenv('USER') or os.getenv('USERNAME') or 'Unknown'&quot;;
-    let user: String = py.eval(code, None, Some(&amp;locals))?.extract()?;
-    println!(&quot;Hello {}, I'm Python {}&quot;, user, version);
-    Ok(())
+        let locals = [(&quot;os&quot;, py.import(&quot;os&quot;)?)].into_py_dict(py);
+        let code = &quot;os.getenv('USER') or os.getenv('USERNAME') or 'Unknown'&quot;;
+        let user: String = py.eval(code, None, Some(&amp;locals))?.extract()?;
+
+        println!(&quot;Hello {}, I'm Python {}&quot;, user, version);
+        Ok(())
+    })
 }
 </code></pre></pre>
 <p>The guide has <a href="https://pyo3.rs/latest/python_from_rust.html">a section</a> with lots of examples

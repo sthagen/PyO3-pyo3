@@ -515,6 +515,37 @@
 <span id="515">515</span>
 <span id="516">516</span>
 <span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
@@ -642,13 +673,13 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Example: Building a native Python module</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! To build, test and publish your crate as a Python module, it is recommended that you use</span>
-<span class="doccomment">//! [maturin](https://github.com/PyO3/maturin) or</span>
-<span class="doccomment">//! [setuptools-rust](https://github.com/PyO3/setuptools-rust). You can also do this manually. See the</span>
-<span class="doccomment">//! [Building and Distribution chapter of the guide](https://pyo3.rs/latest/building_and_distribution.html)</span>
-<span class="doccomment">//! for more information.</span>
+<span class="doccomment">//! PyO3 can be used to generate a native Python module. The easiest way to try this out for the</span>
+<span class="doccomment">//! first time is to use [`maturin`](https://github.com/PyO3/maturin). `maturin` is a tool for</span>
+<span class="doccomment">//! building and publishing Rust-based Python packages with minimal configuration. The following</span>
+<span class="doccomment">//! steps set up some files for an example Python module, install `maturin`, and then show how build</span>
+<span class="doccomment">//! and import the Python module.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Add these files to your crate&#39;s root:</span>
+<span class="doccomment">//! First, create a new folder (let&#39;s call it `string_sum`) containing the following two files:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! **`Cargo.toml`**</span>
 <span class="doccomment">//!</span>
@@ -694,30 +725,46 @@
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! **`.cargo/config.toml`**</span>
-<span class="doccomment">//! ```toml</span>
-<span class="doccomment">//! # These flags must be passed to rustc when compiling for macOS</span>
-<span class="doccomment">//! # They can be omitted if you pass the flags yourself</span>
-<span class="doccomment">//! # or don&#39;t care about macOS</span>
+<span class="doccomment">//! With those two files in place, now `maturin` needs to be installed. This can be done using</span>
+<span class="doccomment">//! Python&#39;s package manager `pip`. First, load up a new Python `virtualenv`, and install `maturin`</span>
+<span class="doccomment">//! into it:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! [target.x86_64-apple-darwin]</span>
-<span class="doccomment">//! rustflags = [</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=-undefined&quot;,</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,</span>
-<span class="doccomment">//! ]</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [target.aarch64-apple-darwin]</span>
-<span class="doccomment">//! rustflags = [</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=-undefined&quot;,</span>
-<span class="doccomment">//!   &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,</span>
-<span class="doccomment">//! ]</span>
+<span class="doccomment">//! ```bash</span>
+<span class="doccomment">//! $ cd string_sum</span>
+<span class="doccomment">//! $ python -m venv .env</span>
+<span class="doccomment">//! $ source .env/bin/activate</span>
+<span class="doccomment">//! $ pip install maturin</span>
 <span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Now build and execute the module:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```bash</span>
+<span class="doccomment">//! $ maturin develop</span>
+<span class="doccomment">//! # lots of progress output as maturin runs the compilation...</span>
+<span class="doccomment">//! $ python</span>
+<span class="doccomment">//! &gt;&gt;&gt; import string_sum</span>
+<span class="doccomment">//! &gt;&gt;&gt; string_sum.sum_as_string(5, 20)</span>
+<span class="doccomment">//! &#39;25&#39;</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! As well as with `maturin`, it is possible to build using</span>
+<span class="doccomment">//! [`setuptools-rust`](https://github.com/PyO3/setuptools-rust) or</span>
+<span class="doccomment">//! [manually](https://pyo3.rs/latest/building_and_distribution.html#manual-builds). Both offer more</span>
+<span class="doccomment">//! flexibility than `maturin` but require further configuration.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Example: Using Python from Rust</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! You can use PyO3 to call Python functions from Rust.</span>
+<span class="doccomment">//! To embed Python into a Rust binary, you need to ensure that your Python installation contains a</span>
+<span class="doccomment">//! shared library. The following steps demonstrate how to ensure this (for Ubuntu), and then give</span>
+<span class="doccomment">//! some example code which runs an embedded Python interpreter.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Add `pyo3` to your `Cargo.toml`:</span>
+<span class="doccomment">//! To install the Python shared library on Ubuntu:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```bash</span>
+<span class="doccomment">//! sudo apt install python3-dev</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Start a new project with `cargo new` and add  `pyo3` to the `Cargo.toml` like this:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```toml</span>
 <span class="doccomment">//! [dependencies.pyo3]</span>
@@ -728,26 +775,41 @@
 <span class="doccomment">//! features = [&quot;auto-initialize&quot;]</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Example program displaying the value of `sys.version`:</span>
+<span class="doccomment">//! Example program displaying the value of `sys.version` and the current user name:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! use pyo3::prelude::*;</span>
 <span class="doccomment">//! use pyo3::types::IntoPyDict;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! fn main() -&gt; PyResult&lt;()&gt; {</span>
-<span class="doccomment">//!     let gil = Python::acquire_gil();</span>
-<span class="doccomment">//!     let py = gil.python();</span>
-<span class="doccomment">//!     let sys = py.import(&quot;sys&quot;)?;</span>
-<span class="doccomment">//!     let version: String = sys.get(&quot;version&quot;)?.extract()?;</span>
+<span class="doccomment">//!     Python::with_gil(|py| {</span>
+<span class="doccomment">//!         let sys = py.import(&quot;sys&quot;)?;</span>
+<span class="doccomment">//!         let version: String = sys.get(&quot;version&quot;)?.extract()?;</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let locals = [(&quot;os&quot;, py.import(&quot;os&quot;)?)].into_py_dict(py);</span>
-<span class="doccomment">//!     let code = &quot;os.getenv(&#39;USER&#39;) or os.getenv(&#39;USERNAME&#39;) or &#39;Unknown&#39;&quot;;</span>
-<span class="doccomment">//!     let user: String = py.eval(code, None, Some(&amp;locals))?.extract()?;</span>
+<span class="doccomment">//!         let locals = [(&quot;os&quot;, py.import(&quot;os&quot;)?)].into_py_dict(py);</span>
+<span class="doccomment">//!         let code = &quot;os.getenv(&#39;USER&#39;) or os.getenv(&#39;USERNAME&#39;) or &#39;Unknown&#39;&quot;;</span>
+<span class="doccomment">//!         let user: String = py.eval(code, None, Some(&amp;locals))?.extract()?;</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     println!(&quot;Hello {}, I&#39;m Python {}&quot;, user, version);</span>
-<span class="doccomment">//!     Ok(())</span>
+<span class="doccomment">//!         println!(&quot;Hello {}, I&#39;m Python {}&quot;, user, version);</span>
+<span class="doccomment">//!         Ok(())</span>
+<span class="doccomment">//!     })</span>
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The guide has [a section](https://pyo3.rs/latest/python_from_rust.html) with lots of examples</span>
+<span class="doccomment">//! about this topic.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Other Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The PyO3 [README](https://github.com/PyO3/pyo3#readme) contains quick-start examples for both</span>
+<span class="doccomment">//! using [Rust from Python](https://github.com/PyO3/pyo3#using-rust-from-python) and</span>
+<span class="doccomment">//! [Python from Rust](https://github.com/PyO3/pyo3#using-python-from-rust).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The PyO3 repository&#39;s [examples subdirectory](https://github.com/PyO3/pyo3/tree/main/examples)</span>
+<span class="doccomment">//! contains some basic packages to demonstrate usage of PyO3.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! There are many projects using PyO3 - see a list of some at</span>
+<span class="doccomment">//! &lt;https://github.com/PyO3/pyo3#examples&gt;</span>
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::class</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::conversion</span>::{

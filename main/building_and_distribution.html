@@ -210,6 +210,27 @@ Caused by:
 </ul>
 <p>You can then open a Python shell in the output directory and you'll be able to run <code>import your_module</code>.</p>
 <p>See, as an example, Bazel rules to build PyO3 on Linux at https://github.com/TheButlah/rules_pyo3.</p>
+<h4 id="macos"><a class="header" href="#macos">macOS</a></h4>
+<p>On macOS, because the <code>extension-module</code> feature disables linking to <code>libpython</code> (<a href="#the-extension-module-feature">see the next section</a>), some additional linker arguments need to be set. <code>maturin</code> and <code>setuptools-rust</code> both pass these arguments for PyO3 automatically, but projects using manual builds will need to set these directly in order to support macOS.</p>
+<p>The easiest way to set the correct linker arguments is to add a <a href="https://doc.rust-lang.org/cargo/reference/build-scripts.html"><code>build.rs</code></a> with the following content:</p>
+<pre><code class="language-rust ignore">fn main() {
+  pyo3_build_config::add_extension_module_link_args();
+}
+</code></pre>
+<p>Remember to also add <code>pyo3-build-config</code> to the <code>build-dependencies</code> section in <code>Cargo.toml</code>.</p>
+<p>An alternative to using <code>pyo3-build-config</code> is add the following to a cargo configuration file (e.g. <code>.cargo/config.toml</code>):</p>
+<pre><code class="language-toml">[target.x86_64-apple-darwin]
+rustflags = [
+  &quot;-C&quot;, &quot;link-arg=-undefined&quot;,
+  &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,
+]
+
+[target.aarch64-apple-darwin]
+rustflags = [
+  &quot;-C&quot;, &quot;link-arg=-undefined&quot;,
+  &quot;-C&quot;, &quot;link-arg=dynamic_lookup&quot;,
+]
+</code></pre>
 <h3 id="the-extension-module-feature"><a class="header" href="#the-extension-module-feature">The <code>extension-module</code> feature</a></h3>
 <p>PyO3's <code>extension-module</code> feature is used to disable <a href="https://en.wikipedia.org/wiki/Linker_(computing)">linking</a> to <code>libpython</code> on unix targets.</p>
 <p>This is necessary because by default PyO3 links to <code>libpython</code>. This makes binaries, tests, and examples &quot;just work&quot;. However, Python extensions on unix must not link to libpython for <a href="https://www.python.org/dev/peps/pep-0513/">manylinux</a> compliance.</p>
