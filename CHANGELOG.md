@@ -6,12 +6,13 @@ PyO3 versions, please see the [migration guide](https://pyo3.rs/latest/migration
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.14.2] - 2021-08-09
 
 ### Added
 
 - Add `indexmap` feature to add `ToPyObject`, `IntoPy` and `FromPyObject` implementations for `indexmap::IndexMap`. [#1728](https://github.com/PyO3/pyo3/pull/1728)
 - Add `pyo3_build_config::add_extension_module_link_args()` to use in build scripts to set linker arguments (for macOS). [#1755](https://github.com/PyO3/pyo3/pull/1755)
+- Add `Python::with_gil_unchecked()` unsafe variation of `Python::with_gil()` to allow obtaining a `Python` in scenarios where `Python::with_gil()` would fail.
 
 ### Changed
 
@@ -24,6 +25,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix regression in 0.14.0 leading to incorrect code coverage being computed for `#[pyfunction]`s. [#1726](https://github.com/PyO3/pyo3/pull/1726)
 - Fix incorrect FFI definition of `Py_Buffer` on PyPy. [#1737](https://github.com/PyO3/pyo3/pull/1737)
 - Fix incorrect calculation of `dictoffset` on 32-bit Windows. [#1475](https://github.com/PyO3/pyo3/pull/1475)
+- Fix regression in 0.13.2 leading to linking to incorrect Python library on Windows "gnu" targets. [#1759](https://github.com/PyO3/pyo3/pull/1759)
+- Fix compiler warning: deny trailing semicolons in expression macro. [#1762](https://github.com/PyO3/pyo3/pull/1762)
+- Fix incorrect FFI definition of `Py_DecodeLocale`. The 2nd argument is now `*mut Py_ssize_t` instead of `Py_ssize_t`. [#1766](https://github.com/PyO3/pyo3/pull/1766)
 
 ## [0.14.1] - 2021-07-04
 
@@ -877,6 +881,7 @@ Yanked
 - Initial release
 
 [unreleased]: https://github.com/pyo3/pyo3/compare/v0.14.1...HEAD
+[0.14.2]: https://github.com/pyo3/pyo3/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/pyo3/pyo3/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/pyo3/pyo3/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/pyo3/pyo3/compare/v0.13.1...v0.13.2
