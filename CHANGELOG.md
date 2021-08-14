@@ -6,13 +6,25 @@ PyO3 versions, please see the [migration guide](https://pyo3.rs/latest/migration
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Change `PyErr::fetch()` to return `Option<PyErr>`. [#1717](https://github.com/PyO3/pyo3/pull/1717)
+
+### Fixed
+
+- Restrict FFI definitions `PyGILState_Check` and `Py_tracefunc` to the unlimited API. [#1787](https://github.com/PyO3/pyo3/pull/1787)
+- Raise `AttributeError` to avoid panic when calling `del` on a `#[setter]` defined class property. [#1779](https://github.com/PyO3/pyo3/issues/1779)
+- Add missing `_type` field to `PyStatus` struct definition. [#1791](https://github.com/PyO3/pyo3/pull/1791)
+
 ## [0.14.2] - 2021-08-09
 
 ### Added
 
 - Add `indexmap` feature to add `ToPyObject`, `IntoPy` and `FromPyObject` implementations for `indexmap::IndexMap`. [#1728](https://github.com/PyO3/pyo3/pull/1728)
 - Add `pyo3_build_config::add_extension_module_link_args()` to use in build scripts to set linker arguments (for macOS). [#1755](https://github.com/PyO3/pyo3/pull/1755)
-- Add `Python::with_gil_unchecked()` unsafe variation of `Python::with_gil()` to allow obtaining a `Python` in scenarios where `Python::with_gil()` would fail.
+- Add `Python::with_gil_unchecked()` unsafe variation of `Python::with_gil()` to allow obtaining a `Python` in scenarios where `Python::with_gil()` would fail. [#1769](https://github.com/PyO3/pyo3/pull/1769)
 
 ### Changed
 

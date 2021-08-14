@@ -16,7 +16,7 @@ fn err_if_invalid_value<T: PartialEq>(
     actual_value: T,
 ) -> PyResult<T> {
     if actual_value == invalid_value && PyErr::occurred(py) {
-        Err(PyErr::fetch(py))
+        Err(PyErr::api_call_failed(py))
     } else {
         Ok(actual_value)
     }
@@ -76,7 +76,7 @@ macro_rules! int_fits_c_long {
                 let val = unsafe {
                     let num = ffi::PyNumber_Index(ptr);
                     if num.is_null() {
-                        Err(PyErr::fetch(obj.py()))
+                        Err(PyErr::api_call_failed(obj.py()))
                     } else {
                         let val = err_if_invalid_value(obj.py(), -1, ffi::PyLong_AsLong(num));
                         ffi::Py_DECREF(num);
@@ -110,7 +110,7 @@ macro_rules! int_convert_u64_or_i64 {
                 unsafe {
                     let num = ffi::PyNumber_Index(ptr);
                     if num.is_null() {
-                        Err(PyErr::fetch(ob.py()))
+                        Err(PyErr::api_call_failed(ob.py()))
                     } else {
                         let result = err_if_invalid_value(ob.py(), !0, $pylong_as_ll_or_ull(num));
                         ffi::Py_DECREF(num);
@@ -189,7 +189,7 @@ mod fast_128bit_int_conversion {
                     unsafe {
                         let num = ffi::PyNumber_Index(ob.as_ptr());
                         if num.is_null() {
-                            return Err(PyErr::fetch(ob.py()));
+                            return Err(PyErr::api_call_failed(ob.py()));
                         }
                         let mut buffer = [0; std::mem::size_of::<$rust_type>()];
                         let ok = ffi::_PyLong_AsByteArray(
@@ -200,11 +200,8 @@ mod fast_128bit_int_conversion {
                             $is_signed,
                         );
                         ffi::Py_DECREF(num);
-                        if ok == -1 {
-                            Err(PyErr::fetch(ob.py()))
-                        } else {
-                            Ok(<$rust_type>::from_le_bytes(buffer))
-                        }
+                        crate::err::error_on_minusone(ob.py(), ok)?;
+                        Ok(<$rust_type>::from_le_bytes(buffer))
                     }
                 }
             }
@@ -364,45 +361,45 @@ mod tests {
 
     #[test]
     fn test_u32_max() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let v = std::u32::MAX;
-        let obj = v.to_object(py);
-        assert_eq!(v, obj.extract::<u32>(py).unwrap());
-        assert_eq!(u64::from(v), obj.extract::<u64>(py).unwrap());
-        assert!(obj.extract::<i32>(py).is_err());
+        Python::with_gil(|py| {
+            let v = std::u32::MAX;
+            let obj = v.to_object(py);
+            assert_eq!(v, obj.extract::<u32>(py).unwrap());
+            assert_eq!(u64::from(v), obj.extract::<u64>(py).unwrap());
+            assert!(obj.extract::<i32>(py).is_err());
+        });
     }
 
     #[test]
     fn test_i64_max() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let v = std::i64::MAX;
-        let obj = v.to_object(py);
-        assert_eq!(v, obj.extract::<i64>(py).unwrap());
-        assert_eq!(v as u64, obj.extract::<u64>(py).unwrap());
-        assert!(obj.extract::<u32>(py).is_err());
+        Python::with_gil(|py| {
+            let v = std::i64::MAX;
+            let obj = v.to_object(py);
+            assert_eq!(v, obj.extract::<i64>(py).unwrap());
+            assert_eq!(v as u64, obj.extract::<u64>(py).unwrap());
+            assert!(obj.extract::<u32>(py).is_err());
+        });
     }
 
     #[test]
     fn test_i64_min() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let v = std::i64::MIN;
-        let obj = v.to_object(py);
-        assert_eq!(v, obj.extract::<i64>(py).unwrap());
-        assert!(obj.extract::<i32>(py).is_err());
-        assert!(obj.extract::<u64>(py).is_err());
+        Python::with_gil(|py| {
+            let v = std::i64::MIN;
+            let obj = v.to_object(py);
+            assert_eq!(v, obj.extract::<i64>(py).unwrap());
+            assert!(obj.extract::<i32>(py).is_err());
+            assert!(obj.extract::<u64>(py).is_err());
+        });
     }
 
     #[test]
     fn test_u64_max() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let v = std::u64::MAX;
-        let obj = v.to_object(py);
-        assert_eq!(v, obj.extract::<u64>(py).unwrap());
-        assert!(obj.extract::<i64>(py).is_err());
+        Python::with_gil(|py| {
+            let v = std::u64::MAX;
+            let obj = v.to_object(py);
+            assert_eq!(v, obj.extract::<u64>(py).unwrap());
+            assert!(obj.extract::<i64>(py).is_err());
+        });
     }
 
     macro_rules! test_common (
@@ -414,32 +411,31 @@ mod tests {
 
                 #[test]
                 fn from_py_string_type_error() {
-                    let gil = Python::acquire_gil();
-                    let py = gil.python();
+                    Python::with_gil(|py|{
+
 
                     let obj = ("123").to_object(py);
                     let err = obj.extract::<$t>(py).unwrap_err();
                     assert!(err.is_instance::<exceptions::PyTypeError>(py));
+                    });
                 }
 
                 #[test]
                 fn from_py_float_type_error() {
-                    let gil = Python::acquire_gil();
-                    let py = gil.python();
+                    Python::with_gil(|py|{
 
                     let obj = (12.3).to_object(py);
                     let err = obj.extract::<$t>(py).unwrap_err();
-                    assert!(err.is_instance::<exceptions::PyTypeError>(py));
+                    assert!(err.is_instance::<exceptions::PyTypeError>(py));});
                 }
 
                 #[test]
                 fn to_py_object_and_back() {
-                    let gil = Python::acquire_gil();
-                    let py = gil.python();
+                    Python::with_gil(|py|{
 
                     let val = 123 as $t;
                     let obj = val.to_object(py);
-                    assert_eq!(obj.extract::<$t>(py).unwrap(), val as $t);
+                    assert_eq!(obj.extract::<$t>(py).unwrap(), val as $t);});
                 }
             }
         )

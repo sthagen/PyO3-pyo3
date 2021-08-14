@@ -423,7 +423,7 @@ impl PyAny {
             let py = self.py();
             let ptr = ffi::PyObject_GetAttr(self.as_ptr(), name);
             if ptr.is_null() {
-                return Err(PyErr::fetch(py));
+                return Err(PyErr::api_call_failed(py));
             }
             let args = args.into_py(py).into_ptr();
             let kwargs = kwargs.into_ptr();
@@ -516,11 +516,8 @@ impl PyAny {
     /// This is equivalent to the Python expression `bool(self)`.
     pub fn is_true(&self) -> PyResult<bool> {
         let v = unsafe { ffi::PyObject_IsTrue(self.as_ptr()) };
-        if v == -1 {
-            Err(PyErr::fetch(self.py()))
-        } else {
-            Ok(v != 0)
-        }
+        err::error_on_minusone(self.py(), v)?;
+        Ok(v != 0)
     }
 
     /// Returns whether the object is considered to be None.
@@ -647,7 +644,7 @@ impl PyAny {
     pub fn hash(&self) -> PyResult<isize> {
         let v = unsafe { ffi::PyObject_Hash(self.as_ptr()) };
         if v == -1 {
-            Err(PyErr::fetch(self.py()))
+            Err(PyErr::api_call_failed(self.py()))
         } else {
             Ok(v)
         }
@@ -660,7 +657,7 @@ impl PyAny {
     pub fn len(&self) -> PyResult<usize> {
         let v = unsafe { ffi::PyObject_Size(self.as_ptr()) };
         if v == -1 {
-            Err(PyErr::fetch(self.py()))
+            Err(PyErr::api_call_failed(self.py()))
         } else {
             Ok(v as usize)
         }
@@ -697,23 +694,23 @@ mod tests {
 
     #[test]
     fn test_call_for_non_existing_method() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let a = py.eval("42", None, None).unwrap();
-        a.call_method0("__str__").unwrap(); // ok
-        assert!(a.call_method("nonexistent_method", (1,), None).is_err());
-        assert!(a.call_method0("nonexistent_method").is_err());
-        assert!(a.call_method1("nonexistent_method", (1,)).is_err());
+        Python::with_gil(|py| {
+            let a = py.eval("42", None, None).unwrap();
+            a.call_method0("__str__").unwrap(); // ok
+            assert!(a.call_method("nonexistent_method", (1,), None).is_err());
+            assert!(a.call_method0("nonexistent_method").is_err());
+            assert!(a.call_method1("nonexistent_method", (1,)).is_err());
+        });
     }
 
     #[test]
     fn test_call_with_kwargs() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let list = vec![3, 6, 5, 4, 7].to_object(py);
-        let dict = vec![("reverse", true)].into_py_dict(py);
-        list.call_method(py, "sort", (), Some(dict)).unwrap();
-        assert_eq!(list.extract::<Vec<i32>>(py).unwrap(), vec![7, 6, 5, 4, 3]);
+        Python::with_gil(|py| {
+            let list = vec![3, 6, 5, 4, 7].to_object(py);
+            let dict = vec![("reverse", true)].into_py_dict(py);
+            list.call_method(py, "sort", (), Some(dict)).unwrap();
+            assert_eq!(list.extract::<Vec<i32>>(py).unwrap(), vec![7, 6, 5, 4, 3]);
+        });
     }
 
     #[test]
@@ -742,47 +739,46 @@ mod tests {
 
     #[test]
     fn test_type() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let obj = py.eval("42", None, None).unwrap();
-        assert_eq!(obj.get_type().as_type_ptr(), obj.get_type_ptr())
+        Python::with_gil(|py| {
+            let obj = py.eval("42", None, None).unwrap();
+            assert_eq!(obj.get_type().as_type_ptr(), obj.get_type_ptr());
+        });
     }
 
     #[test]
     fn test_dir() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let obj = py.eval("42", None, None).unwrap();
-        let dir = py
-            .eval("dir(42)", None, None)
-            .unwrap()
-            .downcast::<PyList>()
-            .unwrap();
-        let a = obj
-            .dir()
-            .into_iter()
-            .map(|x| x.extract::<String>().unwrap());
-        let b = dir.into_iter().map(|x| x.extract::<String>().unwrap());
-        assert!(a.eq(b));
+        Python::with_gil(|py| {
+            let obj = py.eval("42", None, None).unwrap();
+            let dir = py
+                .eval("dir(42)", None, None)
+                .unwrap()
+                .downcast::<PyList>()
+                .unwrap();
+            let a = obj
+                .dir()
+                .into_iter()
+                .map(|x| x.extract::<String>().unwrap());
+            let b = dir.into_iter().map(|x| x.extract::<String>().unwrap());
+            assert!(a.eq(b));
+        });
     }
 
     #[test]
     fn test_nan_eq() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        let nan = py.eval("float('nan')", None, None).unwrap();
-        assert!(nan.compare(nan).is_err());
+        Python::with_gil(|py| {
+            let nan = py.eval("float('nan')", None, None).unwrap();
+            assert!(nan.compare(nan).is_err());
+        });
     }
 
     #[test]
     fn test_any_isinstance() {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
+        Python::with_gil(|py| {
+            let x = 5.to_object(py).into_ref(py);
+            assert!(x.is_instance::<PyLong>().unwrap());
 
-        let x = 5.to_object(py).into_ref(py);
-        assert!(x.is_instance::<PyLong>().unwrap());
-
-        let l = vec![x, x].to_object(py).into_ref(py);
-        assert!(l.is_instance::<PyList>().unwrap());
+            let l = vec![x, x].to_object(py).into_ref(py);
+            assert!(l.is_instance::<PyList>().unwrap());
+        });
     }
 }
