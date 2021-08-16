@@ -585,6 +585,9 @@ impl MyClass {
 <span class="boring">}
 </span></code></pre></pre>
 <p>In this case, the property <code>number</code> is defined and available from Python code as <code>self.number</code>.</p>
+<p>Attributes defined by <code>#[setter]</code> or <code>#[pyo3(set)]</code> will always raise <code>AttributeError</code> on <code>del</code>
+operations. Support for defining custom <code>del</code> behavior is tracked in
+<a href="https://github.com/PyO3/pyo3/issues/1778">#1778</a>.</p>
 <h2 id="instance-methods"><a class="header" href="#instance-methods">Instance methods</a></h2>
 <p>To define a Python compatible method, an <code>impl</code> block for your struct has to be annotated with the
 <code>#[pymethods]</code> attribute. PyO3 generates Python compatible wrappers for all functions in this

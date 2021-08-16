@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;types&#x2F;datetime.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>datetime.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;types&#x2F;datetime.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>datetime.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -482,27 +482,27 @@
 <span class="doccomment">//! For more details about these types, see the [Python</span>
 <span class="doccomment">//! documentation](https://docs.python.org/3/library/datetime.html)</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::err::PyResult</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err::PyResult</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi::datetime</span>::{<span class="ident">PyDateTime_FromTimestamp</span>, <span class="ident">PyDate_FromTimestamp</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi::PyDateTimeAPI</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>::{<span class="ident">PyDateTime_Check</span>, <span class="ident">PyDate_Check</span>, <span class="ident">PyDelta_Check</span>, <span class="ident">PyTZInfo_Check</span>, <span class="ident">PyTime_Check</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::datetime</span>::{<span class="ident">PyDateTime_FromTimestamp</span>, <span class="ident">PyDate_FromTimestamp</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::PyDateTimeAPI</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="ident">PyDateTime_Check</span>, <span class="ident">PyDate_Check</span>, <span class="ident">PyDelta_Check</span>, <span class="ident">PyTZInfo_Check</span>, <span class="ident">PyTime_Check</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>::{<span class="ident">PyDateTime_DATE_GET_FOLD</span>, <span class="ident">PyDateTime_TIME_GET_FOLD</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="ident">PyDateTime_DATE_GET_FOLD</span>, <span class="ident">PyDateTime_TIME_GET_FOLD</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
     <span class="ident">PyDateTime_DATE_GET_HOUR</span>, <span class="ident">PyDateTime_DATE_GET_MICROSECOND</span>, <span class="ident">PyDateTime_DATE_GET_MINUTE</span>,
     <span class="ident">PyDateTime_DATE_GET_SECOND</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
     <span class="ident">PyDateTime_DELTA_GET_DAYS</span>, <span class="ident">PyDateTime_DELTA_GET_MICROSECONDS</span>, <span class="ident">PyDateTime_DELTA_GET_SECONDS</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>::{<span class="ident">PyDateTime_GET_DAY</span>, <span class="ident">PyDateTime_GET_MONTH</span>, <span class="ident">PyDateTime_GET_YEAR</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="ident">PyDateTime_GET_DAY</span>, <span class="ident">PyDateTime_GET_MONTH</span>, <span class="ident">PyDateTime_GET_YEAR</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
     <span class="ident">PyDateTime_TIME_GET_HOUR</span>, <span class="ident">PyDateTime_TIME_GET_MICROSECOND</span>, <span class="ident">PyDateTime_TIME_GET_MINUTE</span>,
     <span class="ident">PyDateTime_TIME_GET_SECOND</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::types::PyTuple</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyTuple</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
@@ -589,7 +589,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDate</span>(<span class="ident">PyAny</span>);
 <span class="macro">pyobject_native_type!</span>(
     <span class="ident">PyDate</span>,
-    <span class="kw">crate</span><span class="ident">::ffi::PyDateTime_Date</span>,
+    <span class="ident"><span class="kw">crate</span>::ffi::PyDateTime_Date</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">DateType</span>,
     #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">PyDate_Check</span>
@@ -647,7 +647,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime</span>(<span class="ident">PyAny</span>);
 <span class="macro">pyobject_native_type!</span>(
     <span class="ident">PyDateTime</span>,
-    <span class="kw">crate</span><span class="ident">::ffi::PyDateTime_DateTime</span>,
+    <span class="ident"><span class="kw">crate</span>::ffi::PyDateTime_DateTime</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">DateTimeType</span>,
     #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">PyDateTime_Check</span>
@@ -792,7 +792,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTime</span>(<span class="ident">PyAny</span>);
 <span class="macro">pyobject_native_type!</span>(
     <span class="ident">PyTime</span>,
-    <span class="kw">crate</span><span class="ident">::ffi::PyDateTime_Time</span>,
+    <span class="ident"><span class="kw">crate</span>::ffi::PyDateTime_Time</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">TimeType</span>,
     #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">PyTime_Check</span>
@@ -877,7 +877,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTzInfo</span>(<span class="ident">PyAny</span>);
 <span class="macro">pyobject_native_type!</span>(
     <span class="ident">PyTzInfo</span>,
-    <span class="kw">crate</span><span class="ident">::ffi::PyObject</span>,
+    <span class="ident"><span class="kw">crate</span>::ffi::PyObject</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">TZInfoType</span>,
     #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">PyTZInfo_Check</span>
@@ -888,7 +888,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDelta</span>(<span class="ident">PyAny</span>);
 <span class="macro">pyobject_native_type!</span>(
     <span class="ident">PyDelta</span>,
-    <span class="kw">crate</span><span class="ident">::ffi::PyDateTime_Delta</span>,
+    <span class="ident"><span class="kw">crate</span>::ffi::PyDateTime_Delta</span>,
     <span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>.<span class="ident">DeltaType</span>,
     #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">PyDelta_Check</span>

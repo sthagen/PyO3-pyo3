@@ -167,22 +167,22 @@ Caused by:
   cargo:rerun-if-env-changed=PYO3_CROSS
   cargo:rerun-if-env-changed=PYO3_CROSS_LIB_DIR
   cargo:rerun-if-env-changed=PYO3_CROSS_PYTHON_VERSION
-  cargo:rerun-if-env-changed=PYO3_PYTHON
-  cargo:rerun-if-env-changed=VIRTUAL_ENV
-  cargo:rerun-if-env-changed=CONDA_PREFIX
-  cargo:rerun-if-env-changed=PATH
   cargo:rerun-if-env-changed=PYO3_PRINT_CONFIG
 
   -- PYO3_PRINT_CONFIG=1 is set, printing configuration and halting compile --
-  implementation: CPython
-  interpreter version: 3.8
-  interpreter path: Some(&quot;/usr/bin/python&quot;)
-  libdir: Some(&quot;/usr/lib&quot;)
-  shared: true
-  base prefix: Some(&quot;/usr&quot;)
-  ld_version: Some(&quot;3.8&quot;)
-  pointer width: Some(8)
+  implementation=CPython
+  version=3.8
+  shared=true
+  abi3=false
+  lib_name=python3.8
+  lib_dir=/usr/lib
+  executable=/usr/bin/python
+  pointer_width=64
+  build_flags=WITH_THREAD
 </code></pre>
+<blockquote>
+<p>Note: if you save the output config to a file, it is possible to manually override the contents and feed it back into PyO3 using the <code>PYO3_CONFIG_FILE</code> env var. For now, this is an advanced feature that should not be needed for most users. The format of the config file and its contents are deliberately unstable and undocumented. If you have a production use-case for this config file, please file an issue and help us stabilize it!</p>
+</blockquote>
 <h2 id="building-python-extension-modules"><a class="header" href="#building-python-extension-modules">Building Python extension modules</a></h2>
 <p>Python extension modules need to be compiled differently depending on the OS (and architecture) that they are being compiled for. As well as multiple OSes (and architectures), there are also many different Python versions which are actively supported. Packages uploaded to <a href="https://pypi.org/">PyPI</a> usually want to upload prebuilt &quot;wheels&quot; covering many OS/arch/version combinations so that users on all these different platforms don't have to compile the package themselves. Package vendors can opt-in to the &quot;abi3&quot; limited Python API which allows their wheels to be used on multiple Python versions, reducing the number of wheels they need to compile, but restricts the functionality they can use.</p>
 <p>There are many ways to go about this: it is possible to use <code>cargo</code> to build the extension module (along with some manual work, which varies with OS). The PyO3 ecosystem has two packaging tools, <a href="https://github.com/PyO3/maturin"><code>maturin</code></a> and <a href="https://github.com/PyO3/setuptools-rust"><code>setuptools-rust</code></a>, which abstract over the OS difference and also support building wheels for PyPI upload.</p>

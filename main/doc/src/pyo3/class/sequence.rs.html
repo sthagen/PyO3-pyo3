@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;class&#x2F;sequence.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sequence.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;class&#x2F;sequence.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sequence.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -230,72 +230,72 @@
 <span class="doccomment">//! Python Sequence Interface</span>
 <span class="doccomment">//! Trait and support implementation for implementing sequence</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::callback::IntoPyCallbackOutput</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::conversion</span>::{<span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::err::PyErr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::callback::IntoPyCallbackOutput</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{<span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err::PyErr</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>};
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
 <span class="doccomment">/// Sequence interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PySequenceProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">__len__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__len__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceLenProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__getitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="self">Self</span><span class="ident">::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__getitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident"><span class="self">Self</span>::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceGetItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__setitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="self">Self</span><span class="ident">::Index</span>, <span class="ident">value</span>: <span class="self">Self</span><span class="ident">::Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__setitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident"><span class="self">Self</span>::Index</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceSetItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__delitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="self">Self</span><span class="ident">::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__delitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident"><span class="self">Self</span>::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceDelItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__contains__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__contains__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident"><span class="self">Self</span>::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceContainsProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__concat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span><span class="ident">::Other</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__concat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident"><span class="self">Self</span>::Other</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceConcatProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__repeat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">count</span>: <span class="self">Self</span><span class="ident">::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__repeat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">count</span>: <span class="ident"><span class="self">Self</span>::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceRepeatProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__inplace_concat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span><span class="ident">::Other</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__inplace_concat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident"><span class="self">Self</span>::Other</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceInplaceConcatProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__inplace_repeat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">count</span>: <span class="self">Self</span><span class="ident">::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Result</span>
+    <span class="kw">fn</span> <span class="ident">__inplace_repeat__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">count</span>: <span class="ident"><span class="self">Self</span>::Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PySequenceInplaceRepeatProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
@@ -355,10 +355,10 @@
     <span class="kw">type</span> <span class="prelude-ty">Result</span>: <span class="ident">IntoPyCallbackOutput</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
 }
 
-<span class="macro">py_len_func!</span>(<span class="ident">len</span>, <span class="ident">PySequenceLenProtocol</span>, <span class="self">Self</span><span class="ident">::__len__</span>);
-<span class="macro">py_binary_func!</span>(<span class="ident">concat</span>, <span class="ident">PySequenceConcatProtocol</span>, <span class="self">Self</span><span class="ident">::__concat__</span>);
-<span class="macro">py_ssizearg_func!</span>(<span class="ident">repeat</span>, <span class="ident">PySequenceRepeatProtocol</span>, <span class="self">Self</span><span class="ident">::__repeat__</span>);
-<span class="macro">py_ssizearg_func!</span>(<span class="ident">getitem</span>, <span class="ident">PySequenceGetItemProtocol</span>, <span class="self">Self</span><span class="ident">::__getitem__</span>);
+<span class="macro">py_len_func!</span>(<span class="ident">len</span>, <span class="ident">PySequenceLenProtocol</span>, <span class="ident"><span class="self">Self</span>::__len__</span>);
+<span class="macro">py_binary_func!</span>(<span class="ident">concat</span>, <span class="ident">PySequenceConcatProtocol</span>, <span class="ident"><span class="self">Self</span>::__concat__</span>);
+<span class="macro">py_ssizearg_func!</span>(<span class="ident">repeat</span>, <span class="ident">PySequenceRepeatProtocol</span>, <span class="ident"><span class="self">Self</span>::__repeat__</span>);
+<span class="macro">py_ssizearg_func!</span>(<span class="ident">getitem</span>, <span class="ident">PySequenceGetItemProtocol</span>, <span class="ident"><span class="self">Self</span>::__getitem__</span>);
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">setitem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
@@ -369,7 +369,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PySequenceSetItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
-    <span class="kw">crate</span><span class="macro">::callback_body!</span>(<span class="ident">py</span>, {
+    <span class="macro">crate::callback_body!</span>(<span class="ident">py</span>, {
         <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
 
         <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
@@ -382,7 +382,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">slf</span>.<span class="ident">try_borrow_mut</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span>(<span class="ident">value</span>);
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">extract</span>()<span class="question-mark">?</span>;
-        <span class="kw">crate</span><span class="ident">::callback::convert</span>(<span class="ident">py</span>, <span class="ident">slf</span>.<span class="ident">__setitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>(), <span class="ident">value</span>))
+        <span class="ident"><span class="kw">crate</span>::callback::convert</span>(<span class="ident">py</span>, <span class="ident">slf</span>.<span class="ident">__setitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>(), <span class="ident">value</span>))
     })
 }
 
@@ -395,11 +395,11 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PySequenceDelItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
-    <span class="kw">crate</span><span class="macro">::callback_body!</span>(<span class="ident">py</span>, {
+    <span class="macro">crate::callback_body!</span>(<span class="ident">py</span>, {
         <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
 
         <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
-            <span class="kw">crate</span><span class="ident">::callback::convert</span>(<span class="ident">py</span>, <span class="ident">slf</span>.<span class="ident">borrow_mut</span>().<span class="ident">__delitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>()))
+            <span class="ident"><span class="kw">crate</span>::callback::convert</span>(<span class="ident">py</span>, <span class="ident">slf</span>.<span class="ident">borrow_mut</span>().<span class="ident">__delitem__</span>(<span class="ident">key</span>.<span class="ident">into</span>()))
         } <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="ident">PyErr::new</span>::<span class="op">&lt;</span><span class="ident">exceptions::PyNotImplementedError</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Item assignment not supported by {:?}&quot;</span>,
@@ -418,7 +418,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PySequenceSetItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PySequenceDelItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
-    <span class="kw">crate</span><span class="macro">::callback_body!</span>(<span class="ident">py</span>, {
+    <span class="macro">crate::callback_body!</span>(<span class="ident">py</span>, {
         <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
 
         <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
@@ -435,20 +435,20 @@
 <span class="macro">py_binary_func!</span>(
     <span class="ident">contains</span>,
     <span class="ident">PySequenceContainsProtocol</span>,
-    <span class="self">Self</span><span class="ident">::__contains__</span>,
+    <span class="ident"><span class="self">Self</span>::__contains__</span>,
     <span class="ident">c_int</span>
 );
 <span class="macro">py_binary_func!</span>(
     <span class="ident">inplace_concat</span>,
     <span class="ident">PySequenceInplaceConcatProtocol</span>,
-    <span class="self">Self</span><span class="ident">::__inplace_concat__</span>,
+    <span class="ident"><span class="self">Self</span>::__inplace_concat__</span>,
     <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
     <span class="ident">call_mut</span>
 );
 <span class="macro">py_ssizearg_func!</span>(
     <span class="ident">inplace_repeat</span>,
     <span class="ident">PySequenceInplaceRepeatProtocol</span>,
-    <span class="self">Self</span><span class="ident">::__inplace_repeat__</span>,
+    <span class="ident"><span class="self">Self</span>::__inplace_repeat__</span>,
     <span class="ident">call_mut</span>
 );
 </pre></div>
