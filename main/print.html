@@ -5095,6 +5095,9 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Restrict FFI definitions <code>PyGILState_Check</code> and <code>Py_tracefunc</code> to the unlimited API. <a href="https://github.com/PyO3/pyo3/pull/1787">#1787</a></li>
 <li>Raise <code>AttributeError</code> to avoid panic when calling <code>del</code> on a <code>#[setter]</code> defined class property. <a href="https://github.com/PyO3/pyo3/issues/1779">#1779</a></li>
 <li>Add missing <code>_type</code> field to <code>PyStatus</code> struct definition. <a href="https://github.com/PyO3/pyo3/pull/1791">#1791</a></li>
+<li>Loosened the lower bound on the <code>num-complex</code> optional dependency to support
+interop with <code>rust-numpy</code> and <code>ndarray</code> when building with the MSRV of 1.41
+<a href="https://github.com/PyO3/pyo3/pull/1799">#1799</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0141v01420142a---2021-08-09"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0141v01420142a---2021-08-09"><a href="https://github.com/pyo3/pyo3/compare/v0.14.1...v0.14.2">0.14.2</a> - 2021-08-09</a></h2>
 <h3 id="added"><a class="header" href="#added">Added</a></h3>
