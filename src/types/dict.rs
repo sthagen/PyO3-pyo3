@@ -5,8 +5,8 @@ use crate::types::{PyAny, PyList};
 #[cfg(not(PyPy))]
 use crate::IntoPyPointer;
 use crate::{
-    ffi, AsPyPointer, FromPyObject, IntoPy, PyNativeType, PyObject, PyTryFrom, Python,
-    ToBorrowedObject, ToPyObject,
+    ffi, AsPyPointer, FromPyObject, IntoPy, PyObject, PyTryFrom, Python, ToBorrowedObject,
+    ToPyObject,
 };
 use std::collections::{BTreeMap, HashMap};
 use std::ptr::NonNull;
@@ -639,8 +639,8 @@ mod tests {
             let mut value_sum = 0;
             for el in dict.items().iter() {
                 let tuple = el.cast_as::<PyTuple>().unwrap();
-                key_sum += tuple.get_item(0).extract::<i32>().unwrap();
-                value_sum += tuple.get_item(1).extract::<i32>().unwrap();
+                key_sum += tuple.get_item(0).unwrap().extract::<i32>().unwrap();
+                value_sum += tuple.get_item(1).unwrap().extract::<i32>().unwrap();
             }
             assert_eq!(7 + 8 + 9, key_sum);
             assert_eq!(32 + 42 + 123, value_sum);

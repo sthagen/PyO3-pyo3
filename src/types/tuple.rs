@@ -1,10 +1,12 @@
 // Copyright (c) 2017-present PyO3 Project and Contributors
 
 use crate::ffi::{self, Py_ssize_t};
+use crate::internal_tricks::get_ssize_index;
 use crate::{
-    exceptions, AsPyPointer, FromPyObject, IntoPy, IntoPyPointer, Py, PyAny, PyErr, PyNativeType,
-    PyObject, PyResult, PyTryFrom, Python, ToPyObject,
+    exceptions, AsPyPointer, FromPyObject, IntoPy, IntoPyPointer, Py, PyAny, PyErr, PyObject,
+    PyResult, PyTryFrom, Python, ToPyObject,
 };
+use std::ops::Index;
 
 /// Represents a Python `tuple` object.
 ///
@@ -57,7 +59,25 @@ impl PyTuple {
         self.len() == 0
     }
 
-    /// Takes a slice of the tuple pointed from `low` to `high` and returns it as a new tuple.
+    /// Takes the slice `self[low:high]` and returns it as a new tuple.
+    ///
+    /// Indices must be nonnegative, and out-of-range indices are clipped to
+    /// `self.len()`.
+    pub fn get_slice(&self, low: usize, high: usize) -> &PyTuple {
+        unsafe {
+            self.py().from_owned_ptr(ffi::PyTuple_GetSlice(
+                self.as_ptr(),
+                get_ssize_index(low),
+                get_ssize_index(high),
+            ))
+        }
+    }
+
+    #[deprecated(since = "0.15.0", note = "use self.get_slice instead")]
+    /// Takes the slice `self[low:high]` and returns it as a new tuple.
+    ///
+    /// Indices must be nonnegative, and out-of-range indices are clipped to
+    /// `self.len()`.
     pub fn slice(&self, low: isize, high: isize) -> &PyTuple {
         unsafe {
             self.py()
@@ -65,27 +85,51 @@ impl PyTuple {
         }
     }
 
+    #[deprecated(
+        since = "0.15.0",
+        note = "use tuple.get_slice(low, tuple.len()) instead"
+    )]
     /// Takes a slice of the tuple from `low` to the end and returns it as a new tuple.
-    pub fn split_from(&self, low: isize) -> &PyTuple {
+    pub fn split_from(&self, low: usize) -> &PyTuple {
         unsafe {
-            let ptr = ffi::PyTuple_GetSlice(self.as_ptr(), low, self.len() as Py_ssize_t);
+            let ptr = ffi::PyTuple_GetSlice(
+                self.as_ptr(),
+                get_ssize_index(low),
+                self.len() as Py_ssize_t,
+            );
             self.py().from_owned_ptr(ptr)
         }
     }
 
     /// Gets the tuple item at the specified index.
-    ///
-    /// Panics if the index is out of range.
-    pub fn get_item(&self, index: usize) -> &PyAny {
-        assert!(index < self.len());
+    /// # Example
+    /// ```
+    /// use pyo3::{prelude::*, types::PyTuple};
+    /// Python::with_gil(|py| -> PyResult<()> {
+    ///     let ob = (1, 2, 3).to_object(py);
+    ///     let tuple = <PyTuple as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+    ///     let obj = tuple.get_item(0);
+    ///     assert_eq!(obj.unwrap().extract::<i32>().unwrap(), 1);
+    ///     Ok(())
+    /// });
+    /// ```
+    pub fn get_item(&self, index: usize) -> PyResult<&PyAny> {
         unsafe {
-            #[cfg(not(any(Py_LIMITED_API, PyPy)))]
-            let item = ffi::PyTuple_GET_ITEM(self.as_ptr(), index as Py_ssize_t);
-            #[cfg(any(Py_LIMITED_API, PyPy))]
             let item = ffi::PyTuple_GetItem(self.as_ptr(), index as Py_ssize_t);
-
-            self.py().from_borrowed_ptr(item)
+            self.py().from_borrowed_ptr_or_err(item)
         }
+    }
+
+    /// Gets the tuple item at the specified index. Undefined behavior on bad index. Use with caution.
+    ///
+    /// # Safety
+    ///
+    /// Caller must verify that the index is within the bounds of the tuple.
+    #[cfg(not(any(Py_LIMITED_API, PyPy)))]
+    #[cfg_attr(docsrs, doc(cfg(not(any(Py_LIMITED_API, PyPy)))))]
+    pub unsafe fn get_item_unchecked(&self, index: usize) -> &PyAny {
+        let item = ffi::PyTuple_GET_ITEM(self.as_ptr(), index as Py_ssize_t);
+        self.py().from_borrowed_ptr(item)
     }
 
     /// Returns `self` as a slice of objects.
@@ -111,6 +155,20 @@ impl PyTuple {
     }
 }
 
+impl Index<usize> for PyTuple {
+    type Output = PyAny;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.get_item(index).unwrap_or_else(|_| {
+            panic!(
+                "index {} out of range for tuple of length {}",
+                index,
+                self.len()
+            );
+        })
+    }
+}
+
 /// Used by `PyTuple::iter()`.
 pub struct PyTupleIterator<'a> {
     tuple: &'a PyTuple,
@@ -124,7 +182,10 @@ impl<'a> Iterator for PyTupleIterator<'a> {
     #[inline]
     fn next(&mut self) -> Option<&'a PyAny> {
         if self.index < self.length {
-            let item = self.tuple.get_item(self.index);
+            #[cfg(any(Py_LIMITED_API, PyPy))]
+            let item = self.tuple.get_item(self.index).expect("tuple.get failed");
+            #[cfg(not(any(Py_LIMITED_API, PyPy)))]
+            let item = unsafe { self.tuple.get_item_unchecked(self.index) };
             self.index += 1;
             Some(item)
         } else {
@@ -200,9 +261,11 @@ macro_rules! tuple_conversion ({$length:expr,$(($refN:ident, $n:tt, $T:ident)),+
         {
             let t = <PyTuple as PyTryFrom>::try_from(obj)?;
             if t.len() == $length {
-                Ok((
-                    $(t.get_item($n).extract::<$T>()?,)+
-                ))
+                #[cfg(any(Py_LIMITED_API, PyPy))]
+                return Ok(($(t.get_item($n)?.extract::<$T>()?,)+));
+
+                #[cfg(not(any(Py_LIMITED_API, PyPy)))]
+                unsafe {return Ok(($(t.get_item_unchecked($n).extract::<$T>()?,)+));}
             } else {
                 Err(wrong_tuple_length(t, $length))
             }
@@ -347,6 +410,17 @@ mod tests {
     }
 
     #[test]
+    fn test_slice() {
+        Python::with_gil(|py| {
+            let tup = PyTuple::new(py, &[2, 3, 5, 7]);
+            let slice = tup.get_slice(1, 3);
+            assert_eq!(2, slice.len());
+            let slice = tup.get_slice(1, 7);
+            assert_eq!(3, slice.len());
+        });
+    }
+
+    #[test]
     fn test_iter() {
         Python::with_gil(|py| {
             let ob = (1, 2, 3).to_object(py);
@@ -457,5 +531,61 @@ mod tests {
                 (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,)
             );
         })
+    }
+
+    #[test]
+    fn test_tuple_get_item_invalid_index() {
+        Python::with_gil(|py| {
+            let ob = (1, 2, 3).to_object(py);
+            let tuple = <PyTuple as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let obj = tuple.get_item(5);
+            assert!(obj.is_err());
+            assert_eq!(
+                obj.unwrap_err().to_string(),
+                "IndexError: tuple index out of range"
+            );
+        });
+    }
+
+    #[test]
+    fn test_tuple_get_item_sanity() {
+        Python::with_gil(|py| {
+            let ob = (1, 2, 3).to_object(py);
+            let tuple = <PyTuple as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let obj = tuple.get_item(0);
+            assert_eq!(obj.unwrap().extract::<i32>().unwrap(), 1);
+        });
+    }
+
+    #[cfg(not(any(Py_LIMITED_API, PyPy)))]
+    #[test]
+    fn test_tuple_get_item_unchecked_sanity() {
+        Python::with_gil(|py| {
+            let ob = (1, 2, 3).to_object(py);
+            let tuple = <PyTuple as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let obj = unsafe { tuple.get_item_unchecked(0) };
+            assert_eq!(obj.extract::<i32>().unwrap(), 1);
+        });
+    }
+
+    #[test]
+    fn test_tuple_index_trait() {
+        Python::with_gil(|py| {
+            let ob = (1, 2, 3).to_object(py);
+            let tuple = <PyTuple as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            assert_eq!(1, tuple[0].extract::<i32>().unwrap());
+            assert_eq!(2, tuple[1].extract::<i32>().unwrap());
+            assert_eq!(3, tuple[2].extract::<i32>().unwrap());
+        });
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_tuple_index_trait_panic() {
+        Python::with_gil(|py| {
+            let ob = (1, 2, 3).to_object(py);
+            let tuple = <PyTuple as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let _ = &tuple[7];
+        });
     }
 }
