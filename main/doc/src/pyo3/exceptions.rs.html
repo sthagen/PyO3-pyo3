@@ -499,8 +499,7 @@
 <span id="499">499</span>
 <span id="500">500</span>
 <span id="501">501</span>
-</pre><pre class="rust">
-<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Exception types defined by Python.</span>
 
@@ -532,7 +531,7 @@
         <span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
                 <span class="kw">unsafe</span> {
-                    <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::{<span class="macro-nonterminal">AsPyPointer</span>, <span class="ident">PyNativeType</span>};
+                    <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AsPyPointer</span>;
                     <span class="kw">let</span> <span class="ident">cause</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::exceptions::PyBaseException</span> <span class="op">=</span> <span class="self">self</span>
                         .<span class="ident">py</span>()
                         .<span class="ident">from_owned_ptr_or_opt</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyException_GetCause</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()))<span class="question-mark">?</span>;
@@ -1001,7 +1000,7 @@
         });
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

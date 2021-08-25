@@ -286,8 +286,7 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">PyErr</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">PyErr</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">min_const_generics</span>)]</span>
 <span class="kw">mod</span> <span class="ident">min_const_generics</span> {
@@ -324,7 +323,7 @@
         <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">T</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::buffer::Element</span>,
     {
         <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">PyNativeType</span>};
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AsPyPointer</span>;
             <span class="comment">// first try buffer protocol</span>
             <span class="kw">if</span> <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::ffi::PyObject_CheckBuffer</span>(<span class="ident">obj</span>.<span class="ident">as_ptr</span>()) } <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">buf</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::buffer::PyBuffer::get</span>(<span class="ident">obj</span>) {
@@ -349,7 +348,7 @@
         <span class="kw">if</span> <span class="ident">seq_len</span> <span class="op">!</span><span class="op">=</span> <span class="ident">N</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">invalid_sequence_length</span>(<span class="ident">N</span>, <span class="ident">seq_len</span>));
         }
-        <span class="ident">array_try_from_fn</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">seq</span>.<span class="ident">get_item</span>(<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>).<span class="ident">and_then</span>(<span class="ident">PyAny::extract</span>))
+        <span class="ident">array_try_from_fn</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">seq</span>.<span class="ident">get_item</span>(<span class="ident">idx</span>).<span class="ident">and_then</span>(<span class="ident">PyAny::extract</span>))
     }
 
     <span class="comment">// TODO use std::array::try_from_fn, if that stabilises:</span>
@@ -575,7 +574,7 @@
         })
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

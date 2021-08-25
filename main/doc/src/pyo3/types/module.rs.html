@@ -431,8 +431,7 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
-</pre><pre class="rust">
-<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
 
@@ -440,7 +439,6 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exceptions</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::instance::PyNativeType</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::PyClass</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeObject</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyList</span>};
@@ -561,6 +559,7 @@
             }
 
             <span class="kw">let</span> <span class="ident">mptr</span> <span class="op">=</span> <span class="ident">ffi::PyImport_ExecCodeModuleEx</span>(<span class="ident">module</span>.<span class="ident">as_ptr</span>(), <span class="ident">cptr</span>, <span class="ident">filename</span>.<span class="ident">as_ptr</span>());
+            <span class="ident">ffi::Py_DECREF</span>(<span class="ident">cptr</span>);
             <span class="kw">if</span> <span class="ident">mptr</span>.<span class="ident">is_null</span>() {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="ident">py</span>));
             }
@@ -865,7 +864,7 @@
         })
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

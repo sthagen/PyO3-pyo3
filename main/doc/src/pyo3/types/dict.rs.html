@@ -851,16 +851,15 @@
 <span id="851">851</span>
 <span id="852">852</span>
 <span id="853">853</span>
-</pre><pre class="rust">
-<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyList</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::IntoPyPointer</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>,
-    <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
+    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>,
+    <span class="ident">ToPyObject</span>,
 };
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::ptr::NonNull</span>;
@@ -1493,8 +1492,8 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value_sum</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">for</span> <span class="ident">el</span> <span class="kw">in</span> <span class="ident">dict</span>.<span class="ident">items</span>().<span class="ident">iter</span>() {
                 <span class="kw">let</span> <span class="ident">tuple</span> <span class="op">=</span> <span class="ident">el</span>.<span class="ident">cast_as</span>::<span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                <span class="ident">key_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">get_item</span>(<span class="number">0</span>).<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                <span class="ident">value_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">get_item</span>(<span class="number">1</span>).<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                <span class="ident">key_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">get_item</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                <span class="ident">value_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">get_item</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
             }
             <span class="macro">assert_eq!</span>(<span class="number">7</span> <span class="op">+</span> <span class="number">8</span> <span class="op">+</span> <span class="number">9</span>, <span class="ident">key_sum</span>);
             <span class="macro">assert_eq!</span>(<span class="number">32</span> <span class="op">+</span> <span class="number">42</span> <span class="op">+</span> <span class="number">123</span>, <span class="ident">value_sum</span>);
@@ -1705,7 +1704,7 @@
         });
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

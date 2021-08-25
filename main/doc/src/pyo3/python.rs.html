@@ -821,8 +821,41 @@
 <span id="821">821</span>
 <span id="822">822</span>
 <span id="823">823</span>
-</pre><pre class="rust">
-<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
 
@@ -953,6 +986,39 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// To avoid deadlocking, you should release the GIL before trying to lock a mutex, e.g. with</span>
 <span class="doccomment">/// [Python::allow_threads].</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # A note on Python reference counts</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The [`Python`] type can be used to generate references to variables in</span>
+<span class="doccomment">/// Python&#39;s memory e.g. using [`Python::eval()`] and indirectly e.g.</span>
+<span class="doccomment">/// using [`PyModule::import()`], which takes a [`Python`] token</span>
+<span class="doccomment">/// as one if its arguments to prove the GIL is held.  The lifetime of these</span>
+<span class="doccomment">/// references is bound to the GIL (more precisely the [`GILPool`], see</span>
+<span class="doccomment">/// [`Python::new_pool()`]), which can cause surprising results with respect to</span>
+<span class="doccomment">/// when a variable&#39;s reference count is decreased so that it can be released to</span>
+<span class="doccomment">/// the Python garbage collector.  For example:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// # use pyo3::prelude::*;</span>
+<span class="doccomment">/// # use pyo3::types::PyString;</span>
+<span class="doccomment">/// # fn main () -&gt; PyResult&lt;()&gt; {</span>
+<span class="doccomment">/// Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {</span>
+<span class="doccomment">///     for _ in 0..10 {</span>
+<span class="doccomment">///         let hello: &amp;PyString = py.eval(&quot;\&quot;Hello World!\&quot;&quot;, None, None)?.extract()?;</span>
+<span class="doccomment">///         println!(&quot;Python says: {}&quot;, hello.to_str()?);</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///     Ok(())</span>
+<span class="doccomment">/// })</span>
+<span class="doccomment">/// # }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The variable `hello` is dropped at the end of each loop iteration, but the</span>
+<span class="doccomment">/// lifetime of the pointed-to memory is bound to the [`GILPool`] and will not</span>
+<span class="doccomment">/// be dropped until the [`GILPool`] is dropped at the end of</span>
+<span class="doccomment">/// [`Python::with_gil()`].  Only then is each `hello` variable&#39;s Python</span>
+<span class="doccomment">/// reference count decreased.  This means at the last line of the example there</span>
+<span class="doccomment">/// are 10 copies of `hello` in Python&#39;s memory, not just one as we might expect</span>
+<span class="doccomment">/// from typical Rust lifetimes.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">GILGuard</span><span class="op">&gt;</span>);
 
@@ -1220,6 +1286,7 @@
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="self">self</span>));
             }
             <span class="kw">let</span> <span class="ident">res_ptr</span> <span class="op">=</span> <span class="ident">ffi::PyEval_EvalCode</span>(<span class="ident">code_obj</span>, <span class="ident">globals</span>, <span class="ident">locals</span>);
+            <span class="ident">ffi::Py_DECREF</span>(<span class="ident">code_obj</span>);
 
             <span class="self">self</span>.<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">res_ptr</span>)
         }
@@ -1645,7 +1712,7 @@
         <span class="macro">assert_eq!</span>(<span class="ident">state</span>, <span class="ident">GIL_NOT_HELD</span>);
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

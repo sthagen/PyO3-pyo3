@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Rust bindings to the Python interpreter."><meta name="keywords" content="rust, rustlang, rust-lang, pyo3"><title>pyo3 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../pyo3/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate pyo3</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.14.2</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all pyo3's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="pyo3" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">pyo3</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/pyo3/lib.rs.html#1-551" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Rust bindings to the Python interpreter.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Rust bindings to the Python interpreter."><meta name="keywords" content="rust, rustlang, rust-lang, pyo3"><title>pyo3 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../pyo3/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate pyo3</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.14.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all pyo3's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="pyo3" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">pyo3</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/pyo3/lib.rs.html#1-541" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Rust bindings to the Python interpreter.</p>
 <p>PyO3 can be used to write native Python modules or run Python code and modules from Rust.</p>
 <p>See <a href="https://pyo3.rs/">the guide</a> for a detailed introduction.</p>
 <h1 id="pyo3s-object-types" class="section-header"><a href="#pyo3s-object-types">PyO3’s object types</a></h1>
@@ -99,7 +99,7 @@ steps set up some files for an example Python module, install <code>maturin</cod
 and import the Python module.</p>
 <p>First, create a new folder (let’s call it <code>string_sum</code>) containing the following two files:</p>
 <p><strong><code>Cargo.toml</code></strong></p>
-<div class="example-wrap"><pre class="language-toml">[package]
+<div class="example-wrap"><pre class="language-toml"><code>[package]
 name = &quot;string-sum&quot;
 version = &quot;0.1.0&quot;
 edition = &quot;2018&quot;
@@ -109,12 +109,11 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies.pyo3]
-version = &quot;0.14.2&quot;
-features = [&quot;extension-module&quot;]</pre></div>
+version = &quot;0.14.3&quot;
+features = [&quot;extension-module&quot;]</code></pre></div>
 <p><strong><code>src/lib.rs</code></strong></p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Formats the sum of two numbers as string.</span>
 <span class="attribute">#[<span class="ident">pyfunction</span>]</span>
@@ -128,20 +127,20 @@ features = [&quot;extension-module&quot;]</pre></div>
     <span class="ident">m</span>.<span class="ident">add_function</span>(<span class="macro">wrap_pyfunction!</span>(<span class="ident">sum_as_string</span>, <span class="ident">m</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
-}</pre></div>
+}</code></pre></div>
 <p>With those two files in place, now <code>maturin</code> needs to be installed. This can be done using
 Python’s package manager <code>pip</code>. First, load up a new Python <code>virtualenv</code>, and install <code>maturin</code>
 into it:</p>
-<div class="example-wrap"><pre class="language-bash">$ cd string_sum
+<div class="example-wrap"><pre class="language-bash"><code>$ cd string_sum
 $ python -m venv .env
 $ source .env/bin/activate
-$ pip install maturin</pre></div>
+$ pip install maturin</code></pre></div>
 <p>Now build and execute the module:</p>
-<div class="example-wrap"><pre class="language-bash">$ maturin develop
+<div class="example-wrap"><pre class="language-bash"><code>$ maturin develop
 $ python
 &gt;&gt;&gt; import string_sum
 &gt;&gt;&gt; string_sum.sum_as_string(5, 20)
-&#39;25&#39;</pre></div>
+&#39;25&#39;</code></pre></div>
 <p>As well as with <code>maturin</code>, it is possible to build using
 <a href="https://github.com/PyO3/setuptools-rust"><code>setuptools-rust</code></a> or
 <a href="https://pyo3.rs/latest/building_and_distribution.html#manual-builds">manually</a>. Both offer more
@@ -151,15 +150,14 @@ flexibility than <code>maturin</code> but require further configuration.</p>
 shared library. The following steps demonstrate how to ensure this (for Ubuntu), and then give
 some example code which runs an embedded Python interpreter.</p>
 <p>To install the Python shared library on Ubuntu:</p>
-<div class="example-wrap"><pre class="language-bash">sudo apt install python3-dev</pre></div>
+<div class="example-wrap"><pre class="language-bash"><code>sudo apt install python3-dev</code></pre></div>
 <p>Start a new project with <code>cargo new</code> and add  <code>pyo3</code> to the <code>Cargo.toml</code> like this:</p>
-<div class="example-wrap"><pre class="language-toml">[dependencies.pyo3]
-version = &quot;0.14.2&quot;
-features = [&quot;auto-initialize&quot;]</pre></div>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies.pyo3]
+version = &quot;0.14.3&quot;
+features = [&quot;auto-initialize&quot;]</code></pre></div>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">pyo3::types::IntoPyDict</span>;
 
 <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -174,7 +172,7 @@ features = [&quot;auto-initialize&quot;]</pre></div>
         <span class="macro">println!</span>(<span class="string">&quot;Hello {}, I&#39;m Python {}&quot;</span>, <span class="ident">user</span>, <span class="ident">version</span>);
         <span class="prelude-val">Ok</span>(())
     })
-}</pre></div>
+}</code></pre></div>
 <p>The guide has <a href="https://pyo3.rs/latest/python_from_rust.html">a section</a> with lots of examples
 about this topic.</p>
 <h1 id="other-examples" class="section-header"><a href="#other-examples">Other Examples</a></h1>

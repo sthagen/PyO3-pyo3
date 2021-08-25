@@ -79,9 +79,7 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
-<span id="82">82</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::object</span>::<span class="kw-2">*</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::pyport::Py_ssize_t</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
@@ -118,7 +116,6 @@
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyGen_New</span>(<span class="ident">frame</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFrameObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
-    <span class="comment">// skipped PyGen_New</span>
     <span class="comment">// skipped PyGen_NewWithQualName</span>
     <span class="comment">// skipped _PyGen_SetStopIterationValue</span>
     <span class="comment">// skipped _PyGen_FetchStopIterationValue</span>
@@ -163,7 +160,7 @@
 }
 
 <span class="comment">// skipped _PyAsyncGenValueWrapperNew</span>
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

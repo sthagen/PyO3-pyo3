@@ -324,8 +324,7 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
-</pre><pre class="rust">
-<span class="doccomment">//! `PyClass` and related traits.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! `PyClass` and related traits.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">class::impl_</span>::{<span class="ident">fallback_new</span>, <span class="ident">tp_dealloc</span>, <span class="ident">PyClassImpl</span>},
     <span class="ident">ffi</span>,
@@ -651,7 +650,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">all</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">not</span>(<span class="ident">Py_3_10</span>))))]</span>
 <span class="kw">fn</span> <span class="ident">push_dict_getset</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ffi::PyGetSetDef</span><span class="op">&gt;</span>, <span class="ident">_is_dummy</span>: <span class="ident">bool</span>) {}
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>
