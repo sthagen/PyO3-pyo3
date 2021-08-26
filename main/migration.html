@@ -159,6 +159,20 @@ and provides the same panic behavior as on Rust vectors.</p>
 <p>Note that <em>slice</em> indices (accepted by <code>PySequence::get_slice</code> and other) still
 inherit the Python behavior of clamping the indices to the actual length, and
 not panicking/returning an error on out of range indices.</p>
+<p>An additional advantage of using Rust's indexing conventions for these types is
+that these types can now also support Rust's indexing operators as part of a
+consistent API:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::{Python, types::PyList};
+
+Python::with_gil(|py| {
+    let list = PyList::new(py, &amp;[1, 2, 3]);
+    assert_eq!(list[0..2].to_string(), &quot;[1, 2]&quot;);
+});
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="from-013-to-014"><a class="header" href="#from-013-to-014">from 0.13.* to 0.14</a></h2>
 <h3 id="auto-initialize-feature-is-now-opt-in"><a class="header" href="#auto-initialize-feature-is-now-opt-in"><code>auto-initialize</code> feature is now opt-in</a></h3>
 <p>For projects embedding Python in Rust, PyO3 no longer automatically initalizes a Python interpreter on the first call to <code>Python::with_gil</code> (or <code>Python::acquire_gil</code>) unless the <a href="features.html#auto-initalize"><code>auto-initalize</code> feature</a> is enabled.</p>

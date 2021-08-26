@@ -153,7 +153,8 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <ul>
 <li>Add <code>PyList::get_item_unchecked()</code> and <code>PyTuple::get_item_unchecked()</code> to get items without bounds checks. <a href="https://github.com/PyO3/pyo3/pull/1733">#1733</a></li>
 <li>Add <code>PyAny::py()</code> as a convenience for <code>PyNativeType::py()</code>. <a href="https://github.com/PyO3/pyo3/pull/1751">#1751</a></li>
-<li>Add implementation of <code>std::ops::Index</code> for <code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>. <a href="https://github.com/PyO3/pyo3/pull/1825">#1825</a></li>
+<li>Add implementation of <code>std::ops::Index&lt;usize&gt;</code> for <code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>. <a href="https://github.com/PyO3/pyo3/pull/1825">#1825</a></li>
+<li>Add range indexing implementations of <code>std::ops::Index</code> for <code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>. <a href="https://github.com/PyO3/pyo3/pull/1829">#1829</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
@@ -161,11 +162,11 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li><code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>'s APIs now accepts only <code>usize</code> indices instead of <code>isize</code>.
 <a href="https://github.com/PyO3/pyo3/pull/1733">#1733</a>, <a href="https://github.com/PyO3/pyo3/pull/1802">#1802</a>,
 <a href="https://github.com/PyO3/pyo3/pull/1803">#1803</a></li>
-<li><code>PyList</code> and <code>PyTuple</code>'s <code>get_item</code> now return <code>PyResult&lt;&amp;PyAny&gt;</code> instead of panicking. <a href="https://github.com/PyO3/pyo3/pull/1733">#1733</a></li>
-<li><code>PySequence</code>'s <code>in_place_repeat</code> and <code>in_place_concat</code> now return the result instead of <code>()</code>, which is needed
-in case of immutable sequences. <a href="https://github.com/PyO3/pyo3/pull/1803">#1803</a></li>
+<li><code>PyList::get_item</code> and <code>PyTuple::get_item</code> now return <code>PyResult&lt;&amp;PyAny&gt;</code> instead of panicking. <a href="https://github.com/PyO3/pyo3/pull/1733">#1733</a></li>
+<li><code>PySequence::in_place_repeat</code> and <code>PySequence::in_place_concat</code> now return <code>PyResult&lt;&amp;PySequence&gt;</code> instead of <code>PyResult&lt;()&gt;</code>, which is needed in case of immutable sequences such as tuples. <a href="https://github.com/PyO3/pyo3/pull/1803">#1803</a></li>
+<li><code>PySequence::get_slice</code> now returns <code>PyResult&lt;&amp;PySequence&gt;</code> instead of <code>PyResult&lt;&amp;PyAny&gt;</code>. <a href="https://github.com/PyO3/pyo3/pull/1829">#1829</a></li>
 <li>Deprecate <code>PyTuple::split_from</code>. <a href="https://github.com/PyO3/pyo3/pull/1804">#1804</a></li>
-<li>Deprecate <code>PyTuple::slice</code>, new method <code>get_slice</code> added with proper index types. <a href="https://github.com/PyO3/pyo3/pull/1828">#1828</a></li>
+<li>Deprecate <code>PyTuple::slice</code>, new method <code>PyTuple::get_slice</code> added with <code>usize</code> indices. <a href="https://github.com/PyO3/pyo3/pull/1828">#1828</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0142v01430143a---2021-08-22"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0142v01430143a---2021-08-22"><a href="https://github.com/pyo3/pyo3/compare/v0.14.2...v0.14.3">0.14.3</a> - 2021-08-22</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>

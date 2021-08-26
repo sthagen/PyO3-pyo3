@@ -188,12 +188,18 @@
 <li><code>FromPyObject</code> for <code>Vec</code> and <code>[T;N]</code> can perform a <code>memcpy</code> when the object supports the Python buffer protocol.</li>
 <li><code>ToBorrowedObject</code> can skip a reference count increase when the provided object is a Python native type.</li>
 </ul>
+<h2 id="optional-dependencies"><a class="header" href="#optional-dependencies">Optional Dependencies</a></h2>
+<p>These features enable conversions between Python types and types from other Rust crates, enabling easy access to the rest of the Rust ecosystem.</p>
+<h3 id="hashbrown"><a class="header" href="#hashbrown"><code>hashbrown</code></a></h3>
+<p>Adds a dependency on <a href="https://docs.rs/hashbrown">hashbrown</a> and enables conversions into its <a href="https://docs.rs/hashbrown/latest/hashbrown/struct.HashMap.html"><code>HashMap</code></a> and <a href="https://docs.rs/hashbrown/latest/hashbrown/struct.HashSet.html"><code>HashSet</code></a> types.</p>
+<h3 id="indexmap"><a class="header" href="#indexmap"><code>indexmap</code></a></h3>
+<p>Adds a dependency on <a href="https://docs.rs/indexmap">indexmap</a> and enables conversions into its <a href="https://docs.rs/indexmap/latest/indexmap/map/struct.IndexMap.html"><code>IndexMap</code></a> type.</p>
 <h3 id="num-bigint"><a class="header" href="#num-bigint"><code>num-bigint</code></a></h3>
-<p>This feature adds a dependency on <a href="https://docs.rs/num-bigint">num-bigint</a> and enables conversions into its <a href="https://docs.rs/num-bigint/latest/num_bigint/struct.BigInt.html"><code>BigInt</code></a> and <a href="https://docs.rs/num-bigint/latest/num_bigint/struct.BigUInt.html"><code>BigUint</code></a> types.</p>
+<p>Adds a dependency on <a href="https://docs.rs/num-bigint">num-bigint</a> and enables conversions into its <a href="https://docs.rs/num-bigint/latest/num_bigint/struct.BigInt.html"><code>BigInt</code></a> and <a href="https://docs.rs/num-bigint/latest/num_bigint/struct.BigUInt.html"><code>BigUint</code></a> types.</p>
 <h3 id="num-complex"><a class="header" href="#num-complex"><code>num-complex</code></a></h3>
-<p>This feature adds a dependency on <a href="https://docs.rs/num-complex">num-complex</a> and enables conversions into its <a href="https://docs.rs/num-complex/latest/num_complex/struct.Complex.html"><code>Complex</code></a> type.</p>
+<p>Adds a dependency on <a href="https://docs.rs/num-complex">num-complex</a> and enables conversions into its <a href="https://docs.rs/num-complex/latest/num_complex/struct.Complex.html"><code>Complex</code></a> type.</p>
 <h3 id="serde"><a class="header" href="#serde"><code>serde</code></a></h3>
-<p>The <code>serde</code> feature enables (de)serialization of Py<T> objects via <a href="https://serde.rs/">serde</a>.
+<p>Enables (de)serialization of Py<T> objects via <a href="https://serde.rs/">serde</a>.
 This allows to use <a href="https://serde.rs/derive.html"><code>#[derive(Serialize, Deserialize)</code></a> on structs that hold references to <code>#[pyclass]</code> instances</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
