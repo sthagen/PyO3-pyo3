@@ -584,6 +584,21 @@
 <span id="584">584</span>
 <span id="585">585</span>
 <span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
@@ -603,8 +618,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Python internally stores strings in various representations. This enumeration</span>
 <span class="doccomment">/// represents those variations.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PyStringData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// UCS1 representation.</span>
@@ -617,7 +632,7 @@
     <span class="ident">Ucs4</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u32</span>]),
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">PyStringData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Obtain the raw bytes backing this instance as a [u8] slice.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
@@ -797,16 +812,28 @@
 
     <span class="doccomment">/// Obtains the raw data backing the Python string.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If the Python string object was created through legacy APIs, its internal</span>
-    <span class="doccomment">/// storage format will be canonicalized before data is returned.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyStringData</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// If the Python string object was created through legacy APIs, its internal storage format</span>
+    <span class="doccomment">/// will be canonicalized before data is returned.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function implementation relies on manually decoding a C bitfield. In practice, this</span>
+    <span class="doccomment">/// works well on common little-endian architectures such as x86_64, where the bitfield has a</span>
+    <span class="doccomment">/// common representation (even if it is not part of the C spec). The PyO3 CI tests this API on</span>
+    <span class="doccomment">/// x86_64 platforms.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By using this API, you accept responsibility for testing that PyStringData behaves as</span>
+    <span class="doccomment">/// expected on the targets where you plan to distribute your software.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example, it is known not to work on big-endian platforms.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))))]</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyStringData</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ptr</span>();
 
         <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">Py_3_12</span>)) {
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
-            <span class="kw">let</span> <span class="ident">ready</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::PyUnicode_READY</span>(<span class="ident">ptr</span>) };
+            <span class="kw">let</span> <span class="ident">ready</span> <span class="op">=</span> <span class="ident">ffi::PyUnicode_READY</span>(<span class="ident">ptr</span>);
             <span class="kw">if</span> <span class="ident">ready</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="comment">// Exception was created on failure.</span>
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::PyErr::api_call_failed</span>(<span class="self">self</span>.<span class="ident">py</span>()));
@@ -816,20 +843,23 @@
         <span class="comment">// The string should be in its canonical form after calling `PyUnicode_READY()`.</span>
         <span class="comment">// And non-canonical form not possible after Python 3.12. So it should be safe</span>
         <span class="comment">// to call these APIs.</span>
-        <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::PyUnicode_GET_LENGTH</span>(<span class="ident">ptr</span>) } <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">let</span> <span class="ident">raw_data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::PyUnicode_DATA</span>(<span class="ident">ptr</span>) };
-        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::PyUnicode_KIND</span>(<span class="ident">ptr</span>) };
+        <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">ffi::PyUnicode_GET_LENGTH</span>(<span class="ident">ptr</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="kw">let</span> <span class="ident">raw_data</span> <span class="op">=</span> <span class="ident">ffi::PyUnicode_DATA</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ffi::PyUnicode_KIND</span>(<span class="ident">ptr</span>);
 
         <span class="kw">match</span> <span class="ident">kind</span> {
-            <span class="ident">ffi::PyUnicode_1BYTE_KIND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">PyStringData::Ucs1</span>(<span class="kw">unsafe</span> {
-                <span class="ident">std::slice::from_raw_parts</span>(<span class="ident">raw_data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>, <span class="ident">length</span>)
-            })),
-            <span class="ident">ffi::PyUnicode_2BYTE_KIND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">PyStringData::Ucs2</span>(<span class="kw">unsafe</span> {
-                <span class="ident">std::slice::from_raw_parts</span>(<span class="ident">raw_data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u16</span>, <span class="ident">length</span>)
-            })),
-            <span class="ident">ffi::PyUnicode_4BYTE_KIND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">PyStringData::Ucs4</span>(<span class="kw">unsafe</span> {
-                <span class="ident">std::slice::from_raw_parts</span>(<span class="ident">raw_data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u32</span>, <span class="ident">length</span>)
-            })),
+            <span class="ident">ffi::PyUnicode_1BYTE_KIND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">PyStringData::Ucs1</span>(<span class="ident">std::slice::from_raw_parts</span>(
+                <span class="ident">raw_data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
+                <span class="ident">length</span>,
+            ))),
+            <span class="ident">ffi::PyUnicode_2BYTE_KIND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">PyStringData::Ucs2</span>(<span class="ident">std::slice::from_raw_parts</span>(
+                <span class="ident">raw_data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u16</span>,
+                <span class="ident">length</span>,
+            ))),
+            <span class="ident">ffi::PyUnicode_4BYTE_KIND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">PyStringData::Ucs4</span>(<span class="ident">std::slice::from_raw_parts</span>(
+                <span class="ident">raw_data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u32</span>,
+                <span class="ident">length</span>,
+            ))),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
@@ -1051,11 +1081,11 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_string_data_ucs1</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">PyString::new</span>(<span class="ident">py</span>, <span class="string">&quot;hello, world&quot;</span>);
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>() };
 
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>, <span class="ident">PyStringData::Ucs1</span>(<span class="string">b&quot;hello, world&quot;</span>));
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>.<span class="ident">to_string</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>(), <span class="ident">Cow::Borrowed</span>(<span class="string">&quot;hello, world&quot;</span>));
@@ -1064,7 +1094,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_string_data_ucs1_invalid</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="comment">// 0xfe is not allowed in UTF-8.</span>
@@ -1078,7 +1108,7 @@
             };
             <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">ptr</span>.<span class="ident">is_null</span>());
             <span class="kw">let</span> <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">PyString</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">ptr</span>) };
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>() };
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>, <span class="ident">PyStringData::Ucs1</span>(<span class="string">b&quot;f\xfe&quot;</span>));
             <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">to_string</span>(<span class="ident">py</span>).<span class="ident">unwrap_err</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">ptype</span>(<span class="ident">py</span>), <span class="ident">PyUnicodeDecodeError::type_object</span>(<span class="ident">py</span>));
@@ -1090,12 +1120,12 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_string_data_ucs2</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">eval</span>(<span class="string">&quot;&#39;foo\\ud800&#39;&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">py_string</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">cast_as</span>::<span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">py_string</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">py_string</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>() };
 
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>, <span class="ident">PyStringData::Ucs2</span>(<span class="kw-2">&amp;</span>[<span class="number">102</span>, <span class="number">111</span>, <span class="number">111</span>, <span class="number">0xd800</span>]));
             <span class="macro">assert_eq!</span>(
@@ -1106,7 +1136,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_string_data_ucs2_invalid</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="comment">// U+FF22 (valid) &amp; U+d800 (never valid)</span>
@@ -1120,7 +1150,7 @@
             };
             <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">ptr</span>.<span class="ident">is_null</span>());
             <span class="kw">let</span> <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">PyString</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">ptr</span>) };
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>() };
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>, <span class="ident">PyStringData::Ucs2</span>(<span class="kw-2">&amp;</span>[<span class="number">0xff22</span>, <span class="number">0xd800</span>]));
             <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">to_string</span>(<span class="ident">py</span>).<span class="ident">unwrap_err</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">ptype</span>(<span class="ident">py</span>), <span class="ident">PyUnicodeDecodeError::type_object</span>(<span class="ident">py</span>));
@@ -1132,12 +1162,12 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_string_data_ucs4</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;哈哈🐈&quot;</span>;
             <span class="kw">let</span> <span class="ident">py_string</span> <span class="op">=</span> <span class="ident">PyString::new</span>(<span class="ident">py</span>, <span class="ident">s</span>);
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">py_string</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">py_string</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>() };
 
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>, <span class="ident">PyStringData::Ucs4</span>(<span class="kw-2">&amp;</span>[<span class="number">21704</span>, <span class="number">21704</span>, <span class="number">128008</span>]));
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>.<span class="ident">to_string_lossy</span>(), <span class="ident">Cow::Owned</span>::<span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>(<span class="ident">s</span>.<span class="ident">to_string</span>()));
@@ -1145,7 +1175,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_string_data_ucs4_invalid</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="comment">// U+20000 (valid) &amp; U+d800 (never valid)</span>
@@ -1159,7 +1189,7 @@
             };
             <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">ptr</span>.<span class="ident">is_null</span>());
             <span class="kw">let</span> <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">PyString</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="ident">ptr</span>) };
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">s</span>.<span class="ident">data</span>().<span class="ident">unwrap</span>() };
             <span class="macro">assert_eq!</span>(<span class="ident">data</span>, <span class="ident">PyStringData::Ucs4</span>(<span class="kw-2">&amp;</span>[<span class="number">0x20000</span>, <span class="number">0xd800</span>]));
             <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">to_string</span>(<span class="ident">py</span>).<span class="ident">unwrap_err</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">ptype</span>(<span class="ident">py</span>), <span class="ident">PyUnicodeDecodeError::type_object</span>(<span class="ident">py</span>));

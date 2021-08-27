@@ -603,6 +603,26 @@
 <span id="603">603</span>
 <span id="604">604</span>
 <span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
     <span class="ident">PyObject</span>, <span class="ident">PyUnicode_Check</span>, <span class="ident">Py_UCS1</span>, <span class="ident">Py_UCS2</span>, <span class="ident">Py_UCS4</span>, <span class="ident">Py_UNICODE</span>, <span class="ident">Py_hash_t</span>, <span class="ident">Py_ssize_t</span>,
 };
@@ -655,29 +675,34 @@
     <span class="kw">pub</span> <span class="ident">wstr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wchar_t</span>,
 }
 
+<span class="doccomment">/// Interacting with the bitfield is not actually well-defined, so we mark these APIs unsafe.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In addition, they are disabled on big-endian architectures to restrict this to most &quot;common&quot;</span>
+<span class="doccomment">/// platforms, which are at least tested on CI and appear to be sound.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">impl</span> <span class="ident">PyASCIIObject</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">interned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">interned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
         <span class="self">self</span>.<span class="ident">state</span> <span class="op">&amp;</span> <span class="number">3</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
         (<span class="self">self</span>.<span class="ident">state</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2</span>) <span class="op">&amp;</span> <span class="number">7</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">compact</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
         (<span class="self">self</span>.<span class="ident">state</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">5</span>) <span class="op">&amp;</span> <span class="number">1</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">ascii</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
         (<span class="self">self</span>.<span class="ident">state</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">6</span>) <span class="op">&amp;</span> <span class="number">1</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
         (<span class="self">self</span>.<span class="ident">state</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">7</span>) <span class="op">&amp;</span> <span class="number">1</span>
     }
 }
@@ -719,6 +744,7 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSTATE_INTERNED_IMMORTAL</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">2</span>;
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_IS_ASCII</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_IS_READY</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
@@ -727,11 +753,13 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_IS_COMPACT</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
     (<span class="kw-2">*</span>(<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyASCIIObject</span>)).<span class="ident">compact</span>()
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_IS_COMPACT_ASCII</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
     <span class="kw">if</span> (<span class="kw-2">*</span>(<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyASCIIObject</span>)).<span class="ident">ascii</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">PyUnicode_IS_COMPACT</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
         <span class="number">1</span>
@@ -749,21 +777,25 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PyUnicode_4BYTE_KIND</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">4</span>;
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_1BYTE_DATA</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_UCS1</span> {
     <span class="ident">PyUnicode_DATA</span>(<span class="ident">op</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_UCS1</span>
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_2BYTE_DATA</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_UCS2</span> {
     <span class="ident">PyUnicode_DATA</span>(<span class="ident">op</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_UCS2</span>
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_4BYTE_DATA</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_UCS4</span> {
     <span class="ident">PyUnicode_DATA</span>(<span class="ident">op</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_UCS4</span>
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_KIND</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_IS_READY</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
@@ -772,6 +804,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_PyUnicode_COMPACT_DATA</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span> {
     <span class="kw">if</span> <span class="ident">PyUnicode_IS_ASCII</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
         (<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyASCIIObject</span>).<span class="ident">offset</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>
@@ -781,6 +814,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_PyUnicode_NONCOMPACT_DATA</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span> {
     <span class="macro">debug_assert!</span>(<span class="op">!</span>(<span class="kw-2">*</span>(<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyUnicodeObject</span>)).<span class="ident">data</span>.<span class="ident">any</span>.<span class="ident">is_null</span>());
 
@@ -788,6 +822,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_DATA</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span> {
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
 
@@ -811,6 +846,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_IS_READY</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
     (<span class="kw-2">*</span>(<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyASCIIObject</span>)).<span class="ident">ready</span>()
 }
@@ -818,6 +854,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_12</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_10</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.10&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_READY</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
 
@@ -1086,6 +1123,7 @@
 <span class="comment">// skipped _PyUnicode_ScanIdentifier</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyString</span>;
@@ -1103,30 +1141,32 @@
             <span class="ident">wstr</span>: <span class="ident">std::ptr::null_mut</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wchar_t</span>,
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">interned</span>(), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">kind</span>(), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">compact</span>(), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ascii</span>(), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ready</span>(), <span class="number">0</span>);
+        <span class="kw">unsafe</span> {
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">interned</span>(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">kind</span>(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">compact</span>(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ascii</span>(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ready</span>(), <span class="number">0</span>);
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
-            <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">i</span>;
-            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">interned</span>(), <span class="ident">i</span>);
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
+                <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">i</span>;
+                <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">interned</span>(), <span class="ident">i</span>);
+            }
+
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
+                <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>;
+                <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">kind</span>(), <span class="ident">i</span>);
+            }
+
+            <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">compact</span>(), <span class="number">1</span>);
+
+            <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>;
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ascii</span>(), <span class="number">1</span>);
+
+            <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">7</span>;
+            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ready</span>(), <span class="number">1</span>);
         }
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>;
-            <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">kind</span>(), <span class="ident">i</span>);
-        }
-
-        <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">compact</span>(), <span class="number">1</span>);
-
-        <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ascii</span>(), <span class="number">1</span>);
-
-        <span class="ident">o</span>.<span class="ident">state</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">o</span>.<span class="ident">ready</span>(), <span class="number">1</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

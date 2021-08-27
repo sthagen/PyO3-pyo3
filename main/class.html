@@ -739,27 +739,64 @@ impl MyClass {
 <h2 id="callable-objects"><a class="header" href="#callable-objects">Callable objects</a></h2>
 <p>To specify a custom <code>__call__</code> method for a custom class, the method needs to be annotated with
 the <code>#[call]</code> attribute. Arguments of the method are specified as for instance methods.</p>
+<p>The following pyclass is a basic decorator - its constructor takes a Python object
+as argument and calls that object when called.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::prelude::*;
-</span>use pyo3::types::PyTuple;
-<span class="boring">#[pyclass]
-</span><span class="boring">struct MyClass {
-</span><span class="boring">    num: i32,
-</span><span class="boring">    debug: bool,
-</span><span class="boring">}
-</span>#[pymethods]
-impl MyClass {
+</span><span class="boring">use pyo3::types::{PyDict, PyTuple};
+</span><span class="boring">
+</span>#[pyclass(name = &quot;counter&quot;)]
+struct PyCounter {
+    count: u64,
+    wraps: Py&lt;PyAny&gt;,
+}
+
+#[pymethods]
+impl PyCounter {
+    #[new]
+    fn __new__(wraps: Py&lt;PyAny&gt;) -&gt; Self {
+        PyCounter { count: 0, wraps }
+    }
+
     #[call]
-    #[args(args=&quot;*&quot;)]
-    fn __call__(&amp;self, args: &amp;PyTuple) -&gt; PyResult&lt;i32&gt; {
-        println!(&quot;MyClass has been called&quot;);
-        Ok(self.num)
+    #[args(args = &quot;*&quot;, kwargs = &quot;**&quot;)]
+    fn __call__(
+        &amp;mut self,
+        py: Python,
+        args: &amp;PyTuple,
+        kwargs: Option&lt;&amp;PyDict&gt;,
+    ) -&gt; PyResult&lt;Py&lt;PyAny&gt;&gt; {
+        self.count += 1;
+        let name = self.wraps.getattr(py, &quot;__name__&quot;).unwrap();
+
+        println!(&quot;{} has been called {} time(s).&quot;, name, self.count);
+        self.wraps.call(py, args, kwargs)
     }
 }
 <span class="boring">}
 </span></code></pre></pre>
+<p>Python code:</p>
+<pre><code class="language-python">@counter
+def say_hello():
+    print(&quot;hello&quot;)
+
+say_hello()
+say_hello()
+say_hello()
+say_hello()
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">say_hello has been called 1 time(s).
+hello
+say_hello has been called 2 time(s).
+hello
+say_hello has been called 3 time(s).
+hello
+say_hello has been called 4 time(s).
+hello
+</code></pre>
 <h2 id="method-arguments"><a class="header" href="#method-arguments">Method arguments</a></h2>
 <p>By default, PyO3 uses function signatures to determine which arguments are required. Then it scans
 the incoming <code>args</code> and <code>kwargs</code> parameters. If it can not find all required

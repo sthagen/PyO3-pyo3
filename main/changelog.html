@@ -167,6 +167,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li><code>PySequence::get_slice</code> now returns <code>PyResult&lt;&amp;PySequence&gt;</code> instead of <code>PyResult&lt;&amp;PyAny&gt;</code>. <a href="https://github.com/PyO3/pyo3/pull/1829">#1829</a></li>
 <li>Deprecate <code>PyTuple::split_from</code>. <a href="https://github.com/PyO3/pyo3/pull/1804">#1804</a></li>
 <li>Deprecate <code>PyTuple::slice</code>, new method <code>PyTuple::get_slice</code> added with <code>usize</code> indices. <a href="https://github.com/PyO3/pyo3/pull/1828">#1828</a></li>
+<li>Mark <code>PyString::data</code> as <code>unsafe</code> and disable it and some supporting PyUnicode FFI APIs (which depend on a C bitfield) on big-endian targets. <a href="https://github.com/PyO3/pyo3/pull/1834">#1834</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0142v01430143a---2021-08-22"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0142v01430143a---2021-08-22"><a href="https://github.com/pyo3/pyo3/compare/v0.14.2...v0.14.3">0.14.3</a> - 2021-08-22</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
