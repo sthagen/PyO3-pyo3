@@ -27,6 +27,9 @@
 <span id="27">27</span>
 <span id="28">28</span>
 <span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::object::PyObject</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_double</span>, <span class="ident">c_int</span>};
 
@@ -46,6 +49,9 @@
         <span class="ident">_type</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>;
 }
+
+<span class="comment">// skipped non-limited _Py_string_to_number_with_underscores</span>
+<span class="comment">// skipped non-limited _Py_parse_inf_or_nan</span>
 
 <span class="comment">/* PyOS_double_to_string&#39;s &quot;flags&quot; parameter can be set to 0 or more of: */</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_DTSF_SIGN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x01</span>; <span class="comment">/* always add the sign */</span>

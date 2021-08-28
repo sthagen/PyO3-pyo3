@@ -175,7 +175,7 @@ Python::with_gil(|py| {
 </span></code></pre></pre>
 <h2 id="from-013-to-014"><a class="header" href="#from-013-to-014">from 0.13.* to 0.14</a></h2>
 <h3 id="auto-initialize-feature-is-now-opt-in"><a class="header" href="#auto-initialize-feature-is-now-opt-in"><code>auto-initialize</code> feature is now opt-in</a></h3>
-<p>For projects embedding Python in Rust, PyO3 no longer automatically initalizes a Python interpreter on the first call to <code>Python::with_gil</code> (or <code>Python::acquire_gil</code>) unless the <a href="features.html#auto-initalize"><code>auto-initalize</code> feature</a> is enabled.</p>
+<p>For projects embedding Python in Rust, PyO3 no longer automatically initializes a Python interpreter on the first call to <code>Python::with_gil</code> (or <code>Python::acquire_gil</code>) unless the <a href="features.html#auto-initialize"><code>auto-initialize</code> feature</a> is enabled.</p>
 <h3 id="new-multiple-pymethods-feature"><a class="header" href="#new-multiple-pymethods-feature">New <code>multiple-pymethods</code> feature</a></h3>
 <p><code>#[pymethods]</code> have been reworked with a simpler default implementation which removes the dependency on the <code>inventory</code> crate. This reduces dependencies and compile times for the majority of users.</p>
 <p>The limitation of the new default implementation is that it cannot support multiple <code>#[pymethods]</code> blocks for the same <code>#[pyclass]</code>. If you need this functionality, you must enable the <code>multiple-pymethods</code> feature which will switch <code>#[pymethods]</code> to the inventory-based implementation.</p>
@@ -228,7 +228,7 @@ impl MyClass {
 <h2 id="from-011-to-012"><a class="header" href="#from-011-to-012">from 0.11.* to 0.12</a></h2>
 <h3 id="pyerr-has-been-reworked"><a class="header" href="#pyerr-has-been-reworked"><code>PyErr</code> has been reworked</a></h3>
 <p>In PyO3 <code>0.12</code> the <code>PyErr</code> type has been re-implemented to be significantly more compatible with
-the standard Rust error handling ecosystem. Specificially <code>PyErr</code> now implements
+the standard Rust error handling ecosystem. Specifically <code>PyErr</code> now implements
 <code>Error + Send + Sync</code>, which are the standard traits used for error types.</p>
 <p>While this has necessitated the removal of a number of APIs, the resulting <code>PyErr</code> type should now
 be much more easier to work with. The following sections list the changes in detail and how to
@@ -240,7 +240,7 @@ not <code>Send + Sync</code>, you will need to first create the Python object an
 <p>Similarly, any types which implemented <code>PyErrArguments</code> will now need to be <code>Send + Sync</code>.</p>
 <h4 id="pyerrs-contents-are-now-private"><a class="header" href="#pyerrs-contents-are-now-private"><code>PyErr</code>'s contents are now private</a></h4>
 <p>It is no longer possible to access the fields <code>.ptype</code>, <code>.pvalue</code> and <code>.ptraceback</code> of a <code>PyErr</code>.
-You should instead now use the new methods <code>PyErr::ptype()</code>, <code>PyErr::pvalue()</code> and <code>PyErr::ptraceback()</code>.</p>
+You should instead now use the new methods <code>PyErr::ptype</code>, <code>PyErr::pvalue</code> and <code>PyErr::ptraceback</code>.</p>
 <h4 id="pyerrvalue-and-pyerrfrom_value-have-been-removed"><a class="header" href="#pyerrvalue-and-pyerrfrom_value-have-been-removed"><code>PyErrValue</code> and <code>PyErr::from_value</code> have been removed</a></h4>
 <p>As these were part the internals of <code>PyErr</code> which have been reworked, these APIs no longer exist.</p>
 <p>If you used this API, it is recommended to use <code>PyException::new_err</code> (see <a href="#exception-types-have-been-reworked">the section on

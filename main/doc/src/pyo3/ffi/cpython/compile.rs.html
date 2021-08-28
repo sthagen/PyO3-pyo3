@@ -72,11 +72,28 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::object::PyObject</span>;
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::object::PyObject</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::pyarena</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::pythonrun</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::PyCodeObject</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+<span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
+<span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
 <span class="comment">// skipped non-limited PyCF_MASK</span>
 <span class="comment">// skipped non-limited PyCF_MASK_OBSOLETE</span>
@@ -110,8 +127,10 @@
 <span class="comment">// skipped non-limited FUTURE_ANNOTATIONS</span>
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyNode_Compile</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_node</span>, <span class="ident">arg2</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyAST_CompileEx</span>(
         <span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_mod</span>,
         <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
@@ -120,6 +139,7 @@
         <span class="ident">arena</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyArena</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyAST_CompileObject</span>(
         <span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_mod</span>,
         <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
@@ -128,8 +148,10 @@
         <span class="ident">arena</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyArena</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFuture_FromAST</span>(<span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_mod</span>, <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFutureFeatures</span>;
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFuture_FromASTObject</span>(
         <span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_mod</span>,
         <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
