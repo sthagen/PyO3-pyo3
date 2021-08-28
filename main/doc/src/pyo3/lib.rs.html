@@ -539,6 +539,9 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
 
@@ -899,11 +902,13 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">wrap_pyfunction</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">function_name</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
-        <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">py</span><span class="op">|</span> <span class="macro">pyo3::paste::expr!</span> { [<span class="op">&lt;</span><span class="ident">__pyo3_get_function_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">function_name</span><span class="op">&gt;</span>] }(<span class="ident">py</span>)
+        <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">py</span><span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro">crate::paste::expr!</span> { [<span class="op">&lt;</span><span class="macro-nonterminal">__pyo3_get_function_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">function_name</span><span class="op">&gt;</span>] }(<span class="ident">py</span>)
     }};
 
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">function_name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">pyo3::wrap_pyfunction!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">function_name</span>)(<span class="ident">pyo3::derive_utils::PyFunctionArguments::from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>))
+        <span class="macro-nonterminal">$</span><span class="macro">crate::wrap_pyfunction!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">function_name</span>)(
+            <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::derive_utils::PyFunctionArguments</span> <span class="kw">as</span> <span class="ident">::std::convert::From</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>),
+        )
     };
 }
 
@@ -913,8 +918,8 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">wrap_pymodule</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module_name</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
-        <span class="macro">pyo3::paste::expr!</span> {
-            <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">py</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">pyo3::PyObject::from_owned_ptr</span>(<span class="ident">py</span>, [<span class="op">&lt;</span><span class="ident">PyInit_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module_name</span><span class="op">&gt;</span>]()) }
+        <span class="macro-nonterminal">$</span><span class="macro">crate::paste::expr!</span> {
+            <span class="kw-2">&amp;</span><span class="op">|</span><span class="macro-nonterminal">py</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyObject::from_owned_ptr</span>(<span class="ident">py</span>, [<span class="op">&lt;</span><span class="ident">PyInit_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module_name</span><span class="op">&gt;</span>]()) }
         }
     }};
 }
@@ -1020,14 +1025,15 @@
         <span class="macro-nonterminal">$</span><span class="macro">crate::py_run_impl!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>, <span class="kw-2">*</span><span class="ident">d</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>)
     }};
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>:<span class="ident">expr</span>, <span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">dict</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>.<span class="ident">run</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">dict</span>)) {
+        <span class="kw">use</span> <span class="ident">::std::option::Option</span>::<span class="kw-2">*</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">::std::result::Result::Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>.<span class="ident">run</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">dict</span>)) {
             <span class="ident">e</span>.<span class="ident">print</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>);
             <span class="comment">// So when this c api function the last line called printed the error to stderr,</span>
             <span class="comment">// the output is only written into a buffer which is never flushed because we</span>
             <span class="comment">// panic before flushing. This is where this hack comes into place</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>.<span class="ident">run</span>(<span class="string">&quot;import sys; sys.stderr.flush()&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
                 .<span class="ident">unwrap</span>();
-            <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>)
+            <span class="macro">::std::panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>)
         }
     }};
 }

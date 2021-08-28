@@ -112,6 +112,10 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">err::PyErrArguments</span>, <span class="ident">exceptions</span>, <span class="ident">IntoPy</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::io</span>;
 
@@ -132,6 +136,8 @@
             <span class="ident">io::ErrorKind::ConnectionReset</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyConnectionResetError::new_err</span>(<span class="ident">err</span>),
             <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyInterruptedError::new_err</span>(<span class="ident">err</span>),
             <span class="ident">io::ErrorKind::NotFound</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyFileNotFoundError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::PermissionDenied</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyPermissionError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::AlreadyExists</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyFileExistsError::new_err</span>(<span class="ident">err</span>),
             <span class="ident">io::ErrorKind::WouldBlock</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyBlockingIOError::new_err</span>(<span class="ident">err</span>),
             <span class="ident">io::ErrorKind::TimedOut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyTimeoutError::new_err</span>(<span class="ident">err</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyOSError::new_err</span>(<span class="ident">err</span>),
@@ -222,6 +228,8 @@
         <span class="ident">check_err</span>(<span class="ident">io::ErrorKind::ConnectionReset</span>, <span class="string">&quot;ConnectionResetError&quot;</span>);
         <span class="ident">check_err</span>(<span class="ident">io::ErrorKind::Interrupted</span>, <span class="string">&quot;InterruptedError&quot;</span>);
         <span class="ident">check_err</span>(<span class="ident">io::ErrorKind::NotFound</span>, <span class="string">&quot;FileNotFoundError&quot;</span>);
+        <span class="ident">check_err</span>(<span class="ident">io::ErrorKind::PermissionDenied</span>, <span class="string">&quot;PermissionError&quot;</span>);
+        <span class="ident">check_err</span>(<span class="ident">io::ErrorKind::AlreadyExists</span>, <span class="string">&quot;FileExistsError&quot;</span>);
         <span class="ident">check_err</span>(<span class="ident">io::ErrorKind::WouldBlock</span>, <span class="string">&quot;BlockingIOError&quot;</span>);
         <span class="ident">check_err</span>(<span class="ident">io::ErrorKind::TimedOut</span>, <span class="string">&quot;TimeoutError&quot;</span>);
     }
