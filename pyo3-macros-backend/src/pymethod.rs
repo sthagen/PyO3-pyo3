@@ -3,7 +3,7 @@
 use std::borrow::Cow;
 
 use crate::attributes::NameAttribute;
-use crate::utils::ensure_not_async_fn;
+use crate::utils::{ensure_not_async_fn, PythonDoc};
 use crate::{deprecations::Deprecations, utils};
 use crate::{
     method::{FnArg, FnSpec, FnType, SelfType},
@@ -36,12 +36,12 @@ pub fn gen_py_method(
         FnType::FnClass => GeneratedPyMethod::Method(impl_py_method_def(
             cls,
             &spec,
-            Some(quote!(pyo3::ffi::METH_CLASS)),
+            Some(quote!(::pyo3::ffi::METH_CLASS)),
         )?),
         FnType::FnStatic => GeneratedPyMethod::Method(impl_py_method_def(
             cls,
             &spec,
-            Some(quote!(pyo3::ffi::METH_STATIC)),
+            Some(quote!(::pyo3::ffi::METH_STATIC)),
         )?),
         // special prototypes
         FnType::FnNew => GeneratedPyMethod::New(impl_py_method_def_new(cls, &spec)?),
@@ -111,8 +111,8 @@ fn impl_py_method_def_new(cls: &syn::Type, spec: &FnSpec) -> Result<TokenStream>
     let wrapper = spec.get_wrapper_function(&wrapper_ident, Some(cls))?;
     Ok(quote! {
         impl ::pyo3::class::impl_::PyClassNewImpl<#cls> for ::pyo3::class::impl_::PyClassImplCollector<#cls> {
-            fn new_impl(self) -> Option<pyo3::ffi::newfunc> {
-                Some({
+            fn new_impl(self) -> ::std::option::Option<::pyo3::ffi::newfunc> {
+                ::std::option::Option::Some({
                     #wrapper
                     #wrapper_ident
                 })
@@ -126,8 +126,8 @@ fn impl_py_method_def_call(cls: &syn::Type, spec: &FnSpec) -> Result<TokenStream
     let wrapper = spec.get_wrapper_function(&wrapper_ident, Some(cls))?;
     Ok(quote! {
         impl ::pyo3::class::impl_::PyClassCallImpl<#cls> for ::pyo3::class::impl_::PyClassImplCollector<#cls> {
-            fn call_impl(self) -> Option<pyo3::ffi::PyCFunctionWithKeywords> {
-                Some({
+            fn call_impl(self) -> ::std::option::Option<::pyo3::ffi::PyCFunctionWithKeywords> {
+                ::std::option::Option::Some({
                     #wrapper
                     #wrapper_ident
                 })
@@ -355,12 +355,10 @@ impl PropertyType<'_> {
         }
     }
 
-    fn doc(&self) -> Cow<syn::LitStr> {
+    fn doc(&self) -> Cow<PythonDoc> {
         match self {
             PropertyType::Descriptor { field, .. } => {
-                let doc = utils::get_doc(&field.attrs, None)
-                    .unwrap_or_else(|_| syn::LitStr::new("", Span::call_site()));
-                Cow::Owned(doc)
+                Cow::Owned(utils::get_doc(&field.attrs, None))
             }
             PropertyType::Function { spec, .. } => Cow::Borrowed(&spec.doc),
         }

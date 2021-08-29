@@ -4,7 +4,7 @@ use crate::attributes::TextSignatureAttribute;
 use crate::params::{accept_args_kwargs, impl_arg_params};
 use crate::pyfunction::PyFunctionOptions;
 use crate::pyfunction::{PyFunctionArgPyO3Attributes, PyFunctionSignature};
-use crate::utils;
+use crate::utils::{self, PythonDoc};
 use crate::{deprecations::Deprecations, pyfunction::Argument};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
@@ -202,7 +202,7 @@ pub struct FnSpec<'a> {
     pub attrs: Vec<Argument>,
     pub args: Vec<FnArg<'a>>,
     pub output: syn::Type,
-    pub doc: syn::LitStr,
+    pub doc: PythonDoc,
     pub deprecations: Deprecations,
     pub convention: CallingConvention,
 }
@@ -271,7 +271,7 @@ impl<'a> FnSpec<'a> {
                 .text_signature
                 .as_ref()
                 .map(|attr| (&python_name, attr)),
-        )?;
+        );
 
         let arguments: Vec<_> = if skip_first_arg {
             sig.inputs
@@ -484,11 +484,10 @@ impl<'a> FnSpec<'a> {
                         #deprecations
                         ::pyo3::callback::handle_panic(|#py| {
                             #self_conversion
-                            use ::std::option::Option;
-                            let _kwnames: Option<&::pyo3::types::PyTuple> = #py.from_borrowed_ptr_or_opt(_kwnames);
+                            let _kwnames: ::std::option::Option<&::pyo3::types::PyTuple> = #py.from_borrowed_ptr_or_opt(_kwnames);
                             // Safety: &PyAny has the same memory layout as `*mut ffi::PyObject`
                             let _args = _args as *const &::pyo3::PyAny;
-                            let _kwargs = if let Option::Some(kwnames) = _kwnames {
+                            let _kwargs = if let ::std::option::Option::Some(kwnames) = _kwnames {
                                 ::std::slice::from_raw_parts(_args.offset(_nargs), kwnames.len())
                             } else {
                                 &[]
@@ -537,7 +536,7 @@ impl<'a> FnSpec<'a> {
                             let result = #arg_convert_and_rust_call;
                             let initializer: ::pyo3::PyClassInitializer::<#cls> = result.convert(#py)?;
                             let cell = initializer.create_cell_from_subtype(#py, subtype)?;
-                            Ok(cell as *mut ::pyo3::ffi::PyObject)
+                            ::std::result::Result::Ok(cell as *mut ::pyo3::ffi::PyObject)
                         })
                     }
                 }
@@ -602,8 +601,8 @@ fn parse_method_attributes(
     }
 
     for attr in attrs.drain(..) {
-        match attr.parse_meta()? {
-            syn::Meta::Path(name) => {
+        match attr.parse_meta() {
+            Ok(syn::Meta::Path(name)) => {
                 if name.is_ident("new") || name.is_ident("__new__") {
                     set_ty!(MethodTypeAttribute::New, name);
                 } else if name.is_ident("init") || name.is_ident("__init__") {
@@ -631,9 +630,9 @@ fn parse_method_attributes(
                     new_attrs.push(attr)
                 }
             }
-            syn::Meta::List(syn::MetaList {
+            Ok(syn::Meta::List(syn::MetaList {
                 path, mut nested, ..
-            }) => {
+            })) => {
                 if path.is_ident("new") {
                     set_ty!(MethodTypeAttribute::New, path);
                 } else if path.is_ident("init") {
@@ -689,7 +688,7 @@ fn parse_method_attributes(
                     new_attrs.push(attr)
                 }
             }
-            syn::Meta::NameValue(_) => new_attrs.push(attr),
+            Ok(syn::Meta::NameValue(_)) | Err(_) => new_attrs.push(attr),
         }
     }
 
