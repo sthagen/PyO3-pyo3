@@ -512,7 +512,7 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_exception_boilerplate</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErr</span> {
+        <span class="kw">impl</span> <span class="ident">::std::convert::From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErr</span> {
             <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErr</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErr::from_instance</span>(<span class="ident">err</span>)
             }
@@ -522,21 +522,21 @@
             <span class="doccomment">/// Creates a new [PyErr](crate::PyErr) of this type.</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_err</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErr</span>
             <span class="kw">where</span>
-                <span class="ident">A</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErrArguments</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+                <span class="ident">A</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErrArguments</span> <span class="op">+</span> <span class="ident">::std::marker::Send</span> <span class="op">+</span> <span class="ident">::std::marker::Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
             {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErr::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">args</span>)
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
+        <span class="kw">impl</span> <span class="ident">::std::error::Error</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">::std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
                 <span class="kw">unsafe</span> {
                     <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::AsPyPointer</span>;
                     <span class="kw">let</span> <span class="ident">cause</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::exceptions::PyBaseException</span> <span class="op">=</span> <span class="self">self</span>
                         .<span class="ident">py</span>()
                         .<span class="ident">from_owned_ptr_or_opt</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyException_GetCause</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()))<span class="question-mark">?</span>;
 
-                    <span class="prelude-val">Some</span>(<span class="ident">cause</span>)
+                    <span class="ident">::std::option::Option::Some</span>(<span class="ident">cause</span>)
                 }
             }
         }
@@ -580,7 +580,7 @@
         <span class="macro-nonterminal">$</span><span class="macro">crate::pyobject_native_type_core!</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
             <span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name::type_object_raw</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Python::assume_gil_acquired</span>()),
-            #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
+            #<span class="ident">module</span><span class="op">=</span><span class="ident">::std::option::Option::Some</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
         );
 
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
@@ -665,7 +665,7 @@
         <span class="macro-nonterminal">$</span><span class="macro">crate::pyobject_native_type_core!</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
             <span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name::type_object_raw</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Python::assume_gil_acquired</span>()),
-            #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
+            #<span class="ident">module</span><span class="op">=</span><span class="ident">::std::option::Option::Some</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
         );
 
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
@@ -682,8 +682,8 @@
                             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyErr::new_type</span>(
                                 <span class="ident">py</span>,
                                 <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>), <span class="string">&quot;.&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)),
-                                <span class="prelude-val">Some</span>(<span class="ident">py</span>.<span class="ident">get_type</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span><span class="op">&gt;</span>()),
-                                <span class="prelude-val">None</span>,
+                                <span class="ident">::std::option::Option::Some</span>(<span class="ident">py</span>.<span class="ident">get_type</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span><span class="op">&gt;</span>()),
+                                <span class="ident">::std::option::Option::None</span>,
                             )
                             .<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyObject</span>,
                         )
@@ -700,10 +700,10 @@
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyAny</span>);
 
         <span class="macro-nonterminal">$</span><span class="macro">crate::impl_exception_boilerplate!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>);
-        <span class="macro-nonterminal">$</span><span class="macro">crate::pyobject_native_type!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>, <span class="kw-2">*</span>(<span class="ident">ffi</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyTypeObject</span>));
+        <span class="macro-nonterminal">$</span><span class="macro">crate::pyobject_native_type!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>, <span class="kw-2">*</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyTypeObject</span>));
     );
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> (
-        <span class="macro">impl_native_exception!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span>, <span class="ident">ffi::PyBaseExceptionObject</span>);
+        <span class="macro">impl_native_exception!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exc_name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyBaseExceptionObject</span>);
     )
 );
 

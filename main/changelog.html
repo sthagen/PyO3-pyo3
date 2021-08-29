@@ -152,6 +152,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <h3 id="added"><a class="header" href="#added">Added</a></h3>
 <ul>
 <li>Add <code>PyList::get_item_unchecked</code> and <code>PyTuple::get_item_unchecked</code> to get items without bounds checks. <a href="https://github.com/PyO3/pyo3/pull/1733">#1733</a></li>
+<li>Support <code>#[doc = include_str!(...)]</code> attributes on Rust 1.54 and up. <a href="https://github.com/PyO3/pyo3/issues/1746">#1746</a></li>
 <li>Add <code>PyAny::py</code> as a convenience for <code>PyNativeType::py</code>. <a href="https://github.com/PyO3/pyo3/pull/1751">#1751</a></li>
 <li>Add implementation of <code>std::ops::Index&lt;usize&gt;</code> for <code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>. <a href="https://github.com/PyO3/pyo3/pull/1825">#1825</a></li>
 <li>Add range indexing implementations of <code>std::ops::Index</code> for <code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>. <a href="https://github.com/PyO3/pyo3/pull/1829">#1829</a></li>
