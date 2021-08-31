@@ -456,6 +456,9 @@
 <span id="456">456</span>
 <span id="457">457</span>
 <span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -735,8 +738,10 @@
 <span class="kw">mod</span> <span class="ident">test_128bit_intergers</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
     <span class="kw">use</span> <span class="ident">proptest::prelude</span>::<span class="kw-2">*</span>;
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
     <span class="macro">proptest!</span> {
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">test_i128_roundtrip</span>(<span class="ident">x</span>: <span class="ident">i128</span>) {
@@ -749,6 +754,7 @@
         }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
     <span class="macro">proptest!</span> {
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">test_u128_roundtrip</span>(<span class="ident">x</span>: <span class="ident">u128</span>) {

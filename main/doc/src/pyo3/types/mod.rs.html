@@ -257,7 +257,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::sequence::PySequence</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::set</span>::{<span class="ident">PyFrozenSet</span>, <span class="ident">PySet</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::slice</span>::{<span class="ident">PySlice</span>, <span class="ident">PySliceIndices</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::string::PyStringData</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::string</span>::{<span class="ident">PyString</span>, <span class="ident">PyString</span> <span class="kw">as</span> <span class="ident">PyUnicode</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::tuple::PyTuple</span>;

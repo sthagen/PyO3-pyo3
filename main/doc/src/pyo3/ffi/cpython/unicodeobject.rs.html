@@ -622,10 +622,7 @@
 <span id="622">622</span>
 <span id="623">623</span>
 <span id="624">624</span>
-<span id="625">625</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
-    <span class="ident">PyObject</span>, <span class="ident">PyUnicode_Check</span>, <span class="ident">Py_UCS1</span>, <span class="ident">Py_UCS2</span>, <span class="ident">Py_UCS4</span>, <span class="ident">Py_UNICODE</span>, <span class="ident">Py_hash_t</span>, <span class="ident">Py_ssize_t</span>,
-};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="ident">PyObject</span>, <span class="ident">Py_UCS1</span>, <span class="ident">Py_UCS2</span>, <span class="ident">Py_UCS4</span>, <span class="ident">Py_UNICODE</span>, <span class="ident">Py_hash_t</span>, <span class="ident">Py_ssize_t</span>};
 <span class="kw">use</span> <span class="ident">libc::wchar_t</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_uint</span>, <span class="ident">c_void</span>};
 
@@ -746,7 +743,7 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_IS_ASCII</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident"><span class="kw">crate</span>::ffi::PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_IS_READY</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
 
     (<span class="kw-2">*</span>(<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyASCIIObject</span>)).<span class="ident">ascii</span>()
@@ -797,7 +794,7 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_KIND</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_uint</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident"><span class="kw">crate</span>::ffi::PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_IS_READY</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
 
     (<span class="kw-2">*</span>(<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyASCIIObject</span>)).<span class="ident">kind</span>()
@@ -824,7 +821,7 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_DATA</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident"><span class="kw">crate</span>::ffi::PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
 
     <span class="kw">if</span> <span class="ident">PyUnicode_IS_COMPACT</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
         <span class="ident">_PyUnicode_COMPACT_DATA</span>(<span class="ident">op</span>)
@@ -838,8 +835,9 @@
 <span class="comment">// skipped PyUnicode_READ_CHAR</span>
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_GET_LENGTH</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_ssize_t</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident"><span class="kw">crate</span>::ffi::PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_IS_READY</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
 
     (<span class="kw-2">*</span>(<span class="ident">op</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyASCIIObject</span>)).<span class="ident">length</span>
@@ -856,7 +854,7 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyUnicode_READY</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident"><span class="kw">crate</span>::ffi::PyUnicode_Check</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
 
     <span class="kw">if</span> <span class="ident">PyUnicode_IS_READY</span>(<span class="ident">op</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
         <span class="number">0</span>
