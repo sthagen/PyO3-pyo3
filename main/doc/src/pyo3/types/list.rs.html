@@ -584,6 +584,139 @@
 <span id="584">584</span>
 <span id="585">585</span>
 <span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -591,8 +724,10 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="self">self</span>, <span class="ident">Py_ssize_t</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::internal_tricks::get_ssize_index</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PySequence</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
+    <span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>,
+    <span class="ident">ToPyObject</span>,
 };
 
 <span class="doccomment">/// Represents a Python `list`.</span>
@@ -718,6 +853,40 @@
         }
     }
 
+    <span class="doccomment">/// Deletes the `index`th element of self.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `del self[i]`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">del_item</span>(<span class="ident">index</span>) }
+    }
+
+    <span class="doccomment">/// Assigns the sequence `seq` to the slice of `self` from `low` to `high`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `self[low:high] = v`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">low</span>: <span class="ident">usize</span>, <span class="ident">high</span>: <span class="ident">usize</span>, <span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="self">self</span>.<span class="ident">py</span>(),
+                <span class="ident">ffi::PyList_SetSlice</span>(
+                    <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                    <span class="ident">get_ssize_index</span>(<span class="ident">low</span>),
+                    <span class="ident">get_ssize_index</span>(<span class="ident">high</span>),
+                    <span class="ident">seq</span>.<span class="ident">as_ptr</span>(),
+                ),
+            )
+        }
+    }
+
+    <span class="doccomment">/// Deletes the slice from `low` to `high` from `self`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python statement `del self[low:high]`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">low</span>: <span class="ident">usize</span>, <span class="ident">high</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">del_slice</span>(<span class="ident">low</span>, <span class="ident">high</span>) }
+    }
+
     <span class="doccomment">/// Appends an item to the list.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">item</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -741,6 +910,28 @@
                 <span class="ident">ffi::PyList_Insert</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">get_ssize_index</span>(<span class="ident">index</span>), <span class="ident">item</span>),
             )
         })
+    }
+
+    <span class="doccomment">/// Determines if self contains `value`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `value in self`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+    {
+        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">contains</span>(<span class="ident">value</span>) }
+    }
+
+    <span class="doccomment">/// Returns the first index `i` for which `self[i] == value`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.index(value)`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+    {
+        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">index</span>(<span class="ident">value</span>) }
     }
 
     <span class="doccomment">/// Returns an iterator over this list&#39;s items.</span>
@@ -1168,6 +1359,81 @@
             <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>]);
             <span class="ident">list</span>[<span class="number">8</span>..].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
         })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_list_del_item</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]);
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">10</span>).<span class="ident">is_err</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">list</span>[<span class="number">0</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">0</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">list</span>[<span class="number">0</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">0</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">list</span>[<span class="number">0</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">0</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">list</span>[<span class="number">0</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">0</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="ident">list</span>[<span class="number">0</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">0</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">8</span>, <span class="ident">list</span>[<span class="number">0</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">0</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">list</span>.<span class="ident">len</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">del_item</span>(<span class="number">0</span>).<span class="ident">is_err</span>());
+        });
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_list_set_slice</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]);
+            <span class="kw">let</span> <span class="ident">ins</span> <span class="op">=</span> <span class="ident">PyList::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">7</span>, <span class="number">4</span>]);
+            <span class="ident">list</span>.<span class="ident">set_slice</span>(<span class="number">1</span>, <span class="number">4</span>, <span class="ident">ins</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert_eq!</span>([<span class="number">1</span>, <span class="number">7</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">8</span>], <span class="ident">list</span>.<span class="ident">extract</span>::<span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">5</span>]<span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="ident">list</span>.<span class="ident">set_slice</span>(<span class="number">3</span>, <span class="number">100</span>, <span class="ident">PyList::empty</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
+            <span class="macro">assert_eq!</span>([<span class="number">1</span>, <span class="number">7</span>, <span class="number">4</span>], <span class="ident">list</span>.<span class="ident">extract</span>::<span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">3</span>]<span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+        });
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_list_del_slice</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]);
+            <span class="ident">list</span>.<span class="ident">del_slice</span>(<span class="number">1</span>, <span class="number">4</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert_eq!</span>([<span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>], <span class="ident">list</span>.<span class="ident">extract</span>::<span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">3</span>]<span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="ident">list</span>.<span class="ident">del_slice</span>(<span class="number">1</span>, <span class="number">100</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert_eq!</span>([<span class="number">1</span>], <span class="ident">list</span>.<span class="ident">extract</span>::<span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">1</span>]<span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+        });
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_list_contains</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]);
+            <span class="macro">assert_eq!</span>(<span class="number">6</span>, <span class="ident">list</span>.<span class="ident">len</span>());
+
+            <span class="kw">let</span> <span class="ident">bad_needle</span> <span class="op">=</span> <span class="number">7i32</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">bad_needle</span>).<span class="ident">unwrap</span>());
+
+            <span class="kw">let</span> <span class="ident">good_needle</span> <span class="op">=</span> <span class="number">8i32</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">good_needle</span>).<span class="ident">unwrap</span>());
+
+            <span class="kw">let</span> <span class="ident">type_coerced_needle</span> <span class="op">=</span> <span class="number">8f32</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">type_coerced_needle</span>).<span class="ident">unwrap</span>());
+        });
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_list_index</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">PyList::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]);
+            <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">list</span>.<span class="ident">index</span>(<span class="number">1i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">list</span>.<span class="ident">index</span>(<span class="number">2i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">list</span>.<span class="ident">index</span>(<span class="number">3i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">list</span>.<span class="ident">index</span>(<span class="number">5i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="ident">list</span>.<span class="ident">index</span>(<span class="number">8i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">index</span>(<span class="number">42i32</span>).<span class="ident">is_err</span>());
+        });
     }
 }
 </code></pre></div>

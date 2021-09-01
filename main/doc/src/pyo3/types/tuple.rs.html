@@ -636,13 +636,69 @@
 <span id="636">636</span>
 <span id="637">637</span>
 <span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="self">self</span>, <span class="ident">Py_ssize_t</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::internal_tricks::get_ssize_index</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PySequence</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>,
-    <span class="ident">PyResult</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
+    <span class="ident">PyResult</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
 };
 
 <span class="doccomment">/// Represents a Python `tuple` object.</span>
@@ -780,6 +836,28 @@
             <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="ident">std::slice::from_raw_parts</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">ob_item</span>.<span class="ident">as_ptr</span>(), <span class="self">self</span>.<span class="ident">len</span>());
             <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="ident">slice</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>] <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="kw-2">&amp;</span><span class="ident">PyAny</span>])
         }
+    }
+
+    <span class="doccomment">/// Determines if self contains `value`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `value in self`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+    {
+        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">contains</span>(<span class="ident">value</span>) }
+    }
+
+    <span class="doccomment">/// Returns the first index `i` for which `self[i] == value`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `self.index(value)`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+    {
+        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">index</span>(<span class="ident">value</span>) }
     }
 
     <span class="doccomment">/// Returns an iterator over the tuple items.</span>
@@ -1272,6 +1350,38 @@
             <span class="kw">let</span> <span class="ident">tuple</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyTuple</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
             <span class="ident">tuple</span>[<span class="number">8</span>..].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
         })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_tuple_contains</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">ob</span> <span class="op">=</span> (<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>).<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">tuple</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyTuple</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
+            <span class="macro">assert_eq!</span>(<span class="number">6</span>, <span class="ident">tuple</span>.<span class="ident">len</span>());
+
+            <span class="kw">let</span> <span class="ident">bad_needle</span> <span class="op">=</span> <span class="number">7i32</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">tuple</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">bad_needle</span>).<span class="ident">unwrap</span>());
+
+            <span class="kw">let</span> <span class="ident">good_needle</span> <span class="op">=</span> <span class="number">8i32</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">tuple</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">good_needle</span>).<span class="ident">unwrap</span>());
+
+            <span class="kw">let</span> <span class="ident">type_coerced_needle</span> <span class="op">=</span> <span class="number">8f32</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">tuple</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">type_coerced_needle</span>).<span class="ident">unwrap</span>());
+        });
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_tuple_index</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">ob</span> <span class="op">=</span> (<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>).<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">tuple</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyTuple</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
+            <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">tuple</span>.<span class="ident">index</span>(<span class="number">1i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">tuple</span>.<span class="ident">index</span>(<span class="number">2i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">tuple</span>.<span class="ident">index</span>(<span class="number">3i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">tuple</span>.<span class="ident">index</span>(<span class="number">5i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="ident">tuple</span>.<span class="ident">index</span>(<span class="number">8i32</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">tuple</span>.<span class="ident">index</span>(<span class="number">42i32</span>).<span class="ident">is_err</span>());
+        });
     }
 }
 </code></pre></div>
