@@ -176,10 +176,22 @@ jobs:
       - name: Build (no features)
         run: cargo build --lib --tests --no-default-features
 
+      # --no-default-features when used with `cargo build/test -p` doesn't seem to work!
+      - name: Build pyo3-build-config (no features)
+        run: |
+          cd pyo3-build-config
+          cargo build --no-default-features
+
       # Run tests (except on PyPy, because no embedding API).
       - if: ${{ !startsWith(matrix.python-version, 'pypy') }}
         name: Test (no features)
         run: cargo test --no-default-features
+
+      # --no-default-features when used with `cargo build/test -p` doesn't seem to work!
+      - name: Test pyo3-build-config (no features)
+        run: |
+          cd pyo3-build-config
+          cargo test --no-default-features
 
       - name: Build (all additive features)
         run: cargo build --lib --tests --no-default-features --features "${{ steps.settings.outputs.all_additive_features }}"
@@ -244,11 +256,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
-          # NB: doesn't include target dir so that the coverage stats are fresh
-          # each run.
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            target
           key: coverage-cargo-${{ hashFiles('**/Cargo.toml') }}
         continue-on-error: true
       - name: install cargo-llvm-cov
@@ -256,7 +267,7 @@ jobs:
           wget https://github.com/taiki-e/cargo-llvm-cov/releases/download/v${CARGO_LLVM_COV_VERSION}/cargo-llvm-cov-x86_64-unknown-linux-gnu.tar.gz -qO- | tar -xzvf -
           mv cargo-llvm-cov ~/.cargo/bin
         env:
-          CARGO_LLVM_COV_VERSION: 0.1.0
+          CARGO_LLVM_COV_VERSION: 0.1.5
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -264,6 +275,7 @@ jobs:
           profile: minimal
           components: llvm-tools-preview
       - run: |
+          cargo llvm-cov clean --workspace
           cargo llvm-cov --package $ALL_PACKAGES --no-report
           cargo llvm-cov --package $ALL_PACKAGES --no-report --features abi3
           cargo llvm-cov --package $ALL_PACKAGES --no-report --features macros num-bigint num-complex hashbrown indexmap serde multiple-pymethods
