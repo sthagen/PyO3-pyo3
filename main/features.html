@@ -188,6 +188,12 @@
 <li><code>FromPyObject</code> for <code>Vec</code> and <code>[T;N]</code> can perform a <code>memcpy</code> when the object supports the Python buffer protocol.</li>
 <li><code>ToBorrowedObject</code> can skip a reference count increase when the provided object is a Python native type.</li>
 </ul>
+<h3 id="resolve-config"><a class="header" href="#resolve-config"><code>resolve-config</code></a></h3>
+<p>The <code>resolve-config</code> feature of the <code>pyo3-build-config</code> crate controls whether that crate's
+build script automatically resolves a Python interpreter / build configuration. Disabling
+this feature enables this crate to be used in <em>library mode</em>. This may be desirable for
+use cases where you want to read or write PyO3 build configuration files or resolve
+metadata about a Python interpreter.</p>
 <h2 id="optional-dependencies"><a class="header" href="#optional-dependencies">Optional Dependencies</a></h2>
 <p>These features enable conversions between Python types and types from other Rust crates, enabling easy access to the rest of the Rust ecosystem.</p>
 <h3 id="hashbrown"><a class="header" href="#hashbrown"><code>hashbrown</code></a></h3>

@@ -189,7 +189,7 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies.pyo3]
-version = &quot;0.14.4&quot;
+version = &quot;0.14.5&quot;
 features = [&quot;extension-module&quot;]
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
@@ -237,7 +237,7 @@ $ python
 </code></pre>
 <p>Start a new project with <code>cargo new</code> and add  <code>pyo3</code> to the <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;0.14.4&quot;
+version = &quot;0.14.5&quot;
 features = [&quot;auto-initialize&quot;]
 </code></pre>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>
@@ -298,6 +298,13 @@ about this topic.</p>
 <li><a href="https://github.com/pyca/cryptography/tree/main/src/rust">cryptography</a> <em>Python cryptography library with some functionality in Rust</em></li>
 <li><a href="https://github.com/daggy1234/polaroid">polaroid</a> <em>Hyper Fast and safe image manipulation library for Python written in Rust</em></li>
 <li><a href="https://github.com/aviramha/ormsgpack">ormsgpack</a> <em>Fast Python msgpack library</em></li>
+</ul>
+<h2 id="articles-and-other-media"><a class="header" href="#articles-and-other-media">Articles and other media</a></h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=-XyWG_klSAw&amp;t=320s">davidhewitt's 2021 talk at Rust Manchester meetup</a> - Aug 19, 2021</li>
+<li><a href="https://blog.yossarian.net/2020/08/02/Writing-and-publishing-a-python-module-in-rust">Writing and publishing a Python module in Rust</a> - Apr 29, 2021</li>
+<li><a href="https://www.vortexa.com/insight/integrating-rust-into-python">Vortexa - Integrating Rust into Python</a> - Apr 12, 2021</li>
+<li><a href="https://blog.waleedkhan.name/port-python-to-rust/">Incrementally porting a small Python project to Rust</a> - Aug 2, 2020</li>
 </ul>
 <h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <p>Everyone is welcomed to contribute to PyO3! There are many ways to support the project, such as:</p>

@@ -691,6 +691,11 @@
 <span id="691">691</span>
 <span id="692">692</span>
 <span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="self">self</span>, <span class="ident">Py_ssize_t</span>};
@@ -750,6 +755,11 @@
     <span class="doccomment">/// Checks if the tuple is empty.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+    }
+
+    <span class="doccomment">/// Returns `self` cast as a `PySequence`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_sequence</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PySequence</span> {
+        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>) }
     }
 
     <span class="doccomment">/// Takes the slice `self[low:high]` and returns it as a new tuple.</span>
@@ -846,7 +856,7 @@
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
     {
-        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">contains</span>(<span class="ident">value</span>) }
+        <span class="self">self</span>.<span class="ident">as_sequence</span>().<span class="ident">contains</span>(<span class="ident">value</span>)
     }
 
     <span class="doccomment">/// Returns the first index `i` for which `self[i] == value`.</span>
@@ -857,7 +867,7 @@
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
     {
-        <span class="kw">unsafe</span> { <span class="ident">PySequence::try_from_unchecked</span>(<span class="self">self</span>).<span class="ident">index</span>(<span class="ident">value</span>) }
+        <span class="self">self</span>.<span class="ident">as_sequence</span>().<span class="ident">index</span>(<span class="ident">value</span>)
     }
 
     <span class="doccomment">/// Returns an iterator over the tuple items.</span>
