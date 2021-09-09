@@ -217,7 +217,13 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
-</pre><pre class="rust"><code><span class="doccomment">//!  Conversions to and from [indexmap](https://docs.rs/indexmap/)’s</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)))]</span>
+
+<span class="doccomment">//!  Conversions to and from [indexmap](https://docs.rs/indexmap/)’s</span>
 <span class="doccomment">//! `IndexMap`.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [`indexmap::IndexMap`] is a hash table that is closely compatible with the standard [`std::collections::HashMap`],</span>

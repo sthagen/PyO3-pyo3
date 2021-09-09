@@ -6,12 +6,14 @@
 <span id="6">6</span>
 <span id="7">7</span>
 <span id="8">8</span>
+<span id="9">9</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This module contains conversions between various Rust object and their representation in Python.</span>
 
 <span class="kw">mod</span> <span class="ident">array</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hashbrown</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">indexmap</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num_bigint</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num_complex</span>;
 <span class="kw">mod</span> <span class="ident">osstr</span>;
 <span class="kw">mod</span> <span class="ident">path</span>;
 </code></pre></div>

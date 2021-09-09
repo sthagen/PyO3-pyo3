@@ -536,12 +536,6 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
 
@@ -613,12 +607,12 @@
 <span class="doccomment">//! so that your module can also be used with statically linked Python interpreters.</span>
 <span class="doccomment">//! Use this feature when building an extension module.</span>
 <span class="comment">//</span>
-<span class="doccomment">//! - `hashbrown`: Enables conversions between Python objects and</span>
+<span class="doccomment">//! - [`hashbrown`](./hashbrown/index.html): Enables conversions between Python objects and</span>
 <span class="doccomment">//! [hashbrown](https://docs.rs/hashbrown)&#39;s</span>
 <span class="doccomment">//! [`HashMap`](https://docs.rs/hashbrown/latest/hashbrown/struct.HashMap.html) and</span>
 <span class="doccomment">//! [`HashSet`](https://docs.rs/hashbrown/latest/hashbrown/struct.HashSet.html) types.</span>
 <span class="comment">//</span>
-<span class="doccomment">//! - [`indexmap`](crate::indexmap): Enables conversions between Python dictionary and</span>
+<span class="doccomment">//! - [`indexmap`](./indexmap/index.html): Enables conversions between Python dictionary and</span>
 <span class="doccomment">//! [indexmap](https://docs.rs/indexmap)&#39;s</span>
 <span class="doccomment">//! [`IndexMap`](https://docs.rs/indexmap/latest/indexmap/map/struct.IndexMap.html).</span>
 <span class="comment">//</span>
@@ -632,7 +626,7 @@
 <span class="doccomment">//! [`BigInt`](https://docs.rs/num-bigint/latest/num_bigint/struct.BigInt.html) and</span>
 <span class="doccomment">//! [`BigUint`](https://docs.rs/num-bigint/latest/num_bigint/struct.BigUint.html) types.</span>
 <span class="comment">//</span>
-<span class="doccomment">//! - [`num-complex`](crate::num_complex): Enables conversions between Python objects and</span>
+<span class="doccomment">//! - [`num-complex`](./num_complex/index.html): Enables conversions between Python objects and</span>
 <span class="doccomment">//! [num-complex](https://docs.rs/num-complex)&#39;s</span>
 <span class="doccomment">//! [`Complex`](https://docs.rs/num-complex/latest/num_complex/struct.Complex.html) type.</span>
 <span class="comment">//</span>
@@ -875,13 +869,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">type_object</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">types</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num_bigint</span>;
-
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num_complex</span>;
-
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;indexmap&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversions::indexmap</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversions</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
