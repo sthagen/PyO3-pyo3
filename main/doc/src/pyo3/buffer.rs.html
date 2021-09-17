@@ -723,7 +723,11 @@
 <span id="723">723</span>
 <span id="724">724</span>
 <span id="725">725</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017 Daniel Grunwald</span>
+<span id="726">726</span>
+<span id="727">727</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+<span class="comment">// Copyright (c) 2017 Daniel Grunwald</span>
 <span class="comment">//</span>
 <span class="comment">// Permission is hereby granted, free of charge, to any person obtaining a copy of this</span>
 <span class="comment">// software and associated documentation files (the &quot;Software&quot;), to deal in the Software</span>

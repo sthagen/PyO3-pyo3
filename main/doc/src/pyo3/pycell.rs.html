@@ -791,7 +791,13 @@
 <span id="791">791</span>
 <span id="792">792</span>
 <span id="793">793</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Includes `PyCell` implementation.</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+</pre><pre class="rust"><code><span class="doccomment">//! PyO3&#39;s interior mutability primitive.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For more information see the [guide](https://pyo3.rs/latest/class.html?highlight=pycell#pycell-and-interior-mutability &quot;PyCell and interior mutability&quot;)</span>
+
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exceptions::PyRuntimeError</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::PyClass</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass_init::PyClassInitializer</span>;

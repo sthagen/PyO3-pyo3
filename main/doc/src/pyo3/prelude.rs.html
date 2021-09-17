@@ -22,11 +22,14 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
-<span class="doccomment">//! A collection of items you most likely want to have in scope when working with pyo3</span>
+<span class="doccomment">//! PyO3&#39;s prelude.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! The purpose of this module is to alleviate imports of many common pyo3 traits</span>
+<span class="doccomment">//! The purpose of this module is to alleviate imports of many commonly used items of the PyO3 crate</span>
 <span class="doccomment">//! by adding a glob import to the top of pyo3 heavy modules:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
@@ -34,18 +37,21 @@
 <span class="doccomment">//! use pyo3::prelude::*;</span>
 <span class="doccomment">//! ```</span>
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{
+    <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">PyTryInto</span>, <span class="ident">ToPyObject</span>,
+};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil::GILGuard</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::instance</span>::{<span class="ident">Py</span>, <span class="ident">PyObject</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pycell</span>::{<span class="ident">PyCell</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass_init::PyClassInitializer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::python::Python</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">PyTryInto</span>, <span class="ident">ToPyObject</span>};
-<span class="comment">// PyModule is only part of the prelude because we need it for the pymodule function</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyModule</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::wrap_pyfunction</span>;
+
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> {<span class="ident"><span class="kw">crate</span>::proc_macro</span>::<span class="kw-2">*</span>, <span class="ident">pyo3_macros::FromPyObject</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros</span>::{<span class="ident">pyclass</span>, <span class="ident">pyfunction</span>, <span class="ident">pymethods</span>, <span class="ident">pymodule</span>, <span class="ident">pyproto</span>, <span class="ident">FromPyObject</span>};
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>

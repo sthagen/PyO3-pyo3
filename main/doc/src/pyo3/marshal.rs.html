@@ -77,8 +77,8 @@
 <span id="77">77</span>
 <span id="78">78</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
-<span class="doccomment">//! Support for the Python `marshal` format. Not supported in limited API</span>
-<span class="doccomment">//! builds.</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+<span class="doccomment">//! Support for the Python `marshal` format.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyBytes</span>};

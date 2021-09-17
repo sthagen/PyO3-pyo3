@@ -121,7 +121,7 @@ print(&quot;super_useful_constant is&quot;, my_module.submodule.super_useful_con
 <p>This will result in the following output:</p>
 <div class="example-wrap"><pre class="language-text"><code>super_useful_constant is important</code></pre></div></div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.add_function" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/types/module.rs.html#376-379" title="goto source code">[src]</a></div><a href="#method.add_function" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.add_function" class="fnname">add_function</a>&lt;'a&gt;(&amp;'a self, fun: &amp;'a <a class="struct" href="../types/struct.PyCFunction.html" title="struct pyo3::types::PyCFunction">PyCFunction</a>) -&gt; <a class="type" href="type.PyResult.html" title="type pyo3::prelude::PyResult">PyResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</h4></div></summary><div class="docblock"><p>Add a function to a module.</p>
 <p>Note that this also requires the <a href="../macro.wrap_pyfunction.html"><code>wrap_pyfunction!</code></a> macro
-to wrap a function annotated with <a href="../proc_macro/attr.pyfunction.html"><code>#[pyfunction]</code></a>.</p>
+to wrap a function annotated with <a href="../attr.pyfunction.html"><code>#[pyfunction]</code></a>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
 

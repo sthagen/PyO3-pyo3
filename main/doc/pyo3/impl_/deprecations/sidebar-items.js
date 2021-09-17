@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["NAME_ATTRIBUTE",""],["PYFN_NAME_ARGUMENT",""],["PYMODULE_NAME_ARGUMENT",""],["TEXT_SIGNATURE_ATTRIBUTE",""]]});
