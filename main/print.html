@@ -155,7 +155,7 @@
 <a href="https://rust-lang.github.io/rfcs/2495-min-rust-version.html"><img src="https://img.shields.io/badge/rustc-1.41+-blue.svg" alt="minimum rustc 1.41" /></a>
 <a href="https://gitter.im/PyO3/Lobby"><img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="dev chat" /></a>
 <a href="https://github.com/PyO3/pyo3/blob/main/Contributing.md"><img src="https://img.shields.io/badge/contribute-on%20github-Green" alt="contributing notes" /></a></p>
-<p><a href="http://www.rust-lang.org/">Rust</a> bindings for <a href="https://www.python.org/">Python</a>, including tools for creating native Python extension modules. Running and interacting with Python code from a Rust binary is also supported.</p>
+<p><a href="https://www.rust-lang.org/">Rust</a> bindings for <a href="https://www.python.org/">Python</a>, including tools for creating native Python extension modules. Running and interacting with Python code from a Rust binary is also supported.</p>
 <ul>
 <li>
 <p>User Guide: <a href="https://pyo3.rs">stable</a> | <a href="https://pyo3.rs/main">main</a></p>
@@ -265,7 +265,7 @@ about this topic.</p>
 <ul>
 <li><a href="https://github.com/PyO3/maturin">maturin</a> <em>Zero configuration build tool for Rust-made Python extensions</em>.</li>
 <li><a href="https://github.com/PyO3/setuptools-rust">setuptools-rust</a> <em>Setuptools plugin for Rust support</em>.</li>
-<li><a href="https://github.com/PyO3/pyo3-built">pyo3-built</a> <em>Simple macro to expose metadata obtained with the <a href="https://crates.io/crates/built"><code>built</code></a> crate as a <a href="https://docs.rs/pyo3/0.12.0/pyo3/types/struct.PyDict.html"><code>PyDict</code></a></em></li>
+<li><a href="https://github.com/PyO3/pyo3-built">pyo3-built</a> <em>Simple macro to expose metadata obtained with the <a href="https://crates.io/crates/built"><code>built</code></a> crate as a <a href="https://docs.rs/pyo3/*/pyo3/types/struct.PyDict.html"><code>PyDict</code></a></em></li>
 <li><a href="https://github.com/PyO3/rust-numpy">rust-numpy</a> <em>Rust binding of NumPy C-API</em></li>
 <li><a href="https://github.com/gperinazzo/dict-derive">dict-derive</a> <em>Derive FromPyObject to automatically transform Python dicts into Rust structs</em></li>
 <li><a href="https://github.com/vorner/pyo3-log">pyo3-log</a> <em>Bridge from Rust to Python logging</em></li>
@@ -279,11 +279,11 @@ about this topic.</p>
 <li><a href="https://github.com/ManifoldFR/point-process-rust/tree/master/pylib">point-process</a> <em>High level API for pointprocesses as a Python library</em></li>
 <li><a href="https://github.com/autopilot-rs/autopy">autopy</a> <em>A simple, cross-platform GUI automation library for Python and Rust.</em>
 <ul>
-<li>Contains an example of building wheels on TravisCI and appveyor using <a href="https://github.com/joerick/cibuildwheel">cibuildwheel</a></li>
+<li>Contains an example of building wheels on TravisCI and appveyor using <a href="https://github.com/pypa/cibuildwheel">cibuildwheel</a></li>
 </ul>
 </li>
 <li><a href="https://github.com/ijl/orjson">orjson</a> <em>Fast Python JSON library</em></li>
-<li><a href="https://github.com/dronesforwork/inline-python">inline-python</a> <em>Inline Python code directly in your Rust code</em></li>
+<li><a href="https://github.com/fusion-engineering/inline-python">inline-python</a> <em>Inline Python code directly in your Rust code</em></li>
 <li><a href="https://github.com/kngwyu/rogue-gym">Rogue-Gym</a> <em>Customizable rogue-like game for AI experiments</em>
 <ul>
 <li>Contains an example of building wheels on Azure Pipelines</li>
@@ -293,7 +293,7 @@ about this topic.</p>
 <li><a href="https://github.com/wasmerio/wasmer-python">wasmer-python</a> <em>Python library to run WebAssembly binaries</em></li>
 <li><a href="https://github.com/cds-astro/mocpy">mocpy</a> <em>Astronomical Python library offering data structures for describing any arbitrary coverage regions on the unit sphere</em></li>
 <li><a href="https://github.com/huggingface/tokenizers/tree/master/bindings/python">tokenizers</a> <em>Python bindings to the Hugging Face tokenizers (NLP) written in Rust</em></li>
-<li><a href="https://github.com/Project-Dream-Weaver/Pyre">pyre</a> <em>Fast Python HTTP server written in Rust</em></li>
+<li><a href="https://github.com/Project-Dream-Weaver/pyre-http">pyre</a> <em>Fast Python HTTP server written in Rust</em></li>
 <li><a href="https://github.com/Stranger6667/jsonschema-rs/tree/master/bindings/python">jsonschema-rs</a> <em>Fast JSON Schema validation library</em></li>
 <li><a href="https://github.com/Stranger6667/css-inline/tree/master/bindings/python">css-inline</a> <em>CSS inlining for Python implemented in Rust</em></li>
 <li><a href="https://github.com/pyca/cryptography/tree/main/src/rust">cryptography</a> <em>Python cryptography library with some functionality in Rust</em></li>
@@ -310,19 +310,19 @@ about this topic.</p>
 <h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <p>Everyone is welcomed to contribute to PyO3! There are many ways to support the project, such as:</p>
 <ul>
-<li>help PyO3 users with issues on Github and Gitter</li>
+<li>help PyO3 users with issues on GitHub and Gitter</li>
 <li>improve documentation</li>
 <li>write features and bugfixes</li>
 <li>publish blogs and examples of how to use PyO3</li>
 </ul>
-<p>Our <a href="https://github.com/PyO3/pyo3/blob/main/Contributing.md">contributing notes</a> and <a href="https://github.com/PyO3/pyo3/blob/master/Architecture.md">architecture guide</a> have more resources if you wish to volunteer time for PyO3 and are searching where to start.</p>
-<p>If you don't have time to contribute yourself but still wish to support the project's future success, some of our maintainers have Github sponsorship pages:</p>
+<p>Our <a href="https://github.com/PyO3/pyo3/blob/main/Contributing.md">contributing notes</a> and <a href="https://github.com/PyO3/pyo3/blob/main/Architecture.md">architecture guide</a> have more resources if you wish to volunteer time for PyO3 and are searching where to start.</p>
+<p>If you don't have time to contribute yourself but still wish to support the project's future success, some of our maintainers have GitHub sponsorship pages:</p>
 <ul>
 <li><a href="https://github.com/sponsors/davidhewitt">davidhewitt</a></li>
 </ul>
 <h2 id="license"><a class="header" href="#license">License</a></h2>
-<p>PyO3 is licensed under the <a href="http://opensource.org/licenses/APACHE-2.0">Apache-2.0 license</a>.
-Python is licensed under the <a href="https://docs.python.org/2/license.html">Python License</a>.</p>
+<p>PyO3 is licensed under the <a href="https://opensource.org/licenses/APACHE-2.0">Apache-2.0 license</a>.
+Python is licensed under the <a href="https://docs.python.org/3/license.html">Python License</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="python-modules"><a class="header" href="#python-modules">Python Modules</a></h1>
 <p>You can create a module using <code>#[pymodule]</code>:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -5350,8 +5350,8 @@ impl Model for UserModel {
 <div style="break-before: page; page-break-before: always;"></div><h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file. For help with updating to new
 PyO3 versions, please see the <a href="https://pyo3.rs/latest/migration.html">migration guide</a>.</p>
-<p>The format is based on <a href="http://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
-and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0145headunreleaseda"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0145headunreleaseda"><a href="https://github.com/pyo3/pyo3/compare/v0.14.5...HEAD">Unreleased</a></a></h2>
 <h3 id="added"><a class="header" href="#added">Added</a></h3>
 <ul>
@@ -5381,6 +5381,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
 <li>Fix building with a conda environment on Windows. <a href="https://github.com/PyO3/pyo3/pull/1873">#1873</a></li>
+<li>Fix panic on Python 3.6 when calling <code>Python::with_gil</code> with Python initialized but threading not initialized. <a href="https://github.com/PyO3/pyo3/pull/1874">#1874</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a href="https://github.com/pyo3/pyo3/compare/v0.14.4...v0.14.5">0.14.5</a> - 2021-09-05</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
@@ -6153,7 +6154,7 @@ default = [&quot;extension-module&quot;]
 <ul>
 <li>Merged both examples into one</li>
 <li>Rustfmt all the things :heavy_check_mark:</li>
-<li>Switched to <a href="http://keepachangelog.com/en/1.0.0/">Keep a Changelog</a></li>
+<li>Switched to <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a></li>
 </ul>
 <h3 id="removed-12"><a class="header" href="#removed-12">Removed</a></h3>
 <ul>

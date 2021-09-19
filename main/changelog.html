@@ -146,8 +146,8 @@
                         <h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file. For help with updating to new
 PyO3 versions, please see the <a href="https://pyo3.rs/latest/migration.html">migration guide</a>.</p>
-<p>The format is based on <a href="http://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
-and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0145headunreleaseda"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0145headunreleaseda"><a href="https://github.com/pyo3/pyo3/compare/v0.14.5...HEAD">Unreleased</a></a></h2>
 <h3 id="added"><a class="header" href="#added">Added</a></h3>
 <ul>
@@ -177,6 +177,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
 <li>Fix building with a conda environment on Windows. <a href="https://github.com/PyO3/pyo3/pull/1873">#1873</a></li>
+<li>Fix panic on Python 3.6 when calling <code>Python::with_gil</code> with Python initialized but threading not initialized. <a href="https://github.com/PyO3/pyo3/pull/1874">#1874</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a href="https://github.com/pyo3/pyo3/compare/v0.14.4...v0.14.5">0.14.5</a> - 2021-09-05</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
@@ -949,7 +950,7 @@ default = [&quot;extension-module&quot;]
 <ul>
 <li>Merged both examples into one</li>
 <li>Rustfmt all the things :heavy_check_mark:</li>
-<li>Switched to <a href="http://keepachangelog.com/en/1.0.0/">Keep a Changelog</a></li>
+<li>Switched to <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a></li>
 </ul>
 <h3 id="removed-12"><a class="header" href="#removed-12">Removed</a></h3>
 <ul>

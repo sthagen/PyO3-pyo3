@@ -825,6 +825,15 @@
 <span id="825">825</span>
 <span id="826">826</span>
 <span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Interaction with Python&#39;s global interpreter lock</span>
@@ -879,10 +888,12 @@
 <span class="doccomment">/// software). Support for this is tracked on the</span>
 <span class="doccomment">/// [PyPy issue tracker](https://foss.heptapod.net/pypy/pypy/-/issues/3286).</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// Python 3.6 only: If the Python interpreter is initialized but Python threading is not, this</span>
+<span class="doccomment">/// function will initialize Python threading.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// - If the Python interpreter is initialized but Python threading is not, a panic occurs.</span>
-<span class="doccomment">///   It is not possible to safely access the Python runtime unless the main thread (the thread</span>
-<span class="doccomment">///   which originally initialized Python) also initializes threading.</span>
+<span class="doccomment">/// - Python 3.6 only: If this function needs to initialize Python threading but the calling thread</span>
+<span class="doccomment">///   is not the thread which initialized Python, this function will panic.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```rust</span>
@@ -904,21 +915,28 @@
     <span class="comment">// concurrently call &#39;prepare_freethreaded_python()&#39;. Note that we do not protect against</span>
     <span class="comment">// concurrent initialization of the Python runtime by other users of the Python C API.</span>
     <span class="ident">START</span>.<span class="ident">call_once_force</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">unsafe</span> {
-        <span class="comment">// Use call_once_force because if initialization panics, it&#39;s okay to try again.</span>
-        <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="comment">// If Python is already initialized, we expect Python threading to also be initialized,</span>
-            <span class="comment">// as we can&#39;t make the existing Python main thread acquire the GIL.</span>
-            <span class="macro">assert_ne!</span>(<span class="ident">ffi::PyEval_ThreadsInitialized</span>(), <span class="number">0</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
-
-            <span class="comment">// Changed in version 3.7: This function is now called by Py_Initialize(), so you don’t</span>
-            <span class="comment">// have to call it yourself anymore.</span>
-            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>)) {
+        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>)) {
+            <span class="comment">// Use call_once_force because if initialization panics, it&#39;s okay to try again.</span>
+            <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="kw">if</span> <span class="ident">ffi::PyEval_ThreadsInitialized</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="comment">// We can only safely initialize threads if this thread holds the GIL.</span>
+                    <span class="macro">assert!</span>(
+                        <span class="op">!</span><span class="ident">ffi::PyGILState_GetThisThreadState</span>().<span class="ident">is_null</span>(),
+                        <span class="string">&quot;Python threading is not initialized and cannot be initialized by this \
+                         thread, because it is not the thread which initialized Python.&quot;</span>
+                    );
                     <span class="ident">ffi::PyEval_InitThreads</span>();
                 }
+            } <span class="kw">else</span> {
+                <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
+                <span class="ident">ffi::PyEval_InitThreads</span>();
+
+                <span class="comment">// Release the GIL.</span>
+                <span class="ident">ffi::PyEval_SaveThread</span>();
             }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="comment">// In Python 3.7 and up PyEval_InitThreads is irrelevant.</span>
+            <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
 
             <span class="comment">// Release the GIL.</span>
             <span class="ident">ffi::PyEval_SaveThread</span>();
@@ -928,7 +946,7 @@
 
 <span class="doccomment">/// Executes the provided closure with an embedded Python interpreter.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This function intializes the Python interpreter, executes the provided closure, and then</span>
+<span class="doccomment">/// This function initializes the Python interpreter, executes the provided closure, and then</span>
 <span class="doccomment">/// finalizes the Python interpreter.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// After execution all Python resources are cleaned up, and no further Python APIs can be called.</span>
@@ -937,7 +955,7 @@
 <span class="doccomment">/// initialize correctly on the second run.)</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// - If the Python interpreter is already initalized before calling this function.</span>
+<span class="doccomment">/// - If the Python interpreter is already initialized before calling this function.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Safety</span>
 <span class="doccomment">/// - This function should only ever be called once per process (usually as part of the `main`</span>
