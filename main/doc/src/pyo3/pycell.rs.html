@@ -794,9 +794,262 @@
 <span id="794">794</span>
 <span id="795">795</span>
 <span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
 </pre><pre class="rust"><code><span class="doccomment">//! PyO3&#39;s interior mutability primitive.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! For more information see the [guide](https://pyo3.rs/latest/class.html?highlight=pycell#pycell-and-interior-mutability &quot;PyCell and interior mutability&quot;)</span>
+<span class="doccomment">//! Rust has strict aliasing rules - you can either have any number of immutable (shared) references or one mutable</span>
+<span class="doccomment">//! reference. Python&#39;s ownership model is the complete opposite of that - any Python object</span>
+<span class="doccomment">//! can be referenced any number of times, and mutation is allowed from any reference.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! PyO3 deals with these differences by employing the [Interior Mutability]</span>
+<span class="doccomment">//! pattern. This requires that PyO3 enforces the borrowing rules and it has two mechanisms for</span>
+<span class="doccomment">//! doing so:</span>
+<span class="doccomment">//! - Statically it can enforce threadsafe access with the [`Python&lt;&#39;py&gt;`](crate::Python) token.</span>
+<span class="doccomment">//! All Rust code holding that token, or anything derived from it, can assume that they have</span>
+<span class="doccomment">//! safe access to the Python interpreter&#39;s state. For this reason all the native Python objects</span>
+<span class="doccomment">//! can be mutated through shared references.</span>
+<span class="doccomment">//! - However, methods and functions in Rust usually *do* need `&amp;mut` references. While PyO3 can</span>
+<span class="doccomment">//! use the [`Python&lt;&#39;py&gt;`](crate::Python) token to guarantee thread-safe access to them, it cannot</span>
+<span class="doccomment">//! statically guarantee uniqueness of `&amp;mut` references. As such those references have to be tracked</span>
+<span class="doccomment">//! dynamically at runtime, using [`PyCell`] and the other types defined in this module. This works</span>
+<span class="doccomment">//! similar to std&#39;s [`RefCell`](std::cell::RefCell) type.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # When *not* to use PyCell</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Usually you can use `&amp;mut` references as method and function receivers and arguments, and you</span>
+<span class="doccomment">//! won&#39;t need to use [`PyCell`] directly:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use pyo3::prelude::*;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! #[pyclass]</span>
+<span class="doccomment">//! struct Number {</span>
+<span class="doccomment">//!     inner: u32,</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! #[pymethods]</span>
+<span class="doccomment">//! impl Number {</span>
+<span class="doccomment">//!     fn increment(&amp;mut self) {</span>
+<span class="doccomment">//!         self.inner += 1;</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The [`#[pymethods]`](crate::pymethods) proc macro will generate this wrapper function (and more),</span>
+<span class="doccomment">//! using [`PyCell`] under the hood:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```ignore</span>
+<span class="doccomment">//! // This function is exported to Python.</span>
+<span class="doccomment">//! unsafe extern &quot;C&quot; fn __wrap(slf: *mut PyObject, _args: *mut PyObject) -&gt; *mut PyObject {</span>
+<span class="doccomment">//!     pyo3::callback::handle_panic(|py| {</span>
+<span class="doccomment">//!         let cell: &amp;PyCell&lt;Number&gt; = py.from_borrowed_ptr(slf);</span>
+<span class="doccomment">//!         let mut _ref: PyRefMut&lt;Number&gt; = cell.try_borrow_mut()?;</span>
+<span class="doccomment">//!         let slf: &amp;mut Number = &amp;mut _ref;</span>
+<span class="doccomment">//!         pyo3::callback::convert(py, Number::increment(slf))</span>
+<span class="doccomment">//!     })</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//!  ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # When to use PyCell</span>
+<span class="doccomment">//! ## Using pyclasses from Rust</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! However, we *do* need [`PyCell`] if we want to call its methods from Rust:</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! # use pyo3::prelude::*;</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! # #[pyclass]</span>
+<span class="doccomment">//! # struct Number {</span>
+<span class="doccomment">//! #     inner: u32,</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! # #[pymethods]</span>
+<span class="doccomment">//! # impl Number {</span>
+<span class="doccomment">//! #     fn increment(&amp;mut self) {</span>
+<span class="doccomment">//! #         self.inner += 1;</span>
+<span class="doccomment">//! #     }</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! # fn main() -&gt; PyResult&lt;()&gt; {</span>
+<span class="doccomment">//! Python::with_gil(|py| {</span>
+<span class="doccomment">//!     let n = Py::new(py, Number { inner: 0 })?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // We borrow the guard and then dereference</span>
+<span class="doccomment">//!     // it to get a mutable reference to Number</span>
+<span class="doccomment">//!     let mut guard: PyRefMut&lt;&#39;_, Number&gt; = n.as_ref(py).borrow_mut();</span>
+<span class="doccomment">//!     let n_mutable: &amp;mut Number = &amp;mut *guard;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     n_mutable.increment();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // To avoid panics we must dispose of the</span>
+<span class="doccomment">//!     // `PyRefMut` before borrowing again.</span>
+<span class="doccomment">//!     drop(guard);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     let n_immutable : &amp;Number = &amp;n.as_ref(py).borrow();</span>
+<span class="doccomment">//!     assert_eq!(n_immutable.inner, 1);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     Ok(())</span>
+<span class="doccomment">//! })</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! ## Dealing with possibly overlapping mutable references</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! It is also necessary to use [`PyCell`] if you can receive mutable arguments that may overlap.</span>
+<span class="doccomment">//! Suppose the following function that swaps the values of two `Number`s:</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # use pyo3::prelude::*;</span>
+<span class="doccomment">//! # #[pyclass]</span>
+<span class="doccomment">//! # pub struct Number {</span>
+<span class="doccomment">//! #     inner: u32,</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! #[pyfunction]</span>
+<span class="doccomment">//! fn swap_numbers(a: &amp;mut Number, b: &amp;mut Number) {</span>
+<span class="doccomment">//!     std::mem::swap(&amp;mut a.inner, &amp;mut b.inner);</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! When users pass in the same `Number` as both arguments, one of the mutable borrows will</span>
+<span class="doccomment">//! fail and raise a `RuntimeError`:</span>
+<span class="doccomment">//! ```text</span>
+<span class="doccomment">//! &gt;&gt;&gt; a = Number()</span>
+<span class="doccomment">//! &gt;&gt;&gt; swap_numbers(a, a)</span>
+<span class="doccomment">//! Traceback (most recent call last):</span>
+<span class="doccomment">//!   File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</span>
+<span class="doccomment">//!   RuntimeError: Already borrowed</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! It is better to write that function like this:</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # use pyo3::prelude::*;</span>
+<span class="doccomment">//! # #[pyclass]</span>
+<span class="doccomment">//! # pub struct Number {</span>
+<span class="doccomment">//! #     inner: u32,</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! #[pyfunction]</span>
+<span class="doccomment">//! fn swap_numbers(a: &amp;PyCell&lt;Number&gt;, b: &amp;PyCell&lt;Number&gt;) {</span>
+<span class="doccomment">//!     // Check that the pointers are unequal</span>
+<span class="doccomment">//!     if a.as_ref() != b.as_ref() {</span>
+<span class="doccomment">//!         std::mem::swap(&amp;mut a.borrow_mut().inner, &amp;mut b.borrow_mut().inner);</span>
+<span class="doccomment">//!     } else {</span>
+<span class="doccomment">//!         // Do nothing - they are the same object, so don&#39;t need swapping.</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! See the [guide] for more information.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [guide]: https://pyo3.rs/latest/class.html#pycell-and-interior-mutability &quot;PyCell and interior mutability&quot;</span>
+<span class="doccomment">//! [Interior Mutability]: https://doc.rust-lang.org/book/ch15-05-interior-mutability.html &quot;RefCell&lt;T&gt; and the Interior Mutability Pattern - The Rust Programming Language&quot;</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exceptions::PyRuntimeError</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::PyClass</span>;
@@ -828,71 +1081,41 @@
 
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">PyLayout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyCellBase</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">U</span>: <span class="ident">PySizedLayout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
-<span class="doccomment">/// `PyCell` is the container type for [`PyClass`](../pyclass/trait.PyClass.html) values.</span>
+<span class="doccomment">/// A container type for (mutably) accessing [`PyClass`] values</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// From the Python side, `PyCell&lt;T&gt;` is the concrete layout of `T: PyClass` in the Python heap,</span>
-<span class="doccomment">/// which means we can convert `*const PyClass&lt;T&gt;` to `*mut ffi::PyObject`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// From the Rust side, `PyCell&lt;T&gt;` is the mutable container of `T`.</span>
-<span class="doccomment">/// Since `PyCell&lt;T: PyClass&gt;` is always on the Python heap, we don&#39;t have the ownership of it.</span>
-<span class="doccomment">/// Thus, to mutate the data behind `&amp;PyCell&lt;T&gt;` safely, we employ the</span>
-<span class="doccomment">/// [Interior Mutability Pattern](https://doc.rust-lang.org/book/ch15-05-interior-mutability.html)</span>
-<span class="doccomment">/// like [std::cell::RefCell](https://doc.rust-lang.org/std/cell/struct.RefCell.html).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `PyCell` implements `Deref&lt;Target = PyAny&gt;`, so you can also call methods from `PyAny`</span>
-<span class="doccomment">/// when you have a `PyCell&lt;T&gt;`.</span>
+<span class="doccomment">/// `PyCell` autodereferences to [`PyAny`], so you can call `PyAny`&#39;s methods on a `PyCell&lt;T&gt;`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// In most cases, `PyCell` is hidden behind `#[pymethods]`.</span>
-<span class="doccomment">/// However, you can construct a `&amp;PyCell` directly to test your pyclass in Rust code.</span>
+<span class="doccomment">/// This example demonstrates getting a mutable reference of the contained `PyClass`.</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use pyo3::prelude::*;</span>
 <span class="doccomment">/// #[pyclass]</span>
-<span class="doccomment">/// struct Book {</span>
-<span class="doccomment">///     #[pyo3(get)]</span>
-<span class="doccomment">///     name: &amp;&#39;static str,</span>
-<span class="doccomment">///     author: &amp;&#39;static str,</span>
+<span class="doccomment">/// struct Number {</span>
+<span class="doccomment">///     inner: u32,</span>
 <span class="doccomment">/// }</span>
-<span class="doccomment">/// let book = Book {</span>
-<span class="doccomment">///     name: &quot;The Man in the High Castle&quot;,</span>
-<span class="doccomment">///     author: &quot;Philip Kindred Dick&quot;,</span>
-<span class="doccomment">/// };</span>
-<span class="doccomment">/// Python::with_gil(|py| {</span>
-<span class="doccomment">///     let book_cell = PyCell::new(py, book).unwrap();</span>
-<span class="doccomment">///     // `&amp;PyCell` implements `ToPyObject`, so you can use it in a Python snippet</span>
-<span class="doccomment">///     pyo3::py_run!(py, book_cell, &quot;assert book_cell.name[-6:] == &#39;Castle&#39;&quot;);</span>
-<span class="doccomment">/// });</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// You can use `slf: &amp;PyCell&lt;Self&gt;` as an alternative `self` receiver of `#[pymethod]`,</span>
-<span class="doccomment">/// though you&#39;ll rarely need it.</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use pyo3::prelude::*;</span>
-<span class="doccomment">/// use std::collections::HashMap;</span>
-<span class="doccomment">/// #[pyclass]</span>
-<span class="doccomment">/// #[derive(Default)]</span>
-<span class="doccomment">/// struct Counter {</span>
-<span class="doccomment">///     counter: HashMap&lt;String, usize&gt;</span>
-<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// #[pymethods]</span>
-<span class="doccomment">/// impl Counter {</span>
-<span class="doccomment">///     // You can use &amp;mut self here, but now we use &amp;PyCell for demonstration</span>
-<span class="doccomment">///     fn increment(slf: &amp;PyCell&lt;Self&gt;, name: String) -&gt; PyResult&lt;usize&gt; {</span>
-<span class="doccomment">///         let mut slf_mut = slf.try_borrow_mut()?;</span>
-<span class="doccomment">///         // Now a mutable reference exists so we cannot get another one</span>
-<span class="doccomment">///         assert!(slf.try_borrow().is_err());</span>
-<span class="doccomment">///         assert!(slf.try_borrow_mut().is_err());</span>
-<span class="doccomment">///         let counter = slf_mut.counter.entry(name).or_insert(0);</span>
-<span class="doccomment">///         *counter += 1;</span>
-<span class="doccomment">///         Ok(*counter)</span>
+<span class="doccomment">/// impl Number {</span>
+<span class="doccomment">///     fn increment(&amp;mut self) {</span>
+<span class="doccomment">///         self.inner += 1;</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">/// }</span>
-<span class="doccomment">/// # Python::with_gil(|py| {</span>
-<span class="doccomment">/// #     let counter = PyCell::new(py, Counter::default()).unwrap();</span>
-<span class="doccomment">/// #     pyo3::py_run!(py, counter, &quot;assert counter.increment(&#39;cat&#39;) == 1&quot;);</span>
-<span class="doccomment">/// # });</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt; {</span>
+<span class="doccomment">/// Python::with_gil(|py| {</span>
+<span class="doccomment">///     let n = PyCell::new(py, Number { inner: 0 })?;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let n_mutable: &amp;mut Number = &amp;mut n.borrow_mut();</span>
+<span class="doccomment">///     n_mutable.increment();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     Ok(())</span>
+<span class="doccomment">/// })</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
+<span class="doccomment">/// For more information on how, when and why (not) to use `PyCell` please see the</span>
+<span class="doccomment">/// [module-level documentation](self).</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> {
     <span class="ident">ob_base</span>: <span class="op">&lt;</span><span class="ident">T::BaseType</span> <span class="kw">as</span> <span class="ident">PyClassBaseType</span><span class="op">&gt;</span><span class="ident">::LayoutAsBase</span>,
@@ -991,8 +1214,7 @@
     <span class="doccomment">/// Makes a new `PyCell` on the Python heap and return the reference to it.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// In cases where the value in the cell does not need to be accessed immediately after</span>
-    <span class="doccomment">/// creation, consider [`Py::new`](../instance/struct.Py.html#method.new) as a more efficient</span>
-    <span class="doccomment">/// alternative.</span>
+    <span class="doccomment">/// creation, consider [`Py::new`](crate::Py::new) as a more efficient alternative.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">value</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">initializer</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into</span>();
@@ -1015,7 +1237,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the value is currently mutably borrowed. For a non-panicking variant, use</span>
+    <span class="doccomment">/// Panics if the value is currently borrowed. For a non-panicking variant, use</span>
     <span class="doccomment">/// [`try_borrow_mut`](#method.try_borrow_mut).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">borrow_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">try_borrow_mut</span>().<span class="ident">expect</span>(<span class="string">&quot;Already borrowed&quot;</span>)
@@ -1032,6 +1254,7 @@
     <span class="doccomment">/// # use pyo3::prelude::*;</span>
     <span class="doccomment">/// #[pyclass]</span>
     <span class="doccomment">/// struct Class {}</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// Python::with_gil(|py| {</span>
     <span class="doccomment">///     let c = PyCell::new(py, Class {}).unwrap();</span>
     <span class="doccomment">///     {</span>
@@ -1206,9 +1429,9 @@
     }
 }
 
-<span class="doccomment">/// Wraps a borrowed reference to a value in a `PyCell&lt;T&gt;`.</span>
+<span class="doccomment">/// A wrapper type for an immutably borrowed value from a [`PyCell`]`&lt;T&gt;`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// See the [`PyCell`](struct.PyCell.html) documentation for more.</span>
+<span class="doccomment">/// See the [`PyCell`] documentation for more information.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
@@ -1221,16 +1444,19 @@
 <span class="doccomment">/// struct Parent {</span>
 <span class="doccomment">///     basename: &amp;&#39;static str,</span>
 <span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// #[pyclass(extends=Parent)]</span>
 <span class="doccomment">/// struct Child {</span>
 <span class="doccomment">///     name: &amp;&#39;static str,</span>
 <span class="doccomment">///  }</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// #[pymethods]</span>
 <span class="doccomment">/// impl Child {</span>
 <span class="doccomment">///     #[new]</span>
 <span class="doccomment">///     fn new() -&gt; (Self, Parent) {</span>
 <span class="doccomment">///         (Child { name: &quot;Caterpillar&quot; }, Parent { basename: &quot;Butterfly&quot; })</span>
 <span class="doccomment">///     }</span>
+<span class="doccomment">///</span>
 <span class="doccomment">///     fn format(slf: PyRef&lt;Self&gt;) -&gt; String {</span>
 <span class="doccomment">///         // We can get *mut ffi::PyObject from PyRef</span>
 <span class="doccomment">///         use pyo3::AsPyPointer;</span>
@@ -1245,13 +1471,14 @@
 <span class="doccomment">/// #     pyo3::py_run!(py, sub, &quot;assert sub.format() == &#39;Caterpillar(base: Butterfly, cnt: 3)&#39;&quot;);</span>
 <span class="doccomment">/// # });</span>
 <span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See the [module-level documentation](self) for more information.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyRef</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> {
     <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> <span class="ident">PyRef</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns a `Python` token.</span>
-    <span class="doccomment">/// This function is safe since `PyRef` has the same lifetime as a `GILGuard`.</span>
+    <span class="doccomment">/// Returns a `Python` token that is bound to the lifetime of the `PyRef`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Python</span> {
         <span class="kw">unsafe</span> { <span class="ident">Python::assume_gil_acquired</span>() }
     }
@@ -1287,14 +1514,17 @@
     <span class="doccomment">/// struct Base1 {</span>
     <span class="doccomment">///     name1: &amp;&#39;static str,</span>
     <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// #[pyclass(extends=Base1, subclass)]</span>
     <span class="doccomment">/// struct Base2 {</span>
     <span class="doccomment">///     name2: &amp;&#39;static str,</span>
     <span class="doccomment">///  }</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// #[pyclass(extends=Base2)]</span>
     <span class="doccomment">/// struct Sub {</span>
     <span class="doccomment">///     name3: &amp;&#39;static str,</span>
     <span class="doccomment">///  }</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// #[pymethods]</span>
     <span class="doccomment">/// impl Sub {</span>
     <span class="doccomment">///     #[new]</span>
@@ -1364,16 +1594,15 @@
     }
 }
 
-<span class="doccomment">/// Wraps a mutable borrowed reference to a value in a `PyCell&lt;T&gt;`.</span>
+<span class="doccomment">/// A wrapper type for a mutably borrowed value from a[`PyCell`]`&lt;T&gt;`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// See the [`PyCell`](struct.PyCell.html) and [`PyRef`](struct.PyRef.html) documentation for more.</span>
+<span class="doccomment">/// See the [module-level documentation](self) for more information.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> {
     <span class="ident">inner</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns a `Python` token.</span>
-    <span class="doccomment">/// This function is safe since `PyRefMut` has the same lifetime as a `GILGuard`.</span>
+    <span class="doccomment">/// Returns a `Python` token that is bound to the lifetime of the `PyRefMut`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Python</span> {
         <span class="kw">unsafe</span> { <span class="ident">Python::assume_gil_acquired</span>() }
     }
@@ -1405,7 +1634,8 @@
     <span class="ident">U</span>: <span class="ident">PyClass</span>,
 {
     <span class="doccomment">/// Gets a `PyRef&lt;T::BaseType&gt;`.</span>
-    <span class="doccomment">/// See [`PyRef::into_super`](struct.PyRef.html#method.into_super) for more.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`PyRef::into_super`] for more.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_super</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">U</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">PyRefMut</span> { <span class="ident">inner</span> } <span class="op">=</span> <span class="self">self</span>;
         <span class="ident">std::mem::forget</span>(<span class="self">self</span>);
@@ -1477,9 +1707,9 @@
     }
 }
 
-<span class="doccomment">/// An error returned by [`PyCell::try_borrow`](struct.PyCell.html#method.try_borrow).</span>
+<span class="doccomment">/// An error type returned by [`PyCell::try_borrow`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// In Python, you can catch this error using `except RuntimeError`.</span>
+<span class="doccomment">/// If this error is allowed to bubble up into Python code it will raise a `RuntimeError`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBorrowError</span> {
     <span class="ident">_private</span>: (),
 }
@@ -1502,9 +1732,9 @@
     }
 }
 
-<span class="doccomment">/// An error returned by [`PyCell::try_borrow_mut`](struct.PyCell.html#method.try_borrow_mut).</span>
+<span class="doccomment">/// An error type returned by [`PyCell::try_borrow_mut`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// In Python, you can catch this error using `except RuntimeError`.</span>
+<span class="doccomment">/// If this error is allowed to bubble up into Python code it will raise a `RuntimeError`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBorrowMutError</span> {
     <span class="ident">_private</span>: (),
 }

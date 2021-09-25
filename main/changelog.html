@@ -178,6 +178,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>Fix building with a conda environment on Windows. <a href="https://github.com/PyO3/pyo3/pull/1873">#1873</a></li>
 <li>Fix panic on Python 3.6 when calling <code>Python::with_gil</code> with Python initialized but threading not initialized. <a href="https://github.com/PyO3/pyo3/pull/1874">#1874</a></li>
+<li>Fix incorrect linking to version-specific DLL instead of <code>python3.dll</code> when cross-compiling to Windows with <code>abi3</code>. <a href="https://github.com/PyO3/pyo3/pull/1880">#1880</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a href="https://github.com/pyo3/pyo3/compare/v0.14.4...v0.14.5">0.14.5</a> - 2021-09-05</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>

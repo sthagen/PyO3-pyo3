@@ -499,6 +499,8 @@
 <span id="499">499</span>
 <span id="500">500</span>
 <span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Exception types defined by Python.</span>
@@ -509,6 +511,7 @@
 <span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
 
 <span class="doccomment">/// The boilerplate to convert between a Rust type and a Python exception.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">impl_exception_boilerplate</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -659,6 +662,7 @@
 
 <span class="doccomment">/// `impl $crate::type_object::PyTypeObject for $name` where `$name` is an</span>
 <span class="doccomment">/// exception newly defined in Rust code.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">create_exception_type_object</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span>: <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {

@@ -497,8 +497,9 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Unstable features</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! - `nightly`: Gates some optimizations that rely on [`#![feature(specialization)]`], for which</span>
-<span class="doccomment">//! you&#39;d also need nightly Rust. You should not use this feature.</span>
+<span class="doccomment">//! - `nightly`: Gates some optimizations that rely on</span>
+<span class="doccomment">//! [`#![feature(specialization)]`](https://github.com/rust-lang/rfcs/blob/master/text/1210-impl-specialization.md),</span>
+<span class="doccomment">//! for which you&#39;d also need nightly Rust. You should not use this feature.</span>
 <span class="comment">//</span>
 <span class="doccomment">//! ## `rustc` environment flags</span>
 <span class="doccomment">//!</span>
@@ -684,8 +685,7 @@
 <span class="doccomment">//! [PEP 384]: https://www.python.org/dev/peps/pep-0384 &quot;PEP 384 -- Defining a Stable ABI&quot;</span>
 <span class="doccomment">//! [Python from Rust]: https://github.com/PyO3/pyo3#using-python-from-rust</span>
 <span class="doccomment">//! [Rust from Python]: https://github.com/PyO3/pyo3#using-rust-from-python</span>
-<span class="doccomment">//! [`#![feature(specialization)]`]: &lt;https://github.com/rust-lang/rfcs/blob/master/text/1210-impl-specialization.md&gt;</span>
-<span class="doccomment">//! [Features chapter of the guide]: &lt;https://pyo3.rs/latest/features.html#features-reference&gt; &quot;Features Reference - PyO3 user guide&quot;</span>
+<span class="doccomment">//! [Features chapter of the guide]: https://pyo3.rs/latest/features.html#features-reference &quot;Features Reference - PyO3 user guide&quot;</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::class</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{
     <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">PyTryInto</span>,

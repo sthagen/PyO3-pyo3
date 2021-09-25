@@ -232,6 +232,13 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Various types defined by the Python interpreter such as `int`, `str` and `tuple`.</span>
@@ -264,6 +271,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::typeobject::PyType</span>;
 
 <span class="comment">// Implementations core to all native types</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">pyobject_native_type_base</span>(
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> $(;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>)<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
@@ -309,6 +317,7 @@
 
 <span class="comment">// Implementations core to all native types except for PyAny (because they don&#39;t</span>
 <span class="comment">// make sense on PyAny / have different implementations).</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">pyobject_native_type_named</span> (
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> $(;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -363,6 +372,7 @@
     };
 );
 
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">pyobject_native_type_info</span>(
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typeobject</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>:<span class="ident">expr</span> $(, #<span class="ident">checkfunction</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">checkfunction</span>:<span class="ident">path</span>)<span class="question-mark">?</span> $(;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -393,6 +403,7 @@
 
 <span class="comment">// NOTE: This macro is not included in pyobject_native_type_base!</span>
 <span class="comment">// because rust-numpy has a special implementation.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">pyobject_native_type_extract</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> $(;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -405,6 +416,7 @@
 }
 
 <span class="doccomment">/// Declares all of the boilerplate for Python types.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">pyobject_native_type_core</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typeobject</span>:<span class="ident">expr</span>, #<span class="ident">module</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>:<span class="ident">expr</span> $(, #<span class="ident">checkfunction</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">checkfunction</span>:<span class="ident">path</span>)<span class="question-mark">?</span> $(;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -417,6 +429,7 @@
     };
 }
 
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">pyobject_native_type_sized</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>:<span class="ident">path</span> $(;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -435,6 +448,7 @@
 
 <span class="doccomment">/// Declares all of the boilerplate for Python types which can be inherited from (because the exact</span>
 <span class="doccomment">/// Python layout is known).</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">pyobject_native_type</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">layout</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typeobject</span>:<span class="ident">expr</span> $(, #<span class="ident">module</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>:<span class="ident">expr</span>)<span class="question-mark">?</span> $(, #<span class="ident">checkfunction</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">checkfunction</span>:<span class="ident">path</span>)<span class="question-mark">?</span> $(;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
