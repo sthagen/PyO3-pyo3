@@ -236,7 +236,7 @@ struct RustyTransparentStruct {
 <h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for enums</a></h4>
 <p>The <code>FromPyObject</code> derivation for enums generates code that tries to extract the variants in the
 order of the fields. As soon as a variant can be extracted succesfully, that variant is returned.
-This makes it possible to extract Python types like <code>Union[str, int]</code>.</p>
+This makes it possible to extract Python union types like <code>str | int</code>.</p>
 <p>The same customizations and restrictions described for struct derivations apply to enum variants,
 i.e. a tuple variant assumes that the input is a Python tuple, and a struct variant defaults to
 extracting fields as attributes but can be configured in the same manner. The <code>transparent</code>
@@ -279,7 +279,7 @@ enum RustyEnum {
 }
 </code></pre>
 <p>If the input is neither a string nor an integer, the error message will be:
-<code>&quot;'&lt;INPUT_TYPE&gt;' cannot be converted to 'Union[str, int]'&quot;</code>.</p>
+<code>&quot;'&lt;INPUT_TYPE&gt;' cannot be converted to 'str | int'&quot;</code>.</p>
 <h4 id="derivefrompyobject-container-attributes"><a class="header" href="#derivefrompyobject-container-attributes"><code>#[derive(FromPyObject)]</code> Container Attributes</a></h4>
 <ul>
 <li><code>pyo3(transparent)</code>

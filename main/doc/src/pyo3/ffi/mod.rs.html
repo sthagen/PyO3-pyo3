@@ -232,6 +232,8 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Raw FFI declarations for Python&#39;s C API.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module provides low level bindings to the Python interpreter.</span>
@@ -292,6 +294,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::enumobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::eval</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::fileobject</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::fileutils</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::floatobject</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::funcobject</span>::<span class="kw-2">*</span>;
@@ -365,7 +368,7 @@
 <span class="comment">// skipped exports.h</span>
 <span class="kw">mod</span> <span class="ident">fileobject</span>; <span class="comment">// TODO: incomplete</span>
 
-<span class="comment">// skipped fileutils.h</span>
+<span class="kw">mod</span> <span class="ident">fileutils</span>;
 <span class="kw">mod</span> <span class="ident">floatobject</span>; <span class="comment">// TODO supports PEP-384 only</span>
 
 <span class="comment">// skipped empty frameobject.h</span>
@@ -438,6 +441,7 @@
 <span class="kw">mod</span> <span class="ident">sliceobject</span>;
 <span class="kw">mod</span> <span class="ident">structseq</span>;
 <span class="kw">mod</span> <span class="ident">traceback</span>; <span class="comment">// TODO supports PEP-384 only; needs adjustment for Python 3.3 and 3.5</span>
+               <span class="comment">// skipped tracemalloc.h</span>
 <span class="kw">mod</span> <span class="ident">warnings</span>; <span class="comment">// TODO supports PEP-384 only; needs adjustment for Python 3.3 and 3.5</span>
 <span class="kw">mod</span> <span class="ident">weakrefobject</span>; <span class="comment">// TODO supports PEP-384 only; needs adjustment for Python 3.3 and 3.5</span>
 

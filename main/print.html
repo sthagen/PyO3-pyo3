@@ -303,9 +303,9 @@ about this topic.</p>
 <h2 id="articles-and-other-media"><a class="header" href="#articles-and-other-media">Articles and other media</a></h2>
 <ul>
 <li><a href="https://www.youtube.com/watch?v=-XyWG_klSAw&amp;t=320s">davidhewitt's 2021 talk at Rust Manchester meetup</a> - Aug 19, 2021</li>
-<li><a href="https://blog.yossarian.net/2020/08/02/Writing-and-publishing-a-python-module-in-rust">Writing and publishing a Python module in Rust</a> - Apr 29, 2021</li>
+<li><a href="https://blog.waleedkhan.name/port-python-to-rust/">Incrementally porting a small Python project to Rust</a> - Apr 29, 2021</li>
 <li><a href="https://www.vortexa.com/insight/integrating-rust-into-python">Vortexa - Integrating Rust into Python</a> - Apr 12, 2021</li>
-<li><a href="https://blog.waleedkhan.name/port-python-to-rust/">Incrementally porting a small Python project to Rust</a> - Aug 2, 2020</li>
+<li><a href="https://blog.yossarian.net/2020/08/02/Writing-and-publishing-a-python-module-in-rust">Writing and publishing a Python module in Rust</a> - Aug 2, 2020</li>
 </ul>
 <h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <p>Everyone is welcomed to contribute to PyO3! There are many ways to support the project, such as:</p>
@@ -2141,7 +2141,7 @@ struct RustyTransparentStruct {
 <h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for enums</a></h4>
 <p>The <code>FromPyObject</code> derivation for enums generates code that tries to extract the variants in the
 order of the fields. As soon as a variant can be extracted succesfully, that variant is returned.
-This makes it possible to extract Python types like <code>Union[str, int]</code>.</p>
+This makes it possible to extract Python union types like <code>str | int</code>.</p>
 <p>The same customizations and restrictions described for struct derivations apply to enum variants,
 i.e. a tuple variant assumes that the input is a Python tuple, and a struct variant defaults to
 extracting fields as attributes but can be configured in the same manner. The <code>transparent</code>
@@ -2184,7 +2184,7 @@ enum RustyEnum {
 }
 </code></pre>
 <p>If the input is neither a string nor an integer, the error message will be:
-<code>&quot;'&lt;INPUT_TYPE&gt;' cannot be converted to 'Union[str, int]'&quot;</code>.</p>
+<code>&quot;'&lt;INPUT_TYPE&gt;' cannot be converted to 'str | int'&quot;</code>.</p>
 <h4 id="derivefrompyobject-container-attributes"><a class="header" href="#derivefrompyobject-container-attributes"><code>#[derive(FromPyObject)]</code> Container Attributes</a></h4>
 <ul>
 <li><code>pyo3(transparent)</code>
@@ -5378,6 +5378,9 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Deprecate FFI definitions <code>PyParser_SimpleParseStringFlags</code>, <code>PyParser_SimpleParseStringFlagsFilename</code>, <code>PyParser_SimpleParseFileFlags</code> when building for Python 3.9. <a href="https://github.com/PyO3/pyo3/pull/1830">#1830</a></li>
 <li>Mark FFI definitions removed in Python 3.10 <code>PyParser_ASTFromString</code>, <code>PyParser_ASTFromStringObject</code>, <code>PyParser_ASTFromFile</code>, <code>PyParser_ASTFromFileObject</code>, <code>PyParser_SimpleParseStringFlags</code>, <code>PyParser_SimpleParseStringFlagsFilename</code>, <code>PyParser_SimpleParseFileFlags</code>, <code>PyParser_SimpleParseString</code>, <code>PyParser_SimpleParseFile</code>, <code>Py_SymtableString</code>, and <code>Py_SymtableStringObject</code>. <a href="https://github.com/PyO3/pyo3/pull/1830">#1830</a></li>
 <li><code>pyo3</code>'s <code>Cargo.toml</code> now advertises <code>links = &quot;python&quot;</code> to inform Cargo that it links against <em>libpython</em>. <a href="https://github.com/PyO3/pyo3/pull/1819">#1819</a></li>
+<li>Move Py_DecodeLocale from sysmodule to fileutils. <a href="https://github.com/PyO3/pyo3/pull/1887">#1887</a></li>
+<li>Deprecate <code>PySys_AddWarnOption</code>, <code>PySys_AddWarnOptionUnicode</code> and <code>PySys_HasWarnOptions</code>. <a href="https://github.com/PyO3/pyo3/pull/1887">#1887</a></li>
+<li>Remove function PyTuple_ClearFreeList from python 3.9 above. <a href="https://github.com/PyO3/pyo3/pull/1887">#1887</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
