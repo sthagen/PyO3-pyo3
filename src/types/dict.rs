@@ -12,6 +12,8 @@ use std::collections::{BTreeMap, HashMap};
 use std::ptr::NonNull;
 use std::{cmp, collections, hash};
 
+use super::PyMapping;
+
 /// Represents a Python `dict`.
 #[repr(transparent)]
 pub struct PyDict(PyAny);
@@ -105,8 +107,7 @@ impl PyDict {
             let ptr = ffi::PyDict_GetItem(self.as_ptr(), key);
             NonNull::new(ptr).map(|p| {
                 // PyDict_GetItem return s borrowed ptr, must make it owned for safety (see #890).
-                ffi::Py_INCREF(p.as_ptr());
-                self.py().from_owned_ptr(p.as_ptr())
+                self.py().from_owned_ptr(ffi::_Py_NewRef(p.as_ptr()))
             })
         })
     }
@@ -178,6 +179,11 @@ impl PyDict {
             pos: 0,
         }
     }
+
+    /// Returns `self` cast as a `PyMapping`.
+    pub fn as_mapping(&self) -> &PyMapping {
+        unsafe { PyMapping::try_from_unchecked(self) }
+    }
 }
 
 pub struct PyDictIterator<'py> {
@@ -196,9 +202,10 @@ impl<'py> Iterator for PyDictIterator<'py> {
             if ffi::PyDict_Next(self.dict.as_ptr(), &mut self.pos, &mut key, &mut value) != 0 {
                 let py = self.dict.py();
                 // PyDict_Next returns borrowed values; for safety must make them owned (see #890)
-                ffi::Py_INCREF(key);
-                ffi::Py_INCREF(value);
-                Some((py.from_owned_ptr(key), py.from_owned_ptr(value)))
+                Some((
+                    py.from_owned_ptr(ffi::_Py_NewRef(key)),
+                    py.from_owned_ptr(ffi::_Py_NewRef(value)),
+                ))
             } else {
                 None
             }
@@ -760,6 +767,27 @@ mod tests {
 
             assert_eq!(py_map.len(), 3);
             assert_eq!(py_map.get_item("b").unwrap().extract::<i32>().unwrap(), 2);
+        });
+    }
+
+    #[test]
+    fn dict_as_mapping() {
+        Python::with_gil(|py| {
+            let mut map = HashMap::<i32, i32>::new();
+            map.insert(1, 1);
+
+            let py_map = map.into_py_dict(py);
+
+            assert_eq!(py_map.as_mapping().len().unwrap(), 1);
+            assert_eq!(
+                py_map
+                    .as_mapping()
+                    .get_item(1)
+                    .unwrap()
+                    .extract::<i32>()
+                    .unwrap(),
+                1
+            );
         });
     }
 }

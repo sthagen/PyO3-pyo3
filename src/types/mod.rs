@@ -17,6 +17,7 @@ pub use self::floatob::PyFloat;
 pub use self::function::{PyCFunction, PyFunction};
 pub use self::iterator::PyIterator;
 pub use self::list::PyList;
+pub use self::mapping::PyMapping;
 pub use self::module::PyModule;
 pub use self::num::PyLong;
 pub use self::num::PyLong as PyInt;
@@ -40,7 +41,7 @@ macro_rules! pyobject_native_type_base(
             fn fmt(&self, f: &mut ::std::fmt::Formatter)
                    -> ::std::result::Result<(), ::std::fmt::Error>
             {
-                let s = self.repr().map_err(|_| ::std::fmt::Error)?;
+                let s = self.repr().or(::std::result::Result::Err(::std::fmt::Error))?;
                 f.write_str(&s.to_string_lossy())
             }
         }
@@ -49,7 +50,7 @@ macro_rules! pyobject_native_type_base(
             fn fmt(&self, f: &mut ::std::fmt::Formatter)
                    -> ::std::result::Result<(), ::std::fmt::Error>
             {
-                let s = self.str().map_err(|_| ::std::fmt::Error)?;
+                let s = self.str().or(::std::result::Result::Err(::std::fmt::Error))?;
                 f.write_str(&s.to_string_lossy())
             }
         }
@@ -231,6 +232,7 @@ mod floatob;
 mod function;
 mod iterator;
 mod list;
+mod mapping;
 mod module;
 mod num;
 mod sequence;
