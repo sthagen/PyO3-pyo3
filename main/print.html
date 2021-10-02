@@ -1994,6 +1994,7 @@ both <code>Yield</code> values and <code>Return</code> a final value - see its d
 <tr><td><code>datetime.timedelta</code></td><td align="center">-</td><td align="center"><code>&amp;PyDelta</code></td></tr>
 <tr><td><code>typing.Optional[T]</code></td><td align="center"><code>Option&lt;T&gt;</code></td><td align="center">-</td></tr>
 <tr><td><code>typing.Sequence[T]</code></td><td align="center"><code>Vec&lt;T&gt;</code></td><td align="center"><code>&amp;PySequence</code></td></tr>
+<tr><td><code>typing.Mapping[K, V]</code></td><td align="center"><code>HashMap&lt;K, V&gt;</code>, <code>BTreeMap&lt;K, V&gt;</code>, <code>hashbrown::HashMap&lt;K, V&gt;</code><sup class="footnote-reference"><a href="#2">2</a></sup>, <code>indexmap::IndexMap&lt;K, V&gt;</code><sup class="footnote-reference"><a href="#3">3</a></sup></td><td align="center"><code>&amp;PyMapping</code></td></tr>
 <tr><td><code>typing.Iterator[Any]</code></td><td align="center">-</td><td align="center"><code>&amp;PyIterator</code></td></tr>
 <tr><td><code>typing.Union[...]</code></td><td align="center">See <a href="conversions/traits.html#deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums"><code>#[derive(FromPyObject)]</code></a></td><td align="center">-</td></tr>
 </tbody></table>
@@ -3044,8 +3045,9 @@ test_word_count_python_sequential                      27.3985 (15.82)    45.452
 <p>This feature is used when building Python extension modules to create wheels which are compatible with multiple Python versions.</p>
 <p>It restricts PyO3's API to a subset of the full Python API which is guaranteed by <a href="https://www.python.org/dev/peps/pep-0384/">PEP 384</a> to be forwards-compatible with future Python versions.</p>
 <p>See the <a href="building_and_distribution.html#py_limited_apiabi3">building and distribution</a> section for further detail.</p>
-<h3 id="abi3-py36--abi3-py37--abi3-py38--abi3-py39"><a class="header" href="#abi3-py36--abi3-py37--abi3-py38--abi3-py39"><code>abi3-py36</code> / <code>abi3-py37</code> / <code>abi3-py38</code> / <code>abi3-py39</code></a></h3>
-<p>These features are an extension of the <code>abi3</code> feature to specify the exact minimum Python version which the multiple-version-wheel will support.</p>
+<h3 id="the-abi3-pyxy-features"><a class="header" href="#the-abi3-pyxy-features">The <code>abi3-pyXY</code> features</a></h3>
+<p>(<code>abi3-py36</code>, <code>abi3-py37</code>, <code>abi3-py38</code>, <code>abi3-py39</code>, and <code>abi3-py310</code>)</p>
+<p>These features are extensions of the <code>abi3</code> feature to specify the exact minimum Python version which the multiple-version-wheel will support.</p>
 <p>See the <a href="building_and_distribution.html#minimum-python-version-for-abi3">building and distribution</a> section for further detail.</p>
 <h2 id="features-for-embedding-python-in-rust"><a class="header" href="#features-for-embedding-python-in-rust">Features for embedding Python in Rust</a></h2>
 <h3 id="auto-initialize"><a class="header" href="#auto-initialize"><code>auto-initialize</code></a></h3>
@@ -5354,6 +5356,10 @@ PyO3 versions, please see the <a href="https://pyo3.rs/latest/migration.html">mi
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0145headunreleaseda"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0145headunreleaseda"><a href="https://github.com/pyo3/pyo3/compare/v0.14.5...HEAD">Unreleased</a></a></h2>
+<h3 id="packaging"><a class="header" href="#packaging">Packaging</a></h3>
+<ul>
+<li>Support Python 3.10. <a href="https://github.com/PyO3/pyo3/pull/1889">#1889</a></li>
+</ul>
 <h3 id="added"><a class="header" href="#added">Added</a></h3>
 <ul>
 <li>Add <code>PyList::get_item_unchecked</code> and <code>PyTuple::get_item_unchecked</code> to get items without bounds checks. <a href="https://github.com/PyO3/pyo3/pull/1733">#1733</a></li>
@@ -5361,8 +5367,10 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Add <code>PyAny::py</code> as a convenience for <code>PyNativeType::py</code>. <a href="https://github.com/PyO3/pyo3/pull/1751">#1751</a></li>
 <li>Add implementation of <code>std::ops::Index&lt;usize&gt;</code> for <code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>. <a href="https://github.com/PyO3/pyo3/pull/1825">#1825</a></li>
 <li>Add range indexing implementations of <code>std::ops::Index</code> for <code>PyList</code>, <code>PyTuple</code> and <code>PySequence</code>. <a href="https://github.com/PyO3/pyo3/pull/1829">#1829</a></li>
+<li>Add <code>PyMapping</code> type to represent the Python mapping protocol. <a href="https://github.com/PyO3/pyo3/pull/1844">#1844</a></li>
 <li>Add commonly-used sequence methods to <code>PyList</code> and <code>PyTuple</code>. <a href="https://github.com/PyO3/pyo3/pull/1849">#1849</a></li>
 <li>Add <code>as_sequence</code> methods to <code>PyList</code> and <code>PyTuple</code>. <a href="https://github.com/PyO3/pyo3/pull/1860">#1860</a></li>
+<li>Add <code>abi3-py310</code> feature. <a href="https://github.com/PyO3/pyo3/pull/1889">#1889</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
@@ -5387,6 +5395,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix building with a conda environment on Windows. <a href="https://github.com/PyO3/pyo3/pull/1873">#1873</a></li>
 <li>Fix panic on Python 3.6 when calling <code>Python::with_gil</code> with Python initialized but threading not initialized. <a href="https://github.com/PyO3/pyo3/pull/1874">#1874</a></li>
 <li>Fix incorrect linking to version-specific DLL instead of <code>python3.dll</code> when cross-compiling to Windows with <code>abi3</code>. <a href="https://github.com/PyO3/pyo3/pull/1880">#1880</a></li>
+<li>Fix panic in generated <code>#[derive(FromPyObject)]</code> for enums. <a href="https://github.com/PyO3/pyo3/pull/1888">#1888</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0144v01450145a---2021-09-05"><a href="https://github.com/pyo3/pyo3/compare/v0.14.4...v0.14.5">0.14.5</a> - 2021-09-05</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
@@ -5450,7 +5459,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix crashes on PyPy due to incorrect definitions of <code>PyList_SET_ITEM</code>. <a href="https://github.com/PyO3/pyo3/pull/1713">#1713</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0132v01400140a---2021-07-03"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0132v01400140a---2021-07-03"><a href="https://github.com/pyo3/pyo3/compare/v0.13.2...v0.14.0">0.14.0</a> - 2021-07-03</a></h2>
-<h3 id="packaging"><a class="header" href="#packaging">Packaging</a></h3>
+<h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>
 <ul>
 <li>Update <code>num-bigint</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1481">#1481</a></li>
 <li>Update <code>num-complex</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1482">#1482</a></li>
@@ -5560,7 +5569,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix <code>ToPyObject</code> impl for <code>HashSet</code> to accept non-default hashers. <a href="https://github.com/PyO3/pyo3/pull/1702">#1702</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a href="https://github.com/pyo3/pyo3/compare/v0.13.1...v0.13.2">0.13.2</a> - 2021-02-12</a></h2>
-<h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>
+<h3 id="packaging-2"><a class="header" href="#packaging-2">Packaging</a></h3>
 <ul>
 <li>Lower minimum supported Rust version to 1.41. <a href="https://github.com/PyO3/pyo3/pull/1421">#1421</a></li>
 </ul>
@@ -5619,7 +5628,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix missing <code>Py_INCREF</code> on heap type objects on Python versions before 3.8. <a href="https://github.com/PyO3/pyo3/pull/1365">#1365</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0124v01300130a---2020-12-22"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0124v01300130a---2020-12-22"><a href="https://github.com/pyo3/pyo3/compare/v0.12.4...v0.13.0">0.13.0</a> - 2020-12-22</a></h2>
-<h3 id="packaging-2"><a class="header" href="#packaging-2">Packaging</a></h3>
+<h3 id="packaging-3"><a class="header" href="#packaging-3">Packaging</a></h3>
 <ul>
 <li>Drop support for Python 3.5 (as it is now end-of-life). <a href="https://github.com/PyO3/pyo3/pull/1250">#1250</a></li>
 <li>Bump minimum supported Rust version to 1.45. <a href="https://github.com/PyO3/pyo3/pull/1272">#1272</a></li>

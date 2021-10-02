@@ -788,10 +788,6 @@
 <span id="788">788</span>
 <span id="789">789</span>
 <span id="790">790</span>
-<span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1051,8 +1047,7 @@
                 <span class="ident">_slf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
                 <span class="ident">_other</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
             ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
-                <span class="ident">ffi::Py_INCREF</span>(<span class="ident">ffi::Py_NotImplemented</span>());
-                <span class="prelude-val">Ok</span>(<span class="ident">ffi::Py_NotImplemented</span>())
+                <span class="prelude-val">Ok</span>(<span class="ident">ffi::_Py_NewRef</span>(<span class="ident">ffi::Py_NotImplemented</span>()))
             }
         }
 
@@ -1067,8 +1062,7 @@
                 <span class="ident">_slf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
                 <span class="ident">_other</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
             ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
-                <span class="ident">ffi::Py_INCREF</span>(<span class="ident">ffi::Py_NotImplemented</span>());
-                <span class="prelude-val">Ok</span>(<span class="ident">ffi::Py_NotImplemented</span>())
+                <span class="prelude-val">Ok</span>(<span class="ident">ffi::_Py_NewRef</span>(<span class="ident">ffi::Py_NotImplemented</span>()))
             }
         }
 
@@ -1223,8 +1217,7 @@
         <span class="ident">_other</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
-        <span class="ident">ffi::Py_INCREF</span>(<span class="ident">ffi::Py_NotImplemented</span>());
-        <span class="prelude-val">Ok</span>(<span class="ident">ffi::Py_NotImplemented</span>())
+        <span class="prelude-val">Ok</span>(<span class="ident">ffi::_Py_NewRef</span>(<span class="ident">ffi::Py_NotImplemented</span>()))
     }
 }
 
@@ -1240,8 +1233,7 @@
         <span class="ident">_other</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
-        <span class="ident">ffi::Py_INCREF</span>(<span class="ident">ffi::Py_NotImplemented</span>());
-        <span class="prelude-val">Ok</span>(<span class="ident">ffi::Py_NotImplemented</span>())
+        <span class="prelude-val">Ok</span>(<span class="ident">ffi::_Py_NewRef</span>(<span class="ident">ffi::Py_NotImplemented</span>()))
     }
 }
 

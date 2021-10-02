@@ -100,6 +100,14 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::pyport::Py_ssize_t</span>;
 <span class="kw">use</span> <span class="ident">libc::size_t</span>;
@@ -130,6 +138,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyObject_NewVar</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyTypeObject</span>, <span class="ident">arg2</span>: <span class="ident">Py_ssize_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyVarObject</span>;
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyGC_Collect</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_ssize_t</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyGC_Enable</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyGC_Disable</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyGC_IsEnabled</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
 }
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>

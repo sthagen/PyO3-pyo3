@@ -173,6 +173,7 @@
 <tr><td><code>datetime.timedelta</code></td><td align="center">-</td><td align="center"><code>&amp;PyDelta</code></td></tr>
 <tr><td><code>typing.Optional[T]</code></td><td align="center"><code>Option&lt;T&gt;</code></td><td align="center">-</td></tr>
 <tr><td><code>typing.Sequence[T]</code></td><td align="center"><code>Vec&lt;T&gt;</code></td><td align="center"><code>&amp;PySequence</code></td></tr>
+<tr><td><code>typing.Mapping[K, V]</code></td><td align="center"><code>HashMap&lt;K, V&gt;</code>, <code>BTreeMap&lt;K, V&gt;</code>, <code>hashbrown::HashMap&lt;K, V&gt;</code><sup class="footnote-reference"><a href="#2">2</a></sup>, <code>indexmap::IndexMap&lt;K, V&gt;</code><sup class="footnote-reference"><a href="#3">3</a></sup></td><td align="center"><code>&amp;PyMapping</code></td></tr>
 <tr><td><code>typing.Iterator[Any]</code></td><td align="center">-</td><td align="center"><code>&amp;PyIterator</code></td></tr>
 <tr><td><code>typing.Union[...]</code></td><td align="center">See <a href="traits.html#deriving-a-hrefhttpsdocsrspyo3latestpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums"><code>#[derive(FromPyObject)]</code></a></td><td align="center">-</td></tr>
 </tbody></table>

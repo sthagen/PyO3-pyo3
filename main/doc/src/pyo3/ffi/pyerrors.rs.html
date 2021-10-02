@@ -410,6 +410,9 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi::pyport::Py_ssize_t</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
@@ -570,7 +573,7 @@
     <span class="ident">end</span>: <span class="ident">Py_ssize_t</span>,
     <span class="ident">_reason</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
-    <span class="kw">return</span> <span class="ident"><span class="kw">crate</span>::ffi::PyObject_CallFunction</span>(
+    <span class="ident"><span class="kw">crate</span>::ffi::PyObject_CallFunction</span>(
         <span class="ident">PyExc_UnicodeDecodeError</span>,
         <span class="ident">std::ffi::CStr::from_bytes_with_nul</span>(<span class="string">b&quot;sy#nns\0&quot;</span>)
             .<span class="ident">unwrap</span>()
@@ -580,7 +583,7 @@
         <span class="ident">length</span>,
         <span class="ident">start</span>,
         <span class="ident">end</span>,
-    );
+    )
 }
 
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">windows</span>, <span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;pythonXY&quot;</span>))]</span>
@@ -786,6 +789,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyErr_CheckSignals</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyErr_SetInterrupt&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyErr_SetInterrupt</span>();
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyErr_SetInterruptEx</span>(<span class="ident">signum</span>: <span class="ident">c_int</span>);
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyErr_SyntaxLocation</span>(<span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>, <span class="ident">lineno</span>: <span class="ident">c_int</span>);
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyErr_SyntaxLocationEx</span>(<span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>, <span class="ident">lineno</span>: <span class="ident">c_int</span>, <span class="ident">col_offset</span>: <span class="ident">c_int</span>);
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyErr_ProgramText</span>(<span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>, <span class="ident">lineno</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
