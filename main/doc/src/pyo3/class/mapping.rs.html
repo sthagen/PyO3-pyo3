@@ -99,28 +99,28 @@
 <span class="doccomment">/// Mapping interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyMappingProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
-    <span class="kw">fn</span> <span class="ident">__len__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__len__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyMappingLenProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__getitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident"><span class="self">Self</span>::Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__getitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident"><span class="self">Self</span>::Key</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyMappingGetItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__setitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident"><span class="self">Self</span>::Key</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__setitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident"><span class="self">Self</span>::Key</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Value</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyMappingSetItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__delitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident"><span class="self">Self</span>::Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__delitem__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident"><span class="self">Self</span>::Key</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyMappingDelItemProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
@@ -131,7 +131,7 @@
         <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
         <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__reversed__` in `#[pymethods]` instead of in a protocol&quot;</span>
     )]</span>
-    <span class="kw">fn</span> <span class="ident">__reversed__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__reversed__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyMappingReversedProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {

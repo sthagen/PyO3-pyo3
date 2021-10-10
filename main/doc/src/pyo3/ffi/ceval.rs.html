@@ -106,12 +106,12 @@
         <span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">kwargs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyEval_CallObject</span>(<span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyEval_CallObject</span>(<span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
     <span class="ident">PyEval_CallObjectWithKeywords</span>(<span class="ident">func</span>, <span class="ident">arg</span>, <span class="ident">std::ptr::null_mut</span>())
 }
@@ -119,7 +119,7 @@
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_CallFunction&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_CallFunction</span>(<span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">format</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>, ...) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_CallFunction</span>(<span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">format</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>, ...) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_CallMethod&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_CallMethod</span>(
@@ -127,26 +127,26 @@
         <span class="ident">methodname</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
         <span class="ident">format</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
         ...
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_GetBuiltins&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetBuiltins</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetBuiltins</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_GetGlobals&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetGlobals</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetGlobals</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_GetLocals&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetLocals</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetFrame</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetLocals</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetFrame</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPy_AddPendingCall&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_AddPendingCall</span>(
-        <span class="ident">func</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span><span class="op">&gt;</span>,
+        <span class="ident">func</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) -&gt; <span class="ident">c_int</span><span class="op">&gt;</span>,
         <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPy_MakePendingCalls&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_MakePendingCalls</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_MakePendingCalls</span>() -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPy_SetRecursionLimit&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_SetRecursionLimit</span>(<span class="ident">arg1</span>: <span class="ident">c_int</span>);
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPy_GetRecursionLimit&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_GetRecursionLimit</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">fn</span> <span class="ident">_Py_CheckRecursiveCall</span>(<span class="ident">_where</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_GetRecursionLimit</span>() -&gt; <span class="ident">c_int</span>;
+    <span class="kw">fn</span> <span class="ident">_Py_CheckRecursiveCall</span>(<span class="ident">_where</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>) -&gt; <span class="ident">c_int</span>;
 }
 
 <span class="comment">// TODO</span>
@@ -154,13 +154,13 @@
 <span class="comment">// skipped Py_LeaveRecursiveCall</span>
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetFuncName</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetFuncDesc</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetCallStats</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_EvalFrame</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_EvalFrameEx</span>(<span class="ident">f</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>, <span class="ident">exc</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetFuncName</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetFuncDesc</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetCallStats</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_EvalFrame</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_EvalFrameEx</span>(<span class="ident">f</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>, <span class="ident">exc</span>: <span class="ident">c_int</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_SaveThread&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_SaveThread</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_SaveThread</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_RestoreThread&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_RestoreThread</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>);
 }
@@ -168,7 +168,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;WITH_THREAD&quot;</span>)]</span>
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_ThreadsInitialized&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_ThreadsInitialized</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_ThreadsInitialized</span>() -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyEval_InitThreads&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_InitThreads</span>();
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_AcquireLock</span>();

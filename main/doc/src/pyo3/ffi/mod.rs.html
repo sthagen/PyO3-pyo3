@@ -269,7 +269,7 @@
 <span class="comment">// model opaque types:</span>
 <span class="comment">// https://doc.rust-lang.org/nomicon/ffi.html#representing-opaque-structs</span>
 <span class="macro">macro_rules!</span> <span class="ident">opaque_struct</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) =&gt; {
         <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>([<span class="ident">u8</span>; <span class="number">0</span>]);
     };

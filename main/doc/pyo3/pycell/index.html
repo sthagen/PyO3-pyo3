@@ -16,7 +16,7 @@ statically guarantee uniqueness of <code>&amp;mut</code> references. As such tho
 dynamically at runtime, using <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a> and the other types defined in this module. This works
 similar to std’s <a href="https://doc.rust-lang.org/nightly/core/cell/struct.RefCell.html"><code>RefCell</code></a> type.</li>
 </ul>
-<h1 id="when-not-to-use-pycell" class="section-header"><a href="#when-not-to-use-pycell">When <em>not</em> to use PyCell</a></h1>
+<h2 id="when-not-to-use-pycell" class="section-header"><a href="#when-not-to-use-pycell">When <em>not</em> to use PyCell</a></h2>
 <p>Usually you can use <code>&amp;mut</code> references as method and function receivers and arguments, and you
 won’t need to use <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a> directly:</p>
 
@@ -37,7 +37,7 @@ won’t need to use <a href="struct.PyCell.html" title="PyCell"><code>PyCell</co
 using <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a> under the hood:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="comment">// This function is exported to Python.</span>
-<span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">__wrap</span>(<span class="ident">slf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">_args</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+<span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">__wrap</span>(<span class="ident">slf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">_args</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="ident">pyo3::callback::handle_panic</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">cell</span>: <span class="kw-2">&amp;</span><span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">Number</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>(<span class="ident">slf</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_ref</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="ident">Number</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">cell</span>.<span class="ident">try_borrow_mut</span>()<span class="question-mark">?</span>;
@@ -45,7 +45,7 @@ using <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a> under 
         <span class="ident">pyo3::callback::convert</span>(<span class="ident">py</span>, <span class="ident">Number::increment</span>(<span class="ident">slf</span>))
     })
 }</code></pre></div>
-<h1 id="when-to-use-pycell" class="section-header"><a href="#when-to-use-pycell">When to use PyCell</a></h1><h2 id="using-pyclasses-from-rust" class="section-header"><a href="#using-pyclasses-from-rust">Using pyclasses from Rust</a></h2>
+<h2 id="when-to-use-pycell" class="section-header"><a href="#when-to-use-pycell">When to use PyCell</a></h2><h3 id="using-pyclasses-from-rust" class="section-header"><a href="#using-pyclasses-from-rust">Using pyclasses from Rust</a></h3>
 <p>However, we <em>do</em> need <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a> if we want to call its methods from Rust:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
@@ -67,7 +67,7 @@ using <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a> under 
 
     <span class="prelude-val">Ok</span>(())
 })</code></pre></div>
-<h2 id="dealing-with-possibly-overlapping-mutable-references" class="section-header"><a href="#dealing-with-possibly-overlapping-mutable-references">Dealing with possibly overlapping mutable references</a></h2>
+<h3 id="dealing-with-possibly-overlapping-mutable-references" class="section-header"><a href="#dealing-with-possibly-overlapping-mutable-references">Dealing with possibly overlapping mutable references</a></h3>
 <p>It is also necessary to use <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a> if you can receive mutable arguments that may overlap.
 Suppose the following function that swaps the values of two <code>Number</code>s:</p>
 
@@ -95,11 +95,11 @@ Traceback (most recent call last):
 }</code></pre></div>
 <p>See the <a href="https://pyo3.rs/latest/class.html#pycell-and-interior-mutability" title="PyCell and interior mutability">guide</a> for more information.</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.PyBorrowError.html" title="pyo3::pycell::PyBorrowError struct">PyBorrowError</a></div><div class="item-right docblock-short"><p>An error type returned by <a href="struct.PyCell.html#method.try_borrow" title="PyCell::try_borrow"><code>PyCell::try_borrow</code></a>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.PyBorrowMutError.html" title="pyo3::pycell::PyBorrowMutError struct">PyBorrowMutError</a></div><div class="item-right docblock-short"><p>An error type returned by <a href="struct.PyCell.html#method.try_borrow_mut" title="PyCell::try_borrow_mut"><code>PyCell::try_borrow_mut</code></a>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.PyCell.html" title="pyo3::pycell::PyCell struct">PyCell</a></div><div class="item-right docblock-short"><p>A container type for (mutably) accessing <a href="../pyclass/trait.PyClass.html" title="PyClass"><code>PyClass</code></a> values</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.PyRef.html" title="pyo3::pycell::PyRef struct">PyRef</a></div><div class="item-right docblock-short"><p>A wrapper type for an immutably borrowed value from a <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a><code>&lt;T&gt;</code>.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.PyRefMut.html" title="pyo3::pycell::PyRefMut struct">PyRefMut</a></div><div class="item-right docblock-short"><p>A wrapper type for a mutably borrowed value from a<a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a><code>&lt;T&gt;</code>.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PyBorrowError.html" title="pyo3::pycell::PyBorrowError struct">PyBorrowError</a></div><div class="item-right docblock-short"><p>An error type returned by <a href="struct.PyCell.html#method.try_borrow" title="PyCell::try_borrow"><code>PyCell::try_borrow</code></a>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PyBorrowMutError.html" title="pyo3::pycell::PyBorrowMutError struct">PyBorrowMutError</a></div><div class="item-right docblock-short"><p>An error type returned by <a href="struct.PyCell.html#method.try_borrow_mut" title="PyCell::try_borrow_mut"><code>PyCell::try_borrow_mut</code></a>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PyCell.html" title="pyo3::pycell::PyCell struct">PyCell</a></div><div class="item-right docblock-short"><p>A container type for (mutably) accessing <a href="../pyclass/trait.PyClass.html" title="PyClass"><code>PyClass</code></a> values</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PyRef.html" title="pyo3::pycell::PyRef struct">PyRef</a></div><div class="item-right docblock-short"><p>A wrapper type for an immutably borrowed value from a <a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a><code>&lt;T&gt;</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PyRefMut.html" title="pyo3::pycell::PyRefMut struct">PyRefMut</a></div><div class="item-right docblock-short"><p>A wrapper type for a mutably borrowed value from a<a href="struct.PyCell.html" title="PyCell"><code>PyCell</code></a><code>&lt;T&gt;</code>.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>

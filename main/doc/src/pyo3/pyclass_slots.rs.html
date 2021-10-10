@@ -101,7 +101,7 @@
     <span class="doccomment">/// Whether this `__dict__` field is capable of holding a dictionary.</span>
     <span class="kw">const</span> <span class="ident">IS_DUMMY</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="doccomment">/// Initializes a [PyObject](crate::ffi::PyObject) `__dict__` reference.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span>;
     <span class="doccomment">/// Empties the dictionary of its key-value pairs.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">clear_dict</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {}
@@ -113,7 +113,7 @@
     <span class="doccomment">/// Whether this `weakref` type is capable of holding weak references.</span>
     <span class="kw">const</span> <span class="ident">IS_DUMMY</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="doccomment">/// Initializes a `weakref` instance.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span>;
     <span class="doccomment">/// Clears the weak references to the given object.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Safety</span>
@@ -130,7 +130,7 @@
 <span class="kw">impl</span> <span class="ident">PyClassDict</span> <span class="kw">for</span> <span class="ident">PyClassDummySlot</span> {
     <span class="macro">private_impl!</span> {}
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">PyClassDummySlot</span>
     }
 }
@@ -138,7 +138,7 @@
 <span class="kw">impl</span> <span class="ident">PyClassWeakRef</span> <span class="kw">for</span> <span class="ident">PyClassDummySlot</span> {
     <span class="macro">private_impl!</span> {}
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">PyClassDummySlot</span>
     }
 }
@@ -153,7 +153,7 @@
     <span class="macro">private_impl!</span> {}
     <span class="kw">const</span> <span class="ident">IS_DUMMY</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="ident">std::ptr::null_mut</span>())
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -174,7 +174,7 @@
     <span class="macro">private_impl!</span> {}
     <span class="kw">const</span> <span class="ident">IS_DUMMY</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="ident">std::ptr::null_mut</span>())
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>

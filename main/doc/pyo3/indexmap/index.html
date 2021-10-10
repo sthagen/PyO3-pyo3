@@ -5,14 +5,14 @@ with the difference that it preserves the insertion order when iterating over ke
 by Python’s 3.6+ dict implementation.</p>
 <p>Dictionary order is guaranteed to be insertion order in Python, hence IndexMap is a good candidate
 for maintaining an equivalent behaviour in Rust.</p>
-<h1 id="setup" class="section-header"><a href="#setup">Setup</a></h1>
+<h2 id="setup" class="section-header"><a href="#setup">Setup</a></h2>
 <p>To use this feature, add this to your <strong><code>Cargo.toml</code></strong>:</p>
 <div class="example-wrap"><pre class="language-toml"><code>[dependencies]
 indexmap = &quot;*&quot;
 pyo3 = { version = &quot;0.14.5&quot;, features = [&quot;indexmap&quot;] }</code></pre></div>
 <p>Note that you must use compatible versions of indexmap and PyO3.
 The required indexmap version may vary based on the version of PyO3.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <p>Using <a href="https://docs.rs/indexmap">indexmap</a> to return a dictionary with some statistics
 about a list of numbers. Because of the insertion order guarantees, the Python code will
 always print the same result, matching users’ expectations about Python’s dict.</p>
@@ -20,10 +20,10 @@ always print the same result, matching users’ expectations about Python’s di
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">indexmap</span>::{<span class="ident">indexmap</span>, <span class="ident">IndexMap</span>};
 <span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
 
-<span class="kw">fn</span> <span class="ident">median</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+<span class="kw">fn</span> <span class="ident">median</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">f32</span> {
     <span class="kw">let</span> <span class="ident">sorted_data</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">clone</span>().<span class="ident">sort</span>();
     <span class="kw">let</span> <span class="ident">mid</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">2</span>;
-    <span class="kw">if</span> (<span class="ident">data</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>) {
+    <span class="kw">if</span> (<span class="ident">data</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span>) {
         <span class="ident">data</span>[<span class="ident">mid</span>] <span class="kw">as</span> <span class="ident">f32</span>
     }
     <span class="kw">else</span> {
@@ -31,10 +31,10 @@ always print the same result, matching users’ expectations about Python’s di
     }
 }
 
-<span class="kw">fn</span> <span class="ident">mean</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+<span class="kw">fn</span> <span class="ident">mean</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">f32</span> {
     <span class="ident">data</span>.<span class="ident">iter</span>().<span class="ident">sum</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f32</span>
 }
-<span class="kw">fn</span> <span class="ident">mode</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+<span class="kw">fn</span> <span class="ident">mode</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">f32</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">frequency</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>(); <span class="comment">// we can use IndexMap as any hash table</span>
 
     <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">element</span> <span class="kw">in</span> <span class="ident">data</span> {
@@ -49,16 +49,16 @@ always print the same result, matching users’ expectations about Python’s di
   }
 
 <span class="attribute">#[<span class="ident">pyfunction</span>]</span>
-<span class="kw">fn</span> <span class="ident">calculate_statistics</span>(<span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">f32</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">calculate_statistics</span>(<span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">f32</span><span class="op">&gt;</span> {
     <span class="macro">indexmap!</span>{
-       <span class="string">&quot;median&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">median</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>),
-       <span class="string">&quot;mean&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">mean</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>),
-       <span class="string">&quot;mode&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">mode</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>),
+       <span class="string">&quot;median&quot;</span> =&gt; <span class="ident">median</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>),
+       <span class="string">&quot;mean&quot;</span> =&gt; <span class="ident">mean</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>),
+       <span class="string">&quot;mode&quot;</span> =&gt; <span class="ident">mode</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>),
     }
 }
 
 <span class="attribute">#[<span class="ident">pymodule</span>]</span>
-<span class="kw">fn</span> <span class="ident">my_module</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">PyModule</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">my_module</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">PyModule</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="ident">m</span>.<span class="ident">add_function</span>(<span class="macro">wrap_pyfunction!</span>(<span class="ident">calculate_statistics</span>, <span class="ident">m</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>

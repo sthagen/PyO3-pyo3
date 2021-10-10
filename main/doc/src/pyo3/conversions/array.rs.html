@@ -297,7 +297,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+        <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
             <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">to_object</span>(<span class="ident">py</span>)
         }
     }
@@ -307,12 +307,12 @@
         <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>))]</span>
-        <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
             <span class="ident">create_array_from_obj</span>(<span class="ident">obj</span>)
         }
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>)]</span>
-        <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
             <span class="ident">create_array_from_obj</span>(<span class="ident">obj</span>)
         }
     }
@@ -322,13 +322,13 @@
     <span class="kw">where</span>
         <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">T</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::buffer::Element</span>,
     {
-        <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
             <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AsPyPointer</span>;
             <span class="comment">// first try buffer protocol</span>
-            <span class="kw">if</span> <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::ffi::PyObject_CheckBuffer</span>(<span class="ident">obj</span>.<span class="ident">as_ptr</span>()) } <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::ffi::PyObject_CheckBuffer</span>(<span class="ident">obj</span>.<span class="ident">as_ptr</span>()) } <span class="op">==</span> <span class="number">1</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">buf</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::buffer::PyBuffer::get</span>(<span class="ident">obj</span>) {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">array</span> <span class="op">=</span> [<span class="ident">T::default</span>(); <span class="ident">N</span>];
-                    <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">dimensions</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">copy_to_slice</span>(<span class="ident">obj</span>.<span class="ident">py</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">array</span>).<span class="ident">is_ok</span>() {
+                    <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">dimensions</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">copy_to_slice</span>(<span class="ident">obj</span>.<span class="ident">py</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">array</span>).<span class="ident">is_ok</span>() {
                         <span class="ident">buf</span>.<span class="ident">release</span>(<span class="ident">obj</span>.<span class="ident">py</span>());
                         <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">array</span>);
                     }
@@ -339,7 +339,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">create_array_from_obj</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>[<span class="ident">T</span>; <span class="ident">N</span>]<span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">create_array_from_obj</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>[<span class="ident">T</span>; <span class="ident">N</span>]<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
     {
@@ -353,9 +353,9 @@
 
     <span class="comment">// TODO use std::array::try_from_fn, if that stabilises:</span>
     <span class="comment">// (https://github.com/rust-lang/rust/pull/75644)</span>
-    <span class="kw">fn</span> <span class="ident">array_try_from_fn</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">cb</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>[<span class="ident">T</span>; <span class="ident">N</span>], <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">array_try_from_fn</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">cb</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>[<span class="ident">T</span>; <span class="ident">N</span>], <span class="ident">E</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
     {
         <span class="comment">// Helper to safely create arrays since the standard library doesn&#39;t</span>
         <span class="comment">// provide one yet. Shouldn&#39;t be necessary in the future.</span>
@@ -413,7 +413,7 @@
             }
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">catch_unwind_silent</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="kw">_</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>[<span class="ident">CountDrop</span>; <span class="number">4</span>], ()<span class="op">&gt;</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::array_try_from_fn</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">2</span> {
                         <span class="macro">panic!</span>(<span class="string">&quot;peek a boo&quot;</span>);
                     }
                     <span class="prelude-val">Ok</span>(<span class="ident">CountDrop</span>)
@@ -434,14 +434,14 @@
                     .<span class="ident">unwrap</span>()
                     .<span class="ident">extract</span>()
                     .<span class="ident">unwrap</span>();
-                <span class="macro">assert!</span>(<span class="kw-2">&amp;</span><span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&quot;abcabcabcabcabcabcabcabcabcabcabc&quot;</span>);
+                <span class="macro">assert!</span>(<span class="kw-2">&amp;</span><span class="ident">v</span> <span class="op">==</span> <span class="string">b&quot;abcabcabcabcabcabcabcabcabcabcabc&quot;</span>);
             })
         }
 
         <span class="comment">// https://stackoverflow.com/a/59211505</span>
-        <span class="kw">fn</span> <span class="ident">catch_unwind_silent</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::thread::Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
+        <span class="kw">fn</span> <span class="ident">catch_unwind_silent</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">std::thread::Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
         <span class="kw">where</span>
-            <span class="ident">F</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> <span class="op">+</span> <span class="ident">panic::UnwindSafe</span>,
+            <span class="ident">F</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">panic::UnwindSafe</span>,
         {
             <span class="kw">let</span> <span class="ident">prev_hook</span> <span class="op">=</span> <span class="ident">panic::take_hook</span>();
             <span class="ident">panic::set_hook</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {}));
@@ -458,13 +458,13 @@
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>};
 
     <span class="macro">macro_rules!</span> <span class="ident">array_impls</span> {
-        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">expr</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">expr</span>),<span class="op">+</span>) =&gt; {
             $(
                 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>]
                 <span class="kw">where</span>
                     <span class="ident">T</span>: <span class="ident">ToPyObject</span>
                 {
-                    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+                    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
                         <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">to_object</span>(<span class="ident">py</span>)
                     }
                 }
@@ -474,14 +474,14 @@
                     <span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
                 {
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>))]</span>
-                    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">array</span> <span class="op">=</span> [<span class="ident">T::default</span>(); <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>];
                         <span class="ident">extract_sequence_into_slice</span>(<span class="ident">obj</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">array</span>)<span class="question-mark">?</span>;
                         <span class="prelude-val">Ok</span>(<span class="ident">array</span>)
                     }
 
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>)]</span>
-                    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">array</span> <span class="op">=</span> [<span class="ident">T::default</span>(); <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>];
                         <span class="ident">extract_sequence_into_slice</span>(<span class="ident">obj</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">array</span>)<span class="question-mark">?</span>;
                         <span class="prelude-val">Ok</span>(<span class="ident">array</span>)
@@ -493,12 +493,12 @@
                 <span class="kw">where</span>
                     <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">T</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::buffer::Element</span>,
                 {
-                    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">array</span> <span class="op">=</span> [<span class="ident">T::default</span>(); <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>];
                         <span class="comment">// first try buffer protocol</span>
-                        <span class="kw">if</span> <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::ffi::PyObject_CheckBuffer</span>(<span class="ident">obj</span>.<span class="ident">as_ptr</span>()) } <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                        <span class="kw">if</span> <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::ffi::PyObject_CheckBuffer</span>(<span class="ident">obj</span>.<span class="ident">as_ptr</span>()) } <span class="op">==</span> <span class="number">1</span> {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">buf</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::buffer::PyBuffer::get</span>(<span class="ident">obj</span>) {
-                                <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">dimensions</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">copy_to_slice</span>(<span class="ident">obj</span>.<span class="ident">py</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">array</span>).<span class="ident">is_ok</span>() {
+                                <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">dimensions</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">copy_to_slice</span>(<span class="ident">obj</span>.<span class="ident">py</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">array</span>).<span class="ident">is_ok</span>() {
                                     <span class="ident">buf</span>.<span class="ident">release</span>(<span class="ident">obj</span>.<span class="ident">py</span>());
                                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">array</span>);
                                 }
@@ -521,7 +521,7 @@
     );
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">min_const_generics</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">extract_sequence_into_slice</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">PyAny</span>, <span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">extract_sequence_into_slice</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">PyAny</span>, <span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
     {
@@ -537,7 +537,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">invalid_sequence_length</span>(<span class="ident">expected</span>: <span class="ident">usize</span>, <span class="ident">actual</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
+<span class="kw">fn</span> <span class="ident">invalid_sequence_length</span>(<span class="ident">expected</span>: <span class="ident">usize</span>, <span class="ident">actual</span>: <span class="ident">usize</span>) -&gt; <span class="ident">PyErr</span> {
     <span class="ident">exceptions::PyValueError::new_err</span>(<span class="macro">format!</span>(
         <span class="string">&quot;expected a sequence of length {} (got {})&quot;</span>,
         <span class="ident">expected</span>, <span class="ident">actual</span>
@@ -556,7 +556,7 @@
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">extract</span>()
                 .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="kw-2">&amp;</span><span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&quot;abc&quot;</span>);
+            <span class="macro">assert!</span>(<span class="kw-2">&amp;</span><span class="ident">v</span> <span class="op">==</span> <span class="string">b&quot;abc&quot;</span>);
         });
     }
 

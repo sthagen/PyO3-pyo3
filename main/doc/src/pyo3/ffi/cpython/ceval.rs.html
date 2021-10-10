@@ -19,8 +19,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyEval_EvalFrameDefault</span>(
         <span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>,
         <span class="ident">exc</span>: <span class="ident">c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyEval_RequestCodeExtraIndex</span>(<span class="ident">func</span>: <span class="ident">freefunc</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyEval_RequestCodeExtraIndex</span>(<span class="ident">func</span>: <span class="ident">freefunc</span>) -&gt; <span class="ident">c_int</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_SetProfile</span>(<span class="ident">trace_func</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Py_tracefunc</span><span class="op">&gt;</span>, <span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>);
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_SetTrace</span>(<span class="ident">trace_func</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Py_tracefunc</span><span class="op">&gt;</span>, <span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>);
 }

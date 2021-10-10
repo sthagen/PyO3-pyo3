@@ -63,7 +63,7 @@
     <span class="comment">// skipped non-limited _Py_HashPointerRaw</span>
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_Py_HashBytes</span>(<span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>, <span class="ident">len</span>: <span class="ident">Py_ssize_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_hash_t</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_Py_HashBytes</span>(<span class="ident">src</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>, <span class="ident">len</span>: <span class="ident">Py_ssize_t</span>) -&gt; <span class="ident">Py_hash_t</span>;
 }
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">_PyHASH_MULTIPLIER</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1000003</span>;
@@ -76,7 +76,7 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyHash_FuncDef</span> {
-    <span class="kw">pub</span> <span class="ident">hash</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>, <span class="ident">arg2</span>: <span class="ident">Py_ssize_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_hash_t</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">hash</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>, <span class="ident">arg2</span>: <span class="ident">Py_ssize_t</span>) -&gt; <span class="ident">Py_hash_t</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
     <span class="kw">pub</span> <span class="ident">hash_bits</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">seed_bits</span>: <span class="ident">c_int</span>,
@@ -85,14 +85,14 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PyHash_FuncDef</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="kw">unsafe</span> { <span class="ident">std::mem::zeroed</span>() }
     }
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyHash_GetFuncDef</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyHash_FuncDef</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyHash_GetFuncDef</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyHash_FuncDef</span>;
 }
 
 <span class="comment">// skipped Py_HASH_CUTOFF</span>

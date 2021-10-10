@@ -326,7 +326,7 @@
     <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     <span class="ident">H</span>: <span class="ident">hash::BuildHasher</span>,
 {
-    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="ident">IntoPyDict::into_py_dict</span>(<span class="self">self</span>, <span class="ident">py</span>).<span class="ident">into</span>()
     }
 }
@@ -337,7 +337,7 @@
     <span class="ident">V</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>,
     <span class="ident">H</span>: <span class="ident">hash::BuildHasher</span>,
 {
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">into_py</span>(<span class="ident">py</span>), <span class="ident">v</span>.<span class="ident">into_py</span>(<span class="ident">py</span>)));
@@ -351,7 +351,7 @@
     <span class="ident">V</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;source</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">hash::BuildHasher</span> <span class="op">+</span> <span class="ident">Default</span>,
 {
-    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">ob</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">PyErr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">ob</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">PyErr</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyDict</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">indexmap::IndexMap::with_capacity_and_hasher</span>(<span class="ident">dict</span>.<span class="ident">len</span>(), <span class="ident">S::default</span>());
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">dict</span>.<span class="ident">iter</span>() {
@@ -376,8 +376,8 @@
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
             <span class="kw">let</span> <span class="ident">py_map</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyDict</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">m</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
 
-            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
-            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">get_item</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>);
+            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">get_item</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="number">1</span>);
             <span class="macro">assert_eq!</span>(
                 <span class="ident">map</span>,
                 <span class="ident">py_map</span>.<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">indexmap::IndexMap</span>::<span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()
@@ -394,8 +394,8 @@
             <span class="kw">let</span> <span class="ident">m</span>: <span class="ident">PyObject</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">into_py</span>(<span class="ident">py</span>);
             <span class="kw">let</span> <span class="ident">py_map</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyDict</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">m</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
 
-            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
-            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">get_item</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>);
+            <span class="macro">assert!</span>(<span class="ident">py_map</span>.<span class="ident">get_item</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="number">1</span>);
         });
     }
 
@@ -419,7 +419,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">indexmap::IndexMap</span>::<span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">i32</span><span class="op">&gt;</span><span class="ident">::new</span>();
 
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="ident">n</span> {
-                <span class="kw">if</span> <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                <span class="kw">if</span> <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">1</span> {
                     <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">i</span>);
                 } <span class="kw">else</span> {
                     <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">n</span> <span class="op">-</span> <span class="ident">i</span>, <span class="ident">i</span>);

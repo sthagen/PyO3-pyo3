@@ -3,7 +3,7 @@
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This trait represents that <strong>we can do zero-cost conversion from the object
 to a FFI pointer</strong>.</p>
 <p>This trait is implemented for types that internally wrap a pointer to a Python object.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="ident">pyo3::types::PyDict::new</span>(<span class="ident">py</span>);

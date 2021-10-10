@@ -64,7 +64,7 @@
         <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
         <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__enter__` in `#[pymethods]` instead of in a protocol&quot;</span>
     )]</span>
-    <span class="kw">fn</span> <span class="ident">__enter__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__enter__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyContextEnterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
@@ -80,7 +80,7 @@
         <span class="ident">exc_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::ExcType</span><span class="op">&gt;</span>,
         <span class="ident">exc_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::ExcValue</span><span class="op">&gt;</span>,
         <span class="ident">traceback</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Traceback</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    ) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyContextExitProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {

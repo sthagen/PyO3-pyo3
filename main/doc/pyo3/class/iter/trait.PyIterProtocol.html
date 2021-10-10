@@ -6,7 +6,7 @@
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Python Iterator Interface.</p>
 <p>Check <a href="https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_iter">CPython doc</a>
 for more.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <p>The following example shows how to implement a simple Python iterator in Rust which yields
 the integers 1 to 5, before raising <code>StopIteration(&quot;Ended&quot;)</code>.</p>
 
@@ -21,7 +21,7 @@ the integers 1 to 5, before raising <code>StopIteration(&quot;Ended&quot;)</code
 
 <span class="attribute">#[<span class="ident">pyproto</span>]</span>
 <span class="kw">impl</span> <span class="ident">PyIterProtocol</span> <span class="kw">for</span> <span class="ident">Iter</span> {
-    <span class="kw">fn</span> <span class="ident">__next__</span>(<span class="kw-2">mut</span> <span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterNextOutput</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">__next__</span>(<span class="kw-2">mut</span> <span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">IterNextOutput</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">slf</span>.<span class="ident">count</span> <span class="op">&lt;</span> <span class="number">5</span> {
             <span class="ident">slf</span>.<span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">IterNextOutput::Yield</span>(<span class="ident">slf</span>.<span class="ident">count</span>)

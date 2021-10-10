@@ -17,7 +17,7 @@
 <span class="macro">opaque_struct!</span>(<span class="ident">PyFrameObject</span>);
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_GetLineNumber</span>(<span class="ident">f</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFrameObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_GetLineNumber</span>(<span class="ident">f</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFrameObject</span>) -&gt; <span class="ident">c_int</span>;
 }
 <span class="comment">// skipped PyFrame_GetCode</span>
 </code></pre></div>

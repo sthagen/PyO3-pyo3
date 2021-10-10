@@ -88,7 +88,7 @@
         <span class="ident">key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">item</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">hash</span>: <span class="ident"><span class="kw">crate</span>::ffi::Py_hash_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
     <span class="comment">// skipped _PyDict_DelItem_KnownHash</span>
     <span class="comment">// skipped _PyDict_DelItemIf</span>
     <span class="comment">// skipped _PyDict_NewKeysForClass</span>
@@ -98,11 +98,11 @@
         <span class="ident">key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">value</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">hash</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::Py_hash_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
     <span class="comment">// skipped PyDict_GET_SIZE</span>
     <span class="comment">// skipped _PyDict_Contains_KnownHash</span>
     <span class="comment">// skipped _PyDict_ContainsId</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyDict_NewPresized</span>(<span class="ident">minused</span>: <span class="ident">Py_ssize_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyDict_NewPresized</span>(<span class="ident">minused</span>: <span class="ident">Py_ssize_t</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
     <span class="comment">// skipped _PyDict_MaybeUntrack</span>
     <span class="comment">// skipped _PyDict_HasOnlyStringKeys</span>
     <span class="comment">// skipped _PyDict_KeysSize</span>
@@ -122,7 +122,7 @@
     <span class="comment">// skipped _PyDictView_New</span>
     <span class="comment">// skipped _PyDictView_Intersect</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyDict_Contains</span>(<span class="ident">mp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">hash</span>: <span class="ident">Py_ssize_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyDict_Contains</span>(<span class="ident">mp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">hash</span>: <span class="ident">Py_ssize_t</span>) -&gt; <span class="ident">c_int</span>;
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="pyo3" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

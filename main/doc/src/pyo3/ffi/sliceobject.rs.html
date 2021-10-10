@@ -110,7 +110,7 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">Py_Ellipsis</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">Py_Ellipsis</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">_Py_EllipsisObject</span>
 }
 
@@ -131,8 +131,8 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PySlice_Check</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
-    (<span class="ident">Py_TYPE</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PySlice_Type</span>) <span class="kw">as</span> <span class="ident">c_int</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PySlice_Check</span>(<span class="ident">op</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span> {
+    (<span class="ident">Py_TYPE</span>(<span class="ident">op</span>) <span class="op">==</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PySlice_Type</span>) <span class="kw">as</span> <span class="ident">c_int</span>
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
@@ -141,7 +141,7 @@
         <span class="ident">start</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">stop</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">step</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 
     <span class="comment">// skipped non-limited _PySlice_FromIndices</span>
     <span class="comment">// skipped non-limited _PySlice_GetLongIndices</span>
@@ -153,7 +153,7 @@
         <span class="ident">start</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">stop</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">step</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPySlice_GetIndicesEx&quot;</span>)]</span>
@@ -164,7 +164,7 @@
         <span class="ident">stop</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">step</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">slicelength</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_7</span>)]</span>
@@ -176,7 +176,7 @@
     <span class="ident">stop</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
     <span class="ident">step</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
     <span class="ident">slicelength</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
+) -&gt; <span class="ident">c_int</span> {
     <span class="kw">if</span> <span class="ident">PySlice_Unpack</span>(<span class="ident">slice</span>, <span class="ident">start</span>, <span class="ident">stop</span>, <span class="ident">step</span>) <span class="op">&lt;</span> <span class="number">0</span> {
         <span class="kw-2">*</span><span class="ident">slicelength</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="op">-</span><span class="number">1</span>
@@ -193,14 +193,14 @@
         <span class="ident">start</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">stop</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">step</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PySlice_AdjustIndices</span>(
         <span class="ident">length</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">start</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">stop</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
         <span class="ident">step</span>: <span class="ident">Py_ssize_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_ssize_t</span>;
+    ) -&gt; <span class="ident">Py_ssize_t</span>;
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

@@ -219,13 +219,13 @@
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Ok</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Error</span>(<span class="ident">err_msg</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_NoMemory</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Exit</span>(<span class="ident">exitcode</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_IsError</span>(<span class="ident">err</span>: <span class="ident">PyStatus</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_IsExit</span>(<span class="ident">err</span>: <span class="ident">PyStatus</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Exception</span>(<span class="ident">err</span>: <span class="ident">PyStatus</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Ok</span>() -&gt; <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Error</span>(<span class="ident">err_msg</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) -&gt; <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_NoMemory</span>() -&gt; <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Exit</span>(<span class="ident">exitcode</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_IsError</span>(<span class="ident">err</span>: <span class="ident">PyStatus</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_IsExit</span>(<span class="ident">err</span>: <span class="ident">PyStatus</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyStatus_Exception</span>(<span class="ident">err</span>: <span class="ident">PyStatus</span>) -&gt; <span class="ident">c_int</span>;
 }
 
 <span class="comment">/* --- PyWideStringList ------------------------------------------------ */</span>
@@ -238,12 +238,12 @@
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyWideStringList_Append</span>(<span class="ident">list</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyWideStringList</span>, <span class="ident">item</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wchar_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyWideStringList_Append</span>(<span class="ident">list</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyWideStringList</span>, <span class="ident">item</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wchar_t</span>) -&gt; <span class="ident">PyStatus</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyWideStringList_Insert</span>(
         <span class="ident">list</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyWideStringList</span>,
         <span class="ident">index</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">item</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wchar_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
 }
 
 <span class="comment">/* --- PyPreConfig ----------------------------------------------- */</span>
@@ -362,29 +362,29 @@
         <span class="ident">config</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyConfig</span>,
         <span class="ident">config_str</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wchar_t</span>,
         <span class="ident">str</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wchar_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyConfig_SetBytesString</span>(
         <span class="ident">config</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyConfig</span>,
         <span class="ident">config_str</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wchar_t</span>,
         <span class="ident">str</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyConfig_Read</span>(<span class="ident">config</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyConfig_Read</span>(<span class="ident">config</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyConfig</span>) -&gt; <span class="ident">PyStatus</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyConfig_SetBytesArgv</span>(
         <span class="ident">config</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyConfig</span>,
         <span class="ident">argc</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">argv</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyConfig_SetArgv</span>(
         <span class="ident">config</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyConfig</span>,
         <span class="ident">argc</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">argv</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wchar_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyConfig_SetWideStringList</span>(
         <span class="ident">config</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyConfig</span>,
         <span class="ident">list</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyWideStringList</span>,
         <span class="ident">length</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">items</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wchar_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
 }
 
 <span class="comment">/* --- Helper functions --------------------------------------- */</span>

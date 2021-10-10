@@ -76,11 +76,11 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyBufferProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="comment">// No default implementations so that implementors of this trait provide both methods.</span>
 
-    <span class="kw">fn</span> <span class="ident">bf_getbuffer</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::Py_buffer</span>, <span class="ident">flags</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">bf_getbuffer</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::Py_buffer</span>, <span class="ident">flags</span>: <span class="ident">c_int</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyBufferGetBufferProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">bf_releasebuffer</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::Py_buffer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">bf_releasebuffer</span>(<span class="ident">slf</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::Py_buffer</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyBufferReleaseBufferProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>;
 }
@@ -98,7 +98,7 @@
     <span class="ident">slf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
     <span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::Py_buffer</span>,
     <span class="ident">arg2</span>: <span class="ident">c_int</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>
+) -&gt; <span class="ident">c_int</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyBufferGetBufferProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {

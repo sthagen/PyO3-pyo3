@@ -53,23 +53,23 @@
 <span class="comment">// &quot;private&quot; functions in cpython/pylifecycle.h accepted in PEP 587</span>
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="comment">// skipped _Py_SetStandardStreamEncoding;</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_PreInitialize</span>(<span class="ident">src_config</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyPreConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_PreInitialize</span>(<span class="ident">src_config</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyPreConfig</span>) -&gt; <span class="ident">PyStatus</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_PreInitializeFromBytesArgs</span>(
         <span class="ident">src_config</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyPreConfig</span>,
         <span class="ident">argc</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">argv</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_PreInitializeFromArgs</span>(
         <span class="ident">src_config</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyPreConfig</span>,
         <span class="ident">argc</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">argv</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wchar_t</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_Py_IsCoreInitialized</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_Py_IsCoreInitialized</span>() -&gt; <span class="ident">c_int</span>;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_InitializeFromConfig</span>(<span class="ident">config</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_Py_InitializeMain</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_InitializeFromConfig</span>(<span class="ident">config</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PyConfig</span>) -&gt; <span class="ident">PyStatus</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_Py_InitializeMain</span>() -&gt; <span class="ident">PyStatus</span>;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_RunMain</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_RunMain</span>() -&gt; <span class="ident">c_int</span>;
 
     <span class="comment">// skipped Py_ExitStatusException</span>
 

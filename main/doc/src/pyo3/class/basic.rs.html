@@ -263,15 +263,15 @@
 }
 
 <span class="kw">impl</span> <span class="ident">CompareOp</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">op</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">op</span>: <span class="ident">c_int</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">op</span> {
-            <span class="ident">ffi::Py_LT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Lt</span>),
-            <span class="ident">ffi::Py_LE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Le</span>),
-            <span class="ident">ffi::Py_EQ</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Eq</span>),
-            <span class="ident">ffi::Py_NE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Ne</span>),
-            <span class="ident">ffi::Py_GT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Gt</span>),
-            <span class="ident">ffi::Py_GE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Ge</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ffi::Py_LT</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Lt</span>),
+            <span class="ident">ffi::Py_LE</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Le</span>),
+            <span class="ident">ffi::Py_EQ</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Eq</span>),
+            <span class="ident">ffi::Py_NE</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Ne</span>),
+            <span class="ident">ffi::Py_GT</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Gt</span>),
+            <span class="ident">ffi::Py_GE</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Ge</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
@@ -279,35 +279,35 @@
 <span class="doccomment">/// Basic Python class customization</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
-    <span class="kw">fn</span> <span class="ident">__getattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__getattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectGetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__setattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__setattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Value</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectSetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__delattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__delattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectDelAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__str__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__str__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectStrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__repr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__repr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectReprProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
@@ -318,14 +318,14 @@
         <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
         <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__format__` in `#[pymethods]` instead of in a protocol&quot;</span>
     )]</span>
-    <span class="kw">fn</span> <span class="ident">__format__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">format_spec</span>: <span class="ident"><span class="self">Self</span>::Format</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__format__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">format_spec</span>: <span class="ident"><span class="self">Self</span>::Format</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectFormatProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__hash__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__hash__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectHashProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
@@ -336,20 +336,20 @@
         <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.14.0&quot;</span>,
         <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer implementing `__bytes__` in `#[pymethods]` instead of in a protocol&quot;</span>
     )]</span>
-    <span class="kw">fn</span> <span class="ident">__bytes__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__bytes__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectBytesProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">__richcmp__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident"><span class="self">Self</span>::Other</span>, <span class="ident">op</span>: <span class="ident">CompareOp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__richcmp__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident"><span class="self">Self</span>::Other</span>, <span class="ident">op</span>: <span class="ident">CompareOp</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectRichcmpProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
-    <span class="kw">fn</span> <span class="ident">__bool__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Result</span>
+    <span class="kw">fn</span> <span class="ident">__bool__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">PyObjectBoolProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
     {
@@ -402,7 +402,7 @@
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">getattr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">slf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
     <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyObjectGetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
@@ -428,7 +428,7 @@
     <span class="ident">slf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
     <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>,
     <span class="ident">op</span>: <span class="ident">c_int</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">PyObjectRichcmpProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
 {
@@ -436,13 +436,13 @@
         <span class="kw">let</span> <span class="ident">slf</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">slf</span>);
         <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="macro">extract_or_return_not_implemented!</span>(<span class="ident">py</span>, <span class="ident">arg</span>);
         <span class="kw">let</span> <span class="ident">op</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">op</span> {
-            <span class="ident">ffi::Py_LT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CompareOp::Lt</span>,
-            <span class="ident">ffi::Py_LE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CompareOp::Le</span>,
-            <span class="ident">ffi::Py_EQ</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CompareOp::Eq</span>,
-            <span class="ident">ffi::Py_NE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CompareOp::Ne</span>,
-            <span class="ident">ffi::Py_GT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CompareOp::Gt</span>,
-            <span class="ident">ffi::Py_GE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CompareOp::Ge</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ffi::Py_LT</span> =&gt; <span class="ident">CompareOp::Lt</span>,
+            <span class="ident">ffi::Py_LE</span> =&gt; <span class="ident">CompareOp::Le</span>,
+            <span class="ident">ffi::Py_EQ</span> =&gt; <span class="ident">CompareOp::Eq</span>,
+            <span class="ident">ffi::Py_NE</span> =&gt; <span class="ident">CompareOp::Ne</span>,
+            <span class="ident">ffi::Py_GT</span> =&gt; <span class="ident">CompareOp::Gt</span>,
+            <span class="ident">ffi::Py_GE</span> =&gt; <span class="ident">CompareOp::Ge</span>,
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">exceptions::PyValueError::new_err</span>(
                     <span class="string">&quot;tp_richcompare called with invalid comparison operator&quot;</span>,
                 ))

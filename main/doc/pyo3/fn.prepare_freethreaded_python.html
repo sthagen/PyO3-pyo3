@@ -10,12 +10,12 @@ software). Support for this is tracked on the
 <a href="https://foss.heptapod.net/pypy/pypy/-/issues/3286">PyPy issue tracker</a>.</p>
 <p>Python 3.6 only: If the Python interpreter is initialized but Python threading is not, this
 function will initialize Python threading.</p>
-<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<h2 id="panics" class="section-header"><a href="#panics">Panics</a></h2>
 <ul>
 <li>Python 3.6 only: If this function needs to initialize Python threading but the calling thread
 is not the thread which initialized Python, this function will panic.</li>
 </ul>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="kw">fn</span> <span class="ident">main</span>() {

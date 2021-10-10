@@ -121,32 +121,32 @@
 
 <span class="doccomment">/// Convert `PyErr` to `io::Error`</span>
 <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">PyErr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">io::Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">PyErr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">PyErr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="macro">format!</span>(<span class="string">&quot;Python exception: {}&quot;</span>, <span class="ident">err</span>))
     }
 }
 
 <span class="doccomment">/// Create `OSError` from `io::Error`</span>
 <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyErr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">io::Error</span>) -&gt; <span class="ident">PyErr</span> {
         <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">kind</span>() {
-            <span class="ident">io::ErrorKind::BrokenPipe</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyBrokenPipeError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::ConnectionRefused</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyConnectionRefusedError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::ConnectionAborted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyConnectionAbortedError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::ConnectionReset</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyConnectionResetError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyInterruptedError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::NotFound</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyFileNotFoundError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::PermissionDenied</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyPermissionError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::AlreadyExists</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyFileExistsError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::WouldBlock</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyBlockingIOError::new_err</span>(<span class="ident">err</span>),
-            <span class="ident">io::ErrorKind::TimedOut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyTimeoutError::new_err</span>(<span class="ident">err</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exceptions::PyOSError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::BrokenPipe</span> =&gt; <span class="ident">exceptions::PyBrokenPipeError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::ConnectionRefused</span> =&gt; <span class="ident">exceptions::PyConnectionRefusedError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::ConnectionAborted</span> =&gt; <span class="ident">exceptions::PyConnectionAbortedError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::ConnectionReset</span> =&gt; <span class="ident">exceptions::PyConnectionResetError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::Interrupted</span> =&gt; <span class="ident">exceptions::PyInterruptedError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::NotFound</span> =&gt; <span class="ident">exceptions::PyFileNotFoundError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::PermissionDenied</span> =&gt; <span class="ident">exceptions::PyPermissionError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::AlreadyExists</span> =&gt; <span class="ident">exceptions::PyFileExistsError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::WouldBlock</span> =&gt; <span class="ident">exceptions::PyBlockingIOError::new_err</span>(<span class="ident">err</span>),
+            <span class="ident">io::ErrorKind::TimedOut</span> =&gt; <span class="ident">exceptions::PyTimeoutError::new_err</span>(<span class="ident">err</span>),
+            <span class="kw">_</span> =&gt; <span class="ident">exceptions::PyOSError::new_err</span>(<span class="ident">err</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">PyErrArguments</span> <span class="kw">for</span> <span class="ident">io::Error</span> {
-    <span class="kw">fn</span> <span class="ident">arguments</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">arguments</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">to_string</span>().<span class="ident">into_py</span>(<span class="ident">py</span>)
     }
 }
@@ -154,33 +154,33 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">std::fmt::Debug</span><span class="op">&gt;</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">std::io::IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">for</span> <span class="ident">PyErr</span>
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">std::io::IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">std::io::IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>) -&gt; <span class="ident">PyErr</span> {
         <span class="ident">exceptions::PyOSError::new_err</span>(<span class="ident">err</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">std::fmt::Debug</span><span class="op">&gt;</span> <span class="ident">PyErrArguments</span> <span class="kw">for</span> <span class="ident">std::io::IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">arguments</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">arguments</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">to_string</span>().<span class="ident">into_py</span>(<span class="ident">py</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">std::convert::Infallible</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyErr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::convert::Infallible</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::convert::Infallible</span>) -&gt; <span class="ident">PyErr</span> {
         <span class="macro">unreachable!</span>()
     }
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_to_pyerr</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pyexc</span>: <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pyexc</span>: <span class="ident">ty</span>) =&gt; {
         <span class="kw">impl</span> <span class="ident">PyErrArguments</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span> {
-            <span class="kw">fn</span> <span class="ident">arguments</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+            <span class="kw">fn</span> <span class="ident">arguments</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
                 <span class="self">self</span>.<span class="ident">to_string</span>().<span class="ident">into_py</span>(<span class="ident">py</span>)
             }
         }
 
         <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyErr</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyErr</span> {
+            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>) -&gt; <span class="ident">PyErr</span> {
                 <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">pyexc</span><span class="op">&gt;</span><span class="ident">::new_err</span>(<span class="ident">err</span>)
             }
         }

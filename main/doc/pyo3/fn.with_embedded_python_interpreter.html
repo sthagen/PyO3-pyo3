@@ -5,18 +5,18 @@ finalizes the Python interpreter.</p>
 Because many Python modules implemented in C do not support multiple Python interpreters in a
 single process, it is not safe to call this function more than once. (Many such modules will not
 initialize correctly on the second run.)</p>
-<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<h2 id="panics" class="section-header"><a href="#panics">Panics</a></h2>
 <ul>
 <li>If the Python interpreter is already initialized before calling this function.</li>
 </ul>
-<h1 id="safety" class="section-header"><a href="#safety">Safety</a></h1>
+<h2 id="safety" class="section-header"><a href="#safety">Safety</a></h2>
 <ul>
 <li>This function should only ever be called once per process (usually as part of the <code>main</code>
 function). It is also not thread-safe.</li>
 <li>No Python APIs can be used after this function has finished executing.</li>
 <li>The return value of the closure must not contain any Python value, <em>including</em> <code>PyResult</code>.</li>
 </ul>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="kw">fn</span> <span class="ident">main</span>() {

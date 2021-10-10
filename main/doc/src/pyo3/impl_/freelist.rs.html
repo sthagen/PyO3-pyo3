@@ -102,7 +102,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FreeList</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new `FreeList` instance with specified capacity.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">capacity</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FreeList</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">capacity</span>: <span class="ident">usize</span>) -&gt; <span class="ident">FreeList</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">entries</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">capacity</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Slot::Empty</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="ident">FreeList</span> {
@@ -113,23 +113,23 @@
     }
 
     <span class="doccomment">/// Pops the first non empty item.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">split</span>;
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
             <span class="kw">match</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>], <span class="ident">Slot::Empty</span>) {
-                <span class="ident">Slot::Filled</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Slot::Filled</span>(<span class="ident">v</span>) =&gt; {
                     <span class="self">self</span>.<span class="ident">split</span> <span class="op">=</span> <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>;
                     <span class="prelude-val">Some</span>(<span class="ident">v</span>)
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;FreeList is corrupt&quot;</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;FreeList is corrupt&quot;</span>),
             }
         }
     }
 
     <span class="doccomment">/// Inserts a value into the list. Returns `None` if the `FreeList` is full.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">split</span> <span class="op">+</span> <span class="number">1</span>;
         <span class="kw">if</span> <span class="ident">next</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">capacity</span> {
             <span class="self">self</span>.<span class="ident">entries</span>[<span class="self">self</span>.<span class="ident">split</span>] <span class="op">=</span> <span class="ident">Slot::Filled</span>(<span class="ident">val</span>);

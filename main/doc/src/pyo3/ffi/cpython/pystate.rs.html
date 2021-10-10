@@ -113,7 +113,7 @@
     <span class="ident">frame</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFrameObject</span>,
     <span class="ident">what</span>: <span class="ident">c_int</span>,
     <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+) -&gt; <span class="ident">c_int</span>;
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PyTrace_CALL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PyTrace_EXCEPTION</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
@@ -136,7 +136,7 @@
     <span class="comment">// skipped _PyThreadState_GetDict</span>
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyGILState_Check&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyGILState_Check</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyGILState_Check</span>() -&gt; <span class="ident">c_int</span>;
 
     <span class="comment">// skipped _PyGILState_GetInterpreterStateUnsafe</span>
     <span class="comment">// skipped _PyThread_CurrentFrames</span>
@@ -144,17 +144,17 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_Main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_Main</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyInterpreterState_Head&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_Head</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_Head</span>() -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyInterpreterState_Next&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_Next</span>(<span class="ident">interp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_Next</span>(<span class="ident">interp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_ThreadHead</span>(<span class="ident">interp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyInterpreterState_ThreadHead</span>(<span class="ident">interp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyThreadState_Next</span>(<span class="ident">tstate</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyThreadState_Next</span>(<span class="ident">tstate</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyThreadState</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;WITH_THREAD&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyThreadState_DeleteCurrent&quot;</span>)]</span>
@@ -167,7 +167,7 @@
     <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyThreadState</span>,
     <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::PyFrameObject</span>,
     <span class="ident">c_int</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::object::PyObject</span>;
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::ffi::object::PyObject</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)]</span>
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
@@ -175,7 +175,7 @@
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyInterpreterState_GetEvalFrameFunc</span>(
         <span class="ident">interp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyInterpreterState</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">_PyFrameEvalFunction</span>;
+    ) -&gt; <span class="ident">_PyFrameEvalFunction</span>;
 
     <span class="doccomment">///Set the frame evaluation function.</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)))]</span>

@@ -22,7 +22,7 @@ holding the GIL:</p>
 </ul>
 <p>To avoid deadlocking, you should release the GIL before trying to lock a mutex, e.g. with
 <a href="struct.Python.html#method.allow_threads" title="Python::allow_threads">Python::allow_threads</a>.</p>
-<h1 id="a-note-on-python-reference-counts" class="section-header"><a href="#a-note-on-python-reference-counts">A note on Python reference counts</a></h1>
+<h2 id="a-note-on-python-reference-counts" class="section-header"><a href="#a-note-on-python-reference-counts">A note on Python reference counts</a></h2>
 <p>The <a href="struct.Python.html" title="Python"><code>Python</code></a> type can be used to generate references to variables in
 Python’s memory e.g. using <a href="struct.Python.html#method.eval" title="Python::eval()"><code>Python::eval()</code></a> and indirectly e.g.
 using <a href="struct.PyModule.html#method.import" title="PyModule::import()"><code>PyModule::import()</code></a>, which takes a <a href="struct.Python.html" title="Python"><code>Python</code></a> token
@@ -32,7 +32,7 @@ references is bound to the GIL (more precisely the <a href="../struct.GILPool.ht
 when a variable’s reference count is decreased so that it can be released to
 the Python garbage collector.  For example:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
         <span class="kw">let</span> <span class="ident">hello</span>: <span class="kw-2">&amp;</span><span class="ident">PyString</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">eval</span>(<span class="string">&quot;\&quot;Hello World!\&quot;&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>.<span class="ident">extract</span>()<span class="question-mark">?</span>;
         <span class="macro">println!</span>(<span class="string">&quot;Python says: {}&quot;</span>, <span class="ident">hello</span>.<span class="ident">to_str</span>()<span class="question-mark">?</span>);
@@ -51,14 +51,14 @@ provided closure F will be executed with the acquired <code>Python</code> marker
 <p>If the <code>auto-initialize</code> feature is enabled and the Python runtime is not already
 initialized, this function will initialize it. See
 <a href="fn.prepare_freethreaded_python.html">prepare_freethreaded_python()</a> for details.</p>
-<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<h5 id="panics" class="section-header"><a href="#panics">Panics</a></h5>
 <ul>
 <li>If the <code>auto-initialize</code> feature is not enabled and the Python interpreter is not
 initialized.</li>
 </ul>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h5 id="examples" class="section-header"><a href="#examples">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
-<span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">x</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">eval</span>(<span class="string">&quot;5&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>.<span class="ident">extract</span>()<span class="question-mark">?</span>;
     <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="number">5</span>);
     <span class="prelude-val">Ok</span>(())
@@ -67,7 +67,7 @@ initialized.</li>
 <p>Normally when the GIL is acquired, we check that the Python interpreter is an
 appropriate state (e.g. it is fully initialized). This function skips those
 checks.</p>
-<h1 id="safety" class="section-header"><a href="#safety">Safety</a></h1>
+<h5 id="safety" class="section-header"><a href="#safety">Safety</a></h5>
 <p>If <a href="struct.Python.html#method.with_gil" title="Python::with_gil">Python::with_gil</a> would succeed, it is safe to call this function.</p>
 <p>In most cases, you should use <a href="struct.Python.html#method.with_gil" title="Python::with_gil">Python::with_gil</a>.</p>
 <p>A justified scenario for calling this function is during multi-phase interpreter
@@ -90,23 +90,23 @@ around the C-API Python_EnsureGIL. This means that multiple <code>acquire_gil()<
 allowed, and will not deadlock. However, <code>GILGuard</code>s must be dropped in the reverse order
 to acquisition. If PyO3 detects this order is not maintained, it may be forced to begin
 an irrecoverable panic.</p>
-<h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
+<h5 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h5>
 <ul>
 <li>If the <code>auto-initialize</code> feature is not enabled and the Python interpreter is not
 initialized.</li>
 </ul>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.allow_threads" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#311-336" title="goto source code">[src]</a></div><a href="#method.allow_threads" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.allow_threads" class="fnname">allow_threads</a>&lt;T, F&gt;(self, f: F) -&gt; T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; T,<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,&nbsp;</span></h4></div></summary><div class="docblock"><p>Temporarily releases the <code>GIL</code>, thus allowing other Python threads to run.</p>
-<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
+<h5 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::exceptions::PyRuntimeError</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::thread</span>;
 <span class="attribute">#[<span class="ident">pyfunction</span>]</span>
-<span class="kw">fn</span> <span class="ident">parallel_count</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">strings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">query</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parallel_count</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">strings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">query</span>: <span class="ident">String</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
     <span class="ident">py</span>.<span class="ident">allow_threads</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">threads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">strings</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">thread::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="ident">query</span>).<span class="ident">count</span>()))
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">thread::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="ident">query</span>).<span class="ident">count</span>()))
             .<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">threads</span> {
@@ -137,7 +137,7 @@ become a stable feature of the Rust language.</p>
 which makes them independent of the GIL lifetime.  However, you cannot
 do much with those without a <code>Python&lt;'p&gt;</code> token, for which you’d need to
 reacquire the GIL.</p>
-<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
+<h5 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h5>
 <div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail"><code><span class="kw">fn</span> <span class="ident">parallel_print</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">PyString::new</span>(<span class="ident">py</span>, <span class="string">&quot;This object should not be shared &gt;_&lt;&quot;</span>);
     <span class="ident">py</span>.<span class="ident">allow_threads</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
@@ -147,14 +147,14 @@ reacquire the GIL.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.eval" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#352-359" title="goto source code">[src]</a></div><a href="#method.eval" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.eval" class="fnname">eval</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;code: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;globals: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../types/struct.PyDict.html" title="struct pyo3::types::PyDict">PyDict</a>&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;locals: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../types/struct.PyDict.html" title="struct pyo3::types::PyDict">PyDict</a>&gt;<br>) -&gt; <a class="type" href="type.PyResult.html" title="type pyo3::prelude::PyResult">PyResult</a>&lt;&amp;'p <a class="struct" href="struct.PyAny.html" title="struct pyo3::prelude::PyAny">PyAny</a>&gt;</h4></div></summary><div class="docblock"><p>Evaluates a Python expression in the given context and returns the result.</p>
 <p>If <code>globals</code> is <code>None</code>, it defaults to Python module <code>__main__</code>.
 If <code>locals</code> is <code>None</code>, it defaults to the value of <code>globals</code>.</p>
-<h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
+<h5 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">eval</span>(<span class="string">&quot;[i * 10 for i in range(5)]&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
 <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">extract</span>().<span class="ident">unwrap</span>();
 <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>])</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.run" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#389-399" title="goto source code">[src]</a></div><a href="#method.run" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.run" class="fnname">run</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;code: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;globals: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../types/struct.PyDict.html" title="struct pyo3::types::PyDict">PyDict</a>&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;locals: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../types/struct.PyDict.html" title="struct pyo3::types::PyDict">PyDict</a>&gt;<br>) -&gt; <a class="type" href="type.PyResult.html" title="type pyo3::prelude::PyResult">PyResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</h4></div></summary><div class="docblock"><p>Executes one or more Python statements in the given context.</p>
 <p>If <code>globals</code> is <code>None</code>, it defaults to Python module <code>__main__</code>.
 If <code>locals</code> is <code>None</code>, it defaults to the value of <code>globals</code>.</p>
-<h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
+<h5 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3</span>::{<span class="ident">types</span>::{<span class="ident">PyBytes</span>, <span class="ident">PyDict</span>}, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">locals</span> <span class="op">=</span> <span class="ident">PyDict::new</span>(<span class="ident">py</span>);
@@ -180,7 +180,7 @@ if you don’t need <code>globals</code> and unwrapping is OK.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.NotImplemented" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#461-463" title="goto source code">[src]</a></div><a href="#method.NotImplemented" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.NotImplemented" class="fnname">NotImplemented</a>(self) -&gt; <a class="type" href="type.PyObject.html" title="type pyo3::prelude::PyObject">PyObject</a></h4></div></summary><div class="docblock"><p>Gets the Python builtin value <code>NotImplemented</code>.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.version" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#478-484" title="goto source code">[src]</a></div><a href="#method.version" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.version" class="fnname">version</a>(self) -&gt; &amp;'p <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></h4></div></summary><div class="docblock"><p>Gets the running Python interpreter version as a string.</p>
 <p>This is a wrapper around the ffi call Py_GetVersion.</p>
-<h1 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h1>
+<h5 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
     <span class="comment">// The full string could be, for example:</span>
     <span class="comment">// &quot;3.0a5+ (py3k:63103M, May 12 2008, 00:53:55) \n[GCC 4.2.3]&quot;</span>
@@ -188,7 +188,7 @@ if you don’t need <code>globals</code> and unwrapping is OK.</p>
 });</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.version_info" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#498-506" title="goto source code">[src]</a></div><a href="#method.version_info" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.version_info" class="fnname">version_info</a>(self) -&gt; <a class="struct" href="../struct.PythonVersionInfo.html" title="struct pyo3::PythonVersionInfo">PythonVersionInfo</a>&lt;'p&gt;</h4></div></summary><div class="docblock"><p>Gets the running Python interpreter version as a struct similar to
 <code>sys.version_info</code>.</p>
-<h1 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h1>
+<h5 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
     <span class="comment">// PyO3 supports Python 3.6 and up.</span>
     <span class="macro">assert!</span>(<span class="ident">py</span>.<span class="ident">version_info</span>() <span class="op">&gt;</span><span class="op">=</span> (<span class="number">3</span>, <span class="number">6</span>));
@@ -197,33 +197,33 @@ if you don’t need <code>globals</code> and unwrapping is OK.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.checked_cast_as" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#509-515" title="goto source code">[src]</a></div><a href="#method.checked_cast_as" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.checked_cast_as" class="fnname">checked_cast_as</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;obj: <a class="type" href="type.PyObject.html" title="type pyo3::prelude::PyObject">PyObject</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T, <a class="struct" href="../struct.PyDowncastError.html" title="struct pyo3::PyDowncastError">PyDowncastError</a>&lt;'p&gt;&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../conversion/trait.PyTryFrom.html" title="trait pyo3::conversion::PyTryFrom">PyTryFrom</a>&lt;'p&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Registers the object in the release pool, and tries to downcast to specific type.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.cast_as" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#523-529" title="goto source code">[src]</a></div><a href="#method.cast_as" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.cast_as" class="fnname">cast_as</a>&lt;T&gt;(self, obj: <a class="type" href="type.PyObject.html" title="type pyo3::prelude::PyObject">PyObject</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../trait.PyNativeType.html" title="trait pyo3::PyNativeType">PyNativeType</a> + <a class="trait" href="../type_object/trait.PyTypeInfo.html" title="trait pyo3::type_object::PyTypeInfo">PyTypeInfo</a>,&nbsp;</span></h4></div></summary><div class="docblock"><p>Registers the object in the release pool, and does an unchecked downcast
 to the specific type.</p>
-<h1 id="safety-1" class="section-header"><a href="#safety-1">Safety</a></h1>
+<h5 id="safety-1" class="section-header"><a href="#safety-1">Safety</a></h5>
 <p>Callers must ensure that ensure that the cast is valid.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_owned_ptr" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#538-543" title="goto source code">[src]</a></div><a href="#method.from_owned_ptr" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.from_owned_ptr" class="fnname">from_owned_ptr</a>&lt;T&gt;(self, ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../ffi/struct.PyObject.html" title="struct pyo3::ffi::PyObject">PyObject</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../conversion/trait.FromPyPointer.html" title="trait pyo3::conversion::FromPyPointer">FromPyPointer</a>&lt;'p&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Registers the object pointer in the release pool,
 and does an unchecked downcast to the specific type.</p>
-<h1 id="safety-2" class="section-header"><a href="#safety-2">Safety</a></h1>
+<h5 id="safety-2" class="section-header"><a href="#safety-2">Safety</a></h5>
 <p>Callers must ensure that ensure that the cast is valid.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_owned_ptr_or_err" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#554-559" title="goto source code">[src]</a></div><a href="#method.from_owned_ptr_or_err" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.from_owned_ptr_or_err" class="fnname">from_owned_ptr_or_err</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../ffi/struct.PyObject.html" title="struct pyo3::ffi::PyObject">PyObject</a><br>) -&gt; <a class="type" href="type.PyResult.html" title="type pyo3::prelude::PyResult">PyResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../conversion/trait.FromPyPointer.html" title="trait pyo3::conversion::FromPyPointer">FromPyPointer</a>&lt;'p&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Registers the owned object pointer in the release pool.</p>
 <p>Returns <code>Err(PyErr)</code> if the pointer is NULL.
 Does an unchecked downcast to the specific type.</p>
-<h1 id="safety-3" class="section-header"><a href="#safety-3">Safety</a></h1>
+<h5 id="safety-3" class="section-header"><a href="#safety-3">Safety</a></h5>
 <p>Callers must ensure that ensure that the cast is valid.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_owned_ptr_or_opt" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#570-575" title="goto source code">[src]</a></div><a href="#method.from_owned_ptr_or_opt" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.from_owned_ptr_or_opt" class="fnname">from_owned_ptr_or_opt</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../ffi/struct.PyObject.html" title="struct pyo3::ffi::PyObject">PyObject</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../conversion/trait.FromPyPointer.html" title="trait pyo3::conversion::FromPyPointer">FromPyPointer</a>&lt;'p&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Registers the owned object pointer in release pool.</p>
 <p>Returns <code>None</code> if the pointer is NULL.
 Does an unchecked downcast to the specific type.</p>
-<h1 id="safety-4" class="section-header"><a href="#safety-4">Safety</a></h1>
+<h5 id="safety-4" class="section-header"><a href="#safety-4">Safety</a></h5>
 <p>Callers must ensure that ensure that the cast is valid.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_borrowed_ptr" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#585-590" title="goto source code">[src]</a></div><a href="#method.from_borrowed_ptr" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.from_borrowed_ptr" class="fnname">from_borrowed_ptr</a>&lt;T&gt;(self, ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../ffi/struct.PyObject.html" title="struct pyo3::ffi::PyObject">PyObject</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../conversion/trait.FromPyPointer.html" title="trait pyo3::conversion::FromPyPointer">FromPyPointer</a>&lt;'p&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Does an unchecked downcast to the specific type.</p>
 <p>Panics if the pointer is NULL.</p>
-<h1 id="safety-5" class="section-header"><a href="#safety-5">Safety</a></h1>
+<h5 id="safety-5" class="section-header"><a href="#safety-5">Safety</a></h5>
 <p>Callers must ensure that ensure that the cast is valid.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_borrowed_ptr_or_err" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#600-605" title="goto source code">[src]</a></div><a href="#method.from_borrowed_ptr_or_err" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.from_borrowed_ptr_or_err" class="fnname">from_borrowed_ptr_or_err</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../ffi/struct.PyObject.html" title="struct pyo3::ffi::PyObject">PyObject</a><br>) -&gt; <a class="type" href="type.PyResult.html" title="type pyo3::prelude::PyResult">PyResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../conversion/trait.FromPyPointer.html" title="trait pyo3::conversion::FromPyPointer">FromPyPointer</a>&lt;'p&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Does an unchecked downcast to the specific type.</p>
 <p>Returns <code>Err(PyErr)</code> if the pointer is NULL.</p>
-<h1 id="safety-6" class="section-header"><a href="#safety-6">Safety</a></h1>
+<h5 id="safety-6" class="section-header"><a href="#safety-6">Safety</a></h5>
 <p>Callers must ensure that ensure that the cast is valid.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_borrowed_ptr_or_opt" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#615-620" title="goto source code">[src]</a></div><a href="#method.from_borrowed_ptr_or_opt" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.from_borrowed_ptr_or_opt" class="fnname">from_borrowed_ptr_or_opt</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../ffi/struct.PyObject.html" title="struct pyo3::ffi::PyObject">PyObject</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'p </a>T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../conversion/trait.FromPyPointer.html" title="trait pyo3::conversion::FromPyPointer">FromPyPointer</a>&lt;'p&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Does an unchecked downcast to the specific type.</p>
 <p>Returns <code>None</code> if the pointer is NULL.</p>
-<h1 id="safety-7" class="section-header"><a href="#safety-7">Safety</a></h1>
+<h5 id="safety-7" class="section-header"><a href="#safety-7">Safety</a></h5>
 <p>Callers must ensure that ensure that the cast is valid.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.check_signals" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#657-660" title="goto source code">[src]</a></div><a href="#method.check_signals" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.check_signals" class="fnname">check_signals</a>(self) -&gt; <a class="type" href="type.PyResult.html" title="type pyo3::prelude::PyResult">PyResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</h4></div></summary><div class="docblock"><p>Lets the Python interpreter check and handle any pending signals. This will invoke the
 corresponding signal handlers registered in Python (if any).</p>
@@ -231,10 +231,10 @@ corresponding signal handlers registered in Python (if any).</p>
 <p>These signals include <code>SIGINT</code> (normally raised by CTRL + C), which by default raises
 <code>KeyboardInterrupt</code>. For this reason it is good practice to call this function regularly
 as part of long-running Rust functions so that users can cancel it.</p>
-<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<h5 id="example" class="section-header"><a href="#example">Example</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">pyfunction</span>]</span>
-<span class="kw">fn</span> <span class="ident">loop_forever</span>(<span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">loop_forever</span>(<span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">loop</span> {
         <span class="comment">// As this loop is infinite it should check for signals every once in a while.</span>
         <span class="comment">// Using `?` causes any `PyErr` (potentially containing `KeyboardInterrupt`) to break out of the loop.</span>
@@ -243,7 +243,7 @@ as part of long-running Rust functions so that users can cancel it.</p>
         <span class="comment">// do work here</span>
     }
 }</code></pre></div>
-<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
+<h5 id="note" class="section-header"><a href="#note">Note</a></h5>
 <p>This function calls <a href="https://docs.python.org/3/c-api/exceptions.html?highlight=pyerr_checksignals#c.PyErr_CheckSignals"><code>PyErr_CheckSignals()</code></a> which in turn may call signal handlers.
 As Python’s <a href="https://docs.python.org/3/library/signal.html"><code>signal</code></a> API allows users to define custom signal handlers, calling this
 function allows arbitary Python code inside signal handlers to run.</p>
@@ -252,7 +252,7 @@ acquired at this point, and stays acquired for the lifetime <code>'p</code>.</p>
 <p>Because the output lifetime <code>'p</code> is not connected to any input parameter,
 care must be taken that the compiler infers an appropriate lifetime for <code>'p</code>
 when calling this function.</p>
-<h1 id="safety-8" class="section-header"><a href="#safety-8">Safety</a></h1>
+<h5 id="safety-8" class="section-header"><a href="#safety-8">Safety</a></h5>
 <p>The lifetime <code>'p</code> must be shorter than the period you <em>assume</em> that you have GIL.
 I.e., <code>Python&lt;'static&gt;</code> is always <em>really</em> unsafe.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new_pool" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/pyo3/python.rs.html#730-732" title="goto source code">[src]</a></div><a href="#method.new_pool" class="anchor"></a><h4 class="code-header">pub unsafe fn <a href="#method.new_pool" class="fnname">new_pool</a>(self) -&gt; <a class="struct" href="../struct.GILPool.html" title="struct pyo3::GILPool">GILPool</a></h4></div></summary><div class="docblock"><p>Create a new pool for managing PyO3’s owned references.</p>
@@ -264,7 +264,7 @@ creates a <code>GILPool</code> where appropriate.</p>
 <p>Advanced uses of PyO3 which perform long-running tasks which never free the GIL may need
 to use this API to clear memory, as PyO3 usually does not clear memory until the GIL is
 released.</p>
-<h1 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h1>
+<h5 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
     <span class="comment">// Some long-running process like a webserver, which never releases the GIL.</span>
     <span class="kw">loop</span> {
@@ -278,7 +278,7 @@ released.</p>
         <span class="comment">// do stuff...</span>
     }
 });</code></pre></div>
-<h1 id="safety-9" class="section-header"><a href="#safety-9">Safety</a></h1>
+<h5 id="safety-9" class="section-header"><a href="#safety-9">Safety</a></h5>
 <p>Extreme care must be taken when using this API, as misuse can lead to accessing invalid
 memory. In addition, the caller is responsible for guaranteeing that the GIL remains held
 for the entire lifetime of the returned <code>GILPool</code>.</p>

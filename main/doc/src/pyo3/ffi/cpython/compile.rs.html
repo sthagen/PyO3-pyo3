@@ -128,7 +128,7 @@
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyNode_Compile</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_node</span>, <span class="ident">arg2</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyNode_Compile</span>(<span class="ident">arg1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_node</span>, <span class="ident">arg2</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyAST_CompileEx</span>(
@@ -137,7 +137,7 @@
         <span class="ident">flags</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCompilerFlags</span>,
         <span class="ident">optimize</span>: <span class="ident">c_int</span>,
         <span class="ident">arena</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyArena</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyAST_CompileObject</span>(
@@ -146,24 +146,24 @@
         <span class="ident">flags</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCompilerFlags</span>,
         <span class="ident">optimize</span>: <span class="ident">c_int</span>,
         <span class="ident">arena</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyArena</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyCodeObject</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFuture_FromAST</span>(<span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_mod</span>, <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFutureFeatures</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFuture_FromAST</span>(<span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_mod</span>, <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFutureFeatures</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFuture_FromASTObject</span>(
         <span class="ident">_mod</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">_mod</span>,
         <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFutureFeatures</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyFutureFeatures</span>;
 
     <span class="comment">// skipped non-limited _Py_Mangle</span>
     <span class="comment">// skipped non-limited PY_INVALID_STACK_EFFECT</span>
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyCompile_OpcodeStackEffect</span>(<span class="ident">opcode</span>: <span class="ident">c_int</span>, <span class="ident">oparg</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyCompile_OpcodeStackEffect</span>(<span class="ident">opcode</span>: <span class="ident">c_int</span>, <span class="ident">oparg</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyCompile_OpcodeStackEffectWithJump</span>(<span class="ident">opcode</span>: <span class="ident">c_int</span>, <span class="ident">oparg</span>: <span class="ident">c_int</span>, <span class="ident">jump</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyCompile_OpcodeStackEffectWithJump</span>(<span class="ident">opcode</span>: <span class="ident">c_int</span>, <span class="ident">oparg</span>: <span class="ident">c_int</span>, <span class="ident">jump</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
 
     <span class="comment">// skipped non-limited _PyASTOptimizeState</span>
     <span class="comment">// skipped non-limited _PyAST_Optimize</span>

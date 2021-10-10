@@ -313,7 +313,7 @@
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyStack_AsDict</span>(<span class="ident">values</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">kwnames</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyStack_AsDict</span>(<span class="ident">values</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">kwnames</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
@@ -326,7 +326,7 @@
         <span class="ident">callable</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">result</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">where_</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyObject_MakeTpCall</span>(
@@ -335,7 +335,7 @@
         <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">nargs</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">keywords</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
@@ -344,17 +344,17 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyVectorcall_NARGS</span>(<span class="ident">n</span>: <span class="ident">size_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_ssize_t</span> {
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyVectorcall_NARGS</span>(<span class="ident">n</span>: <span class="ident">size_t</span>) -&gt; <span class="ident">Py_ssize_t</span> {
     <span class="macro">assert!</span>(<span class="ident">n</span> <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">PY_SSIZE_T_MAX</span> <span class="kw">as</span> <span class="ident">size_t</span>));
     (<span class="ident">n</span> <span class="kw">as</span> <span class="ident">Py_ssize_t</span>) <span class="op">&amp;</span> <span class="op">!</span><span class="ident">PY_VECTORCALL_ARGUMENTS_OFFSET</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyVectorcall_Function</span>(<span class="ident">callable</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">vectorcallfunc</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyVectorcall_Function</span>(<span class="ident">callable</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">vectorcallfunc</span><span class="op">&gt;</span> {
     <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">callable</span>.<span class="ident">is_null</span>());
     <span class="kw">let</span> <span class="ident">tp</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::ffi::Py_TYPE</span>(<span class="ident">callable</span>);
-    <span class="kw">if</span> <span class="ident">PyType_HasFeature</span>(<span class="ident">tp</span>, <span class="ident">Py_TPFLAGS_HAVE_VECTORCALL</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">if</span> <span class="ident">PyType_HasFeature</span>(<span class="ident">tp</span>, <span class="ident">Py_TPFLAGS_HAVE_VECTORCALL</span>) <span class="op">==</span> <span class="number">0</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
     <span class="macro">assert!</span>(<span class="ident">PyCallable_Check</span>(<span class="ident">callable</span>) <span class="op">&gt;</span> <span class="number">0</span>);
@@ -372,16 +372,16 @@
     <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">nargsf</span>: <span class="ident">size_t</span>,
     <span class="ident">kwnames</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="macro">assert!</span>(<span class="ident">kwnames</span>.<span class="ident">is_null</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">PyTuple_Check</span>(<span class="ident">kwnames</span>) <span class="op">&gt;</span> <span class="number">0</span>);
-    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">args</span>.<span class="ident">is_null</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">PyVectorcall_NARGS</span>(<span class="ident">nargsf</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">args</span>.<span class="ident">is_null</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">PyVectorcall_NARGS</span>(<span class="ident">nargsf</span>) <span class="op">==</span> <span class="number">0</span>);
 
     <span class="kw">match</span> <span class="ident">PyVectorcall_Function</span>(<span class="ident">callable</span>) {
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">None</span> =&gt; {
             <span class="kw">let</span> <span class="ident">nargs</span> <span class="op">=</span> <span class="ident">PyVectorcall_NARGS</span>(<span class="ident">nargsf</span>);
             <span class="ident">_PyObject_MakeTpCall</span>(<span class="ident">tstate</span>, <span class="ident">callable</span>, <span class="ident">args</span>, <span class="ident">nargs</span>, <span class="ident">kwnames</span>)
         }
-        <span class="prelude-val">Some</span>(<span class="ident">func</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">func</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">func</span>(<span class="ident">callable</span>, <span class="ident">args</span>, <span class="ident">nargsf</span>, <span class="ident">kwnames</span>);
             <span class="ident">_Py_CheckFunctionResult</span>(<span class="ident">tstate</span>, <span class="ident">callable</span>, <span class="ident">res</span>, <span class="ident">std::ptr::null_mut</span>())
         }
@@ -395,7 +395,7 @@
     <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">nargsf</span>: <span class="ident">size_t</span>,
     <span class="ident">kwnames</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="ident">_PyObject_VectorcallTstate</span>(<span class="ident">PyThreadState_GET</span>(), <span class="ident">callable</span>, <span class="ident">args</span>, <span class="ident">nargsf</span>, <span class="ident">kwnames</span>)
 }
 
@@ -407,7 +407,7 @@
         <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">nargsf</span>: <span class="ident">size_t</span>,
         <span class="ident">kwargs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">Py_3_9</span>), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyVectorcall_Call&quot;</span>)]</span>
@@ -415,7 +415,7 @@
         <span class="ident">callable</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">tuple</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">dict</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
@@ -425,7 +425,7 @@
     <span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">nargs</span>: <span class="ident">Py_ssize_t</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="ident">_PyObject_VectorcallTstate</span>(<span class="ident">tstate</span>, <span class="ident">func</span>, <span class="ident">args</span>, <span class="ident">nargs</span> <span class="kw">as</span> <span class="ident">size_t</span>, <span class="ident">std::ptr::null_mut</span>())
 }
 
@@ -435,13 +435,13 @@
     <span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">nargs</span>: <span class="ident">Py_ssize_t</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="ident">_PyObject_FastCallTstate</span>(<span class="ident">PyThreadState_GET</span>(), <span class="ident">func</span>, <span class="ident">args</span>, <span class="ident">nargs</span>)
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_PyObject_CallNoArg</span>(<span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_PyObject_CallNoArg</span>(<span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="ident">_PyObject_VectorcallTstate</span>(
         <span class="ident">PyThreadState_GET</span>(),
         <span class="ident">func</span>,
@@ -453,7 +453,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyObject_CallOneArg</span>(<span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyObject_CallOneArg</span>(<span class="ident">func</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">arg</span>.<span class="ident">is_null</span>());
     <span class="kw">let</span> <span class="ident">_args</span> <span class="op">=</span> [<span class="ident">std::ptr::null_mut</span>(), <span class="ident">arg</span>];
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">_args</span>.<span class="ident">as_ptr</span>().<span class="ident">offset</span>(<span class="number">1</span>); <span class="comment">// For PY_VECTORCALL_ARGUMENTS_OFFSET</span>
@@ -469,7 +469,7 @@
         <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">nargsf</span>: <span class="ident">size_t</span>,
         <span class="ident">kwnames</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
+    ) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
@@ -477,7 +477,7 @@
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyObject_CallMethodNoArgs</span>(
     <span class="ident">self_</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">name</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="ident">PyObject_VectorcallMethod</span>(
         <span class="ident">name</span>,
         <span class="kw-2">&amp;</span><span class="ident">self_</span>,
@@ -492,7 +492,7 @@
     <span class="ident">self_</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">name</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
     <span class="ident">arg</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
+) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span> {
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> [<span class="ident">self_</span>, <span class="ident">arg</span>];
     <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">arg</span>.<span class="ident">is_null</span>());
     <span class="ident">PyObject_VectorcallMethod</span>(
@@ -511,43 +511,43 @@
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyObject_LengthHint&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_LengthHint</span>(<span class="ident">o</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">arg1</span>: <span class="ident">Py_ssize_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_ssize_t</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_LengthHint</span>(<span class="ident">o</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">arg1</span>: <span class="ident">Py_ssize_t</span>) -&gt; <span class="ident">Py_ssize_t</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_CheckBuffer</span>(<span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_CheckBuffer</span>(<span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_3_9</span>, <span class="ident">PyPy</span>)))]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyObject_CheckBuffer</span>(<span class="ident">o</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyObject_CheckBuffer</span>(<span class="ident">o</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span> {
     <span class="kw">let</span> <span class="ident">tp_as_buffer</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident"><span class="kw">crate</span>::ffi::Py_TYPE</span>(<span class="ident">o</span>)).<span class="ident">tp_as_buffer</span>;
     (<span class="op">!</span><span class="ident">tp_as_buffer</span>.<span class="ident">is_null</span>() <span class="op">&amp;&amp;</span> (<span class="kw-2">*</span><span class="ident">tp_as_buffer</span>).<span class="ident">bf_getbuffer</span>.<span class="ident">is_some</span>()) <span class="kw">as</span> <span class="ident">c_int</span>
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyObject_GetBuffer&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_GetBuffer</span>(<span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_buffer</span>, <span class="ident">flags</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_GetBuffer</span>(<span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_buffer</span>, <span class="ident">flags</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyBuffer_GetPointer&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_GetPointer</span>(<span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_buffer</span>, <span class="ident">indices</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_GetPointer</span>(<span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_buffer</span>, <span class="ident">indices</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyBuffer_SizeFromFormat&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_SizeFromFormat</span>(<span class="ident">format</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_ssize_t</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_SizeFromFormat</span>(<span class="ident">format</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) -&gt; <span class="ident">Py_ssize_t</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyBuffer_ToContiguous&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_ToContiguous</span>(
         <span class="ident">buf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
         <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_buffer</span>,
         <span class="ident">len</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">order</span>: <span class="ident">c_char</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyBuffer_FromContiguous&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_FromContiguous</span>(
         <span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_buffer</span>,
         <span class="ident">buf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
         <span class="ident">len</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">order</span>: <span class="ident">c_char</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_CopyData</span>(<span class="ident">dest</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_CopyData</span>(<span class="ident">dest</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>, <span class="ident">src</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyBuffer_IsContiguous&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_IsContiguous</span>(<span class="ident">view</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Py_buffer</span>, <span class="ident">fort</span>: <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_IsContiguous</span>(<span class="ident">view</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Py_buffer</span>, <span class="ident">fort</span>: <span class="ident">c_char</span>) -&gt; <span class="ident">c_int</span>;
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_FillContiguousStrides</span>(
         <span class="ident">ndims</span>: <span class="ident">c_int</span>,
         <span class="ident">shape</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_ssize_t</span>,
@@ -563,7 +563,7 @@
         <span class="ident">len</span>: <span class="ident">Py_ssize_t</span>,
         <span class="ident">readonly</span>: <span class="ident">c_int</span>,
         <span class="ident">flags</span>: <span class="ident">c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span>;
+    ) -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyBuffer_Release&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyBuffer_Release</span>(<span class="ident">view</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Py_buffer</span>);
 }
@@ -586,7 +586,7 @@
         <span class="ident">seq</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">obj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PyObject</span>,
         <span class="ident">operation</span>: <span class="ident">c_int</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Py_ssize_t</span>;
+    ) -&gt; <span class="ident">Py_ssize_t</span>;
 }
 
 <span class="comment">// skipped _PyObject_RealIsInstance</span>

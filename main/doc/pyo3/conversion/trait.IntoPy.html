@@ -5,7 +5,7 @@
 but requires a <a href="../prelude/struct.Python.html">GIL token</a> as an argument.
 Many functions and traits internal to PyO3 require this trait as a bound,
 so a lack of this trait can manifest itself in different error messages.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1><h2 id="with-pyclass" class="section-header"><a href="#with-pyclass">With <code>#[pyclass]</code></a></h2>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2><h3 id="with-pyclass" class="section-header"><a href="#with-pyclass">With <code>#[pyclass]</code></a></h3>
 <p>The easiest way to implement <code>IntoPy</code> is by exposing a struct as a native Python object
 by annotating it with <a href="../attr.pyclass.html"><code>#[pyclass]</code></a>.</p>
 
@@ -17,7 +17,7 @@ by annotating it with <a href="../attr.pyclass.html"><code>#[pyclass]</code></a>
    <span class="ident">value</span>: <span class="ident">i32</span>,
 }</code></pre></div>
 <p>Python code will see this as an instance of the <code>Number</code> class with a <code>value</code> attribute.</p>
-<h2 id="conversion-to-a-python-object" class="section-header"><a href="#conversion-to-a-python-object">Conversion to a Python object</a></h2>
+<h3 id="conversion-to-a-python-object" class="section-header"><a href="#conversion-to-a-python-object">Conversion to a Python object</a></h3>
 <p>However, it may not be desirable to expose the existence of <code>Number</code> to Python code.
 <code>IntoPy</code> allows us to define a conversion to an appropriate Python object.</p>
 
@@ -28,13 +28,13 @@ by annotating it with <a href="../attr.pyclass.html"><code>#[pyclass]</code></a>
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Number</span> {
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="comment">// delegates to i32&#39;s IntoPy implementation.</span>
         <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">into_py</span>(<span class="ident">py</span>)
    }
 }</code></pre></div>
 <p>Python code will see this as an <code>int</code> object.</p>
-<h2 id="dynamic-conversion-into-python-objects" class="section-header"><a href="#dynamic-conversion-into-python-objects">Dynamic conversion into Python objects.</a></h2>
+<h3 id="dynamic-conversion-into-python-objects" class="section-header"><a href="#dynamic-conversion-into-python-objects">Dynamic conversion into Python objects.</a></h3>
 <p>It is also possible to return a different Python object depending on some condition.
 This is useful for types like enums that can carry different types.</p>
 
@@ -47,11 +47,11 @@ This is useful for types like enums that can carry different types.</p>
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span> {
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Integer</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">into_py</span>(<span class="ident">py</span>),
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">into_py</span>(<span class="ident">py</span>),
-            <span class="ident"><span class="self">Self</span>::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">py</span>.<span class="prelude-val">None</span>()
+            <span class="ident"><span class="self">Self</span>::Integer</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into_py</span>(<span class="ident">py</span>),
+            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into_py</span>(<span class="ident">py</span>),
+            <span class="ident"><span class="self">Self</span>::None</span> =&gt; <span class="ident">py</span>.<span class="prelude-val">None</span>()
         }
    }
 }</code></pre></div>

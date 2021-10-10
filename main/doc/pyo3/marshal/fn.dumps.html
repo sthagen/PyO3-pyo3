@@ -3,7 +3,7 @@
 The exact types supported depend on the version argument.
 The <a href="constant.VERSION.html" title="VERSION"><code>VERSION</code></a> constant holds the highest version currently supported.</p>
 <p>See the <a href="https://docs.python.org/3/library/marshal.html">Python documentation</a> for more details.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="ident">PyDict::new</span>(<span class="ident">py</span>);
 <span class="ident">dict</span>.<span class="ident">set_item</span>(<span class="string">&quot;aap&quot;</span>, <span class="string">&quot;noot&quot;</span>).<span class="ident">unwrap</span>();
 <span class="ident">dict</span>.<span class="ident">set_item</span>(<span class="string">&quot;mies&quot;</span>, <span class="string">&quot;wim&quot;</span>).<span class="ident">unwrap</span>();

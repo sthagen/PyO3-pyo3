@@ -230,7 +230,7 @@
 <span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
 
 <span class="kw">impl</span> <span class="ident">ToPyObject</span> <span class="kw">for</span> <span class="ident">OsStr</span> {
-    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="comment">// If the string is UTF-8, take the quick and easy shortcut</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">valid_utf8_path</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_str</span>() {
             <span class="kw">return</span> <span class="ident">valid_utf8_path</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
@@ -275,7 +275,7 @@
 <span class="comment">// be impossible to implement on Windows. Hence it&#39;s omitted entirely</span>
 
 <span class="kw">impl</span> <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OsString</span> {
-    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">ob</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">ob</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">pystring</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyString</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>)<span class="question-mark">?</span>; <span class="comment">// Cast PyAny to PyString</span>
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
@@ -312,7 +312,7 @@
             <span class="comment">// ourselves</span>
             <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span>
                 <span class="kw">unsafe</span> { <span class="ident">ffi::PyUnicode_AsWideChar</span>(<span class="ident">pystring</span>.<span class="ident">as_ptr</span>(), <span class="ident">std::ptr::null_mut</span>(), <span class="number">0</span>) };
-            <span class="kw">if</span> <span class="ident">size</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+            <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="op">-</span><span class="number">1</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="ident">ob</span>.<span class="ident">py</span>()));
             }
 
@@ -331,40 +331,40 @@
 
 <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">OsStr</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">to_object</span>(<span class="ident">py</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ToPyObject</span> <span class="kw">for</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">OsStr</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         (<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">OsStr</span>).<span class="ident">to_object</span>(<span class="ident">py</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">OsStr</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">to_object</span>(<span class="ident">py</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ToPyObject</span> <span class="kw">for</span> <span class="ident">OsString</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         (<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">OsStr</span>).<span class="ident">to_object</span>(<span class="ident">py</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OsString</span> {
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">to_object</span>(<span class="ident">py</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">OsString</span> {
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="self">self</span>.<span class="ident">to_object</span>(<span class="ident">py</span>)
     }
 }
@@ -427,7 +427,7 @@
                 <span class="kw">let</span> <span class="ident">pystring</span>: <span class="kw-2">&amp;</span><span class="ident">PyString</span> <span class="op">=</span> <span class="ident">pyobject</span>.<span class="ident">extract</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>();
                 <span class="macro">assert_eq!</span>(<span class="ident">pystring</span>.<span class="ident">to_string_lossy</span>(), <span class="ident">obj</span>.<span class="ident">as_ref</span>().<span class="ident">to_string_lossy</span>());
                 <span class="kw">let</span> <span class="ident">roundtripped_obj</span>: <span class="ident">OsString</span> <span class="op">=</span> <span class="ident">pystring</span>.<span class="ident">extract</span>().<span class="ident">unwrap</span>();
-                <span class="macro">assert!</span>(<span class="ident">obj</span>.<span class="ident">as_ref</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">roundtripped_obj</span>.<span class="ident">as_os_str</span>());
+                <span class="macro">assert!</span>(<span class="ident">obj</span>.<span class="ident">as_ref</span>() <span class="op">==</span> <span class="ident">roundtripped_obj</span>.<span class="ident">as_os_str</span>());
             }
             <span class="kw">let</span> <span class="ident">os_str</span> <span class="op">=</span> <span class="ident">OsStr::new</span>(<span class="string">&quot;Hello\0\n🐍&quot;</span>);
             <span class="ident">test_roundtrip</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">OsStr</span><span class="op">&gt;</span>(<span class="ident">py</span>, <span class="ident">os_str</span>);

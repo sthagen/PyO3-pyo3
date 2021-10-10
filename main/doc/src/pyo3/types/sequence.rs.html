@@ -840,9 +840,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `len(self)`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::PySequence_Size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) };
-        <span class="kw">if</span> <span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">v</span> <span class="op">==</span> <span class="op">-</span><span class="number">1</span> {
             <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="self">self</span>.<span class="ident">py</span>()))
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>)
@@ -851,15 +851,15 @@
 
     <span class="doccomment">/// Returns whether the sequence is empty.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">len</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">len</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">==</span> <span class="number">0</span>)
     }
 
     <span class="doccomment">/// Returns the concatenation of `self` and `other`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self + other`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>()
                 .<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_Concat</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">other</span>.<span class="ident">as_ptr</span>()))
@@ -870,7 +870,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self * count`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">repeat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">count</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">repeat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">count</span>: <span class="ident">usize</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_Repeat</span>(
                 <span class="self">self</span>.<span class="ident">as_ptr</span>(),
@@ -887,7 +887,7 @@
     <span class="doccomment">/// self.__iadd__(other)`.  `__iadd__` should modify and return `self` if</span>
     <span class="doccomment">/// possible, but create and return a new object if not.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">in_place_concat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">in_place_concat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>()
                 .<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_InPlaceConcat</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">other</span>.<span class="ident">as_ptr</span>()))
@@ -902,7 +902,7 @@
     <span class="doccomment">/// self.__imul__(other)`.  `__imul__` should modify and return `self` if</span>
     <span class="doccomment">/// possible, but create and return a new object if not.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">in_place_repeat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">count</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">in_place_repeat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">count</span>: <span class="ident">usize</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>()
                 .<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_InPlaceRepeat</span>(
@@ -916,7 +916,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self[index]` without support of negative indices.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_GetItem</span>(
                 <span class="self">self</span>.<span class="ident">as_ptr</span>(),
@@ -929,7 +929,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self[begin:end]`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">begin</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">begin</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySequence</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_GetSlice</span>(
                 <span class="self">self</span>.<span class="ident">as_ptr</span>(),
@@ -943,7 +943,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python statement `self[i] = v`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_item</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">item</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_item</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">item</span>: <span class="ident">I</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">ToBorrowedObject</span>,
     {
@@ -961,7 +961,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python statement `del self[i]`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">err::error_on_minusone</span>(
                 <span class="self">self</span>.<span class="ident">py</span>(),
@@ -974,7 +974,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python statement `self[i1:i2] = v`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">usize</span>, <span class="ident">i2</span>: <span class="ident">usize</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">usize</span>, <span class="ident">i2</span>: <span class="ident">usize</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">err::error_on_minusone</span>(
                 <span class="self">self</span>.<span class="ident">py</span>(),
@@ -992,7 +992,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python statement `del self[i1:i2]`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">usize</span>, <span class="ident">i2</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">usize</span>, <span class="ident">i2</span>: <span class="ident">usize</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">err::error_on_minusone</span>(
                 <span class="self">self</span>.<span class="ident">py</span>(),
@@ -1006,14 +1006,14 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
     {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> {
             <span class="ident">ffi::PySequence_Count</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>)
         });
-        <span class="kw">if</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">r</span> <span class="op">==</span> <span class="op">-</span><span class="number">1</span> {
             <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="self">self</span>.<span class="ident">py</span>()))
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>)
@@ -1024,7 +1024,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `value in self`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
     {
@@ -1032,9 +1032,9 @@
             <span class="ident">ffi::PySequence_Contains</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>)
         });
         <span class="kw">match</span> <span class="ident">r</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-            <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="self">self</span>.<span class="ident">py</span>())),
+            <span class="number">0</span> =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
+            <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="self">self</span>.<span class="ident">py</span>())),
         }
     }
 
@@ -1042,14 +1042,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.index(value)`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
     {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> {
             <span class="ident">ffi::PySequence_Index</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>)
         });
-        <span class="kw">if</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">r</span> <span class="op">==</span> <span class="op">-</span><span class="number">1</span> {
             <span class="prelude-val">Err</span>(<span class="ident">PyErr::api_call_failed</span>(<span class="self">self</span>.<span class="ident">py</span>()))
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>)
@@ -1058,7 +1058,7 @@
 
     <span class="doccomment">/// Returns a fresh list based on the Sequence.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyList</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyList</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>()
                 .<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_List</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()))
@@ -1067,7 +1067,7 @@
 
     <span class="doccomment">/// Returns a fresh tuple based on the Sequence.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tuple</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTuple</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tuple</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTuple</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>()
                 .<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PySequence_Tuple</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()))
@@ -1076,12 +1076,12 @@
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">sequence_len</span>(<span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+<span class="kw">fn</span> <span class="ident">sequence_len</span>(<span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>) -&gt; <span class="ident">usize</span> {
     <span class="ident">seq</span>.<span class="ident">len</span>().<span class="ident">expect</span>(<span class="string">&quot;failed to get sequence length&quot;</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">sequence_slice</span>(<span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>, <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PySequence</span> {
+<span class="kw">fn</span> <span class="ident">sequence_slice</span>(<span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident">PySequence</span>, <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PySequence</span> {
     <span class="ident">seq</span>.<span class="ident">get_slice</span>(<span class="ident">start</span>, <span class="ident">end</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;sequence slice operation failed&quot;</span>)
 }
@@ -1093,11 +1093,11 @@
     <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">extract_sequence</span>(<span class="ident">obj</span>)
     }
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>)]</span>
-    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">extract_sequence</span>(<span class="ident">obj</span>)
     }
 }
@@ -1107,10 +1107,10 @@
 <span class="kw">where</span>
     <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::buffer::Element</span>,
 {
-    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="comment">// first try buffer protocol</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">buf</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::buffer::PyBuffer::get</span>(<span class="ident">obj</span>) {
-            <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">dimensions</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">dimensions</span>() <span class="op">==</span> <span class="number">1</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">to_vec</span>(<span class="ident">obj</span>.<span class="ident">py</span>()) {
                     <span class="ident">buf</span>.<span class="ident">release</span>(<span class="ident">obj</span>.<span class="ident">py</span>());
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>);
@@ -1123,7 +1123,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">extract_sequence</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">PyAny</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">fn</span> <span class="ident">extract_sequence</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
 {
@@ -1136,7 +1136,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span> <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PySequence</span> {
-    <span class="kw">fn</span> <span class="ident">try_from</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PyAny</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PySequence</span>, <span class="ident">PyDowncastError</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PyAny</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PySequence</span>, <span class="ident">PyDowncastError</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into</span>();
         <span class="kw">unsafe</span> {
             <span class="kw">if</span> <span class="ident">ffi::PySequence_Check</span>(<span class="ident">value</span>.<span class="ident">as_ptr</span>()) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
@@ -1147,12 +1147,12 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">try_from_exact</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PyAny</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PySequence</span>, <span class="ident">PyDowncastError</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from_exact</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PyAny</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PySequence</span>, <span class="ident">PyDowncastError</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="op">&lt;</span><span class="ident">PySequence</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">value</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">try_from_unchecked</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PyAny</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PySequence</span> {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">try_from_unchecked</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PyAny</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">PySequence</span> {
         <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">PySequence</span>;
         <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">ptr</span>
     }
@@ -1165,7 +1165,7 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Python</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToPyObject</span>};
 
-    <span class="kw">fn</span> <span class="ident">get_object</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">get_object</span>() -&gt; <span class="ident">PyObject</span> {
         <span class="comment">// Convenience function for getting a single unique object</span>
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">eval</span>(<span class="string">&quot;object()&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
@@ -1380,7 +1380,7 @@
             <span class="kw">let</span> <span class="ident">ob</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
             <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> <span class="ident">ob</span>.<span class="ident">cast_as</span>::<span class="op">&lt;</span><span class="ident">PySequence</span><span class="op">&gt;</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>();
             <span class="macro">assert!</span>(<span class="ident">seq</span>.<span class="ident">set_item</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>).<span class="ident">is_ok</span>());
-            <span class="macro">assert!</span>(<span class="ident">seq</span>[<span class="number">1</span>].<span class="ident">as_ptr</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">obj</span>.<span class="ident">as_ptr</span>());
+            <span class="macro">assert!</span>(<span class="ident">seq</span>[<span class="number">1</span>].<span class="ident">as_ptr</span>() <span class="op">==</span> <span class="ident">obj</span>.<span class="ident">as_ptr</span>());
         });
 
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
@@ -1602,7 +1602,7 @@
     <span class="kw">fn</span> <span class="ident">test_extract_tuple_to_vec</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">eval</span>(<span class="string">&quot;(1, 2)&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">=</span><span class="op">=</span> [<span class="number">1</span>, <span class="number">2</span>]);
+            <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">==</span> [<span class="number">1</span>, <span class="number">2</span>]);
         });
     }
 
@@ -1614,7 +1614,7 @@
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">extract</span>()
                 .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">=</span><span class="op">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
+            <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">==</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
         });
     }
 
@@ -1626,7 +1626,7 @@
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">extract</span>()
                 .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&quot;abc&quot;</span>);
+            <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">==</span> <span class="string">b&quot;abc&quot;</span>);
         });
     }
 
