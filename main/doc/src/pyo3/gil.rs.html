@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;gil.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gil.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;gil.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gil.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -899,43 +899,42 @@
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # #[allow(clippy::needless_doctest_main)]</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     pyo3::prepare_freethreaded_python();</span>
-<span class="doccomment">///     Python::with_gil(|py| {</span>
-<span class="doccomment">///         py.run(&quot;print(&#39;Hello World&#39;)&quot;, None, None)</span>
-<span class="doccomment">///     });</span>
-<span class="doccomment">/// }</span>
+<span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt;{</span>
+<span class="doccomment">/// pyo3::prepare_freethreaded_python();</span>
+<span class="doccomment">/// Python::with_gil(|py| py.run(&quot;print(&#39;Hello World&#39;)&quot;, None, None))</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))))]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::collapsible_if</span>)]</span> <span class="comment">// for if cfg!</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prepare_freethreaded_python</span>() {
     <span class="comment">// Protect against race conditions when Python is not yet initialized and multiple threads</span>
     <span class="comment">// concurrently call &#39;prepare_freethreaded_python()&#39;. Note that we do not protect against</span>
     <span class="comment">// concurrent initialization of the Python runtime by other users of the Python C API.</span>
     <span class="ident">START</span>.<span class="ident">call_once_force</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">unsafe</span> {
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>)) {
-            <span class="comment">// Use call_once_force because if initialization panics, it&#39;s okay to try again.</span>
-            <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="kw">if</span> <span class="ident">ffi::PyEval_ThreadsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
-                    <span class="comment">// We can only safely initialize threads if this thread holds the GIL.</span>
-                    <span class="macro">assert!</span>(
-                        <span class="op">!</span><span class="ident">ffi::PyGILState_GetThisThreadState</span>().<span class="ident">is_null</span>(),
-                        <span class="string">&quot;Python threading is not initialized and cannot be initialized by this \
-                         thread, because it is not the thread which initialized Python.&quot;</span>
-                    );
-                    <span class="ident">ffi::PyEval_InitThreads</span>();
-                }
-            } <span class="kw">else</span> {
-                <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
-                <span class="ident">ffi::PyEval_InitThreads</span>();
+        <span class="comment">// Use call_once_force because if initialization panics, it&#39;s okay to try again.</span>
 
-                <span class="comment">// Release the GIL.</span>
-                <span class="ident">ffi::PyEval_SaveThread</span>();
+        <span class="comment">// TODO(#1782) - Python 3.6 legacy code</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>))]</span>
+        <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">ffi::PyEval_ThreadsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
+                <span class="comment">// We can only safely initialize threads if this thread holds the GIL.</span>
+                <span class="macro">assert!</span>(
+                    <span class="op">!</span><span class="ident">ffi::PyGILState_GetThisThreadState</span>().<span class="ident">is_null</span>(),
+                    <span class="string">&quot;Python threading is not initialized and cannot be initialized by this \
+                     thread, because it is not the thread which initialized Python.&quot;</span>
+                );
+                <span class="ident">ffi::PyEval_InitThreads</span>();
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
-            <span class="comment">// In Python 3.7 and up PyEval_InitThreads is irrelevant.</span>
+        } <span class="kw">else</span> {
+            <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
+            <span class="ident">ffi::PyEval_InitThreads</span>();
+
+            <span class="comment">// Release the GIL.</span>
+            <span class="ident">ffi::PyEval_SaveThread</span>();
+        }
+
+        <span class="comment">// In Python 3.7 and up PyEval_InitThreads is irrelevant.</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_7</span>)]</span>
+        <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
 
             <span class="comment">// Release the GIL.</span>
@@ -967,18 +966,13 @@
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # #[allow(clippy::needless_doctest_main)]</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     unsafe {</span>
-<span class="doccomment">///         pyo3::with_embedded_python_interpreter(|py| {</span>
-<span class="doccomment">///             py.run(&quot;print(&#39;Hello World&#39;)&quot;, None, None)</span>
-<span class="doccomment">///         });</span>
-<span class="doccomment">///     }</span>
+<span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt;{</span>
+<span class="doccomment">/// unsafe {</span>
+<span class="doccomment">///     pyo3::with_embedded_python_interpreter(|py| py.run(&quot;print(&#39;Hello World&#39;)&quot;, None, None))</span>
 <span class="doccomment">/// }</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))))]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::collapsible_if</span>)]</span> <span class="comment">// for if cfg!</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">with_embedded_python_interpreter</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>) -&gt; <span class="ident">R</span>,
@@ -993,10 +987,9 @@
 
     <span class="comment">// Changed in version 3.7: This function is now called by Py_Initialize(), so you don’t have to</span>
     <span class="comment">// call it yourself anymore.</span>
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>)) {
-        <span class="kw">if</span> <span class="ident">ffi::PyEval_ThreadsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">ffi::PyEval_InitThreads</span>();
-        }
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>))]</span>
+    <span class="kw">if</span> <span class="ident">ffi::PyEval_ThreadsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
+        <span class="ident">ffi::PyEval_InitThreads</span>();
     }
 
     <span class="comment">// Safe: the GIL is already held because of the Py_IntializeEx call.</span>
@@ -1116,7 +1109,7 @@
 
 <span class="doccomment">/// The Drop implementation for `GILGuard` will release the GIL.</span>
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">GILGuard</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="comment">// First up, try to detect if the order of destruction is correct.</span>
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">GIL_COUNT</span>.<span class="ident">try_with</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">gstate</span> <span class="op">==</span> <span class="ident">ffi::PyGILState_STATE::PyGILState_UNLOCKED</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span>.<span class="ident">get</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
@@ -1133,7 +1126,7 @@
 
         <span class="comment">// Drop the objects in the pool before attempting to release the thread state</span>
         <span class="kw">unsafe</span> {
-            <span class="ident">ManuallyDrop::drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pool</span>);
+            <span class="ident">ManuallyDrop::drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">pool</span>);
         }
 
         <span class="kw">if</span> <span class="ident">should_decrement</span> {
@@ -1181,7 +1174,7 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ops</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointer_ops</span>.<span class="ident">lock</span>();
-        <span class="kw">let</span> (<span class="ident">increfs</span>, <span class="ident">decrefs</span>) <span class="op">=</span> <span class="ident">mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">ops</span>);
+        <span class="kw">let</span> (<span class="ident">increfs</span>, <span class="ident">decrefs</span>) <span class="op">=</span> <span class="ident">mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">ops</span>);
         <span class="ident">drop</span>(<span class="ident">ops</span>);
         <span class="comment">// Always increase reference counts first - as otherwise objects which have a</span>
         <span class="comment">// nonzero total reference count might be incorrectly dropped by Python during</span>
@@ -1201,6 +1194,12 @@
 <span class="kw">static</span> <span class="ident">POOL</span>: <span class="ident">ReferencePool</span> <span class="op">=</span> <span class="ident">ReferencePool::new</span>();
 
 <span class="doccomment">/// A RAII pool which PyO3 uses to store owned Python references.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See the [Memory Management] chapter of the guide for more information about how PyO3 uses</span>
+<span class="doccomment">/// [`GILPool`] to manage memory.</span>
+
+<span class="doccomment">///</span>
+<span class="doccomment">/// [Memory Management]: https://pyo3.rs/main/memory.html#gil-bound-memory</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GILPool</span> {
     <span class="doccomment">/// Initial length of owned objects and anys.</span>
@@ -1210,13 +1209,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">GILPool</span> {
-    <span class="doccomment">/// Creates a new `GILPool`. This function should only ever be called with the GIL held.</span>
+    <span class="doccomment">/// Creates a new [`GILPool`]. This function should only ever be called with the GIL held.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// It is recommended not to use this API directly, but instead to use `Python::new_pool`, as</span>
+    <span class="doccomment">/// It is recommended not to use this API directly, but instead to use [`Python::new_pool`], as</span>
     <span class="doccomment">/// that guarantees the GIL is held.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">/// As well as requiring the GIL, see the notes on `Python::new_pool`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// As well as requiring the GIL, see the safety notes on [`Python::new_pool`].</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">GILPool</span> {
         <span class="ident">increment_gil_count</span>();
@@ -1228,14 +1228,14 @@
         }
     }
 
-    <span class="doccomment">/// Get the Python token associated with this `GILPool`.</span>
+    <span class="doccomment">/// Gets the Python token associated with this [`GILPool`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">python</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Python</span> {
         <span class="kw">unsafe</span> { <span class="ident">Python::assume_gil_acquired</span>() }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">GILPool</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj_len_start</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span> {
             <span class="kw">let</span> <span class="ident">dropping_obj</span> <span class="op">=</span> <span class="ident">OWNED_OBJECTS</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">holder</span><span class="op">|</span> {
                 <span class="comment">// `holder` must be dropped before calling Py_DECREF, or Py_DECREF may call</span>
@@ -1648,7 +1648,7 @@
         <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">get_object</span>(<span class="ident">gil</span>.<span class="ident">python</span>());
 
         <span class="kw">unsafe</span> {
-            <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">capsule_drop</span>(<span class="ident">capsule</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::PyObject</span>) {
+            <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">capsule_drop</span>(<span class="ident">capsule</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>) {
                 <span class="comment">// This line will implicitly call update_counts</span>
                 <span class="comment">// -&gt; and so cause deadlock if update_counts is not handling recursion correctly.</span>
                 <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool::new</span>();

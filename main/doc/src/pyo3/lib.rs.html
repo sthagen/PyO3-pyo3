@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -406,8 +406,15 @@
 <span id="406">406</span>
 <span id="407">407</span>
 <span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc_auto_cfg</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(
     <span class="ident">docsrs</span>, <span class="comment">// rustdoc:: is not supported on msrv</span>
     <span class="ident">deny</span>(
@@ -416,6 +423,9 @@
         <span class="ident">rustdoc::bare_urls</span>
     )
 )]</span>
+<span class="comment">// Deny some lints in doctests.</span>
+<span class="comment">// Use `#[allow(...)]` locally to override.</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">attr</span>(<span class="ident">deny</span>(<span class="ident">warnings</span>), <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unused_assignments</span>))))]</span>
 
 <span class="doccomment">//! Rust bindings to the Python interpreter.</span>
 <span class="doccomment">//!</span>
@@ -484,10 +494,11 @@
 <span class="doccomment">//! crate, which is not supported on all platforms.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The following features enable interactions with other crates in the Rust ecosystem:</span>
-<span class="comment">//</span>
+<span class="doccomment">//! - [`anyhow`]: Enables a conversion from [anyhow]’s [`Error`][anyhow_error] type to [`PyErr`].</span>
+<span class="doccomment">//! - [`eyre`]: Enables a conversion from [eyre]’s [`Report`] type to [`PyErr`].</span>
 <span class="doccomment">//! - [`hashbrown`]: Enables conversions between Python objects and [hashbrown]&#39;s [`HashMap`] and</span>
 <span class="doccomment">//! [`HashSet`] types.</span>
-<span class="doccomment">//! - [`indexmap`]: Enables conversions between Python dictionary and [indexmap]&#39;s [`IndexMap`].</span>
+<span class="doccomment">//! - [`indexmap`][indexmap_feature]: Enables conversions between Python dictionary and [indexmap]&#39;s [`IndexMap`].</span>
 <span class="doccomment">//! - [`num-bigint`]: Enables conversions between Python objects and [num-bigint]&#39;s [`BigInt`] and</span>
 <span class="doccomment">//! [`BigUint`] types.</span>
 <span class="doccomment">//! - [`num-complex`]: Enables conversions between Python objects and [num-complex]&#39;s [`Complex`]</span>
@@ -515,7 +526,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! PyO3 supports the following software versions:</span>
 <span class="doccomment">//!   - Python 3.6 and up (CPython and PyPy)</span>
-<span class="doccomment">//!   - Rust 1.41 and up</span>
+<span class="doccomment">//!   - Rust 1.48 and up</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Example: Building a native Python module</span>
 <span class="doccomment">//!</span>
@@ -551,7 +562,6 @@
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! **`src/lib.rs`**</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! use pyo3::prelude::*;</span>
 <span class="doccomment">//!</span>
@@ -573,7 +583,6 @@
 <span class="doccomment">//! With those two files in place, now `maturin` needs to be installed. This can be done using</span>
 <span class="doccomment">//! Python&#39;s package manager `pip`. First, load up a new Python `virtualenv`, and install `maturin`</span>
 <span class="doccomment">//! into it:</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ```bash</span>
 <span class="doccomment">//! $ cd string_sum</span>
 <span class="doccomment">//! $ python -m venv .env</span>
@@ -582,7 +591,6 @@
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Now build and execute the module:</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ```bash</span>
 <span class="doccomment">//! $ maturin develop</span>
 <span class="doccomment">//! # lots of progress output as maturin runs the compilation...</span>
@@ -603,13 +611,11 @@
 <span class="doccomment">//! some example code which runs an embedded Python interpreter.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! To install the Python shared library on Ubuntu:</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ```bash</span>
 <span class="doccomment">//! sudo apt install python3-dev</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Start a new project with `cargo new` and add  `pyo3` to the `Cargo.toml` like this:</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ```toml</span>
 <span class="doccomment">//! [dependencies.pyo3]</span>
 <span class="comment">// workaround for `extended_key_value_attributes`: https://github.com/rust-lang/rust/issues/82768#issuecomment-803935643</span>
@@ -620,7 +626,6 @@
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Example program displaying the value of `sys.version` and the current user name:</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! use pyo3::prelude::*;</span>
 <span class="doccomment">//! use pyo3::types::IntoPyDict;</span>
@@ -628,7 +633,7 @@
 <span class="doccomment">//! fn main() -&gt; PyResult&lt;()&gt; {</span>
 <span class="doccomment">//!     Python::with_gil(|py| {</span>
 <span class="doccomment">//!         let sys = py.import(&quot;sys&quot;)?;</span>
-<span class="doccomment">//!         let version: String = sys.get(&quot;version&quot;)?.extract()?;</span>
+<span class="doccomment">//!         let version: String = sys.getattr(&quot;version&quot;)?.extract()?;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!         let locals = [(&quot;os&quot;, py.import(&quot;os&quot;)?)].into_py_dict(py);</span>
 <span class="doccomment">//!         let code = &quot;os.getenv(&#39;USER&#39;) or os.getenv(&#39;USERNAME&#39;) or &#39;Unknown&#39;&quot;;</span>
@@ -653,6 +658,9 @@
 <span class="doccomment">//! There are many projects using PyO3 - see a list of some at</span>
 <span class="doccomment">//! &lt;https://github.com/PyO3/pyo3#examples&gt;.</span>
 <span class="doccomment">//!</span>
+<span class="doccomment">//! [anyhow]: https://docs.rs/anyhow/ &quot;A trait object based error system for easy idiomatic error handling in Rust applications.&quot;</span>
+<span class="doccomment">//! [anyhow_error]: https://docs.rs/anyhow/latest/anyhow/struct.Error.html &quot;Anyhows `Error` type, a wrapper around a dynamic error type&quot;</span>
+<span class="doccomment">//! [`anyhow`]: ./anyhow/index.html &quot;Documentation about the `anyhow` feature.&quot;</span>
 <span class="doccomment">//! [inventory]: https://docs.rs/inventory</span>
 <span class="doccomment">//! [`HashMap`]: https://docs.rs/hashbrown/latest/hashbrown/struct.HashMap.html</span>
 <span class="doccomment">//! [`HashSet`]: https://docs.rs/hashbrown/latest/hashbrown/struct.HashSet.html</span>
@@ -662,13 +670,16 @@
 <span class="doccomment">//! [`Complex`]: https://docs.rs/num-complex/latest/num_complex/struct.Complex.html</span>
 <span class="doccomment">//! [`Deserialize`]: https://docs.rs/serde/latest/serde/trait.Deserialize.html</span>
 <span class="doccomment">//! [`Serialize`]: https://docs.rs/serde/latest/serde/trait.Serialize.html</span>
-<span class="doccomment">//! [`hashbrown`]: ./hashbrown/index.html</span>
-<span class="doccomment">//! [`indexmap`]: &lt;./indexmap/index.html&gt;</span>
+<span class="doccomment">//! [eyre]: https://docs.rs/eyre/ &quot;A library for easy idiomatic error handling and reporting in Rust applications.&quot;</span>
+<span class="doccomment">//! [`Report`]: https://docs.rs/eyre/latest/eyre/struct.Report.html</span>
+<span class="doccomment">//! [`eyre`]: ./eyre/index.html &quot;Documentation about the `eyre` feature.&quot;</span>
+<span class="doccomment">//! [`hashbrown`]: ./hashbrown/index.html &quot;Documentation about the `hashbrown` feature.&quot;</span>
+<span class="doccomment">//! [indexmap_feature]: ./indexmap/index.html &quot;Documentation about the `indexmap` feature.&quot;</span>
 <span class="doccomment">//! [`maturin`]: https://github.com/PyO3/maturin &quot;Build and publish crates with pyo3, rust-cpython and cffi bindings as well as rust binaries as python packages&quot;</span>
-<span class="doccomment">//! [`num-bigint`]: ./num_bigint/index.html</span>
-<span class="doccomment">//! [`num-complex`]: ./num_complex/index.html</span>
+<span class="doccomment">//! [`num-bigint`]: ./num_bigint/index.html &quot;Documentation about the `num-bigint` feature.&quot;</span>
+<span class="doccomment">//! [`num-complex`]: ./num_complex/index.html &quot;Documentation about the `num-complex` feature.&quot;</span>
 <span class="doccomment">//! [`pyo3-build-config`]: https://docs.rs/pyo3-build-config</span>
-<span class="doccomment">//! [`serde`]: &lt;./serde/index.html&gt;</span>
+<span class="doccomment">//! [`serde`]: &lt;./serde/index.html&gt; &quot;Documentation about the `serde` feature.&quot;</span>
 <span class="doccomment">//! [calling_rust]: https://pyo3.rs/latest/python_from_rust.html &quot;Calling Python from Rust - PyO3 user guide&quot;</span>
 <span class="doccomment">//! [examples subdirectory]: https://github.com/PyO3/pyo3/tree/main/examples</span>
 <span class="doccomment">//! [feature flags]: https://doc.rust-lang.org/cargo/reference/features.html &quot;Features - The Cargo Book&quot;</span>
@@ -693,7 +704,6 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyErrArguments</span>, <span class="ident">PyResult</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil</span>::{<span class="ident">prepare_freethreaded_python</span>, <span class="ident">with_embedded_python_interpreter</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil</span>::{<span class="ident">GILGuard</span>, <span class="ident">GILPool</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::instance</span>::{<span class="ident">Py</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>};
@@ -759,7 +769,6 @@
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros</span>::{<span class="ident">pyclass</span>, <span class="ident">pyfunction</span>, <span class="ident">pymethods</span>, <span class="ident">pymodule</span>, <span class="ident">pyproto</span>};
 }
 
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros</span>::{<span class="ident">pyclass</span>, <span class="ident">pyfunction</span>, <span class="ident">pymethods</span>, <span class="ident">pymodule</span>, <span class="ident">pyproto</span>, <span class="ident">FromPyObject</span>};
 
@@ -795,6 +804,7 @@
         <span class="string">&quot;guide/src/conversions/tables.md&quot;</span>,
         <span class="ident">guide_conversions_tables_md</span>
     );
+
     <span class="macro">doctest!</span>(
         <span class="string">&quot;guide/src/conversions/traits.md&quot;</span>,
         <span class="ident">guide_conversions_traits_md</span>
@@ -810,6 +820,10 @@
     <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/trait_bounds.md&quot;</span>, <span class="ident">guide_trait_bounds_md</span>);
     <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/types.md&quot;</span>, <span class="ident">guide_types_md</span>);
     <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/faq.md&quot;</span>, <span class="ident">faq</span>);
+    <span class="macro">doctest!</span>(
+        <span class="string">&quot;guide/src/python_typing_hints.md&quot;</span>,
+        <span class="ident">guide_python_typing_hints</span>
+    );
 
     <span class="comment">// deliberate choice not to test guide/ecosystem because those pages depend on external crates</span>
     <span class="comment">// such as pyo3_asyncio.</span>
