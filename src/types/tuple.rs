@@ -110,13 +110,16 @@ impl PyTuple {
     /// # Example
     /// ```
     /// use pyo3::{prelude::*, types::PyTuple};
+    ///
+    /// # fn main() -> PyResult<()> {
     /// Python::with_gil(|py| -> PyResult<()> {
     ///     let ob = (1, 2, 3).to_object(py);
     ///     let tuple = <PyTuple as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
     ///     let obj = tuple.get_item(0);
     ///     assert_eq!(obj.unwrap().extract::<i32>().unwrap(), 1);
     ///     Ok(())
-    /// });
+    /// })
+    /// # }
     /// ```
     pub fn get_item(&self, index: usize) -> PyResult<&PyAny> {
         unsafe {
@@ -131,7 +134,6 @@ impl PyTuple {
     ///
     /// Caller must verify that the index is within the bounds of the tuple.
     #[cfg(not(any(Py_LIMITED_API, PyPy)))]
-    #[cfg_attr(docsrs, doc(cfg(not(any(Py_LIMITED_API, PyPy)))))]
     pub unsafe fn get_item_unchecked(&self, index: usize) -> &PyAny {
         let item = ffi::PyTuple_GET_ITEM(self.as_ptr(), index as Py_ssize_t);
         self.py().from_borrowed_ptr(item)
@@ -139,7 +141,6 @@ impl PyTuple {
 
     /// Returns `self` as a slice of objects.
     #[cfg(not(Py_LIMITED_API))]
-    #[cfg_attr(docsrs, doc(cfg(not(Py_LIMITED_API))))]
     pub fn as_slice(&self) -> &[&PyAny] {
         // This is safe because &PyAny has the same memory layout as *mut ffi::PyObject,
         // and because tuples are immutable.

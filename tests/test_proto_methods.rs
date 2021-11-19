@@ -1,12 +1,13 @@
-#![cfg(not(feature = "multiple-pymethods"))]
-
 use pyo3::exceptions::PyValueError;
-use pyo3::types::{PySlice, PyType};
+use pyo3::types::{PyList, PySlice, PyType};
 use pyo3::{exceptions::PyAttributeError, prelude::*};
 use pyo3::{ffi, py_run, AsPyPointer, PyCell};
 use std::{isize, iter};
 
 mod common;
+
+#[pyclass]
+struct EmptyClass;
 
 #[pyclass]
 struct ExampleClass {
@@ -229,30 +230,55 @@ fn iterator() {
 }
 
 #[pyclass]
-struct Callable {}
+struct Callable;
 
 #[pymethods]
 impl Callable {
-    #[__call__]
     fn __call__(&self, arg: i32) -> i32 {
         arg * 6
     }
 }
 
 #[pyclass]
-struct EmptyClass;
+struct NotCallable;
 
 #[test]
 fn callable() {
     let gil = Python::acquire_gil();
     let py = gil.python();
 
-    let c = Py::new(py, Callable {}).unwrap();
+    let c = Py::new(py, Callable).unwrap();
     py_assert!(py, c, "callable(c)");
     py_assert!(py, c, "c(7) == 42");
 
-    let nc = Py::new(py, EmptyClass).unwrap();
+    let nc = Py::new(py, NotCallable).unwrap();
     py_assert!(py, nc, "not callable(nc)");
+}
+
+#[allow(deprecated)]
+mod deprecated {
+    use super::*;
+
+    #[pyclass]
+    struct Callable;
+
+    #[pymethods]
+    impl Callable {
+        #[__call__]
+        fn __call__(&self, arg: i32) -> i32 {
+            arg * 6
+        }
+    }
+
+    #[test]
+    fn callable() {
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+
+        let c = Py::new(py, Callable).unwrap();
+        py_assert!(py, c, "callable(c)");
+        py_assert!(py, c, "c(7) == 42");
+    }
 }
 
 #[pyclass]
@@ -494,7 +520,7 @@ impl DescrCounter {
     fn new() -> Self {
         DescrCounter { count: 0 }
     }
-
+    /// Each access will increase the count
     fn __get__<'a>(
         mut slf: PyRefMut<'a, Self>,
         _instance: &PyAny,
@@ -503,8 +529,13 @@ impl DescrCounter {
         slf.count += 1;
         slf
     }
-    fn __set__(_slf: PyRef<Self>, _instance: &PyAny, mut new_value: PyRefMut<Self>) {
-        new_value.count = _slf.count;
+    /// Allow assigning a new counter to the descriptor, copying the count across
+    fn __set__(&self, _instance: &PyAny, new_value: &mut Self) {
+        new_value.count = self.count;
+    }
+    /// Delete to reset the counter
+    fn __delete__(&mut self, _instance: &PyAny) {
+        self.count = 0;
     }
 }
 
@@ -517,11 +548,25 @@ fn descr_getset() {
         r#"
 class Class:
     counter = Counter()
+
+# access via type
+counter = Class.counter
+assert counter.count == 1
+
+# access with instance directly
+assert Counter.__get__(counter, Class()).count == 2
+
+# access via instance
 c = Class()
-c.counter # count += 1
-assert c.counter.count == 2
-c.counter = Counter()
 assert c.counter.count == 3
+
+# __set__
+c.counter = Counter()
+assert c.counter.count == 4
+
+# __delete__
+del c.counter
+assert c.counter.count == 1
 "#
     );
     let globals = PyModule::import(py, "__main__").unwrap().dict();
@@ -529,4 +574,73 @@ assert c.counter.count == 3
     py.run(source, Some(globals), None)
         .map_err(|e| e.print(py))
         .unwrap();
+}
+
+#[pyclass]
+struct NotHashable;
+
+#[pymethods]
+impl NotHashable {
+    #[classattr]
+    const __hash__: Option<PyObject> = None;
+}
+
+#[test]
+fn test_hash_opt_out() {
+    // By default Python provides a hash implementation, which can be disabled by setting __hash__
+    // to None.
+    Python::with_gil(|py| {
+        let empty = Py::new(py, EmptyClass).unwrap();
+        py_assert!(py, empty, "hash(empty) is not None");
+
+        let not_hashable = Py::new(py, NotHashable).unwrap();
+        py_expect_exception!(py, not_hashable, "hash(not_hashable)", PyTypeError);
+    })
+}
+
+/// Class with __iter__ gets default contains from CPython.
+#[pyclass]
+struct DefaultedContains;
+
+#[pymethods]
+impl DefaultedContains {
+    fn __iter__(&self, py: Python) -> PyObject {
+        PyList::new(py, &["a", "b", "c"])
+            .as_ref()
+            .iter()
+            .unwrap()
+            .into()
+    }
+}
+
+#[pyclass]
+struct NoContains;
+
+#[pymethods]
+impl NoContains {
+    fn __iter__(&self, py: Python) -> PyObject {
+        PyList::new(py, &["a", "b", "c"])
+            .as_ref()
+            .iter()
+            .unwrap()
+            .into()
+    }
+
+    // Equivalent to the opt-out const form in NotHashable above, just more verbose, to confirm this
+    // also works.
+    #[classattr]
+    fn __contains__() -> Option<PyObject> {
+        None
+    }
+}
+
+#[test]
+fn test_contains_opt_out() {
+    Python::with_gil(|py| {
+        let defaulted_contains = Py::new(py, DefaultedContains).unwrap();
+        py_assert!(py, defaulted_contains, "'a' in defaulted_contains");
+
+        let no_contains = Py::new(py, NoContains).unwrap();
+        py_expect_exception!(py, no_contains, "'a' in no_contains", PyTypeError);
+    })
 }

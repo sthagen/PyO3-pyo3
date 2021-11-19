@@ -39,7 +39,6 @@ impl PyDict {
     /// Returns an error on invalid input. In the case of key collisions,
     /// this keeps the last entry seen.
     #[cfg(not(PyPy))]
-    #[cfg_attr(docsrs, doc(cfg(not(PyPy))))]
     pub fn from_sequence(py: Python, seq: PyObject) -> PyResult<&PyDict> {
         unsafe {
             let dict = py.from_owned_ptr::<PyDict>(ffi::PyDict_New());
@@ -89,7 +88,7 @@ impl PyDict {
             match ffi::PyDict_Contains(self.as_ptr(), key) {
                 1 => Ok(true),
                 0 => Ok(false),
-                _ => Err(PyErr::api_call_failed(self.py())),
+                _ => Err(PyErr::fetch(self.py())),
             }
         })
     }

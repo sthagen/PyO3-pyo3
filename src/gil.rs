@@ -63,43 +63,42 @@ pub(crate) fn gil_is_acquired() -> bool {
 /// ```rust
 /// use pyo3::prelude::*;
 ///
-/// # #[allow(clippy::needless_doctest_main)]
-/// fn main() {
-///     pyo3::prepare_freethreaded_python();
-///     Python::with_gil(|py| {
-///         py.run("print('Hello World')", None, None)
-///     });
-/// }
+/// # fn main() -> PyResult<()>{
+/// pyo3::prepare_freethreaded_python();
+/// Python::with_gil(|py| py.run("print('Hello World')", None, None))
+/// # }
 /// ```
 #[cfg(not(PyPy))]
-#[cfg_attr(docsrs, doc(cfg(not(PyPy))))]
-#[allow(clippy::collapsible_if)] // for if cfg!
 pub fn prepare_freethreaded_python() {
     // Protect against race conditions when Python is not yet initialized and multiple threads
     // concurrently call 'prepare_freethreaded_python()'. Note that we do not protect against
     // concurrent initialization of the Python runtime by other users of the Python C API.
     START.call_once_force(|_| unsafe {
-        if cfg!(not(Py_3_7)) {
-            // Use call_once_force because if initialization panics, it's okay to try again.
-            if ffi::Py_IsInitialized() != 0 {
-                if ffi::PyEval_ThreadsInitialized() == 0 {
-                    // We can only safely initialize threads if this thread holds the GIL.
-                    assert!(
-                        !ffi::PyGILState_GetThisThreadState().is_null(),
-                        "Python threading is not initialized and cannot be initialized by this \
-                         thread, because it is not the thread which initialized Python."
-                    );
-                    ffi::PyEval_InitThreads();
-                }
-            } else {
-                ffi::Py_InitializeEx(0);
-                ffi::PyEval_InitThreads();
+        // Use call_once_force because if initialization panics, it's okay to try again.
 
-                // Release the GIL.
-                ffi::PyEval_SaveThread();
+        // TODO(#1782) - Python 3.6 legacy code
+        #[cfg(not(Py_3_7))]
+        if ffi::Py_IsInitialized() != 0 {
+            if ffi::PyEval_ThreadsInitialized() == 0 {
+                // We can only safely initialize threads if this thread holds the GIL.
+                assert!(
+                    !ffi::PyGILState_GetThisThreadState().is_null(),
+                    "Python threading is not initialized and cannot be initialized by this \
+                     thread, because it is not the thread which initialized Python."
+                );
+                ffi::PyEval_InitThreads();
             }
-        } else if ffi::Py_IsInitialized() == 0 {
-            // In Python 3.7 and up PyEval_InitThreads is irrelevant.
+        } else {
+            ffi::Py_InitializeEx(0);
+            ffi::PyEval_InitThreads();
+
+            // Release the GIL.
+            ffi::PyEval_SaveThread();
+        }
+
+        // In Python 3.7 and up PyEval_InitThreads is irrelevant.
+        #[cfg(Py_3_7)]
+        if ffi::Py_IsInitialized() == 0 {
             ffi::Py_InitializeEx(0);
 
             // Release the GIL.
@@ -131,18 +130,13 @@ pub fn prepare_freethreaded_python() {
 /// ```rust
 /// use pyo3::prelude::*;
 ///
-/// # #[allow(clippy::needless_doctest_main)]
-/// fn main() {
-///     unsafe {
-///         pyo3::with_embedded_python_interpreter(|py| {
-///             py.run("print('Hello World')", None, None)
-///         });
-///     }
+/// # fn main() -> PyResult<()>{
+/// unsafe {
+///     pyo3::with_embedded_python_interpreter(|py| py.run("print('Hello World')", None, None))
 /// }
+/// # }
 /// ```
 #[cfg(not(PyPy))]
-#[cfg_attr(docsrs, doc(cfg(not(PyPy))))]
-#[allow(clippy::collapsible_if)] // for if cfg!
 pub unsafe fn with_embedded_python_interpreter<F, R>(f: F) -> R
 where
     F: for<'p> FnOnce(Python<'p>) -> R,
@@ -157,10 +151,9 @@ where
 
     // Changed in version 3.7: This function is now called by Py_Initialize(), so you don’t have to
     // call it yourself anymore.
-    if cfg!(not(Py_3_7)) {
-        if ffi::PyEval_ThreadsInitialized() == 0 {
-            ffi::PyEval_InitThreads();
-        }
+    #[cfg(not(Py_3_7))]
+    if ffi::PyEval_ThreadsInitialized() == 0 {
+        ffi::PyEval_InitThreads();
     }
 
     // Safe: the GIL is already held because of the Py_IntializeEx call.
@@ -365,6 +358,12 @@ unsafe impl Sync for ReferencePool {}
 static POOL: ReferencePool = ReferencePool::new();
 
 /// A RAII pool which PyO3 uses to store owned Python references.
+///
+/// See the [Memory Management] chapter of the guide for more information about how PyO3 uses
+/// [`GILPool`] to manage memory.
+
+///
+/// [Memory Management]: https://pyo3.rs/main/memory.html#gil-bound-memory
 #[allow(clippy::upper_case_acronyms)]
 pub struct GILPool {
     /// Initial length of owned objects and anys.
@@ -374,13 +373,14 @@ pub struct GILPool {
 }
 
 impl GILPool {
-    /// Creates a new `GILPool`. This function should only ever be called with the GIL held.
+    /// Creates a new [`GILPool`]. This function should only ever be called with the GIL held.
     ///
-    /// It is recommended not to use this API directly, but instead to use `Python::new_pool`, as
+    /// It is recommended not to use this API directly, but instead to use [`Python::new_pool`], as
     /// that guarantees the GIL is held.
     ///
     /// # Safety
-    /// As well as requiring the GIL, see the notes on `Python::new_pool`.
+    ///
+    /// As well as requiring the GIL, see the safety notes on [`Python::new_pool`].
     #[inline]
     pub unsafe fn new() -> GILPool {
         increment_gil_count();
@@ -392,7 +392,7 @@ impl GILPool {
         }
     }
 
-    /// Get the Python token associated with this `GILPool`.
+    /// Gets the Python token associated with this [`GILPool`].
     pub fn python(&self) -> Python {
         unsafe { Python::assume_gil_acquired() }
     }

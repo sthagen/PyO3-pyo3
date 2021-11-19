@@ -83,6 +83,14 @@ metadata about a Python interpreter.
 
 These features enable conversions between Python types and types from other Rust crates, enabling easy access to the rest of the Rust ecosystem.
 
+### `anyhow`
+
+Adds a dependency on [anyhow](https://docs.rs/anyhow). Enables a conversion from [anyhow](https://docs.rs/anyhow)’s [`Error`]https://docs.rs/anyhow/latest/anyhow/struct.Error.html) type to [`PyErr`](https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html), for easy error handling.
+
+### `eyre`
+
+Adds a dependency on [eyre](https://docs.rs/eyre). Enables a conversion from [eyre](https://docs.rs/eyre)’s [`Report`](https://docs.rs/eyre/latest/eyre/struct.Report.html) type to [`PyErr`](https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html), for easy error handling.
+
 ### `hashbrown`
 
 Adds a dependency on [hashbrown](https://docs.rs/hashbrown) and enables conversions into its [`HashMap`](https://docs.rs/hashbrown/latest/hashbrown/struct.HashMap.html) and [`HashSet`](https://docs.rs/hashbrown/latest/hashbrown/struct.HashSet.html) types.
@@ -119,3 +127,5 @@ struct User {
     permissions: Vec<Py<Permission>>
 }
 ```
+
+

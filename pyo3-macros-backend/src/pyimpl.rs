@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use crate::{
     konst::{ConstAttributes, ConstSpec},
     pyfunction::PyFunctionOptions,
-    pymethod,
+    pymethod::{self, is_proto_method},
 };
 use proc_macro2::TokenStream;
 use pymethod::GeneratedPyMethod;
@@ -79,38 +79,42 @@ pub fn impl_methods(
                     let attrs = get_cfg_attributes(&konst.attrs);
                     let meth = gen_py_const(ty, &spec);
                     methods.push(quote!(#(#attrs)* #meth));
+                    if is_proto_method(&spec.python_name().to_string()) {
+                        // If this is a known protocol method e.g. __contains__, then allow this
+                        // symbol even though it's not an uppercase constant.
+                        konst
+                            .attrs
+                            .push(syn::parse_quote!(#[allow(non_upper_case_globals)]));
+                    }
                 }
             }
             _ => (),
         }
     }
 
-    let methods_registration = match methods_type {
-        PyClassMethodsType::Specialization => impl_py_methods(ty, methods),
-        PyClassMethodsType::Inventory => submit_methods_inventory(ty, methods),
-    };
+    add_shared_proto_slots(ty, &mut proto_impls, implemented_proto_fragments);
 
-    let protos_registration = match methods_type {
+    Ok(match methods_type {
         PyClassMethodsType::Specialization => {
-            Some(impl_protos(ty, proto_impls, implemented_proto_fragments))
-        }
-        PyClassMethodsType::Inventory => {
-            if proto_impls.is_empty() {
-                None
-            } else {
-                panic!(
-                    "cannot implement protos in #[pymethods] using `multiple-pymethods` feature"
-                );
+            let methods_registration = impl_py_methods(ty, methods);
+            let protos_registration = impl_protos(ty, proto_impls);
+
+            quote! {
+                #(#trait_impls)*
+
+                #protos_registration
+
+                #methods_registration
             }
         }
-    };
+        PyClassMethodsType::Inventory => {
+            let inventory = submit_methods_inventory(ty, methods, proto_impls);
+            quote! {
+                #(#trait_impls)*
 
-    Ok(quote! {
-        #(#trait_impls)*
-
-        #protos_registration
-
-        #methods_registration
+                #inventory
+            }
+        }
     })
 }
 
@@ -147,11 +151,11 @@ fn impl_py_methods(ty: &syn::Type, methods: Vec<TokenStream>) -> TokenStream {
     }
 }
 
-fn impl_protos(
+fn add_shared_proto_slots(
     ty: &syn::Type,
-    mut proto_impls: Vec<TokenStream>,
+    proto_impls: &mut Vec<TokenStream>,
     mut implemented_proto_fragments: HashSet<String>,
-) -> TokenStream {
+) {
     macro_rules! try_add_shared_slot {
         ($first:literal, $second:literal, $slot:ident) => {{
             let first_implemented = implemented_proto_fragments.remove($first);
@@ -176,8 +180,18 @@ fn impl_protos(
     try_add_shared_slot!("__or__", "__ror__", generate_pyclass_or_slot);
     try_add_shared_slot!("__xor__", "__rxor__", generate_pyclass_xor_slot);
     try_add_shared_slot!("__matmul__", "__rmatmul__", generate_pyclass_matmul_slot);
+    try_add_shared_slot!("__truediv__", "__rtruediv__", generate_pyclass_truediv_slot);
+    try_add_shared_slot!(
+        "__floordiv__",
+        "__rfloordiv__",
+        generate_pyclass_floordiv_slot
+    );
     try_add_shared_slot!("__pow__", "__rpow__", generate_pyclass_pow_slot);
 
+    assert!(implemented_proto_fragments.is_empty());
+}
+
+fn impl_protos(ty: &syn::Type, proto_impls: Vec<TokenStream>) -> TokenStream {
     quote! {
         impl ::pyo3::class::impl_::PyMethodsProtocolSlots<#ty>
             for ::pyo3::class::impl_::PyClassImplCollector<#ty>
@@ -189,16 +203,16 @@ fn impl_protos(
     }
 }
 
-fn submit_methods_inventory(ty: &syn::Type, methods: Vec<TokenStream>) -> TokenStream {
-    if methods.is_empty() {
-        return TokenStream::default();
-    }
-
+fn submit_methods_inventory(
+    ty: &syn::Type,
+    methods: Vec<TokenStream>,
+    proto_impls: Vec<TokenStream>,
+) -> TokenStream {
     quote! {
         ::pyo3::inventory::submit! {
             #![crate = ::pyo3] {
                 type Inventory = <#ty as ::pyo3::class::impl_::HasMethodsInventory>::Methods;
-                <Inventory as ::pyo3::class::impl_::PyMethodsInventory>::new(::std::vec![#(#methods),*])
+                <Inventory as ::pyo3::class::impl_::PyMethodsInventory>::new(::std::vec![#(#methods),*], ::std::vec![#(#proto_impls),*])
             }
         }
     }

@@ -70,12 +70,10 @@ macro_rules! impl_exception_boilerplate {
 ///
 /// import_exception!(socket, gaierror);
 ///
-/// fn main() {
-///     Python::with_gil(|py| {
-///         let ctx = [("gaierror", py.get_type::<gaierror>())].into_py_dict(py);
-///         pyo3::py_run!(py, *ctx, "import socket; assert gaierror is socket.gaierror");
-///     });
-/// }
+/// Python::with_gil(|py| {
+///     let ctx = [("gaierror", py.get_type::<gaierror>())].into_py_dict(py);
+///     pyo3::py_run!(py, *ctx, "import socket; assert gaierror is socket.gaierror");
+/// });
 ///
 /// ```
 #[macro_export]
@@ -146,19 +144,17 @@ macro_rules! import_exception {
 ///
 /// create_exception!(mymodule, CustomError, PyException);
 ///
-/// fn main() {
-///     Python::with_gil(|py| {
-///         let error_type = py.get_type::<CustomError>();
-///         let ctx = [("CustomError", error_type)].into_py_dict(py);
-///         let type_description: String = py
-///             .eval("str(CustomError)", None, Some(&ctx))
-///             .unwrap()
-///             .extract()
-///             .unwrap();
-///         assert_eq!(type_description, "<class 'mymodule.CustomError'>");
-///         pyo3::py_run!(py, *ctx, "assert CustomError('oops').args == ('oops',)");
-///    });
-/// }
+/// Python::with_gil(|py| {
+///     let error_type = py.get_type::<CustomError>();
+///     let ctx = [("CustomError", error_type)].into_py_dict(py);
+///     let type_description: String = py
+///         .eval("str(CustomError)", None, Some(&ctx))
+///         .unwrap()
+///         .extract()
+///         .unwrap();
+///     assert_eq!(type_description, "<class 'mymodule.CustomError'>");
+///     pyo3::py_run!(py, *ctx, "assert CustomError('oops').args == ('oops',)");
+/// });
 /// ```
 #[macro_export]
 macro_rules! create_exception {
@@ -222,6 +218,22 @@ macro_rules! impl_native_exception (
     );
     ($name:ident, $exc_name:ident, $doc:expr) => (
         impl_native_exception!($name, $exc_name, $doc, $crate::ffi::PyBaseExceptionObject);
+    )
+);
+
+#[cfg(windows)]
+macro_rules! impl_windows_native_exception (
+    ($name:ident, $exc_name:ident, $doc:expr, $layout:path) => (
+        #[cfg(windows)]
+        #[doc = $doc]
+        #[allow(clippy::upper_case_acronyms)]
+        pub struct $name($crate::PyAny);
+
+        $crate::impl_exception_boilerplate!($name);
+        $crate::pyobject_native_type!($name, $layout, *($crate::ffi::$exc_name as *mut $crate::ffi::PyTypeObject));
+    );
+    ($name:ident, $exc_name:ident, $doc:expr) => (
+        impl_windows_native_exception!($name, $exc_name, $doc, $crate::ffi::PyBaseExceptionObject);
     )
 );
 
@@ -516,8 +528,9 @@ impl_native_exception!(
     native_doc!("EnvironmentError")
 );
 impl_native_exception!(PyIOError, PyExc_IOError, native_doc!("IOError"));
+
 #[cfg(windows)]
-impl_native_exception!(
+impl_windows_native_exception!(
     PyWindowsError,
     PyExc_WindowsError,
     native_doc!("WindowsError")
@@ -816,7 +829,7 @@ mod tests {
             e.restore(py);
 
             assert_eq!(
-                PyErr::api_call_failed(py).to_string(),
+                PyErr::fetch(py).to_string(),
                 "UnicodeDecodeError: \'utf-8\' codec can\'t decode byte 0xd8 in position 2: invalid utf-8"
             );
         });

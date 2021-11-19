@@ -1,5 +1,5 @@
 #![cfg_attr(feature = "nightly", feature(specialization))]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 #![cfg_attr(
     docsrs, // rustdoc:: is not supported on msrv
     deny(
@@ -8,6 +8,9 @@
         rustdoc::bare_urls
     )
 )]
+// Deny some lints in doctests.
+// Use `#[allow(...)]` locally to override.
+#![doc(test(attr(deny(warnings), allow(unused_variables, unused_assignments))))]
 
 //! Rust bindings to the Python interpreter.
 //!
@@ -76,10 +79,11 @@
 //! crate, which is not supported on all platforms.
 //!
 //! The following features enable interactions with other crates in the Rust ecosystem:
-//
+//! - [`anyhow`]: Enables a conversion from [anyhow]’s [`Error`][anyhow_error] type to [`PyErr`].
+//! - [`eyre`]: Enables a conversion from [eyre]’s [`Report`] type to [`PyErr`].
 //! - [`hashbrown`]: Enables conversions between Python objects and [hashbrown]'s [`HashMap`] and
 //! [`HashSet`] types.
-//! - [`indexmap`]: Enables conversions between Python dictionary and [indexmap]'s [`IndexMap`].
+//! - [`indexmap`][indexmap_feature]: Enables conversions between Python dictionary and [indexmap]'s [`IndexMap`].
 //! - [`num-bigint`]: Enables conversions between Python objects and [num-bigint]'s [`BigInt`] and
 //! [`BigUint`] types.
 //! - [`num-complex`]: Enables conversions between Python objects and [num-complex]'s [`Complex`]
@@ -107,7 +111,7 @@
 //!
 //! PyO3 supports the following software versions:
 //!   - Python 3.6 and up (CPython and PyPy)
-//!   - Rust 1.41 and up
+//!   - Rust 1.48 and up
 //!
 //! # Example: Building a native Python module
 //!
@@ -143,7 +147,6 @@
 //! ```
 //!
 //! **`src/lib.rs`**
-//!
 //! ```rust
 //! use pyo3::prelude::*;
 //!
@@ -165,7 +168,6 @@
 //! With those two files in place, now `maturin` needs to be installed. This can be done using
 //! Python's package manager `pip`. First, load up a new Python `virtualenv`, and install `maturin`
 //! into it:
-//!
 //! ```bash
 //! $ cd string_sum
 //! $ python -m venv .env
@@ -174,7 +176,6 @@
 //! ```
 //!
 //! Now build and execute the module:
-//!
 //! ```bash
 //! $ maturin develop
 //! # lots of progress output as maturin runs the compilation...
@@ -195,13 +196,11 @@
 //! some example code which runs an embedded Python interpreter.
 //!
 //! To install the Python shared library on Ubuntu:
-//!
 //! ```bash
 //! sudo apt install python3-dev
 //! ```
 //!
 //! Start a new project with `cargo new` and add  `pyo3` to the `Cargo.toml` like this:
-//!
 //! ```toml
 //! [dependencies.pyo3]
 // workaround for `extended_key_value_attributes`: https://github.com/rust-lang/rust/issues/82768#issuecomment-803935643
@@ -212,7 +211,6 @@
 //! ```
 //!
 //! Example program displaying the value of `sys.version` and the current user name:
-//!
 //! ```rust
 //! use pyo3::prelude::*;
 //! use pyo3::types::IntoPyDict;
@@ -220,7 +218,7 @@
 //! fn main() -> PyResult<()> {
 //!     Python::with_gil(|py| {
 //!         let sys = py.import("sys")?;
-//!         let version: String = sys.get("version")?.extract()?;
+//!         let version: String = sys.getattr("version")?.extract()?;
 //!
 //!         let locals = [("os", py.import("os")?)].into_py_dict(py);
 //!         let code = "os.getenv('USER') or os.getenv('USERNAME') or 'Unknown'";
@@ -245,6 +243,9 @@
 //! There are many projects using PyO3 - see a list of some at
 //! <https://github.com/PyO3/pyo3#examples>.
 //!
+//! [anyhow]: https://docs.rs/anyhow/ "A trait object based error system for easy idiomatic error handling in Rust applications."
+//! [anyhow_error]: https://docs.rs/anyhow/latest/anyhow/struct.Error.html "Anyhows `Error` type, a wrapper around a dynamic error type"
+//! [`anyhow`]: ./anyhow/index.html "Documentation about the `anyhow` feature."
 //! [inventory]: https://docs.rs/inventory
 //! [`HashMap`]: https://docs.rs/hashbrown/latest/hashbrown/struct.HashMap.html
 //! [`HashSet`]: https://docs.rs/hashbrown/latest/hashbrown/struct.HashSet.html
@@ -254,13 +255,16 @@
 //! [`Complex`]: https://docs.rs/num-complex/latest/num_complex/struct.Complex.html
 //! [`Deserialize`]: https://docs.rs/serde/latest/serde/trait.Deserialize.html
 //! [`Serialize`]: https://docs.rs/serde/latest/serde/trait.Serialize.html
-//! [`hashbrown`]: ./hashbrown/index.html
-//! [`indexmap`]: <./indexmap/index.html>
+//! [eyre]: https://docs.rs/eyre/ "A library for easy idiomatic error handling and reporting in Rust applications."
+//! [`Report`]: https://docs.rs/eyre/latest/eyre/struct.Report.html
+//! [`eyre`]: ./eyre/index.html "Documentation about the `eyre` feature."
+//! [`hashbrown`]: ./hashbrown/index.html "Documentation about the `hashbrown` feature."
+//! [indexmap_feature]: ./indexmap/index.html "Documentation about the `indexmap` feature."
 //! [`maturin`]: https://github.com/PyO3/maturin "Build and publish crates with pyo3, rust-cpython and cffi bindings as well as rust binaries as python packages"
-//! [`num-bigint`]: ./num_bigint/index.html
-//! [`num-complex`]: ./num_complex/index.html
+//! [`num-bigint`]: ./num_bigint/index.html "Documentation about the `num-bigint` feature."
+//! [`num-complex`]: ./num_complex/index.html "Documentation about the `num-complex` feature."
 //! [`pyo3-build-config`]: https://docs.rs/pyo3-build-config
-//! [`serde`]: <./serde/index.html>
+//! [`serde`]: <./serde/index.html> "Documentation about the `serde` feature."
 //! [calling_rust]: https://pyo3.rs/latest/python_from_rust.html "Calling Python from Rust - PyO3 user guide"
 //! [examples subdirectory]: https://github.com/PyO3/pyo3/tree/main/examples
 //! [feature flags]: https://doc.rust-lang.org/cargo/reference/features.html "Features - The Cargo Book"
@@ -285,7 +289,6 @@ pub use crate::conversion::{
 };
 pub use crate::err::{PyDowncastError, PyErr, PyErrArguments, PyResult};
 #[cfg(not(PyPy))]
-#[cfg_attr(docsrs, doc(cfg(not(PyPy))))]
 pub use crate::gil::{prepare_freethreaded_python, with_embedded_python_interpreter};
 pub use crate::gil::{GILGuard, GILPool};
 pub use crate::instance::{Py, PyNativeType, PyObject};
@@ -351,7 +354,6 @@ pub mod proc_macro {
     pub use pyo3_macros::{pyclass, pyfunction, pymethods, pymodule, pyproto};
 }
 
-#[cfg_attr(docsrs, doc(cfg(feature = "macros")))]
 #[cfg(feature = "macros")]
 pub use pyo3_macros::{pyclass, pyfunction, pymethods, pymodule, pyproto, FromPyObject};
 
@@ -387,6 +389,7 @@ pub mod doc_test {
         "guide/src/conversions/tables.md",
         guide_conversions_tables_md
     );
+
     doctest!(
         "guide/src/conversions/traits.md",
         guide_conversions_traits_md
@@ -402,6 +405,10 @@ pub mod doc_test {
     doctest!("guide/src/trait_bounds.md", guide_trait_bounds_md);
     doctest!("guide/src/types.md", guide_types_md);
     doctest!("guide/src/faq.md", faq);
+    doctest!(
+        "guide/src/python_typing_hints.md",
+        guide_python_typing_hints
+    );
 
     // deliberate choice not to test guide/ecosystem because those pages depend on external crates
     // such as pyo3_asyncio.

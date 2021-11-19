@@ -3,11 +3,6 @@
 // based on Daniel Grunwald's https://github.com/dgrunwald/rust-cpython
 
 #![cfg(all(feature = "num-bigint", not(any(Py_LIMITED_API, PyPy))))]
-#![cfg_attr(
-    docsrs,
-    doc(cfg(all(feature = "num-bigint", not(any(Py_LIMITED_API, PyPy)))))
-)]
-
 //!  Conversions to and from [num-bigint](https://docs.rs/num-bigint)’s [`BigInt`] and [`BigUint`] types.
 //!
 //! This is useful for converting Python integers when they may not fit in Rust's built-in integer types.
@@ -35,7 +30,6 @@
 //! Using [`BigInt`] to correctly increment an arbitrary precision integer.
 //! This is not possible with Rust's native integers if the Python integer is too large,
 //! in which case it will fail its conversion and raise `OverflowError`.
-//!
 //! ```rust
 //! use num_bigint::BigInt;
 //! use pyo3::prelude::*;
@@ -86,6 +80,7 @@ unsafe fn extract(ob: &PyLong, buffer: &mut [c_uchar], is_signed: c_int) -> PyRe
 
 macro_rules! bigint_conversion {
     ($rust_ty: ty, $is_signed: expr, $to_bytes: path, $from_bytes: path) => {
+        #[cfg_attr(docsrs, doc(cfg(feature = "num-bigint")))]
         impl ToPyObject for $rust_ty {
             fn to_object(&self, py: Python) -> PyObject {
                 unsafe {
@@ -100,28 +95,29 @@ macro_rules! bigint_conversion {
                 }
             }
         }
+
+        #[cfg_attr(docsrs, doc(cfg(feature = "num-bigint")))]
         impl IntoPy<PyObject> for $rust_ty {
             fn into_py(self, py: Python) -> PyObject {
                 self.to_object(py)
             }
         }
+
+        #[cfg_attr(docsrs, doc(cfg(feature = "num-bigint")))]
         impl<'source> FromPyObject<'source> for $rust_ty {
             fn extract(ob: &'source PyAny) -> PyResult<$rust_ty> {
                 let py = ob.py();
                 unsafe {
-                    let num = ffi::PyNumber_Index(ob.as_ptr());
-                    if num.is_null() {
-                        return Err(PyErr::api_call_failed(py));
-                    }
-                    let n_bits = ffi::_PyLong_NumBits(num);
-                    let n_bytes = if n_bits < 0 {
-                        return Err(PyErr::api_call_failed(py));
+                    let num: Py<PyLong> =
+                        Py::from_owned_ptr_or_err(py, ffi::PyNumber_Index(ob.as_ptr()))?;
+                    let n_bits = ffi::_PyLong_NumBits(num.as_ptr());
+                    let n_bytes = if n_bits == -1 {
+                        return Err(PyErr::fetch(py));
                     } else if n_bits == 0 {
                         0
                     } else {
                         (n_bits as usize - 1 + $is_signed) / 8 + 1
                     };
-                    let num: Py<PyLong> = Py::from_owned_ptr(py, num);
                     if n_bytes <= 128 {
                         let mut buffer = [0; 128];
                         extract(num.as_ref(py), &mut buffer[..n_bytes], $is_signed)?;

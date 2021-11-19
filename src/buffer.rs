@@ -1,5 +1,4 @@
 #![cfg(not(Py_LIMITED_API))]
-#![cfg_attr(docsrs, doc(cfg(not(Py_LIMITED_API))))]
 // Copyright (c) 2017 Daniel Grunwald
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
@@ -76,12 +75,7 @@ impl ElementType {
     pub fn from_format(format: &CStr) -> ElementType {
         match format.to_bytes() {
             [char] | [b'@', char] => native_element_type_from_type_char(*char),
-            [modifier, char]
-                if (*modifier == b'='
-                    || *modifier == b'<'
-                    || *modifier == b'>'
-                    || *modifier == b'!') =>
-            {
+            [modifier, char] if matches!(modifier, b'=' | b'<' | b'>' | b'!') => {
                 standard_element_type_from_type_char(*char)
             }
             _ => ElementType::Unknown,

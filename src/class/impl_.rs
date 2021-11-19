@@ -71,9 +71,6 @@ pub trait PyClassImpl: Sized {
     fn get_new() -> Option<ffi::newfunc> {
         None
     }
-    fn get_call() -> Option<ffi::PyCFunctionWithKeywords> {
-        None
-    }
     fn get_alloc() -> Option<ffi::allocfunc> {
         None
     }
@@ -94,16 +91,6 @@ pub trait PyClassNewImpl<T> {
 
 impl<T> PyClassNewImpl<T> for &'_ PyClassImplCollector<T> {
     fn new_impl(self) -> Option<ffi::newfunc> {
-        None
-    }
-}
-
-pub trait PyClassCallImpl<T> {
-    fn call_impl(self) -> Option<ffi::PyCFunctionWithKeywords>;
-}
-
-impl<T> PyClassCallImpl<T> for &'_ PyClassImplCollector<T> {
-    fn call_impl(self) -> Option<ffi::PyCFunctionWithKeywords> {
         None
     }
 }
@@ -415,6 +402,26 @@ define_pyclass_binary_operator_slot! {
     binaryfunc,
 }
 
+define_pyclass_binary_operator_slot! {
+    PyClass__truediv__SlotFragment,
+    PyClass__rtruediv__SlotFragment,
+    __truediv__,
+    __rtruediv__,
+    generate_pyclass_truediv_slot,
+    Py_nb_true_divide,
+    binaryfunc,
+}
+
+define_pyclass_binary_operator_slot! {
+    PyClass__floordiv__SlotFragment,
+    PyClass__rfloordiv__SlotFragment,
+    __floordiv__,
+    __rfloordiv__,
+    generate_pyclass_floordiv_slot,
+    Py_nb_floor_divide,
+    binaryfunc,
+}
+
 slot_fragment_trait! {
     PyClass__pow__SlotFragment,
 
@@ -535,7 +542,6 @@ pub unsafe extern "C" fn alloc_with_freelist<T: PyClassWithFreeList>(
 /// # Safety
 /// - `obj` must be a valid pointer to an instance of T (not a subclass).
 /// - The GIL must be held.
-#[allow(clippy::collapsible_if)] // for if cfg!
 pub unsafe extern "C" fn free_with_freelist<T: PyClassWithFreeList>(obj: *mut c_void) {
     let obj = obj as *mut ffi::PyObject;
     debug_assert_eq!(
@@ -553,10 +559,9 @@ pub unsafe extern "C" fn free_with_freelist<T: PyClassWithFreeList>(obj: *mut c_
         };
         free(obj as *mut c_void);
 
-        if cfg!(Py_3_8) {
-            if ffi::PyType_HasFeature(ty, ffi::Py_TPFLAGS_HEAPTYPE) != 0 {
-                ffi::Py_DECREF(ty as *mut ffi::PyObject);
-            }
+        #[cfg(Py_3_8)]
+        if ffi::PyType_HasFeature(ty, ffi::Py_TPFLAGS_HEAPTYPE) != 0 {
+            ffi::Py_DECREF(ty as *mut ffi::PyObject);
         }
     }
 }
@@ -605,10 +610,13 @@ macro_rules! methods_trait {
 #[cfg(all(feature = "macros", feature = "multiple-pymethods"))]
 pub trait PyMethodsInventory: inventory::Collect {
     /// Create a new instance
-    fn new(methods: Vec<PyMethodDefType>) -> Self;
+    fn new(methods: Vec<PyMethodDefType>, slots: Vec<ffi::PyType_Slot>) -> Self;
 
     /// Returns the methods for a single `#[pymethods] impl` block
-    fn get(&'static self) -> &'static [PyMethodDefType];
+    fn methods(&'static self) -> &'static [PyMethodDefType];
+
+    /// Returns the slots for a single `#[pymethods] impl` block
+    fn slots(&'static self) -> &'static [ffi::PyType_Slot];
 }
 
 /// Implemented for `#[pyclass]` in our proc macro code.
@@ -656,6 +664,7 @@ slots_trait!(PyAsyncProtocolSlots, async_protocol_slots);
 slots_trait!(PySequenceProtocolSlots, sequence_protocol_slots);
 slots_trait!(PyBufferProtocolSlots, buffer_protocol_slots);
 
+// Protocol slots from #[pymethods] if not using inventory.
 #[cfg(not(feature = "multiple-pymethods"))]
 slots_trait!(PyMethodsProtocolSlots, methods_protocol_slots);
 

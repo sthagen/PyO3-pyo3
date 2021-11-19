@@ -1,5 +1,3 @@
-#![cfg(not(feature = "multiple-pymethods"))]
-
 use pyo3::class::basic::CompareOp;
 use pyo3::prelude::*;
 use pyo3::py_run;
@@ -366,6 +364,14 @@ impl LhsAndRhs {
     fn __rmatmul__(&self, other: &PyAny) -> String {
         format!("{:?} @ RA", other)
     }
+
+    fn __rtruediv__(&self, other: &PyAny) -> String {
+        format!("{:?} / RA", other)
+    }
+
+    fn __rfloordiv__(&self, other: &PyAny) -> String {
+        format!("{:?} // RA", other)
+    }
 }
 
 #[test]
@@ -639,6 +645,8 @@ mod return_not_implemented {
         _test_binary_dunder("rsub");
         _test_binary_dunder("rmul");
         _test_binary_dunder("rmatmul");
+        _test_binary_dunder("rtruediv");
+        _test_binary_dunder("rfloordiv");
         _test_binary_dunder("rmod");
         _test_binary_dunder("rdivmod");
         _test_binary_dunder("rpow");

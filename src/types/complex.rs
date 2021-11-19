@@ -4,8 +4,8 @@ use std::os::raw::c_double;
 /// Represents a Python [`complex`](https://docs.python.org/3/library/functions.html#complex) object.
 ///
 /// Note that `PyComplex` supports only basic operations. For advanced operations
-/// consider using [num-bigint](https://docs.rs/num-bigint)'s [`Complex`] type instead.
-/// This requires the [`num-complex`](crate::num_complex) feature flag.
+/// consider using [num-complex](https://docs.rs/num-complex)'s [`Complex`] type instead.
+/// This optional dependency can be activated with the `num-complex` feature flag.
 ///
 /// [`Complex`]: https://docs.rs/num-complex/latest/num_complex/struct.Complex.html
 #[repr(transparent)]
@@ -37,7 +37,6 @@ impl PyComplex {
 }
 
 #[cfg(not(any(Py_LIMITED_API, PyPy)))]
-#[cfg_attr(docsrs, doc(cfg(not(any(Py_LIMITED_API, PyPy)))))]
 mod not_limited_impls {
     use super::*;
     use std::ops::{Add, Div, Mul, Neg, Sub};

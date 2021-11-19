@@ -1,5 +1,4 @@
 #![cfg(feature = "indexmap")]
-#![cfg_attr(docsrs, doc(cfg(feature = "indexmap")))]
 
 //!  Conversions to and from [indexmap](https://docs.rs/indexmap/)’s
 //! `IndexMap`.
@@ -35,7 +34,6 @@
 //! Using [indexmap](https://docs.rs/indexmap) to return a dictionary with some statistics
 //! about a list of numbers. Because of the insertion order guarantees, the Python code will
 //! always print the same result, matching users' expectations about Python's dict.
-//!
 //! ```rust
 //! use indexmap::{indexmap, IndexMap};
 //! use pyo3::prelude::*;
@@ -43,7 +41,7 @@
 //! fn median(data: &Vec<i32>) -> f32 {
 //!     let sorted_data = data.clone().sort();
 //!     let mid = data.len() / 2;
-//!     if (data.len() % 2 == 0) {
+//!     if data.len() % 2 == 0 {
 //!         data[mid] as f32
 //!     }
 //!     else {

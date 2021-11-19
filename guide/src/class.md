@@ -14,7 +14,6 @@ This chapter will discuss the functionality and configuration these attributes o
   - [`#[setter]`](#object-properties-using-getter-and-setter)
   - [`#[staticmethod]`](#static-methods)
   - [`#[classmethod]`](#class-methods)
-  - [`#[call]`](#callable-objects)
   - [`#[classattr]`](#class-attributes)
   - [`#[args]`](#method-arguments)
 - [`#[pyproto]`](class/protocols.html)
@@ -25,11 +24,12 @@ To define a custom Python class, a Rust struct needs to be annotated with the
 `#[pyclass]` attribute.
 
 ```rust
+# #![allow(dead_code)]
 # use pyo3::prelude::*;
 #[pyclass]
 struct MyClass {
+    # #[pyo3(get)]
     num: i32,
-    debug: bool,
 }
 ```
 
@@ -45,8 +45,8 @@ Custom Python classes can then be added to a module using `add_class()`.
 # use pyo3::prelude::*;
 # #[pyclass]
 # struct MyClass {
+#    #[allow(dead_code)]
 #    num: i32,
-#    debug: bool,
 # }
 #[pymodule]
 fn mymodule(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -78,15 +78,13 @@ For users who are not very familiar with `RefCell`, here is a reminder of Rust's
 
 ```rust
 # use pyo3::prelude::*;
-# use pyo3::types::PyDict;
 #[pyclass]
 struct MyClass {
     #[pyo3(get)]
     num: i32,
-    debug: bool,
 }
 Python::with_gil(|py| {
-    let obj = PyCell::new(py, MyClass { num: 3, debug: true }).unwrap();
+    let obj = PyCell::new(py, MyClass { num: 3}).unwrap();
     {
         let obj_ref = obj.borrow(); // Get PyRef
         assert_eq!(obj_ref.num, 3);
@@ -117,10 +115,13 @@ lifetime, and therefore needs a `Python<'_>` token to access.
 struct MyClass {
     num: i32,
 }
+
 fn return_myclass() -> Py<MyClass> {
     Python::with_gil(|py| Py::new(py, MyClass { num: 1 }).unwrap())
 }
+
 let obj = return_myclass();
+
 Python::with_gil(|py|{
     let cell = obj.as_ref(py); // Py<MyClass>::as_ref returns &PyCell<MyClass>
     let obj_ref = cell.borrow(); // Get PyRef<T>
@@ -157,6 +158,7 @@ attribute. Only Python's `__new__` method can be specified, `__init__` is not av
 # use pyo3::prelude::*;
 #[pyclass]
 struct MyClass {
+    # #[allow(dead_code)]
     num: i32,
 }
 
@@ -174,6 +176,7 @@ Alternatively, if your `new` method may fail you can return `PyResult<Self>`.
 # use pyo3::prelude::*;
 #[pyclass]
 struct MyClass {
+    # #[allow(dead_code)]
     num: i32,
 }
 
@@ -323,7 +326,7 @@ impl DictWithCounter {
 ```
 
 If `SubClass` does not provide a baseclass initialization, the compilation fails.
-```compile_fail
+```rust,compile_fail
 # use pyo3::prelude::*;
 
 #[pyclass]
@@ -498,8 +501,8 @@ gets injected by the method wrapper, e.g.
 # use pyo3::prelude::*;
 # #[pyclass]
 # struct MyClass {
+# #[allow(dead_code)]
 #     num: i32,
-#     debug: bool,
 # }
 #[pymethods]
 impl MyClass {
@@ -522,8 +525,8 @@ This is the equivalent of the Python decorator `@classmethod`.
 # use pyo3::types::PyType;
 # #[pyclass]
 # struct MyClass {
+#     #[allow(dead_code)]
 #     num: i32,
-#     debug: bool,
 # }
 #[pymethods]
 impl MyClass {
@@ -552,8 +555,8 @@ To create a static method for a custom class, the method needs to be annotated w
 # use pyo3::prelude::*;
 # #[pyclass]
 # struct MyClass {
+#     #[allow(dead_code)]
 #     num: i32,
-#     debug: bool,
 # }
 #[pymethods]
 impl MyClass {
@@ -609,74 +612,6 @@ impl MyClass {
 }
 ```
 
-## Callable objects
-
-To specify a custom `__call__` method for a custom class, the method needs to be annotated with
-the `#[call]` attribute. Arguments of the method are specified as for instance methods.
-
-The following pyclass is a basic decorator - its constructor takes a Python object
-as argument and calls that object when called.
-
-```rust
-# use pyo3::prelude::*;
-# use pyo3::types::{PyDict, PyTuple};
-#
-#[pyclass(name = "counter")]
-struct PyCounter {
-    count: u64,
-    wraps: Py<PyAny>,
-}
-
-#[pymethods]
-impl PyCounter {
-    #[new]
-    fn __new__(wraps: Py<PyAny>) -> Self {
-        PyCounter { count: 0, wraps }
-    }
-
-    #[call]
-    #[args(args = "*", kwargs = "**")]
-    fn __call__(
-        &mut self,
-        py: Python,
-        args: &PyTuple,
-        kwargs: Option<&PyDict>,
-    ) -> PyResult<Py<PyAny>> {
-        self.count += 1;
-        let name = self.wraps.getattr(py, "__name__").unwrap();
-
-        println!("{} has been called {} time(s).", name, self.count);
-        self.wraps.call(py, args, kwargs)
-    }
-}
-```
-
-Python code:
-
-```python
-@counter
-def say_hello():
-    print("hello")
-
-say_hello()
-say_hello()
-say_hello()
-say_hello()
-```
-
-Output:
-
-```text
-say_hello has been called 1 time(s).
-hello
-say_hello has been called 2 time(s).
-hello
-say_hello has been called 3 time(s).
-hello
-say_hello has been called 4 time(s).
-hello
-```
-
 ## Method arguments
 
 By default, PyO3 uses function signatures to determine which arguments are required. Then it scans
@@ -687,6 +622,9 @@ the form of `attr_name="default value"`. Each parameter has to match the method 
 
 Each parameter can be one of the following types:
 
+ * `"/"`: positional-only arguments separator, each parameter defined before `"/"` is a
+   positional-only parameter.
+   Corresponds to python's `def meth(arg1, arg2, ..., /, argN..)`.
  * `"*"`: var arguments separator, each parameter defined after `"*"` is a keyword-only parameter.
    Corresponds to python's `def meth(*, arg1.., arg2=..)`.
  * `args="*"`: "args" is var args, corresponds to Python's `def meth(*args)`. Type of the `args`
@@ -706,19 +644,17 @@ use pyo3::types::{PyDict, PyTuple};
 # #[pyclass]
 # struct MyClass {
 #     num: i32,
-#     debug: bool,
 # }
 #[pymethods]
 impl MyClass {
     #[new]
-    #[args(num = "-1", debug = "true")]
-    fn new(num: i32, debug: bool) -> Self {
-        MyClass { num, debug }
+    #[args(num = "-1")]
+    fn new(num: i32) -> Self {
+        MyClass { num }
     }
 
     #[args(
         num = "10",
-        debug = "true",
         py_args = "*",
         name = "\"Hello\"",
         py_kwargs = "**"
@@ -726,27 +662,24 @@ impl MyClass {
     fn method(
         &mut self,
         num: i32,
-        debug: bool,
         name: &str,
         py_args: &PyTuple,
         py_kwargs: Option<&PyDict>,
     ) -> PyResult<String> {
-        self.debug = debug;
         self.num = num;
         Ok(format!(
-            "py_args={:?}, py_kwargs={:?}, name={}, num={}, debug={}",
-            py_args, py_kwargs, name, self.num, self.debug
+            "py_args={:?}, py_kwargs={:?}, name={}, num={}",
+            py_args, py_kwargs, name, self.num
         ))
     }
 
-    fn make_change(&mut self, num: i32, debug: bool) -> PyResult<String> {
+    fn make_change(&mut self, num: i32) -> PyResult<String> {
         self.num = num;
-        self.debug = debug;
-        Ok(format!("num={}, debug={}", self.num, self.debug))
+        Ok(format!("num={}", self.num))
     }
 }
 ```
-N.B. the position of the `"*"` argument (if included) controls the system of handling positional and keyword arguments. In Python:
+N.B. the position of the `"/"` and `"*"` arguments (if included) control the system of handling positional and keyword arguments. In Python:
 ```python
 import mymodule
 
@@ -754,15 +687,120 @@ mc = mymodule.MyClass()
 print(mc.method(44, False, "World", 666, x=44, y=55))
 print(mc.method(num=-1, name="World"))
 print(mc.make_change(44, False))
-print(mc.make_change(debug=False, num=-1))
 ```
 Produces output:
 ```text
-py_args=('World', 666), py_kwargs=Some({'x': 44, 'y': 55}), name=Hello, num=44, debug=false
-py_args=(), py_kwargs=None, name=World, num=-1, debug=true
-num=44, debug=false
-num=-1, debug=false
+py_args=('World', 666), py_kwargs=Some({'x': 44, 'y': 55}), name=Hello, num=44
+py_args=(), py_kwargs=None, name=World, num=-1
+num=44
+num=-1
 ```
+
+## Making class method signatures available to Python
+
+The [`#[pyo3(text_signature = "...")]`](./function.md#text_signature) option for `#[pyfunction]` also works for classes and methods:
+
+```rust
+# #![allow(dead_code)]
+use pyo3::prelude::*;
+use pyo3::types::PyType;
+
+// it works even if the item is not documented:
+#[pyclass]
+#[pyo3(text_signature = "(c, d, /)")]
+struct MyClass {}
+
+#[pymethods]
+impl MyClass {
+    // the signature for the constructor is attached
+    // to the struct definition instead.
+    #[new]
+    fn new(c: i32, d: &str) -> Self {
+        Self {}
+    }
+    // the self argument should be written $self
+    #[pyo3(text_signature = "($self, e, f)")]
+    fn my_method(&self, e: i32, f: i32) -> i32 {
+        e + f
+    }
+    #[classmethod]
+    #[pyo3(text_signature = "(cls, e, f)")]
+    fn my_class_method(cls: &PyType, e: i32, f: i32) -> i32 {
+        e + f
+    }
+    #[staticmethod]
+    #[pyo3(text_signature = "(e, f)")]
+    fn my_static_method(e: i32, f: i32) -> i32 {
+        e + f
+    }
+}
+#
+# fn main() -> PyResult<()> {
+#     Python::with_gil(|py| {
+#         let inspect = PyModule::import(py, "inspect")?.getattr("signature")?;
+#         let module = PyModule::new(py, "my_module")?;
+#         module.add_class::<MyClass>()?;
+#         let class = module.getattr("MyClass")?;
+#
+#         if cfg!(not(Py_LIMITED_API)) || py.version_info() >= (3, 10)  {
+#             let doc: String = class.getattr("__doc__")?.extract()?;
+#             assert_eq!(doc, "");
+#
+#             let sig: String = inspect
+#                 .call1((class,))?
+#                 .call_method0("__str__")?
+#                 .extract()?;
+#             assert_eq!(sig, "(c, d, /)");
+#         } else {
+#             let doc: String = class.getattr("__doc__")?.extract()?;
+#             assert_eq!(doc, "");
+#
+#             inspect.call1((class,)).expect_err("`text_signature` on classes is not compatible with compilation in `abi3` mode until Python 3.10 or greater");
+#          }
+#
+#         {
+#             let method = class.getattr("my_method")?;
+#
+#             assert!(method.getattr("__doc__")?.is_none());
+#
+#             let sig: String = inspect
+#                 .call1((method,))?
+#                 .call_method0("__str__")?
+#                 .extract()?;
+#             assert_eq!(sig, "(self, /, e, f)");
+#         }
+#
+#         {
+#             let method = class.getattr("my_class_method")?;
+#
+#             assert!(method.getattr("__doc__")?.is_none());
+#
+#             let sig: String = inspect
+#                 .call1((method,))?
+#                 .call_method0("__str__")?
+#                 .extract()?;
+#             assert_eq!(sig, "(cls, e, f)");
+#         }
+#
+#         {
+#             let method = class.getattr("my_static_method")?;
+#
+#             assert!(method.getattr("__doc__")?.is_none());
+#
+#             let sig: String = inspect
+#                 .call1((method,))?
+#                 .call_method0("__str__")?
+#                 .extract()?;
+#             assert_eq!(sig, "(e, f)");
+#         }
+#
+#         Ok(())
+#     })
+# }
+```
+
+Note that `text_signature` on classes is not compatible with compilation in
+`abi3` mode until Python 3.10 or greater.
 
 ## Implementation details
 
@@ -781,8 +819,8 @@ The `#[pyclass]` macro expands to roughly the code seen below. The `PyClassImplC
 
 /// Class for demonstration
 struct MyClass {
+    # #[allow(dead_code)]
     num: i32,
-    debug: bool,
 }
 
 unsafe impl pyo3::PyTypeInfo for MyClass {
@@ -812,7 +850,7 @@ impl pyo3::IntoPy<PyObject> for MyClass {
 }
 
 impl pyo3::class::impl_::PyClassImpl for MyClass {
-    const DOC: &'static str = "Class for demonstration";
+    const DOC: &'static str = "Class for demonstration\u{0}";
     const IS_GC: bool = false;
     const IS_BASETYPE: bool = false;
     const IS_SUBCLASS: bool = false;
@@ -846,11 +884,6 @@ impl pyo3::class::impl_::PyClassImpl for MyClass {
         use pyo3::class::impl_::*;
         let collector = PyClassImplCollector::<Self>::new();
         collector.free_impl()
-    }
-    fn get_call() -> Option<pyo3::ffi::PyCFunctionWithKeywords> {
-        use pyo3::class::impl_::*;
-        let collector = PyClassImplCollector::<Self>::new();
-        collector.call_impl()
     }
     fn for_each_proto_slot(visitor: &mut dyn FnMut(&[pyo3::ffi::PyType_Slot])) {
         // Implementation which uses dtolnay specialization to load all slots.

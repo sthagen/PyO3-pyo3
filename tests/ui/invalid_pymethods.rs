@@ -54,9 +54,8 @@ impl MyClass {
 
 #[pymethods]
 impl MyClass {
-    #[call]
     #[pyo3(text_signature = "()")]
-    fn text_signature_on_call(&self) {}
+    fn __call__(&self) {}
 }
 
 #[pymethods]

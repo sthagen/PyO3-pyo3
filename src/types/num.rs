@@ -10,18 +10,6 @@ use std::convert::TryFrom;
 use std::i64;
 use std::os::raw::c_long;
 
-fn err_if_invalid_value<T: PartialEq>(
-    py: Python,
-    invalid_value: T,
-    actual_value: T,
-) -> PyResult<T> {
-    if actual_value == invalid_value && PyErr::occurred(py) {
-        Err(PyErr::api_call_failed(py))
-    } else {
-        Ok(actual_value)
-    }
-}
-
 macro_rules! int_fits_larger_int {
     ($rust_type:ty, $larger_type:ty) => {
         impl ToPyObject for $rust_type {
@@ -76,7 +64,7 @@ macro_rules! int_fits_c_long {
                 let val = unsafe {
                     let num = ffi::PyNumber_Index(ptr);
                     if num.is_null() {
-                        Err(PyErr::api_call_failed(obj.py()))
+                        Err(PyErr::fetch(obj.py()))
                     } else {
                         let val = err_if_invalid_value(obj.py(), -1, ffi::PyLong_AsLong(num));
                         ffi::Py_DECREF(num);
@@ -110,7 +98,7 @@ macro_rules! int_convert_u64_or_i64 {
                 unsafe {
                     let num = ffi::PyNumber_Index(ptr);
                     if num.is_null() {
-                        Err(PyErr::api_call_failed(ob.py()))
+                        Err(PyErr::fetch(ob.py()))
                     } else {
                         let result = err_if_invalid_value(ob.py(), !0, $pylong_as_ll_or_ull(num));
                         ffi::Py_DECREF(num);
@@ -189,7 +177,7 @@ mod fast_128bit_int_conversion {
                     unsafe {
                         let num = ffi::PyNumber_Index(ob.as_ptr());
                         if num.is_null() {
-                            return Err(PyErr::api_call_failed(ob.py()));
+                            return Err(PyErr::fetch(ob.py()));
                         }
                         let mut buffer = [0; std::mem::size_of::<$rust_type>()];
                         let ok = ffi::_PyLong_AsByteArray(
@@ -271,6 +259,20 @@ mod slow_128bit_int_conversion {
 
     int_convert_128!(i128, i64);
     int_convert_128!(u128, u64);
+}
+
+fn err_if_invalid_value<T: PartialEq>(
+    py: Python,
+    invalid_value: T,
+    actual_value: T,
+) -> PyResult<T> {
+    if actual_value == invalid_value {
+        if let Some(err) = PyErr::take(py) {
+            return Err(err);
+        }
+    }
+
+    Ok(actual_value)
 }
 
 #[cfg(test)]

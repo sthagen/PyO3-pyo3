@@ -4,7 +4,7 @@ use crate::{
     attributes::FromPyWithAttribute,
     method::{FnArg, FnSpec},
     pyfunction::Argument,
-    utils::unwrap_ty_group,
+    utils::{remove_lifetime, replace_self, unwrap_ty_group},
 };
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, quote_spanned};
@@ -78,6 +78,7 @@ pub fn impl_arg_params(
     };
 
     let mut positional_parameter_names = Vec::new();
+    let mut positional_only_parameters = 0usize;
     let mut required_positional_parameters = 0usize;
     let mut keyword_only_parameters = Vec::new();
 
@@ -86,6 +87,7 @@ pub fn impl_arg_params(
             continue;
         }
         let name = arg.name.unraw().to_string();
+        let posonly = spec.is_pos_only(arg.name);
         let kwonly = spec.is_kw_only(arg.name);
         let required = !(arg.optional.is_some() || spec.default_value(arg.name).is_some());
 
@@ -99,6 +101,9 @@ pub fn impl_arg_params(
         } else {
             if required {
                 required_positional_parameters += 1;
+            }
+            if posonly {
+                positional_only_parameters += 1;
             }
             positional_parameter_names.push(name);
         }
@@ -154,8 +159,7 @@ pub fn impl_arg_params(
                 cls_name: #cls_name,
                 func_name: stringify!(#python_name),
                 positional_parameter_names: &[#(#positional_parameter_names),*],
-                // TODO: https://github.com/PyO3/pyo3/issues/1439 - support specifying these
-                positional_only_parameters: 0,
+                positional_only_parameters: #positional_only_parameters,
                 required_positional_parameters: #required_positional_parameters,
                 keyword_only_parameters: &[#(#keyword_only_parameters),*],
                 accept_varargs: #accept_args,
@@ -263,7 +267,11 @@ fn impl_arg_param(
     };
 
     return if let syn::Type::Reference(tref) = unwrap_ty_group(arg.optional.unwrap_or(ty)) {
-        let (tref, mut_) = preprocess_tref(tref, self_);
+        let mut tref = remove_lifetime(tref);
+        if let Some(cls) = self_ {
+            replace_self(&mut tref.elem, cls);
+        }
+        let mut_ = tref.mutability;
         let (target_ty, borrow_tmp) = if arg.optional.is_some() {
             // Get Option<&T> from Option<PyRef<T>>
             (
@@ -291,33 +299,4 @@ fn impl_arg_param(
             let #arg_name = #arg_value_or_default;
         })
     };
-
-    /// Replace `Self`, remove lifetime and get mutability from the type
-    fn preprocess_tref(
-        tref: &syn::TypeReference,
-        self_: Option<&syn::Type>,
-    ) -> (syn::TypeReference, Option<syn::token::Mut>) {
-        let mut tref = tref.to_owned();
-        if let Some(syn::Type::Path(tpath)) = self_ {
-            replace_self(&mut tref, &tpath.path);
-        }
-        tref.lifetime = None;
-        let mut_ = tref.mutability;
-        (tref, mut_)
-    }
-
-    /// Replace `Self` with the exact type name since it is used out of the impl block
-    fn replace_self(tref: &mut syn::TypeReference, self_path: &syn::Path) {
-        match &mut *tref.elem {
-            syn::Type::Reference(tref_inner) => replace_self(tref_inner, self_path),
-            syn::Type::Path(tpath) => {
-                if let Some(ident) = tpath.path.get_ident() {
-                    if ident == "Self" {
-                        tpath.path = self_path.to_owned();
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
 }

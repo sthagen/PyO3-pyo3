@@ -1,6 +1,7 @@
 // Copyright (c) 2017-present PyO3 Project and Contributors
 
 use crate::attributes::TextSignatureAttribute;
+use crate::deprecations::Deprecation;
 use crate::params::{accept_args_kwargs, impl_arg_params};
 use crate::pyfunction::PyFunctionOptions;
 use crate::pyfunction::{PyFunctionArgPyO3Attributes, PyFunctionSignature};
@@ -65,8 +66,6 @@ impl<'a> FnArg<'a> {
 pub enum MethodTypeAttribute {
     /// #[new]
     New,
-    /// #[call]
-    Call,
     /// #[classmethod]
     ClassMethod,
     /// #[classattr]
@@ -84,7 +83,6 @@ pub enum FnType {
     Getter(SelfType),
     Setter(SelfType),
     Fn(SelfType),
-    FnCall(SelfType),
     FnNew,
     FnClass,
     FnStatic,
@@ -99,11 +97,10 @@ impl FnType {
         error_mode: ExtractErrorMode,
     ) -> TokenStream {
         match self {
-            FnType::Getter(st) | FnType::Setter(st) | FnType::Fn(st) | FnType::FnCall(st) => st
-                .receiver(
-                    cls.expect("no class given for Fn with a \"self\" receiver"),
-                    error_mode,
-                ),
+            FnType::Getter(st) | FnType::Setter(st) | FnType::Fn(st) => st.receiver(
+                cls.expect("no class given for Fn with a \"self\" receiver"),
+                error_mode,
+            ),
             FnType::FnNew | FnType::FnStatic | FnType::ClassAttribute => {
                 quote!()
             }
@@ -230,6 +227,7 @@ pub struct FnSpec<'a> {
     pub doc: PythonDoc,
     pub deprecations: Deprecations,
     pub convention: CallingConvention,
+    pub text_signature: Option<TextSignatureAttribute>,
 }
 
 pub fn get_return_info(output: &syn::ReturnType) -> syn::Type {
@@ -260,31 +258,22 @@ impl<'a> FnSpec<'a> {
         meth_attrs: &mut Vec<syn::Attribute>,
         options: PyFunctionOptions,
     ) -> Result<FnSpec<'a>> {
+        let PyFunctionOptions {
+            text_signature,
+            name,
+            mut deprecations,
+            ..
+        } = options;
+
         let MethodAttributes {
             ty: fn_type_attr,
             args: fn_attrs,
             mut python_name,
-        } = parse_method_attributes(meth_attrs, options.name.map(|name| name.0))?;
-
-        match fn_type_attr {
-            Some(MethodTypeAttribute::New) => {
-                if let Some(name) = &python_name {
-                    bail_spanned!(name.span() => "`name` not allowed with `#[new]`");
-                }
-                python_name = Some(syn::Ident::new("__new__", Span::call_site()))
-            }
-            Some(MethodTypeAttribute::Call) => {
-                if let Some(name) = &python_name {
-                    bail_spanned!(name.span() => "`name` not allowed with `#[call]`");
-                }
-                python_name = Some(syn::Ident::new("__call__", Span::call_site()))
-            }
-            _ => {}
-        }
+        } = parse_method_attributes(meth_attrs, name.map(|name| name.0), &mut deprecations)?;
 
         let (fn_type, skip_first_arg, fixed_convention) =
             Self::parse_fn_type(sig, fn_type_attr, &mut python_name)?;
-        Self::ensure_text_signature_on_valid_method(&fn_type, options.text_signature.as_ref())?;
+        Self::ensure_text_signature_on_valid_method(&fn_type, text_signature.as_ref())?;
 
         let name = &sig.ident;
         let ty = get_return_info(&sig.output);
@@ -292,10 +281,7 @@ impl<'a> FnSpec<'a> {
 
         let doc = utils::get_doc(
             meth_attrs,
-            options
-                .text_signature
-                .as_ref()
-                .map(|attr| (&python_name, attr)),
+            text_signature.as_ref().map(|attr| (&python_name, attr)),
         );
 
         let arguments: Vec<_> = if skip_first_arg {
@@ -323,7 +309,8 @@ impl<'a> FnSpec<'a> {
             args: arguments,
             output: ty,
             doc,
-            deprecations: options.deprecations,
+            deprecations,
+            text_signature,
         })
     }
 
@@ -342,10 +329,7 @@ impl<'a> FnSpec<'a> {
                     "text_signature not allowed on __new__; if you want to add a signature on \
                      __new__, put it on the struct definition instead"
                 ),
-                FnType::FnCall(_)
-                | FnType::Getter(_)
-                | FnType::Setter(_)
-                | FnType::ClassAttribute => bail_spanned!(
+                FnType::Getter(_) | FnType::Setter(_) | FnType::ClassAttribute => bail_spanned!(
                     text_signature.kw.span() => "text_signature not allowed with this method type"
                 ),
                 _ => {}
@@ -368,15 +352,12 @@ impl<'a> FnSpec<'a> {
             parse_method_receiver(first_arg)
         };
 
-        #[allow(clippy::manual_strip)] // for strip_prefix replacement supporting rust < 1.45
         // strip get_ or set_
         let strip_fn_name = |prefix: &'static str| {
-            let ident = name.unraw().to_string();
-            if ident.starts_with(prefix) {
-                Some(syn::Ident::new(&ident[prefix.len()..], ident.span()))
-            } else {
-                None
-            }
+            name.unraw()
+                .to_string()
+                .strip_prefix(prefix)
+                .map(|stripped| syn::Ident::new(stripped, name.span()))
         };
 
         let (fn_type, skip_first_arg, fixed_convention) = match fn_type_attr {
@@ -389,14 +370,13 @@ impl<'a> FnSpec<'a> {
                 (FnType::ClassAttribute, false, None)
             }
             Some(MethodTypeAttribute::New) => {
+                if let Some(name) = &python_name {
+                    bail_spanned!(name.span() => "`name` not allowed with `#[new]`");
+                }
+                *python_name = Some(syn::Ident::new("__new__", Span::call_site()));
                 (FnType::FnNew, false, Some(CallingConvention::TpNew))
             }
             Some(MethodTypeAttribute::ClassMethod) => (FnType::FnClass, true, None),
-            Some(MethodTypeAttribute::Call) => (
-                FnType::FnCall(parse_receiver("expected receiver for #[call]")?),
-                true,
-                Some(CallingConvention::Varargs),
-            ),
             Some(MethodTypeAttribute::Getter) => {
                 // Strip off "get_" prefix if needed
                 if python_name.is_none() {
@@ -447,6 +427,17 @@ impl<'a> FnSpec<'a> {
             }
         }
         None
+    }
+
+    pub fn is_pos_only(&self, name: &syn::Ident) -> bool {
+        for s in self.attrs.iter() {
+            if let Argument::PosOnlyArg(path, _) = s {
+                if path.is_ident(name) {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     pub fn is_kw_only(&self, name: &syn::Ident) -> bool {
@@ -611,6 +602,7 @@ struct MethodAttributes {
 fn parse_method_attributes(
     attrs: &mut Vec<syn::Attribute>,
     mut python_name: Option<syn::Ident>,
+    deprecations: &mut Deprecations,
 ) -> Result<MethodAttributes> {
     let mut new_attrs = Vec::new();
     let mut args = Vec::new();
@@ -633,7 +625,12 @@ fn parse_method_attributes(
                 } else if name.is_ident("init") || name.is_ident("__init__") {
                     bail_spanned!(name.span() => "#[init] is disabled since PyO3 0.9.0");
                 } else if name.is_ident("call") || name.is_ident("__call__") {
-                    set_ty!(MethodTypeAttribute::Call, name);
+                    deprecations.push(Deprecation::CallAttribute, name.span());
+                    ensure_spanned!(
+                        python_name.is_none(),
+                        python_name.span() => "`name` may not be used with `#[call]`"
+                    );
+                    python_name = Some(syn::Ident::new("__call__", Span::call_site()));
                 } else if name.is_ident("classmethod") {
                     set_ty!(MethodTypeAttribute::ClassMethod, name);
                 } else if name.is_ident("staticmethod") {
@@ -663,7 +660,11 @@ fn parse_method_attributes(
                 } else if path.is_ident("init") {
                     bail_spanned!(path.span() => "#[init] is disabled since PyO3 0.9.0");
                 } else if path.is_ident("call") {
-                    set_ty!(MethodTypeAttribute::Call, path);
+                    ensure_spanned!(
+                        python_name.is_none(),
+                        python_name.span() => "`name` may not be used with `#[call]`"
+                    );
+                    python_name = Some(syn::Ident::new("__call__", Span::call_site()));
                 } else if path.is_ident("setter") || path.is_ident("getter") {
                     if let syn::AttrStyle::Inner(_) = attr.style {
                         bail_spanned!(

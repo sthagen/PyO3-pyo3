@@ -24,6 +24,15 @@ impl TestClass {
     fn deprecated_name_staticmethod() {}
 }
 
+#[pyclass]
+struct DeprecatedCall;
+
+#[pymethods]
+impl DeprecatedCall {
+    #[call]
+    fn deprecated_call(&self) {}
+}
+
 #[pyfunction]
 #[name = "foo"]
 #[text_signature = "()"]
@@ -41,6 +50,3 @@ fn my_module(_py: Python, m: &PyModule) -> PyResult<()> {
 fn main() {
 
 }
-
-
-// TODO: ensure name deprecated on #[pyfunction] and #[pymodule]

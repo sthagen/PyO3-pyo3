@@ -64,7 +64,6 @@ impl PyModule {
     ///  ```
     ///
     /// This is equivalent to the following Python expression:
-    ///
     /// ```python
     /// import antigravity
     /// ```
@@ -99,12 +98,7 @@ impl PyModule {
     ///
     /// # fn main() -> PyResult<()> {
     /// Python::with_gil(|py| -> PyResult<()> {
-    ///    let module = PyModule::from_code(
-    ///         py,
-    ///         "print(__file__, __name__)",
-    ///         "my_file",
-    ///         "my_module"
-    ///     )?;
+    ///     let module = PyModule::from_code(py, "print(__file__, __name__)", "my_file", "my_module")?;
     ///     Ok(())
     /// })?;
     /// # Ok(())}
@@ -122,13 +116,13 @@ impl PyModule {
         unsafe {
             let cptr = ffi::Py_CompileString(data.as_ptr(), filename.as_ptr(), ffi::Py_file_input);
             if cptr.is_null() {
-                return Err(PyErr::api_call_failed(py));
+                return Err(PyErr::fetch(py));
             }
 
             let mptr = ffi::PyImport_ExecCodeModuleEx(module.as_ptr(), cptr, filename.as_ptr());
             ffi::Py_DECREF(cptr);
             if mptr.is_null() {
-                return Err(PyErr::api_call_failed(py));
+                return Err(PyErr::fetch(py));
             }
 
             <&PyModule as crate::FromPyObject>::extract(py.from_owned_ptr_or_err(mptr)?)
@@ -169,7 +163,7 @@ impl PyModule {
     pub fn name(&self) -> PyResult<&str> {
         let ptr = unsafe { ffi::PyModule_GetName(self.as_ptr()) };
         if ptr.is_null() {
-            Err(PyErr::api_call_failed(self.py()))
+            Err(PyErr::fetch(self.py()))
         } else {
             let name = unsafe { CStr::from_ptr(ptr) }
                 .to_str()
@@ -182,7 +176,6 @@ impl PyModule {
     ///
     /// May fail if the module does not have a `__file__` attribute.
     #[cfg(not(all(windows, PyPy)))]
-    #[cfg_attr(docsrs, doc(cfg(not(all(windows, PyPy)))))]
     pub fn filename(&self) -> PyResult<&str> {
         use crate::types::PyString;
         unsafe {
@@ -254,7 +247,6 @@ impl PyModule {
     ///  ```
     ///
     /// Python code can see this class as such:
-    ///
     /// ```python
     /// from my_module import Foo
     ///
@@ -262,7 +254,6 @@ impl PyModule {
     /// ```
     ///
     /// This will result in the following output:
-    ///
     /// ```text
     /// Foo is <class 'builtins.Foo'>
     /// ```
