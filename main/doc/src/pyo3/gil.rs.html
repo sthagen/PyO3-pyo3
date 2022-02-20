@@ -1,4 +1,9 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;gil.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gil.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../pyo3/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/gil.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gil.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../scrape-examples.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../pyo3/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -799,46 +804,12 @@
 <span id="799">799</span>
 <span id="800">800</span>
 <span id="801">801</span>
-<span id="802">802</span>
-<span id="803">803</span>
-<span id="804">804</span>
-<span id="805">805</span>
-<span id="806">806</span>
-<span id="807">807</span>
-<span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Interaction with Python&#39;s global interpreter lock</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">internal_tricks::Unsendable</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::impl_::not_send</span>::{<span class="ident">NotSend</span>, <span class="ident">NOT_SEND</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">parking_lot</span>::{<span class="ident">const_mutex</span>, <span class="ident">Mutex</span>, <span class="ident">Once</span>};
 <span class="kw">use</span> <span class="ident">std::cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -881,19 +852,11 @@
 <span class="doccomment">/// signal handling depends on the notion of a &#39;main thread&#39;, which must be the thread that</span>
 <span class="doccomment">/// initializes the Python interpreter.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// If both the Python interpreter and Python threading are already initialized, this function has</span>
-<span class="doccomment">/// no effect.</span>
+<span class="doccomment">/// If the Python interpreter is already initialized, this function has no effect.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This function is unavailable under PyPy because PyPy cannot be embedded in Rust (or any other</span>
 <span class="doccomment">/// software). Support for this is tracked on the</span>
 <span class="doccomment">/// [PyPy issue tracker](https://foss.heptapod.net/pypy/pypy/-/issues/3286).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Python 3.6 only: If the Python interpreter is initialized but Python threading is not, this</span>
-<span class="doccomment">/// function will initialize Python threading.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// - Python 3.6 only: If this function needs to initialize Python threading but the calling thread</span>
-<span class="doccomment">///   is not the thread which initialized Python, this function will panic.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```rust</span>
@@ -911,29 +874,6 @@
     <span class="comment">// concurrent initialization of the Python runtime by other users of the Python C API.</span>
     <span class="ident">START</span>.<span class="ident">call_once_force</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">unsafe</span> {
         <span class="comment">// Use call_once_force because if initialization panics, it&#39;s okay to try again.</span>
-
-        <span class="comment">// TODO(#1782) - Python 3.6 legacy code</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>))]</span>
-        <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">if</span> <span class="ident">ffi::PyEval_ThreadsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
-                <span class="comment">// We can only safely initialize threads if this thread holds the GIL.</span>
-                <span class="macro">assert!</span>(
-                    <span class="op">!</span><span class="ident">ffi::PyGILState_GetThisThreadState</span>().<span class="ident">is_null</span>(),
-                    <span class="string">&quot;Python threading is not initialized and cannot be initialized by this \
-                     thread, because it is not the thread which initialized Python.&quot;</span>
-                );
-                <span class="ident">ffi::PyEval_InitThreads</span>();
-            }
-        } <span class="kw">else</span> {
-            <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
-            <span class="ident">ffi::PyEval_InitThreads</span>();
-
-            <span class="comment">// Release the GIL.</span>
-            <span class="ident">ffi::PyEval_SaveThread</span>();
-        }
-
-        <span class="comment">// In Python 3.7 and up PyEval_InitThreads is irrelevant.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_7</span>)]</span>
         <span class="kw">if</span> <span class="ident">ffi::Py_IsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
 
@@ -985,14 +925,7 @@
 
     <span class="ident">ffi::Py_InitializeEx</span>(<span class="number">0</span>);
 
-    <span class="comment">// Changed in version 3.7: This function is now called by Py_Initialize(), so you don’t have to</span>
-    <span class="comment">// call it yourself anymore.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_7</span>))]</span>
-    <span class="kw">if</span> <span class="ident">ffi::PyEval_ThreadsInitialized</span>() <span class="op">==</span> <span class="number">0</span> {
-        <span class="ident">ffi::PyEval_InitThreads</span>();
-    }
-
-    <span class="comment">// Safe: the GIL is already held because of the Py_IntializeEx call.</span>
+    <span class="comment">// Safety: the GIL is already held because of the Py_IntializeEx call.</span>
     <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">GILPool::new</span>();
 
     <span class="comment">// Import the threading module - this ensures that it will associate this thread as the &quot;main&quot;</span>
@@ -1026,11 +959,12 @@
 <span class="doccomment">///     let py = gil_guard.python();</span>
 <span class="doccomment">/// } // GIL is released when gil_guard is dropped</span>
 <span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
+
 <span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GILGuard</span> {
     <span class="ident">gstate</span>: <span class="ident">ffi::PyGILState_STATE</span>,
     <span class="ident">pool</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GILPool</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">_not_send</span>: <span class="ident">NotSend</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GILGuard</span> {
@@ -1055,6 +989,15 @@
             <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;auto-initialize&quot;</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span> {
                 <span class="ident">prepare_freethreaded_python</span>();
             } <span class="kw">else</span> {
+                <span class="comment">// This is a &quot;hack&quot; to make running `cargo test` for PyO3 convenient (i.e. no need</span>
+                <span class="comment">// to specify `--features auto-initialize` manually. Tests within the crate itself</span>
+                <span class="comment">// all depend on the auto-initialize feature for conciseness but Cargo does not</span>
+                <span class="comment">// provide a mechanism to specify required features for tests.</span>
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+                <span class="kw">if</span> <span class="macro">option_env!</span>(<span class="string">&quot;CARGO_PRIMARY_PACKAGE&quot;</span>).<span class="ident">is_some</span>() {
+                    <span class="ident">prepare_freethreaded_python</span>();
+                }
+
                 <span class="ident">START</span>.<span class="ident">call_once_force</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">unsafe</span> {
                     <span class="comment">// Use call_once_force because if there is a panic because the interpreter is</span>
                     <span class="comment">// not initialized, it&#39;s fine for the user to initialize the interpreter and</span>
@@ -1064,14 +1007,6 @@
                         <span class="number">0</span>,
                         <span class="string">&quot;The Python interpreter is not initalized and the `auto-initialize` \
                          feature is not enabled.\n\n\
-                         Consider calling `pyo3::prepare_freethreaded_python()` before attempting \
-                         to use Python APIs.&quot;</span>
-                    );
-                    <span class="macro">assert_ne!</span>(
-                        <span class="ident">ffi::PyEval_ThreadsInitialized</span>(),
-                        <span class="number">0</span>,
-                        <span class="string">&quot;Python threading is not initalized and the `auto-initialize` feature is \
-                         not enabled.\n\n\
                          Consider calling `pyo3::prepare_freethreaded_python()` before attempting \
                          to use Python APIs.&quot;</span>
                     );
@@ -1103,6 +1038,7 @@
         <span class="ident">GILGuard</span> {
             <span class="ident">gstate</span>,
             <span class="ident">pool</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">pool</span>),
+            <span class="ident">_not_send</span>: <span class="ident">NOT_SEND</span>,
         }
     }
 }
@@ -1200,12 +1136,11 @@
 
 <span class="doccomment">///</span>
 <span class="doccomment">/// [Memory Management]: https://pyo3.rs/main/memory.html#gil-bound-memory</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GILPool</span> {
     <span class="doccomment">/// Initial length of owned objects and anys.</span>
     <span class="doccomment">/// `Option` is used since TSL can be broken when `new` is called from `atexit`.</span>
     <span class="ident">start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">no_send</span>: <span class="ident">Unsendable</span>,
+    <span class="ident">_not_send</span>: <span class="ident">NotSend</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GILPool</span> {
@@ -1224,11 +1159,12 @@
         <span class="ident">POOL</span>.<span class="ident">update_counts</span>(<span class="ident">Python::assume_gil_acquired</span>());
         <span class="ident">GILPool</span> {
             <span class="ident">start</span>: <span class="ident">OWNED_OBJECTS</span>.<span class="ident">try_with</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">borrow</span>().<span class="ident">len</span>()).<span class="ident">ok</span>(),
-            <span class="ident">no_send</span>: <span class="ident">Unsendable::default</span>(),
+            <span class="ident">_not_send</span>: <span class="ident">NOT_SEND</span>,
         }
     }
 
     <span class="doccomment">/// Gets the Python token associated with this [`GILPool`].</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">python</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Python</span> {
         <span class="kw">unsafe</span> { <span class="ident">Python::assume_gil_acquired</span>() }
     }
@@ -1342,7 +1278,6 @@
 }
 
 <span class="doccomment">/// Struct used internally which avoids acquiring the GIL where it&#39;s not necessary.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">EnsureGIL</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GILGuard</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">EnsureGIL</span> {
@@ -1671,6 +1606,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
 </body></html>
