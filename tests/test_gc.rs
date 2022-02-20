@@ -1,4 +1,5 @@
-use pyo3::class::PyGCProtocol;
+#![cfg(feature = "macros")]
+
 use pyo3::class::PyTraverseError;
 use pyo3::class::PyVisit;
 use pyo3::prelude::*;
@@ -87,8 +88,8 @@ struct GcIntegration {
     dropped: TestDropCall,
 }
 
-#[pyproto]
-impl PyGCProtocol for GcIntegration {
+#[pymethods]
+impl GcIntegration {
     fn __traverse__(&self, visit: PyVisit) -> Result<(), PyTraverseError> {
         visit.call(&self.self_ref)
     }
@@ -127,11 +128,11 @@ fn gc_integration() {
     assert!(drop_called.load(Ordering::Relaxed));
 }
 
-#[pyclass(gc)]
+#[pyclass]
 struct GcIntegration2 {}
 
-#[pyproto]
-impl PyGCProtocol for GcIntegration2 {
+#[pymethods]
+impl GcIntegration2 {
     fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
         Ok(())
     }
@@ -144,41 +145,6 @@ fn gc_integration2() {
     let py = gil.python();
     let inst = PyCell::new(py, GcIntegration2 {}).unwrap();
     py_run!(py, inst, "import gc; assert inst in gc.get_objects()");
-}
-
-#[pyclass(weakref, subclass)]
-struct WeakRefSupport {}
-
-#[test]
-#[cfg_attr(all(Py_LIMITED_API, not(Py_3_9)), ignore)]
-fn weakref_support() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    let inst = PyCell::new(py, WeakRefSupport {}).unwrap();
-    py_run!(
-        py,
-        inst,
-        "import weakref; assert weakref.ref(inst)() is inst"
-    );
-}
-
-// If the base class has weakref support, child class also has weakref.
-#[pyclass(extends=WeakRefSupport)]
-struct InheritWeakRef {
-    _value: usize,
-}
-
-#[test]
-#[cfg_attr(all(Py_LIMITED_API, not(Py_3_9)), ignore)]
-fn inherited_weakref() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    let inst = PyCell::new(py, (InheritWeakRef { _value: 0 }, WeakRefSupport {})).unwrap();
-    py_run!(
-        py,
-        inst,
-        "import weakref; assert weakref.ref(inst)() is inst"
-    );
 }
 
 #[pyclass(subclass)]
@@ -249,7 +215,7 @@ fn inheritance_with_new_methods_with_drop() {
     assert!(drop_called2.load(Ordering::Relaxed));
 }
 
-#[pyclass(gc)]
+#[pyclass]
 struct TraversableClass {
     traversed: AtomicBool,
 }
@@ -262,8 +228,8 @@ impl TraversableClass {
     }
 }
 
-#[pyproto]
-impl PyGCProtocol for TraversableClass {
+#[pymethods]
+impl TraversableClass {
     fn __clear__(&mut self) {}
     fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
         self.traversed.store(true, Ordering::Relaxed);

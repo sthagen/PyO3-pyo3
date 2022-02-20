@@ -8,9 +8,9 @@ use crate::exceptions;
 use crate::ffi;
 use crate::pyclass::PyClass;
 use crate::type_object::PyTypeObject;
+use crate::types::PyCFunction;
 use crate::types::{PyAny, PyDict, PyList};
-use crate::types::{PyCFunction, PyTuple};
-use crate::{AsPyPointer, IntoPy, Py, PyObject, Python};
+use crate::{AsPyPointer, IntoPy, PyObject, Python};
 use std::ffi::{CStr, CString};
 use std::str;
 
@@ -93,16 +93,41 @@ impl PyModule {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// Include a file at compile time by using [`std::include_str` macro][1]:
+    ///
+    /// ```ignore
     /// use pyo3::prelude::*;
     ///
     /// # fn main() -> PyResult<()> {
-    /// Python::with_gil(|py| -> PyResult<()> {
-    ///     let module = PyModule::from_code(py, "print(__file__, __name__)", "my_file", "my_module")?;
-    ///     Ok(())
-    /// })?;
-    /// # Ok(())}
+    ///       let code = include_str!("../example.py");
+    ///       Python::with_gil(|py| -> PyResult<()> {
+    ///           PyModule::from_code(py, code, "example", "example")?;
+    ///           Ok(())
+    ///       })?;
+    ///       Ok(())
+    /// # }
     /// ```
+    ///
+    /// Load a file at runtime by using [`std::fs::read_to_string`][2] function. It is recommended
+    /// to use an absolute path to your Python files because then your binary can be run from
+    /// anywhere:
+    ///
+    /// ```ignore
+    /// use std::fs;
+    /// use pyo3::prelude::*;
+    ///
+    /// # fn main() -> PyResult<()> {
+    ///       let code = fs::read_to_string("/some/absolute/path/to/example.py")?;
+    ///       Python::with_gil(|py| -> PyResult<()> {
+    ///           PyModule::from_code(py, &code, "example", "example")?;
+    ///           Ok(())
+    ///       })?;
+    ///       Ok(())
+    /// # }
+    /// ```
+    ///
+    /// [1]: https://doc.rust-lang.org/std/macro.include_str.html
+    /// [2]: https://doc.rust-lang.org/std/fs/fn.read_to_string.html
     pub fn from_code<'p>(
         py: Python<'p>,
         code: &str,
@@ -146,7 +171,7 @@ impl PyModule {
         match self.getattr("__all__") {
             Ok(idx) => idx.downcast().map_err(PyErr::from),
             Err(err) => {
-                if err.is_instance::<exceptions::PyAttributeError>(self.py()) {
+                if err.is_instance_of::<exceptions::PyAttributeError>(self.py()) {
                     let l = PyList::empty(self.py());
                     self.setattr("__all__", l).map_err(PyErr::from)?;
                     Ok(l)
@@ -366,46 +391,6 @@ impl PyModule {
     pub fn add_function<'a>(&'a self, fun: &'a PyCFunction) -> PyResult<()> {
         let name = fun.getattr("__name__")?.extract()?;
         self.add(name, fun)
-    }
-
-    /// Calls a function in the module.
-    ///
-    /// This is equivalent to the Python expression `module.name(*args, **kwargs)`.
-    #[deprecated(
-        since = "0.14.0",
-        note = "use getattr(name)?.call(args, kwargs) instead"
-    )]
-    pub fn call(
-        &self,
-        name: &str,
-        args: impl IntoPy<Py<PyTuple>>,
-        kwargs: Option<&PyDict>,
-    ) -> PyResult<&PyAny> {
-        self.getattr(name)?.call(args, kwargs)
-    }
-
-    /// Calls a function in the module with only positional arguments.
-    ///
-    /// This is equivalent to the Python expression `module.name(*args)`.
-    #[deprecated(since = "0.14.0", note = "use getattr(name)?.call1(args) instead")]
-    pub fn call1(&self, name: &str, args: impl IntoPy<Py<PyTuple>>) -> PyResult<&PyAny> {
-        self.getattr(name)?.call1(args)
-    }
-
-    /// Calls a function in the module without arguments.
-    ///
-    /// This is equivalent to the Python expression `module.name()`.
-    #[deprecated(since = "0.14.0", note = "use getattr(name)?.call0() instead")]
-    pub fn call0(&self, name: &str) -> PyResult<&PyAny> {
-        self.getattr(name)?.call0()
-    }
-
-    /// Gets a member from the module.
-    ///
-    /// This is equivalent to the Python expression `module.name`.
-    #[deprecated(since = "0.14.0", note = "use getattr(name) instead")]
-    pub fn get(&self, name: &str) -> PyResult<&PyAny> {
-        self.getattr(name)
     }
 }
 

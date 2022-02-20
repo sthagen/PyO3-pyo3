@@ -1,7 +1,6 @@
 //! Contains initialization utilities for `#[pyclass]`.
-use crate::class::impl_::PyClassThreadChecker;
-use crate::pyclass_slots::{PyClassDict, PyClassWeakRef};
-use crate::{callback::IntoPyCallbackOutput, class::impl_::PyClassBaseType};
+use crate::callback::IntoPyCallbackOutput;
+use crate::impl_::pyclass::{PyClassBaseType, PyClassDict, PyClassThreadChecker, PyClassWeakRef};
 use crate::{ffi, PyCell, PyClass, PyErr, PyResult, Python};
 use crate::{
     ffi::PyTypeObject,
@@ -41,7 +40,11 @@ impl<T: PyTypeInfo> PyObjectInit<T> for PyNativeTypeInitializer<T> {
         let type_object = T::type_object_raw(py);
 
         // HACK (due to FIXME below): PyBaseObject_Type's tp_new isn't happy with NULL arguments
-        if type_object == (&ffi::PyBaseObject_Type as *const _ as *mut _) {
+        #[cfg(addr_of)]
+        let is_base_object = type_object == std::ptr::addr_of_mut!(ffi::PyBaseObject_Type);
+        #[cfg(not(addr_of))]
+        let is_base_object = type_object == &mut ffi::PyBaseObject_Type as _;
+        if is_base_object {
             let alloc = get_tp_alloc(subtype).unwrap_or(ffi::PyType_GenericAlloc);
             let obj = alloc(subtype, 0);
             return if obj.is_null() {

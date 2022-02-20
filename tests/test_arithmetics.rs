@@ -1,3 +1,5 @@
+#![cfg(feature = "macros")]
+
 use pyo3::class::basic::CompareOp;
 use pyo3::prelude::*;
 use pyo3::py_run;
@@ -51,6 +53,39 @@ fn unary_arithmetic() {
 }
 
 #[pyclass]
+struct Indexable(i32);
+
+#[pymethods]
+impl Indexable {
+    fn __index__(&self) -> i32 {
+        self.0
+    }
+
+    fn __int__(&self) -> i32 {
+        self.0
+    }
+
+    fn __float__(&self) -> f64 {
+        f64::from(self.0)
+    }
+
+    fn __invert__(&self) -> Self {
+        Self(!self.0)
+    }
+}
+
+#[test]
+fn indexable() {
+    Python::with_gil(|py| {
+        let i = PyCell::new(py, Indexable(5)).unwrap();
+        py_run!(py, i, "assert int(i) == 5");
+        py_run!(py, i, "assert [0, 1, 2, 3, 4, 5][i] == 5");
+        py_run!(py, i, "assert float(i) == 5.0");
+        py_run!(py, i, "assert int(~i) == -6");
+    })
+}
+
+#[pyclass]
 struct InPlaceOperations {
     value: u32,
 }
@@ -93,7 +128,7 @@ impl InPlaceOperations {
         self.value |= other;
     }
 
-    fn __ipow__(&mut self, other: u32) {
+    fn __ipow__(&mut self, other: u32, _modulo: Option<u32>) {
         self.value = self.value.pow(other);
     }
 }
@@ -564,12 +599,12 @@ mod return_not_implemented {
         fn __itruediv__(&mut self, _other: PyRef<Self>) {}
         fn __ifloordiv__(&mut self, _other: PyRef<Self>) {}
         fn __imod__(&mut self, _other: PyRef<Self>) {}
-        fn __ipow__(&mut self, _other: PyRef<Self>) {}
         fn __ilshift__(&mut self, _other: PyRef<Self>) {}
         fn __irshift__(&mut self, _other: PyRef<Self>) {}
         fn __iand__(&mut self, _other: PyRef<Self>) {}
         fn __ior__(&mut self, _other: PyRef<Self>) {}
         fn __ixor__(&mut self, _other: PyRef<Self>) {}
+        fn __ipow__(&mut self, _other: PyRef<Self>, _modulo: Option<u8>) {}
     }
 
     fn _test_binary_dunder(dunder: &str) {

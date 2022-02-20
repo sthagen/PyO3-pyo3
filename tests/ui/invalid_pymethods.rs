@@ -113,4 +113,21 @@ impl MyClass {
     fn method_cannot_pass_module(&self, m: &PyModule) {}
 }
 
+#[pymethods]
+impl MyClass {
+    #[args(has_default = "1")]
+    fn default_arg_before_required(&self, has_default: isize, required: isize) {}
+}
+
+struct TwoNew { }
+
+#[pymethods]
+impl TwoNew {
+    #[new]
+    fn new_1() -> Self { Self { } }
+
+    #[new]
+    fn new_2() -> Self { Self { } }
+}
+
 fn main() {}

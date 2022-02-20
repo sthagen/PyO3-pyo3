@@ -24,7 +24,7 @@ See the [building and distribution](building_and_distribution.md#py_limited_apia
 
 ### The `abi3-pyXY` features
 
-(`abi3-py36`, `abi3-py37`, `abi3-py38`, `abi3-py39`, and `abi3-py310`)
+(`abi3-py37`, `abi3-py38`, `abi3-py39`, and `abi3-py310`)
 
 These features are extensions of the `abi3` feature to specify the exact minimum Python version which the multiple-version-wheel will support.
 
@@ -65,6 +65,12 @@ Most users should only need a single `#[pymethods]` per `#[pyclass]`. In additio
 
 See [the `#[pyclass]` implementation details](class.md#implementation-details) for more information.
 
+### `pyproto`
+
+This feature enables the `#[pyproto]` macro, which is an alternative (older, soon-to-be-deprecated) to `#[pymethods]` for defining magic methods such as `__eq__`.
+
+> This feature is enabled by default. To disable it, set `default-features = false` for the `pyo3` entry in your Cargo.toml.
+
 ### `nightly`
 
 The `nightly` feature needs the nightly Rust compiler. This allows PyO3 to use Rust's unstable specialization feature to apply the following optimizations:
@@ -74,10 +80,8 @@ The `nightly` feature needs the nightly Rust compiler. This allows PyO3 to use R
 ### `resolve-config`
 
 The `resolve-config` feature of the `pyo3-build-config` crate controls whether that crate's
-build script automatically resolves a Python interpreter / build configuration. Disabling
-this feature enables this crate to be used in *library mode*. This may be desirable for
-use cases where you want to read or write PyO3 build configuration files or resolve
-metadata about a Python interpreter.
+build script automatically resolves a Python interpreter / build configuration. This feature is primarily useful when building PyO3
+itself. By default this feature is not enabled, meaning you can freely use `pyo3-build-config` as a standalone library to read or write PyO3 build configuration files or resolve metadata about a Python interpreter.
 
 ## Optional Dependencies
 
@@ -85,7 +89,7 @@ These features enable conversions between Python types and types from other Rust
 
 ### `anyhow`
 
-Adds a dependency on [anyhow](https://docs.rs/anyhow). Enables a conversion from [anyhow](https://docs.rs/anyhow)’s [`Error`]https://docs.rs/anyhow/latest/anyhow/struct.Error.html) type to [`PyErr`](https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html), for easy error handling.
+Adds a dependency on [anyhow](https://docs.rs/anyhow). Enables a conversion from [anyhow](https://docs.rs/anyhow)’s [`Error`](https://docs.rs/anyhow/latest/anyhow/struct.Error.html) type to [`PyErr`](https://docs.rs/pyo3/latest/pyo3/struct.PyErr.html), for easy error handling.
 
 ### `eyre`
 
@@ -127,5 +131,3 @@ struct User {
     permissions: Vec<Py<Permission>>
 }
 ```
-
-

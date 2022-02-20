@@ -9,8 +9,7 @@
 
 use crate::callback::IntoPyCallbackOutput;
 use crate::derive_utils::TryFromPyCell;
-use crate::err::PyResult;
-use crate::{ffi, IntoPy, IntoPyPointer, PyClass, PyObject, Python};
+use crate::{PyClass, PyObject};
 
 /// Python Async/Await support interface.
 ///
@@ -37,33 +36,6 @@ pub trait PyAsyncProtocol<'p>: PyClass {
     {
         unimplemented!()
     }
-
-    #[deprecated(
-        since = "0.14.0",
-        note = "prefer implementing `__aenter__` in `#[pymethods]` instead of in a protocol"
-    )]
-    fn __aenter__(&'p mut self) -> Self::Result
-    where
-        Self: PyAsyncAenterProtocol<'p>,
-    {
-        unimplemented!()
-    }
-
-    #[deprecated(
-        since = "0.14.0",
-        note = "prefer implementing `__aexit__` in `#[pymethods]` instead of in a protocol"
-    )]
-    fn __aexit__(
-        &'p mut self,
-        exc_type: Option<Self::ExcType>,
-        exc_value: Option<Self::ExcValue>,
-        traceback: Option<Self::Traceback>,
-    ) -> Self::Result
-    where
-        Self: PyAsyncAexitProtocol<'p>,
-    {
-        unimplemented!()
-    }
 }
 
 pub trait PyAsyncAwaitProtocol<'p>: PyAsyncProtocol<'p> {
@@ -81,66 +53,8 @@ pub trait PyAsyncAnextProtocol<'p>: PyAsyncProtocol<'p> {
     type Result: IntoPyCallbackOutput<PyIterANextOutput>;
 }
 
-pub trait PyAsyncAenterProtocol<'p>: PyAsyncProtocol<'p> {
-    type Result: IntoPyCallbackOutput<PyObject>;
-}
-
-pub trait PyAsyncAexitProtocol<'p>: PyAsyncProtocol<'p> {
-    type ExcType: crate::FromPyObject<'p>;
-    type ExcValue: crate::FromPyObject<'p>;
-    type Traceback: crate::FromPyObject<'p>;
-    type Result: IntoPyCallbackOutput<PyObject>;
-}
-
 py_unarys_func!(await_, PyAsyncAwaitProtocol, Self::__await__);
 py_unarys_func!(aiter, PyAsyncAiterProtocol, Self::__aiter__);
 py_unarys_func!(anext, PyAsyncAnextProtocol, Self::__anext__);
 
-/// Output of `__anext__`.
-///
-/// <https://docs.python.org/3/reference/expressions.html#agen.__anext__>
-pub enum IterANextOutput<T, U> {
-    /// An expression which the generator yielded.
-    Yield(T),
-    /// A `StopAsyncIteration` object.
-    Return(U),
-}
-
-/// An [IterANextOutput] of Python objects.
-pub type PyIterANextOutput = IterANextOutput<PyObject, PyObject>;
-
-impl IntoPyCallbackOutput<*mut ffi::PyObject> for PyIterANextOutput {
-    fn convert(self, _py: Python) -> PyResult<*mut ffi::PyObject> {
-        match self {
-            IterANextOutput::Yield(o) => Ok(o.into_ptr()),
-            IterANextOutput::Return(opt) => {
-                Err(crate::exceptions::PyStopAsyncIteration::new_err((opt,)))
-            }
-        }
-    }
-}
-
-impl<T, U> IntoPyCallbackOutput<PyIterANextOutput> for IterANextOutput<T, U>
-where
-    T: IntoPy<PyObject>,
-    U: IntoPy<PyObject>,
-{
-    fn convert(self, py: Python) -> PyResult<PyIterANextOutput> {
-        match self {
-            IterANextOutput::Yield(o) => Ok(IterANextOutput::Yield(o.into_py(py))),
-            IterANextOutput::Return(o) => Ok(IterANextOutput::Return(o.into_py(py))),
-        }
-    }
-}
-
-impl<T> IntoPyCallbackOutput<PyIterANextOutput> for Option<T>
-where
-    T: IntoPy<PyObject>,
-{
-    fn convert(self, py: Python) -> PyResult<PyIterANextOutput> {
-        match self {
-            Some(o) => Ok(PyIterANextOutput::Yield(o.into_py(py))),
-            None => Ok(PyIterANextOutput::Return(py.None())),
-        }
-    }
-}
+pub use crate::pyclass::{IterANextOutput, PyIterANextOutput};

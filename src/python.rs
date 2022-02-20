@@ -4,12 +4,13 @@
 
 use crate::err::{self, PyDowncastError, PyErr, PyResult};
 use crate::gil::{self, GILGuard, GILPool};
+use crate::impl_::not_send::NotSend;
 use crate::type_object::{PyTypeInfo, PyTypeObject};
 use crate::types::{PyAny, PyDict, PyModule, PyType};
 use crate::{ffi, AsPyPointer, FromPyPointer, IntoPyPointer, PyNativeType, PyObject, PyTryFrom};
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
-use std::os::raw::{c_char, c_int};
+use std::os::raw::c_int;
 
 /// Represents the major, minor, and patch (if any) versions of this interpreter.
 ///
@@ -184,7 +185,7 @@ impl PartialOrd<(u8, u8, u8)> for PythonVersionInfo<'_> {
 /// [`Py::clone_ref`]: crate::Py::clone_ref
 /// [Memory Management]: https://pyo3.rs/main/memory.html#gil-bound-memory
 #[derive(Copy, Clone)]
-pub struct Python<'py>(PhantomData<&'py GILGuard>);
+pub struct Python<'py>(PhantomData<(&'py GILGuard, NotSend)>);
 
 impl Python<'_> {
     /// Acquires the global interpreter lock, allowing access to the Python interpreter. The
@@ -537,7 +538,7 @@ impl<'py> Python<'py> {
     /// ```
     pub fn version(self) -> &'py str {
         unsafe {
-            CStr::from_ptr(ffi::Py_GetVersion() as *const c_char)
+            CStr::from_ptr(ffi::Py_GetVersion())
                 .to_str()
                 .expect("Python version string not UTF-8")
         }
@@ -550,9 +551,9 @@ impl<'py> Python<'py> {
     /// ```rust
     /// # use pyo3::Python;
     /// Python::with_gil(|py| {
-    ///     // PyO3 supports Python 3.6 and up.
-    ///     assert!(py.version_info() >= (3, 6));
-    ///     assert!(py.version_info() >= (3, 6, 0));
+    ///     // PyO3 supports Python 3.7 and up.
+    ///     assert!(py.version_info() >= (3, 7));
+    ///     assert!(py.version_info() >= (3, 7, 0));
     /// });
     /// ```
     pub fn version_info(self) -> PythonVersionInfo<'py> {
@@ -891,10 +892,6 @@ mod tests {
     fn test_python_version_info() {
         Python::with_gil(|py| {
             let version = py.version_info();
-            #[cfg(Py_3_6)]
-            assert!(version >= (3, 6));
-            #[cfg(Py_3_6)]
-            assert!(version >= (3, 6, 0));
             #[cfg(Py_3_7)]
             assert!(version >= (3, 7));
             #[cfg(Py_3_7)]

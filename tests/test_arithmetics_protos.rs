@@ -1,4 +1,6 @@
 #![allow(deprecated)] // for deprecated protocol methods
+#![cfg(feature = "macros")]
+#![cfg(feature = "pyproto")]
 
 use pyo3::class::basic::CompareOp;
 use pyo3::class::*;
@@ -38,10 +40,6 @@ impl PyNumberProtocol for UnaryArithmetic {
     fn __abs__(&self) -> Self {
         Self::new(self.inner.abs())
     }
-
-    fn __round__(&self, _ndigits: Option<u32>) -> Self {
-        Self::new(self.inner.round())
-    }
 }
 
 #[test]
@@ -53,8 +51,6 @@ fn unary_arithmetic() {
     py_run!(py, c, "assert repr(-c) == 'UA(-2.7)'");
     py_run!(py, c, "assert repr(+c) == 'UA(2.7)'");
     py_run!(py, c, "assert repr(abs(c)) == 'UA(2.7)'");
-    py_run!(py, c, "assert repr(round(c)) == 'UA(3)'");
-    py_run!(py, c, "assert repr(round(c, 1)) == 'UA(3)'");
 }
 
 #[pyclass]
@@ -113,11 +109,10 @@ impl PyNumberProtocol for InPlaceOperations {
         self.value |= other;
     }
 
-    fn __ipow__(&mut self, other: u32) {
+    fn __ipow__(&mut self, other: u32, _modulo: Option<u32>) {
         self.value = self.value.pow(other);
     }
 }
-
 #[test]
 fn inplace_operations() {
     let gil = Python::acquire_gil();
@@ -594,7 +589,7 @@ mod return_not_implemented {
         fn __itruediv__(&'p mut self, _other: PyRef<'p, Self>) {}
         fn __ifloordiv__(&'p mut self, _other: PyRef<'p, Self>) {}
         fn __imod__(&'p mut self, _other: PyRef<'p, Self>) {}
-        fn __ipow__(&'p mut self, _other: PyRef<'p, Self>) {}
+        fn __ipow__(&'p mut self, _other: PyRef<'p, Self>, _modulo: Option<u8>) {}
         fn __ilshift__(&'p mut self, _other: PyRef<'p, Self>) {}
         fn __irshift__(&'p mut self, _other: PyRef<'p, Self>) {}
         fn __iand__(&'p mut self, _other: PyRef<'p, Self>) {}

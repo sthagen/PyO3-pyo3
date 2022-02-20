@@ -10,7 +10,7 @@ use crate::{GILPool, IntoPyPointer};
 use crate::{IntoPy, PyObject, Python};
 use std::any::Any;
 use std::os::raw::c_int;
-use std::panic::{AssertUnwindSafe, UnwindSafe};
+use std::panic::UnwindSafe;
 use std::{isize, panic};
 
 /// A type which can be the return type of a python C-API callback
@@ -241,16 +241,15 @@ where
     R: PyCallbackOutput,
 {
     let pool = GILPool::new();
-    let unwind_safe_py = AssertUnwindSafe(pool.python());
-    let panic_result = panic::catch_unwind(move || -> PyResult<_> {
-        let py = *unwind_safe_py;
-        body(py)
-    });
-
-    panic_result_into_callback_output(pool.python(), panic_result)
+    let py = pool.python();
+    panic_result_into_callback_output(py, panic::catch_unwind(move || -> PyResult<_> { body(py) }))
 }
 
-fn panic_result_into_callback_output<R>(
+/// Converts the output of std::panic::catch_unwind into a Python function output, either by raising a Python
+/// exception or by unwrapping the contained success output.
+#[doc(hidden)]
+#[inline]
+pub fn panic_result_into_callback_output<R>(
     py: Python,
     panic_result: Result<PyResult<R>, Box<dyn Any + Send + 'static>>,
 ) -> R
@@ -266,4 +265,19 @@ where
         py_err.restore(py);
         R::ERR_VALUE
     })
+}
+
+/// Aborts if panic has occurred. Used inside `__traverse__` implementations, where panicking is not possible.
+#[doc(hidden)]
+#[inline]
+pub fn abort_on_traverse_panic(
+    panic_result: Result<c_int, Box<dyn Any + Send + 'static>>,
+) -> c_int {
+    match panic_result {
+        Ok(traverse_result) => traverse_result,
+        Err(_payload) => {
+            eprintln!("FATAL: panic inside __traverse__ handler; aborting.");
+            ::std::process::abort()
+        }
+    }
 }

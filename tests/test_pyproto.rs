@@ -1,8 +1,9 @@
-#![allow(deprecated)] // for deprecated protocol methods
+#![cfg(feature = "macros")]
+#![cfg(feature = "pyproto")]
 
 use pyo3::class::{
-    PyAsyncProtocol, PyContextProtocol, PyDescrProtocol, PyIterProtocol, PyMappingProtocol,
-    PyObjectProtocol, PySequenceProtocol,
+    PyAsyncProtocol, PyDescrProtocol, PyIterProtocol, PyMappingProtocol, PyObjectProtocol,
+    PySequenceProtocol,
 };
 use pyo3::exceptions::{PyIndexError, PyValueError};
 use pyo3::prelude::*;
@@ -91,14 +92,6 @@ impl PyObjectProtocol for StringMethods {
     fn __repr__(&self) -> &'static str {
         "repr"
     }
-
-    fn __format__(&self, format_spec: String) -> String {
-        format!("format({})", format_spec)
-    }
-
-    fn __bytes__(&self) -> &'static [u8] {
-        b"bytes"
-    }
 }
 
 #[test]
@@ -109,12 +102,6 @@ fn string_methods() {
     let obj = Py::new(py, StringMethods {}).unwrap();
     py_assert!(py, obj, "str(obj) == 'str'");
     py_assert!(py, obj, "repr(obj) == 'repr'");
-    py_assert!(py, obj, "'{0:x}'.format(obj) == 'format(x)'");
-    py_assert!(py, obj, "bytes(obj) == b'bytes'");
-
-    // Test that `__bytes__` takes no arguments (should be METH_NOARGS)
-    py_assert!(py, obj, "obj.__bytes__() == b'bytes'");
-    py_expect_exception!(py, obj, "obj.__bytes__('unexpected argument')", PyTypeError);
 }
 
 #[pyclass]
@@ -299,25 +286,6 @@ fn setdelitem() {
 }
 
 #[pyclass]
-struct Reversed {}
-
-#[pyproto]
-impl PyMappingProtocol for Reversed {
-    fn __reversed__(&self) -> &'static str {
-        "I am reversed"
-    }
-}
-
-#[test]
-fn reversed() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-
-    let c = Py::new(py, Reversed {}).unwrap();
-    py_run!(py, c, "assert reversed(c) == 'I am reversed'");
-}
-
-#[pyclass]
 struct Contains {}
 
 #[pyproto]
@@ -336,57 +304,6 @@ fn contains() {
     py_run!(py, c, "assert 1 in c");
     py_run!(py, c, "assert -1 not in c");
     py_expect_exception!(py, c, "assert 'wrong type' not in c", PyTypeError);
-}
-
-#[pyclass]
-struct ContextManager {
-    exit_called: bool,
-}
-
-#[pyproto]
-impl PyContextProtocol for ContextManager {
-    fn __enter__(&mut self) -> i32 {
-        42
-    }
-
-    fn __exit__(
-        &mut self,
-        ty: Option<&PyType>,
-        _value: Option<&PyAny>,
-        _traceback: Option<&PyAny>,
-    ) -> bool {
-        let gil = Python::acquire_gil();
-        self.exit_called = true;
-        ty == Some(gil.python().get_type::<PyValueError>())
-    }
-}
-
-#[test]
-fn context_manager() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-
-    let c = PyCell::new(py, ContextManager { exit_called: false }).unwrap();
-    py_run!(py, c, "with c as x: assert x == 42");
-    {
-        let mut c = c.borrow_mut();
-        assert!(c.exit_called);
-        c.exit_called = false;
-    }
-    py_run!(py, c, "with c as x: raise ValueError");
-    {
-        let mut c = c.borrow_mut();
-        assert!(c.exit_called);
-        c.exit_called = false;
-    }
-    py_expect_exception!(
-        py,
-        c,
-        "with c as x: raise NotImplementedError",
-        PyNotImplementedError
-    );
-    let c = c.borrow();
-    assert!(c.exit_called);
 }
 
 #[test]
@@ -431,80 +348,6 @@ fn test_cls_impl() {
 
     py_assert!(py, ob, "ob[1] == 'int'");
     py_assert!(py, ob, "ob[100:200:1] == 'slice'");
-}
-
-#[pyclass(dict, subclass)]
-struct DunderDictSupport {}
-
-#[test]
-#[cfg_attr(all(Py_LIMITED_API, not(Py_3_9)), ignore)]
-fn dunder_dict_support() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    let inst = PyCell::new(py, DunderDictSupport {}).unwrap();
-    py_run!(
-        py,
-        inst,
-        r#"
-        inst.a = 1
-        assert inst.a == 1
-    "#
-    );
-}
-
-// Accessing inst.__dict__ only supported in limited API from Python 3.10
-#[test]
-#[cfg_attr(all(Py_LIMITED_API, not(Py_3_10)), ignore)]
-fn access_dunder_dict() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    let inst = PyCell::new(py, DunderDictSupport {}).unwrap();
-    py_run!(
-        py,
-        inst,
-        r#"
-        inst.a = 1
-        assert inst.__dict__ == {'a': 1}
-    "#
-    );
-}
-
-// If the base class has dict support, child class also has dict
-#[pyclass(extends=DunderDictSupport)]
-struct InheritDict {
-    _value: usize,
-}
-
-#[test]
-#[cfg_attr(all(Py_LIMITED_API, not(Py_3_9)), ignore)]
-fn inherited_dict() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    let inst = PyCell::new(py, (InheritDict { _value: 0 }, DunderDictSupport {})).unwrap();
-    py_run!(
-        py,
-        inst,
-        r#"
-        inst.a = 1
-        assert inst.a == 1
-    "#
-    );
-}
-
-#[pyclass(weakref, dict)]
-struct WeakRefDunderDictSupport {}
-
-#[test]
-#[cfg_attr(all(Py_LIMITED_API, not(Py_3_9)), ignore)]
-fn weakref_dunder_dict_support() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    let inst = PyCell::new(py, WeakRefDunderDictSupport {}).unwrap();
-    py_run!(
-        py,
-        inst,
-        "import weakref; assert weakref.ref(inst)() is inst; inst.a = 1; assert inst.a == 1"
-    );
 }
 
 #[pyclass]

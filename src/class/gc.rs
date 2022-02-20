@@ -9,16 +9,13 @@ use std::os::raw::{c_int, c_void};
 pub struct PyTraverseError(c_int);
 
 /// GC support
-#[allow(clippy::upper_case_acronyms)]
 pub trait PyGCProtocol<'p>: PyClass {
     fn __traverse__(&'p self, visit: PyVisit) -> Result<(), PyTraverseError>;
     fn __clear__(&'p mut self);
 }
 
-#[allow(clippy::upper_case_acronyms)]
 pub trait PyGCTraverseProtocol<'p>: PyGCProtocol<'p> {}
 
-#[allow(clippy::upper_case_acronyms)]
 pub trait PyGCClearProtocol<'p>: PyGCProtocol<'p> {}
 
 #[doc(hidden)]
@@ -85,5 +82,21 @@ impl<'p> PyVisit<'p> {
         } else {
             Err(PyTraverseError(r))
         }
+    }
+
+    /// Creates the PyVisit from the arguments to tp_traverse
+    #[doc(hidden)]
+    pub unsafe fn from_raw(visit: ffi::visitproc, arg: *mut c_void, _py: Python<'p>) -> Self {
+        Self { visit, arg, _py }
+    }
+}
+
+/// Unwraps the result of __traverse__ for tp_traverse
+#[doc(hidden)]
+#[inline]
+pub fn unwrap_traverse_result(result: Result<(), PyTraverseError>) -> c_int {
+    match result {
+        Ok(()) => 0,
+        Err(PyTraverseError(value)) => value,
     }
 }

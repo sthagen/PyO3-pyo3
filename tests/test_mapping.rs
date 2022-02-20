@@ -1,4 +1,4 @@
-#![allow(deprecated)] // for deprecated protocol methods
+#![cfg(feature = "macros")]
 
 use std::collections::HashMap;
 
@@ -7,7 +7,6 @@ use pyo3::prelude::*;
 use pyo3::py_run;
 use pyo3::types::IntoPyDict;
 use pyo3::types::PyList;
-use pyo3::PyMappingProtocol;
 
 mod common;
 
@@ -33,10 +32,7 @@ impl Mapping {
             })
         }
     }
-}
 
-#[pyproto]
-impl PyMappingProtocol for Mapping {
     fn __len__(&self) -> usize {
         self.index.len()
     }
@@ -58,16 +54,6 @@ impl PyMappingProtocol for Mapping {
         } else {
             Ok(())
         }
-    }
-
-    /// not an actual reversed implementation, just to demonstrate that the method is callable.
-    fn __reversed__(&self) -> PyObject {
-        let gil = Python::acquire_gil();
-        self.index
-            .keys()
-            .cloned()
-            .collect::<Vec<String>>()
-            .into_py(gil.python())
     }
 }
 
@@ -116,13 +102,4 @@ fn test_delitem() {
     );
     py_expect_exception!(py, *d, "del m[-1]", PyTypeError);
     py_expect_exception!(py, *d, "del m['4']", PyKeyError);
-}
-
-#[test]
-fn test_reversed() {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-
-    let d = map_dict(py);
-    py_assert!(py, *d, "set(reversed(m)) == {'1', '2', '3'}");
 }

@@ -12,37 +12,6 @@ use crate::callback::{HashCallbackOutput, IntoPyCallbackOutput};
 use crate::{exceptions, ffi, FromPyObject, PyAny, PyCell, PyClass, PyObject};
 use std::os::raw::c_int;
 
-/// Operators for the `__richcmp__` method
-#[derive(Debug, Clone, Copy)]
-pub enum CompareOp {
-    /// The *less than* operator.
-    Lt = ffi::Py_LT as isize,
-    /// The *less than or equal to* operator.
-    Le = ffi::Py_LE as isize,
-    /// The equality operator.
-    Eq = ffi::Py_EQ as isize,
-    /// The *not equal to* operator.
-    Ne = ffi::Py_NE as isize,
-    /// The *greater than* operator.
-    Gt = ffi::Py_GT as isize,
-    /// The *greater than or equal to* operator.
-    Ge = ffi::Py_GE as isize,
-}
-
-impl CompareOp {
-    pub fn from_raw(op: c_int) -> Option<Self> {
-        match op {
-            ffi::Py_LT => Some(CompareOp::Lt),
-            ffi::Py_LE => Some(CompareOp::Le),
-            ffi::Py_EQ => Some(CompareOp::Eq),
-            ffi::Py_NE => Some(CompareOp::Ne),
-            ffi::Py_GT => Some(CompareOp::Gt),
-            ffi::Py_GE => Some(CompareOp::Ge),
-            _ => None,
-        }
-    }
-}
-
 /// Basic Python class customization
 #[allow(unused_variables)]
 pub trait PyObjectProtocol<'p>: PyClass {
@@ -81,31 +50,9 @@ pub trait PyObjectProtocol<'p>: PyClass {
         unimplemented!()
     }
 
-    #[deprecated(
-        since = "0.14.0",
-        note = "prefer implementing `__format__` in `#[pymethods]` instead of in a protocol"
-    )]
-    fn __format__(&'p self, format_spec: Self::Format) -> Self::Result
-    where
-        Self: PyObjectFormatProtocol<'p>,
-    {
-        unimplemented!()
-    }
-
     fn __hash__(&'p self) -> Self::Result
     where
         Self: PyObjectHashProtocol<'p>,
-    {
-        unimplemented!()
-    }
-
-    #[deprecated(
-        since = "0.14.0",
-        note = "prefer implementing `__bytes__` in `#[pymethods]` instead of in a protocol"
-    )]
-    fn __bytes__(&'p self) -> Self::Result
-    where
-        Self: PyObjectBytesProtocol<'p>,
     {
         unimplemented!()
     }
@@ -143,18 +90,11 @@ pub trait PyObjectStrProtocol<'p>: PyObjectProtocol<'p> {
 pub trait PyObjectReprProtocol<'p>: PyObjectProtocol<'p> {
     type Result: IntoPyCallbackOutput<PyObject>;
 }
-pub trait PyObjectFormatProtocol<'p>: PyObjectProtocol<'p> {
-    type Format: FromPyObject<'p>;
-    type Result: IntoPyCallbackOutput<PyObject>;
-}
 pub trait PyObjectHashProtocol<'p>: PyObjectProtocol<'p> {
     type Result: IntoPyCallbackOutput<HashCallbackOutput>;
 }
 pub trait PyObjectBoolProtocol<'p>: PyObjectProtocol<'p> {
     type Result: IntoPyCallbackOutput<bool>;
-}
-pub trait PyObjectBytesProtocol<'p>: PyObjectProtocol<'p> {
-    type Result: IntoPyCallbackOutput<PyObject>;
 }
 pub trait PyObjectRichcmpProtocol<'p>: PyObjectProtocol<'p> {
     type Other: FromPyObject<'p>;
@@ -231,3 +171,5 @@ py_func_set_del!(
     __delattr__
 );
 py_unary_func!(bool, PyObjectBoolProtocol, T::__bool__, c_int);
+
+pub use crate::pyclass::CompareOp;

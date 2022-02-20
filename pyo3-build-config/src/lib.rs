@@ -1,8 +1,7 @@
 //! Configuration used by PyO3 for conditional support of varying Python versions.
 //!
-//! This crate exposes two functions, [`use_pyo3_cfgs`] and [`add_extension_module_link_args`],
-//! which are intended to be called from build scripts to simplify building crates which depend on
-//! PyO3.
+//! This crate exposes functionality to be called from build scripts to simplify building crates
+//! which depend on PyO3.
 //!
 //! It used internally by the PyO3 crate's build script to apply the same configuration.
 
@@ -11,11 +10,15 @@ mod impl_;
 
 #[cfg(feature = "resolve-config")]
 use std::io::Cursor;
+use std::{env, process::Command};
 
 #[cfg(feature = "resolve-config")]
 use once_cell::sync::OnceCell;
 
-pub use impl_::{BuildFlag, BuildFlags, InterpreterConfig, PythonImplementation, PythonVersion};
+pub use impl_::{
+    cross_compiling, find_all_sysconfigdata, parse_sysconfigdata, BuildFlag, BuildFlags,
+    CrossCompileConfig, InterpreterConfig, PythonImplementation, PythonVersion,
+};
 
 /// Adds all the [`#[cfg]` flags](index.html) to the current compilation.
 ///
@@ -25,7 +28,7 @@ pub use impl_::{BuildFlag, BuildFlags, InterpreterConfig, PythonImplementation, 
 ///
 /// | Flag | Description |
 /// | ---- | ----------- |
-/// | `#[cfg(Py_3_6)]`, `#[cfg(Py_3_7)]`, `#[cfg(Py_3_8)]`, `#[cfg(Py_3_9)]`, `#[cfg(Py_3_10)]` | These attributes mark code only for a given Python version and up. For example, `#[cfg(Py_3_6)]` marks code which can run on Python 3.6 **and newer**. |
+/// | `#[cfg(Py_3_7)]`, `#[cfg(Py_3_8)]`, `#[cfg(Py_3_9)]`, `#[cfg(Py_3_10)]` | These attributes mark code only for a given Python version and up. For example, `#[cfg(Py_3_7)]` marks code which can run on Python 3.7 **and newer**. |
 /// | `#[cfg(Py_LIMITED_API)]` | This marks code which is run when compiling with PyO3's `abi3` feature enabled. |
 /// | `#[cfg(PyPy)]` | This marks code which is run when compiling for PyPy. |
 ///
@@ -111,6 +114,36 @@ fn abi3_config() -> InterpreterConfig {
         interpreter_config.lib_name = Some("python3".to_owned())
     }
     interpreter_config
+}
+
+/// Use certain features if we detect the compiler being used supports them.
+///
+/// Features may be removed or added as MSRV gets bumped or new features become available,
+/// so this function is unstable.
+#[doc(hidden)]
+pub fn print_feature_cfgs() {
+    fn rustc_minor_version() -> Option<u32> {
+        let rustc = env::var_os("RUSTC")?;
+        let output = Command::new(rustc).arg("--version").output().ok()?;
+        let version = core::str::from_utf8(&output.stdout).ok()?;
+        let mut pieces = version.split('.');
+        if pieces.next() != Some("rustc 1") {
+            return None;
+        }
+        pieces.next()?.parse().ok()
+    }
+
+    let rustc_minor_version = rustc_minor_version().unwrap_or(0);
+
+    // Enable use of const generics on Rust 1.51 and greater
+    if rustc_minor_version >= 51 {
+        println!("cargo:rustc-cfg=min_const_generics");
+    }
+
+    // Enable use of std::ptr::addr_of! on Rust 1.51 and greater
+    if rustc_minor_version >= 51 {
+        println!("cargo:rustc-cfg=addr_of");
+    }
 }
 
 /// Private exports used in PyO3's build.rs

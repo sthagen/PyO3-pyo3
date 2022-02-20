@@ -2,7 +2,8 @@
 
 //! Interaction with Python's global interpreter lock
 
-use crate::{ffi, internal_tricks::Unsendable, Python};
+use crate::impl_::not_send::{NotSend, NOT_SEND};
+use crate::{ffi, Python};
 use parking_lot::{const_mutex, Mutex, Once};
 use std::cell::{Cell, RefCell};
 use std::{
@@ -45,19 +46,11 @@ pub(crate) fn gil_is_acquired() -> bool {
 /// signal handling depends on the notion of a 'main thread', which must be the thread that
 /// initializes the Python interpreter.
 ///
-/// If both the Python interpreter and Python threading are already initialized, this function has
-/// no effect.
+/// If the Python interpreter is already initialized, this function has no effect.
 ///
 /// This function is unavailable under PyPy because PyPy cannot be embedded in Rust (or any other
 /// software). Support for this is tracked on the
 /// [PyPy issue tracker](https://foss.heptapod.net/pypy/pypy/-/issues/3286).
-///
-/// Python 3.6 only: If the Python interpreter is initialized but Python threading is not, this
-/// function will initialize Python threading.
-///
-/// # Panics
-/// - Python 3.6 only: If this function needs to initialize Python threading but the calling thread
-///   is not the thread which initialized Python, this function will panic.
 ///
 /// # Examples
 /// ```rust
@@ -75,29 +68,6 @@ pub fn prepare_freethreaded_python() {
     // concurrent initialization of the Python runtime by other users of the Python C API.
     START.call_once_force(|_| unsafe {
         // Use call_once_force because if initialization panics, it's okay to try again.
-
-        // TODO(#1782) - Python 3.6 legacy code
-        #[cfg(not(Py_3_7))]
-        if ffi::Py_IsInitialized() != 0 {
-            if ffi::PyEval_ThreadsInitialized() == 0 {
-                // We can only safely initialize threads if this thread holds the GIL.
-                assert!(
-                    !ffi::PyGILState_GetThisThreadState().is_null(),
-                    "Python threading is not initialized and cannot be initialized by this \
-                     thread, because it is not the thread which initialized Python."
-                );
-                ffi::PyEval_InitThreads();
-            }
-        } else {
-            ffi::Py_InitializeEx(0);
-            ffi::PyEval_InitThreads();
-
-            // Release the GIL.
-            ffi::PyEval_SaveThread();
-        }
-
-        // In Python 3.7 and up PyEval_InitThreads is irrelevant.
-        #[cfg(Py_3_7)]
         if ffi::Py_IsInitialized() == 0 {
             ffi::Py_InitializeEx(0);
 
@@ -149,14 +119,7 @@ where
 
     ffi::Py_InitializeEx(0);
 
-    // Changed in version 3.7: This function is now called by Py_Initialize(), so you don’t have to
-    // call it yourself anymore.
-    #[cfg(not(Py_3_7))]
-    if ffi::PyEval_ThreadsInitialized() == 0 {
-        ffi::PyEval_InitThreads();
-    }
-
-    // Safe: the GIL is already held because of the Py_IntializeEx call.
+    // Safety: the GIL is already held because of the Py_IntializeEx call.
     let pool = GILPool::new();
 
     // Import the threading module - this ensures that it will associate this thread as the "main"
@@ -190,11 +153,12 @@ where
 ///     let py = gil_guard.python();
 /// } // GIL is released when gil_guard is dropped
 /// ```
-#[allow(clippy::upper_case_acronyms)]
+
 #[must_use]
 pub struct GILGuard {
     gstate: ffi::PyGILState_STATE,
     pool: ManuallyDrop<Option<GILPool>>,
+    _not_send: NotSend,
 }
 
 impl GILGuard {
@@ -219,6 +183,15 @@ impl GILGuard {
             if #[cfg(all(feature = "auto-initialize", not(PyPy)))] {
                 prepare_freethreaded_python();
             } else {
+                // This is a "hack" to make running `cargo test` for PyO3 convenient (i.e. no need
+                // to specify `--features auto-initialize` manually. Tests within the crate itself
+                // all depend on the auto-initialize feature for conciseness but Cargo does not
+                // provide a mechanism to specify required features for tests.
+                #[cfg(not(PyPy))]
+                if option_env!("CARGO_PRIMARY_PACKAGE").is_some() {
+                    prepare_freethreaded_python();
+                }
+
                 START.call_once_force(|_| unsafe {
                     // Use call_once_force because if there is a panic because the interpreter is
                     // not initialized, it's fine for the user to initialize the interpreter and
@@ -228,14 +201,6 @@ impl GILGuard {
                         0,
                         "The Python interpreter is not initalized and the `auto-initialize` \
                          feature is not enabled.\n\n\
-                         Consider calling `pyo3::prepare_freethreaded_python()` before attempting \
-                         to use Python APIs."
-                    );
-                    assert_ne!(
-                        ffi::PyEval_ThreadsInitialized(),
-                        0,
-                        "Python threading is not initalized and the `auto-initialize` feature is \
-                         not enabled.\n\n\
                          Consider calling `pyo3::prepare_freethreaded_python()` before attempting \
                          to use Python APIs."
                     );
@@ -267,6 +232,7 @@ impl GILGuard {
         GILGuard {
             gstate,
             pool: ManuallyDrop::new(pool),
+            _not_send: NOT_SEND,
         }
     }
 }
@@ -364,12 +330,11 @@ static POOL: ReferencePool = ReferencePool::new();
 
 ///
 /// [Memory Management]: https://pyo3.rs/main/memory.html#gil-bound-memory
-#[allow(clippy::upper_case_acronyms)]
 pub struct GILPool {
     /// Initial length of owned objects and anys.
     /// `Option` is used since TSL can be broken when `new` is called from `atexit`.
     start: Option<usize>,
-    no_send: Unsendable,
+    _not_send: NotSend,
 }
 
 impl GILPool {
@@ -388,11 +353,12 @@ impl GILPool {
         POOL.update_counts(Python::assume_gil_acquired());
         GILPool {
             start: OWNED_OBJECTS.try_with(|o| o.borrow().len()).ok(),
-            no_send: Unsendable::default(),
+            _not_send: NOT_SEND,
         }
     }
 
     /// Gets the Python token associated with this [`GILPool`].
+    #[inline]
     pub fn python(&self) -> Python {
         unsafe { Python::assume_gil_acquired() }
     }
@@ -506,7 +472,6 @@ pub(crate) fn ensure_gil_unchecked() -> EnsureGIL {
 }
 
 /// Struct used internally which avoids acquiring the GIL where it's not necessary.
-#[allow(clippy::upper_case_acronyms)]
 pub(crate) struct EnsureGIL(Option<GILGuard>);
 
 impl EnsureGIL {
