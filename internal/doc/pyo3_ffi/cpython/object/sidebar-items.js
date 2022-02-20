@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["PyObject_CallFinalizer",""],["PyObject_CallFinalizerFromDealloc",""],["PyObject_Print",""],["_PyObject_GetDictPtr",""],["_PyObject_NextNotImplemented",""]],"mod":[["bufferinfo",""],["typeobject",""]],"type":[["vectorcallfunc",""]]});

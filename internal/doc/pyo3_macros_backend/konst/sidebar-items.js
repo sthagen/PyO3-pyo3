@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["PyO3ConstAttribute",""]],"struct":[["ConstAttributes",""],["ConstSpec",""]]});

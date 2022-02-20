@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Python","A marker token that represents holding the GIL."],["PythonVersionInfo","Represents the major, minor, and patch (if any) versions of this interpreter."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["clear",""],["traverse",""],["unwrap_traverse_result","Unwraps the result of traverse for tp_traverse"]],"struct":[["PyTraverseError",""],["PyVisit","Object visitor for GC."]],"trait":[["PyGCClearProtocol",""],["PyGCProtocol","GC support"],["PyGCTraverseProtocol",""]]});

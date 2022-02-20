@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["module_def_ident",""],["wrap_pyfunction_impl",""],["wrap_pymodule_impl",""]],"struct":[["WrapPyFunctionArgs",""]]});

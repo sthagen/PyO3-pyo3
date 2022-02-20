@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["iter",""],["iternext",""]],"trait":[["PyIterIterProtocol",""],["PyIterNextProtocol",""],["PyIterProtocol","Python Iterator Interface."]]});

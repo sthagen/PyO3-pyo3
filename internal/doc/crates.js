@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["pyo3","pyo3_build_config","pyo3_ffi","pyo3_macros","pyo3_macros_backend","pyo3_pytests"];

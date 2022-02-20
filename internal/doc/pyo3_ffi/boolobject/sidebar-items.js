@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["PyBool_Check",""],["PyBool_FromLong",""],["Py_False",""],["Py_IsFalse",""],["Py_IsTrue",""],["Py_True",""]],"static":[["PyBool_Type",""],["_Py_FalseStruct",""],["_Py_TrueStruct",""]]});

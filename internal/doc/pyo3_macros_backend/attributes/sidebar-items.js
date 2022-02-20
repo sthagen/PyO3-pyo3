@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["get_pyo3_options",""],["is_attribute_ident",""],["take_attributes","Takes attributes from an attribute vector."],["take_pyo3_options",""]],"mod":[["kw",""]],"struct":[["CrateAttribute","For specifying the path to the pyo3 crate."],["FromPyWithAttribute",""],["NameAttribute",""],["TextSignatureAttribute",""]]});

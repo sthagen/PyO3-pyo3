@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Py","A GIL-independent reference to an object allocated on the Python heap."]],"trait":[["PyNativeType","Types that are built into the Python interpreter."]],"type":[["PyObject","A commonly-used alias for `Py<PyAny>`."]]});

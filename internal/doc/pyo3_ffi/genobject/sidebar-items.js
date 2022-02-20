@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["PyAsyncGen_CheckExact",""],["PyCoro_CheckExact",""],["PyGen_Check",""],["PyGen_CheckExact",""],["PyGen_NeedsFinalizing",""],["PyGen_New",""]],"static":[["PyAsyncGen_Type",""],["PyCoro_Type",""],["PyGen_Type",""],["_PyCoroWrapper_Type",""]],"struct":[["PyGenObject",""]]});

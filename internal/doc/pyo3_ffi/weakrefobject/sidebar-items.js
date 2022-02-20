@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["PyWeakref_Check",""],["PyWeakref_CheckProxy",""],["PyWeakref_CheckRef",""],["PyWeakref_CheckRefExact",""],["PyWeakref_GetObject",""],["PyWeakref_NewProxy",""],["PyWeakref_NewRef",""]],"static":[["_PyWeakref_CallableProxyType",""],["_PyWeakref_ProxyType",""],["_PyWeakref_RefType",""]],"struct":[["PyWeakReference",""]]});

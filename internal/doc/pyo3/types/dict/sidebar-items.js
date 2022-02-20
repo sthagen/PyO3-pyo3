@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["PyDict","Represents a Python `dict`."],["PyDictIterator",""]],"trait":[["IntoPyDict","Conversion trait that allows a sequence of tuples to be converted into `PyDict` Primary use case for this trait is `call` and `call_method` methods as keywords argument."],["PyDictItem","Represents a tuple which can be used as a PyDict item."]]});

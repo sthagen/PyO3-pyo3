@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["Py_DTSF_ADD_DOT_0",""],["Py_DTSF_ALT",""],["Py_DTSF_SIGN",""],["Py_DTST_FINITE",""],["Py_DTST_INFINITE",""],["Py_DTST_NAN",""]],"fn":[["PyOS_double_to_string",""],["PyOS_string_to_double",""]]});

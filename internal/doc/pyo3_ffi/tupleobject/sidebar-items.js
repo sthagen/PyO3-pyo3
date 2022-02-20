@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["PyTuple_Check",""],["PyTuple_CheckExact",""],["PyTuple_ClearFreeList",""],["PyTuple_GetItem",""],["PyTuple_GetSlice",""],["PyTuple_New",""],["PyTuple_Pack",""],["PyTuple_SetItem",""],["PyTuple_Size",""]],"static":[["PyTupleIter_Type",""],["PyTuple_Type",""]]});

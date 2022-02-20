@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["PySlice_AdjustIndices",""],["PySlice_Check",""],["PySlice_GetIndices",""],["PySlice_GetIndicesEx",""],["PySlice_New",""],["PySlice_Unpack",""],["Py_Ellipsis",""]],"static":[["PyEllipsis_Type",""],["PySlice_Type",""],["_Py_EllipsisObject",""]],"struct":[["PySliceObject",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Error","A simple error implementation which allows chaining of errors, inspired somewhat by anyhow."],["ErrorReport","Error report inspired by https://blog.rust-lang.org/inside-rust/2021/07/01/What-the-error-handling-project-group-is-working-towards.html#2-error-reporter"]],"trait":[["Context",""]],"type":[["Result",""]]});

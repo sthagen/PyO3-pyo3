@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["PyBool","Represents a Python `bool`."]]});
