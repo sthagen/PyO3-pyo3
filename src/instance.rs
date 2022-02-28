@@ -223,6 +223,9 @@ pub unsafe trait PyNativeType: Sized {
 #[repr(transparent)]
 pub struct Py<T>(NonNull<ffi::PyObject>, PhantomData<T>);
 
+// The inner value is only accessed through ways that require proving the gil is held
+#[cfg(feature = "nightly")]
+unsafe impl<T> crate::marker::Ungil for Py<T> {}
 unsafe impl<T> Send for Py<T> {}
 unsafe impl<T> Sync for Py<T> {}
 
@@ -460,6 +463,15 @@ where
 }
 
 impl<T> Py<T> {
+    /// Returns whether `self` and `other` point to the same object. To compare
+    /// the equality of two objects (the `==` operator), use [`eq`](PyAny::eq).
+    ///
+    /// This is equivalent to the Python expression `self is other`.
+    #[inline]
+    pub fn is<U: AsPyPointer>(&self, o: &U) -> bool {
+        self.as_ptr() == o.as_ptr()
+    }
+
     /// Gets the reference count of the `ffi::PyObject` pointer.
     #[inline]
     pub fn get_refcnt(&self, _py: Python) -> isize {
@@ -580,7 +592,7 @@ impl<T> Py<T> {
     /// This is equivalent to the Python expression `self()`.
     pub fn call0(&self, py: Python) -> PyResult<PyObject> {
         cfg_if::cfg_if! {
-            if #[cfg(Py_3_9)] {
+            if #[cfg(all(Py_3_9, not(PyPy)))] {
                 // Optimized path on python 3.9+
                 unsafe {
                     PyObject::from_owned_ptr_or_err(py, ffi::PyObject_CallNoArgs(self.as_ptr()))
@@ -633,7 +645,7 @@ impl<T> Py<T> {
     /// This is equivalent to the Python expression `self.name()`.
     pub fn call_method0(&self, py: Python, name: &str) -> PyResult<PyObject> {
         cfg_if::cfg_if! {
-            if #[cfg(all(Py_3_9, not(Py_LIMITED_API)))] {
+            if #[cfg(all(Py_3_9, not(any(Py_LIMITED_API, PyPy))))] {
                 // Optimized path on python 3.9+
                 unsafe {
                     let name = name.into_py(py);
@@ -823,13 +835,6 @@ where
 {
     fn from(pyref: PyRefMut<'a, T>) -> Self {
         unsafe { Py::from_borrowed_ptr(pyref.py(), pyref.as_ptr()) }
-    }
-}
-
-impl<T> PartialEq for Py<T> {
-    #[inline]
-    fn eq(&self, o: &Py<T>) -> bool {
-        self.0 == o.0
     }
 }
 
