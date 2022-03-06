@@ -33,7 +33,7 @@ inventory = { version = "0.2.0", optional = true }
 # crate integrations that can be added using the eponymous features
 anyhow = { version = "1.0", optional = true }
 eyre = { version = ">= 0.4, < 0.7", optional = true }
-hashbrown = { version = ">= 0.9, < 0.12", optional = true }
+hashbrown = { version = ">= 0.9, < 0.13", optional = true }
 indexmap = { version = ">= 1.6, < 1.8", optional = true }
 num-bigint = { version = "0.4", optional = true }
 num-complex = { version = ">= 0.2, < 0.5", optional = true }
@@ -47,6 +47,7 @@ rustversion = "1.0"
 # 1.0.0 requires Rust 1.50
 proptest = { version = "0.10.1", default-features = false, features = ["std"] }
 send_wrapper = "0.5"
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.61"
 
 [build-dependencies]

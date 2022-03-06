@@ -6,6 +6,17 @@ PyO3 versions, please see the [migration guide](https://pyo3.rs/latest/migration
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Packaging
+
+- Extend `hashbrown` optional dependency supported versions to include 0.12. [#2197](https://github.com/PyO3/pyo3/pull/2197)
+
+### Fixed
+
+- Fix incorrect platform detection for Windows in `pyo3-build-config`. [#2198](https://github.com/PyO3/pyo3/pull/2198)
+- Fix cross compiling to aarch64 macOS. [#2201](https://github.com/PyO3/pyo3/pull/2201)
+
 ## [0.16.0] - 2022-02-27
 
 ### Packaging
@@ -55,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - internal `handle_panic` helper [#2074](https://github.com/PyO3/pyo3/pull/2074) [#2158](https://github.com/PyO3/pyo3/pull/2158)
   - `#[pyfunction]` and `#[pymethods]` argument extraction [#2075](https://github.com/PyO3/pyo3/pull/2075) [#2085](https://github.com/PyO3/pyo3/pull/2085)
   - `#[pyclass]` type object creation [#2076](https://github.com/PyO3/pyo3/pull/2076) [#2081](https://github.com/PyO3/pyo3/pull/2081) [#2157](https://github.com/PyO3/pyo3/pull/2157)
+- Respect Rust privacy rules for items wrapped with `wrap_pyfunction` and `wrap_pymodule`. [#2081](https://github.com/PyO3/pyo3/pull/2081)
 - Add modulo argument to `__ipow__` magic method. [#2083](https://github.com/PyO3/pyo3/pull/2083)
 - Fix FFI definition for `_PyCFunctionFast`. [#2126](https://github.com/PyO3/pyo3/pull/2126)
 - `PyDateTimeAPI` and `PyDateTime_TimeZone_UTC` are are now unsafe functions instead of statics. [#2126](https://github.com/PyO3/pyo3/pull/2126)

@@ -173,7 +173,7 @@ jobs:
         name: Prepare minimal package versions (MSRV only)
         run: |
           cargo update -p indexmap --precise 1.6.2
-          cargo update -p hashbrown:0.11.2 --precise 0.9.1
+          cargo update -p hashbrown:0.12.0 --precise 0.9.1
 
       - name: Build docs
         run: cargo doc --no-deps --no-default-features --features "full ${{ matrix.extra_features }}"
@@ -242,6 +242,13 @@ jobs:
         with:
           target: aarch64-unknown-linux-gnu
           manylinux: auto
+          args: --release -i python3.9 --no-sdist -m examples/maturin-starter/Cargo.toml
+
+      - name: Test cross compilation
+        if: ${{ matrix.platform.os == 'macos-latest' && matrix.python-version == '3.9' }}
+        uses: messense/maturin-action@v1
+        with:
+          target: aarch64-apple-darwin
           args: --release -i python3.9 --no-sdist -m examples/maturin-starter/Cargo.toml
 
     env:

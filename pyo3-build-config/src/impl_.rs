@@ -188,7 +188,7 @@ def print_if_set(varname, value):
         print(varname, value)
 
 # Windows always uses shared linking
-WINDOWS = hasattr(platform, "win32_ver")
+WINDOWS = platform.system() == "Windows"
 
 # macOS framework packages use shared linking
 FRAMEWORK = bool(get_config_var("PYTHONFRAMEWORK"))
@@ -623,7 +623,16 @@ pub fn cross_compiling(
     let cross_lib_dir = env_var("PYO3_CROSS_LIB_DIR");
     let cross_python_version = env_var("PYO3_CROSS_PYTHON_VERSION");
 
-    let target_triple = format!("{}-{}-{}", target_arch, target_vendor, target_os);
+    let target_triple = format!(
+        "{}-{}-{}",
+        target_arch,
+        target_vendor,
+        if target_os == "macos" {
+            "darwin"
+        } else {
+            target_os
+        }
+    );
 
     if cross.is_none() && cross_lib_dir.is_none() && cross_python_version.is_none() {
         // No cross-compiling environment variables set; try to determine if this is a known case
@@ -755,7 +764,7 @@ impl BuildFlags {
         let mut script = String::from("import sysconfig\n");
         script.push_str("config = sysconfig.get_config_vars()\n");
 
-        for k in BuildFlags::ALL.iter() {
+        for k in &BuildFlags::ALL {
             script.push_str(&format!("print(config.get('{}', '0'))\n", k));
         }
 
@@ -793,10 +802,10 @@ impl Display for BuildFlags {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut first = true;
         for flag in &self.0 {
-            if !first {
-                write!(f, ",")?;
-            } else {
+            if first {
                 first = false;
+            } else {
+                write!(f, ",")?;
             }
             write!(f, "{}", flag)?;
         }
