@@ -844,32 +844,6 @@
 <span id="839">839</span>
 <span id="840">840</span>
 <span id="841">841</span>
-<span id="842">842</span>
-<span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
-<span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
-<span id="851">851</span>
-<span id="852">852</span>
-<span id="853">853</span>
-<span id="854">854</span>
-<span id="855">855</span>
-<span id="856">856</span>
-<span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
@@ -1141,33 +1115,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>))]</span>
     <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">extract_sequence</span>(<span class="ident">obj</span>)
-    }
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>)]</span>
-    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">extract_sequence</span>(<span class="ident">obj</span>)
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>)))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;source</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;source</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::buffer::Element</span>,
-{
-    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;source</span> <span class="ident">PyAny</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="comment">// first try buffer protocol</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">buf</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::buffer::PyBuffer::get</span>(<span class="ident">obj</span>) {
-            <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">dimensions</span>() <span class="op">==</span> <span class="number">1</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">to_vec</span>(<span class="ident">obj</span>.<span class="ident">py</span>()) {
-                    <span class="ident">buf</span>.<span class="ident">release</span>(<span class="ident">obj</span>.<span class="ident">py</span>());
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>);
-                }
-            }
-            <span class="ident">buf</span>.<span class="ident">release</span>(<span class="ident">obj</span>.<span class="ident">py</span>());
-        }
-        <span class="comment">// fall back to sequence protocol</span>
         <span class="ident">extract_sequence</span>(<span class="ident">obj</span>)
     }
 }
@@ -1623,11 +1571,11 @@
             <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> <span class="ident">ob</span>.<span class="ident">cast_as</span>::<span class="op">&lt;</span><span class="ident">PySequence</span><span class="op">&gt;</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">rep_seq</span> <span class="op">=</span> <span class="ident">seq</span>.<span class="ident">in_place_repeat</span>(<span class="number">3</span>).<span class="ident">unwrap</span>();
             <span class="macro">assert_eq!</span>(<span class="number">6</span>, <span class="ident">seq</span>.<span class="ident">len</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">seq</span>, <span class="ident">rep_seq</span>);
+            <span class="macro">assert!</span>(<span class="ident">seq</span>.<span class="ident">is</span>(<span class="ident">rep_seq</span>));
 
             <span class="kw">let</span> <span class="ident">conc_seq</span> <span class="op">=</span> <span class="ident">seq</span>.<span class="ident">in_place_concat</span>(<span class="ident">seq</span>).<span class="ident">unwrap</span>();
             <span class="macro">assert_eq!</span>(<span class="number">12</span>, <span class="ident">seq</span>.<span class="ident">len</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">seq</span>, <span class="ident">conc_seq</span>);
+            <span class="macro">assert!</span>(<span class="ident">seq</span>.<span class="ident">is</span>(<span class="ident">conc_seq</span>));
         });
     }
 
@@ -1738,5 +1686,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

@@ -872,6 +872,18 @@
 <span id="867">867</span>
 <span id="868">868</span>
 <span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::panic::PanicException</span>;
@@ -912,6 +924,9 @@
     <span class="ident">state</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PyErrState</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
+<span class="comment">// The inner value is only accessed through ways that require proving the gil is held</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::marker::Ungil</span> <span class="kw">for</span> <span class="ident">PyErr</span> {}
 <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">PyErr</span> {}
 <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">PyErr</span> {}
 
@@ -1058,7 +1073,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Python::with_gil(|py| {</span>
     <span class="doccomment">///     let err: PyErr = PyTypeError::new_err((&quot;some type error&quot;,));</span>
-    <span class="doccomment">///     assert_eq!(err.get_type(py), PyType::new::&lt;PyTypeError&gt;(py));</span>
+    <span class="doccomment">///     assert!(err.get_type(py).is(PyType::new::&lt;PyTypeError&gt;(py)));</span>
     <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_type</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyType</span> {
@@ -1102,7 +1117,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Python::with_gil(|py| {</span>
     <span class="doccomment">///     let err = PyTypeError::new_err((&quot;some type error&quot;,));</span>
-    <span class="doccomment">///     assert_eq!(err.traceback(py), None);</span>
+    <span class="doccomment">///     assert!(err.traceback(py).is_none());</span>
     <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">traceback</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyTraceback</span><span class="op">&gt;</span> {
@@ -1340,9 +1355,12 @@
     <span class="doccomment">/// Python::with_gil(|py| {</span>
     <span class="doccomment">///     let err: PyErr = PyTypeError::new_err((&quot;some type error&quot;,));</span>
     <span class="doccomment">///     let err_clone = err.clone_ref(py);</span>
-    <span class="doccomment">///     assert_eq!(err.get_type(py), err_clone.get_type(py));</span>
-    <span class="doccomment">///     assert_eq!(err.value(py), err_clone.value(py));</span>
-    <span class="doccomment">///     assert_eq!(err.traceback(py), err_clone.traceback(py));</span>
+    <span class="doccomment">///     assert!(err.get_type(py).is(err_clone.get_type(py)));</span>
+    <span class="doccomment">///     assert!(err.value(py).is(err_clone.value(py)));</span>
+    <span class="doccomment">///     match err.traceback(py) {</span>
+    <span class="doccomment">///         None =&gt; assert!(err_clone.traceback(py).is_none()),</span>
+    <span class="doccomment">///         Some(tb) =&gt; assert!(err_clone.traceback(py).unwrap().is(tb)),</span>
+    <span class="doccomment">///     }</span>
     <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1577,7 +1595,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::PyErrState</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exceptions</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyErr</span>, <span class="ident">Python</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">PyErr</span>, <span class="ident">Python</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">no_error</span>() {
@@ -1728,19 +1746,25 @@
     <span class="kw">fn</span> <span class="ident">deprecations</span>() {
         <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">exceptions::PyValueError::new_err</span>(<span class="string">&quot;an error&quot;</span>);
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">ptype</span>(<span class="ident">py</span>), <span class="ident">err</span>.<span class="ident">get_type</span>(<span class="ident">py</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">pvalue</span>(<span class="ident">py</span>), <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">instance</span>(<span class="ident">py</span>), <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">ptraceback</span>(<span class="ident">py</span>), <span class="ident">err</span>.<span class="ident">traceback</span>(<span class="ident">py</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">ptype</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(), <span class="ident">err</span>.<span class="ident">get_type</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>());
+            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">pvalue</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(), <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>());
+            <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">instance</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(), <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>());
+            <span class="macro">assert_eq!</span>(
+                <span class="ident">err</span>.<span class="ident">ptraceback</span>(<span class="ident">py</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">as_ptr</span>()),
+                <span class="ident">err</span>.<span class="ident">traceback</span>(<span class="ident">py</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">as_ptr</span>())
+            );
 
             <span class="macro">assert_eq!</span>(
-                <span class="ident">err</span>.<span class="ident">clone_ref</span>(<span class="ident">py</span>).<span class="ident">into_instance</span>(<span class="ident">py</span>).<span class="ident">as_ref</span>(<span class="ident">py</span>),
-                <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>)
+                <span class="ident">err</span>.<span class="ident">clone_ref</span>(<span class="ident">py</span>).<span class="ident">into_instance</span>(<span class="ident">py</span>).<span class="ident">as_ref</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>()
             );
-            <span class="macro">assert_eq!</span>(<span class="ident">PyErr::from_instance</span>(<span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>)).<span class="ident">value</span>(<span class="ident">py</span>), <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>));
+            <span class="macro">assert_eq!</span>(
+                <span class="ident">PyErr::from_instance</span>(<span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>)).<span class="ident">value</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                <span class="ident">err</span>.<span class="ident">value</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>()
+            );
         });
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

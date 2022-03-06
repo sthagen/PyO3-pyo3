@@ -313,6 +313,24 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyObject</span>, <span class="ident">Py_ssize_t</span>};
 <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
 
@@ -324,7 +342,7 @@
     <span class="ident">pyport::PY_SSIZE_T_MAX</span>, <span class="ident">vectorcallfunc</span>, <span class="ident">PyCallable_Check</span>, <span class="ident">PyThreadState</span>, <span class="ident">PyThreadState_GET</span>,
     <span class="ident">PyTuple_Check</span>, <span class="ident">PyType_HasFeature</span>, <span class="ident">Py_TPFLAGS_HAVE_VECTORCALL</span>,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
 <span class="kw">use</span> <span class="ident">libc::size_t</span>;
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
@@ -416,17 +434,29 @@
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">Py_3_9</span>), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyObject_VectorcallDict&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_8</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">Py_3_9</span>), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyObject_Vectorcall&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_Vectorcall</span>(
+        <span class="ident">callable</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+        <span class="ident">args</span>: <span class="kw-2">*const</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+        <span class="ident">nargsf</span>: <span class="ident">size_t</span>,
+        <span class="ident">kwnames</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>), <span class="ident">not</span>(<span class="ident">Py_3_9</span>)), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyObject_VectorcallDict&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>)), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyObject_VectorcallDict&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_9</span>), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyObject_VectorcallDict&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyObject_VectorcallDict</span>(
         <span class="ident">callable</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
         <span class="ident">args</span>: <span class="kw-2">*const</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
         <span class="ident">nargsf</span>: <span class="ident">size_t</span>,
-        <span class="ident">kwargs</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+        <span class="ident">kwdict</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">Py_3_9</span>), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyVectorcall_Call&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_3_9</span>, <span class="ident">PyPy</span>)), <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyVectorcall_Call&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyVectorcall_Call&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyVectorcall_Call</span>(
         <span class="ident">callable</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
         <span class="ident">tuple</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
@@ -465,6 +495,12 @@
         <span class="number">0</span>,
         <span class="ident">std::ptr::null_mut</span>(),
     )
+}
+
+<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;_PyPyObject_CallNoArg&quot;</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyObject_CallNoArg</span>(<span class="ident">func</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
@@ -624,5 +660,5 @@
 
 <span class="comment">// skipped _PyNumber_Index(*mut PyObject o)</span>
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>
