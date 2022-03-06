@@ -295,6 +295,11 @@
 <span id="288">288</span>
 <span id="289">289</span>
 <span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
@@ -539,6 +544,11 @@
         }};
     }
 
+    <span class="macro">try_add_shared_slot!</span>(
+        <span class="string">&quot;__getattribute__&quot;</span>,
+        <span class="string">&quot;__getattr__&quot;</span>,
+        <span class="ident">generate_pyclass_getattro_slot</span>
+    );
     <span class="macro">try_add_shared_slot!</span>(<span class="string">&quot;__setattr__&quot;</span>, <span class="string">&quot;__delattr__&quot;</span>, <span class="ident">generate_pyclass_setattr_slot</span>);
     <span class="macro">try_add_shared_slot!</span>(<span class="string">&quot;__set__&quot;</span>, <span class="string">&quot;__delete__&quot;</span>, <span class="ident">generate_pyclass_setdescr_slot</span>);
     <span class="macro">try_add_shared_slot!</span>(<span class="string">&quot;__setitem__&quot;</span>, <span class="string">&quot;__delitem__&quot;</span>, <span class="ident">generate_pyclass_setitem_slot</span>);
@@ -586,5 +596,5 @@
         .<span class="ident">collect</span>()
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

@@ -1723,6 +1723,35 @@
 <span id="1716">1716</span>
 <span id="1717">1717</span>
 <span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
     <span class="ident">convert::AsRef</span>,
@@ -1913,7 +1942,7 @@ def print_if_set(varname, value):
         print(varname, value)
 
 # Windows always uses shared linking
-WINDOWS = hasattr(platform, &quot;win32_ver&quot;)
+WINDOWS = platform.system() == &quot;Windows&quot;
 
 # macOS framework packages use shared linking
 FRAMEWORK = bool(get_config_var(&quot;PYTHONFRAMEWORK&quot;))
@@ -2348,7 +2377,16 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
     <span class="kw">let</span> <span class="ident">cross_lib_dir</span> <span class="op">=</span> <span class="ident">env_var</span>(<span class="string">&quot;PYO3_CROSS_LIB_DIR&quot;</span>);
     <span class="kw">let</span> <span class="ident">cross_python_version</span> <span class="op">=</span> <span class="ident">env_var</span>(<span class="string">&quot;PYO3_CROSS_PYTHON_VERSION&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">target_triple</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}-{}-{}&quot;</span>, <span class="ident">target_arch</span>, <span class="ident">target_vendor</span>, <span class="ident">target_os</span>);
+    <span class="kw">let</span> <span class="ident">target_triple</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="string">&quot;{}-{}-{}&quot;</span>,
+        <span class="ident">target_arch</span>,
+        <span class="ident">target_vendor</span>,
+        <span class="kw">if</span> <span class="ident">target_os</span> <span class="op">==</span> <span class="string">&quot;macos&quot;</span> {
+            <span class="string">&quot;darwin&quot;</span>
+        } <span class="kw">else</span> {
+            <span class="ident">target_os</span>
+        }
+    );
 
     <span class="kw">if</span> <span class="ident">cross</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">cross_lib_dir</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">cross_python_version</span>.<span class="ident">is_none</span>() {
         <span class="comment">// No cross-compiling environment variables set; try to determine if this is a known case</span>
@@ -2480,7 +2518,7 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">script</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;import sysconfig\n&quot;</span>);
         <span class="ident">script</span>.<span class="ident">push_str</span>(<span class="string">&quot;config = sysconfig.get_config_vars()\n&quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">BuildFlags::ALL</span>.<span class="ident">iter</span>() {
+        <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">BuildFlags::ALL</span> {
             <span class="ident">script</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;print(config.get(&#39;{}&#39;, &#39;0&#39;))\n&quot;</span>, <span class="ident">k</span>));
         }
 
@@ -2518,10 +2556,10 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="kw">for</span> <span class="ident">flag</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
-            } <span class="kw">else</span> {
+            <span class="kw">if</span> <span class="ident">first</span> {
                 <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            } <span class="kw">else</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">flag</span>)<span class="question-mark">?</span>;
         }
@@ -2856,7 +2894,16 @@ for key, val in build_time_vars.items():
             <span class="prelude-val">Some</span>(<span class="ident">ld_version</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;python{}&quot;</span>, <span class="ident">ld_version</span>),
             <span class="prelude-val">None</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;python{}.{}&quot;</span>, <span class="ident">version</span>.<span class="ident">major</span>, <span class="ident">version</span>.<span class="ident">minor</span>),
         },
-        <span class="ident">PythonImplementation::PyPy</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;pypy{}-c&quot;</span>, <span class="ident">version</span>.<span class="ident">major</span>),
+        <span class="ident">PythonImplementation::PyPy</span> =&gt; {
+            <span class="kw">if</span> <span class="ident">version</span> <span class="op">&gt;</span><span class="op">=</span> (<span class="ident">PythonVersion</span> { <span class="ident">major</span>: <span class="number">3</span>, <span class="ident">minor</span>: <span class="number">9</span> }) {
+                <span class="kw">match</span> <span class="ident">ld_version</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">ld_version</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;pypy{}-c&quot;</span>, <span class="ident">ld_version</span>),
+                    <span class="prelude-val">None</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;pypy{}.{}-c&quot;</span>, <span class="ident">version</span>.<span class="ident">major</span>, <span class="ident">version</span>.<span class="ident">minor</span>),
+                }
+            } <span class="kw">else</span> {
+                <span class="macro">format!</span>(<span class="string">&quot;pypy{}-c&quot;</span>, <span class="ident">version</span>.<span class="ident">major</span>)
+            }
+        }
     }
 }
 
@@ -2962,6 +3009,11 @@ for key, val in build_time_vars.items():
     <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">InterpreterConfig</span>,
     <span class="ident">abi3_version</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PythonVersion</span><span class="op">&gt;</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// PyPy doesn&#39;t support abi3; don&#39;t adjust the version</span>
+    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">implementation</span>.<span class="ident">is_pypy</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    }
+
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">version</span>) <span class="op">=</span> <span class="ident">abi3_version</span> {
         <span class="macro">ensure!</span>(
             <span class="ident">version</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">config</span>.<span class="ident">version</span>,
@@ -3292,10 +3344,16 @@ for key, val in build_time_vars.items():
             <span class="string">&quot;python3.7md&quot;</span>,
         );
 
-        <span class="comment">// PyPy ignores ldversion</span>
+        <span class="comment">// PyPy 3.7 ignores ldversion</span>
         <span class="macro">assert_eq!</span>(
-            <span class="ident"><span class="kw">super</span>::default_lib_name_unix</span>(<span class="ident">PythonVersion</span> { <span class="ident">major</span>: <span class="number">3</span>, <span class="ident">minor</span>: <span class="number">9</span> }, <span class="ident">PyPy</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;3.7md&quot;</span>)),
+            <span class="ident"><span class="kw">super</span>::default_lib_name_unix</span>(<span class="ident">PythonVersion</span> { <span class="ident">major</span>: <span class="number">3</span>, <span class="ident">minor</span>: <span class="number">7</span> }, <span class="ident">PyPy</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;3.7md&quot;</span>)),
             <span class="string">&quot;pypy3-c&quot;</span>,
+        );
+
+        <span class="comment">// PyPy 3.9 includes ldversion</span>
+        <span class="macro">assert_eq!</span>(
+            <span class="ident"><span class="kw">super</span>::default_lib_name_unix</span>(<span class="ident">PythonVersion</span> { <span class="ident">major</span>: <span class="number">3</span>, <span class="ident">minor</span>: <span class="number">9</span> }, <span class="ident">PyPy</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;3.9d&quot;</span>)),
+            <span class="string">&quot;pypy3.9d-c&quot;</span>,
         );
     }
 
@@ -3442,5 +3500,5 @@ for key, val in build_time_vars.items():
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

@@ -783,7 +783,10 @@
 <span id="776">776</span>
 <span id="777">777</span>
 <span id="778">778</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+<span id="779">779</span>
+<span id="780">780</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
+<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Python Number Interface</span>
 <span class="doccomment">//! Trait and support implementation for implementing number protocol</span>
@@ -793,6 +796,7 @@
 
 <span class="doccomment">/// Number interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
+<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.16.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer `#[pymethods]` to `#[pyproto]`&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyNumberProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="kw">fn</span> <span class="ident">__add__</span>(<span class="ident">lhs</span>: <span class="ident"><span class="self">Self</span>::Left</span>, <span class="ident">rhs</span>: <span class="ident"><span class="self">Self</span>::Right</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
@@ -1562,5 +1566,5 @@
 <span class="macro">py_binary_reversed_num_func!</span>(<span class="ident">rmatmul</span>, <span class="ident">PyNumberRMatmulProtocol</span>, <span class="ident">T::__rmatmul__</span>);
 <span class="macro">py_binary_self_func!</span>(<span class="ident">imatmul</span>, <span class="ident">PyNumberIMatmulProtocol</span>, <span class="ident">T::__imatmul__</span>);
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

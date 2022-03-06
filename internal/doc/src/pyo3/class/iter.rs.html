@@ -80,7 +80,11 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
+<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! Python Iterator Interface.</span>
 <span class="doccomment">//! Trait and support implementation for implementing iterators</span>
 
@@ -98,6 +102,7 @@
 <span class="doccomment">/// the integers 1 to 5, before raising `StopIteration(&quot;Ended&quot;)`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// # #![allow(deprecated)]</span>
 <span class="doccomment">/// use pyo3::class::iter::IterNextOutput;</span>
 <span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">/// use pyo3::PyIterProtocol;</span>
@@ -125,6 +130,7 @@
 <span class="doccomment">/// # }); // test of StopIteration is done in pytests/src/pyclasses.rs</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
+<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.16.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer `#[pymethods]` to `#[pyproto]`&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyIterProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="kw">fn</span> <span class="ident">__iter__</span>(<span class="ident">slf</span>: <span class="ident"><span class="self">Self</span>::Receiver</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
@@ -156,5 +162,5 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass</span>::{<span class="ident">IterNextOutput</span>, <span class="ident">PyIterNextOutput</span>};
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

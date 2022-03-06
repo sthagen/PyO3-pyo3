@@ -855,6 +855,84 @@
 <span id="848">848</span>
 <span id="849">849</span>
 <span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions</span>::{<span class="ident">PyAttributeError</span>, <span class="ident">PyNotImplementedError</span>},
     <span class="ident">ffi</span>,
@@ -862,7 +940,7 @@
     <span class="ident">pycell::PyCellLayout</span>,
     <span class="ident">pyclass_init::PyObjectInit</span>,
     <span class="ident">type_object</span>::{<span class="ident">PyLayout</span>, <span class="ident">PyTypeObject</span>},
-    <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyResult</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>,
+    <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyResult</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">marker::PhantomData</span>,
@@ -1054,6 +1132,84 @@
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trait_name</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">PyClassImplCollector</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
     }
 }
+
+<span class="macro">slot_fragment_trait!</span> {
+    <span class="ident">PyClass__getattribute__SlotFragment</span>,
+
+    <span class="doccomment">/// # Safety: _slf and _attr must be valid non-null Python objects</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__getattribute__</span>(
+        <span class="self">self</span>,
+        <span class="ident">py</span>: <span class="ident">Python</span>,
+        <span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
+        <span class="ident">attr</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
+    ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">ffi::PyObject_GenericGetAttr</span>(<span class="ident">slf</span>, <span class="ident">attr</span>);
+        <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_null</span>() {
+            <span class="prelude-val">Err</span>(<span class="ident">PyErr::fetch</span>(<span class="ident">py</span>))
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+        }
+    }
+}
+
+<span class="macro">slot_fragment_trait!</span> {
+    <span class="ident">PyClass__getattr__SlotFragment</span>,
+
+    <span class="doccomment">/// # Safety: _slf and _attr must be valid non-null Python objects</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__getattr__</span>(
+        <span class="self">self</span>,
+        <span class="ident">py</span>: <span class="ident">Python</span>,
+        <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
+        <span class="ident">attr</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
+    ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">PyErr::new</span>::<span class="op">&lt;</span><span class="ident">PyAttributeError</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            (<span class="ident">Py</span>::<span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span><span class="ident">::from_borrowed_ptr</span>(<span class="ident">py</span>, <span class="ident">attr</span>),)
+        ))
+    }
+}
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">generate_pyclass_getattro_slot</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">cls</span>:<span class="ident">ty</span>) =&gt; {{
+        <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">__wrap</span>(
+            <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyObject</span>,
+            <span class="ident">attr</span>: <span class="kw-2">*mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyObject</span>,
+        ) -&gt; <span class="kw-2">*mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyObject</span> {
+            <span class="kw">use</span> <span class="ident">::std::result::Result</span>::<span class="kw-2">*</span>;
+            <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::impl_::pyclass</span>::<span class="kw-2">*</span>;
+            <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::GILPool::new</span>();
+            <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::callback::panic_result_into_callback_output</span>(
+                <span class="ident">py</span>,
+                <span class="ident">::std::panic::catch_unwind</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::PyResult</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">collector</span> <span class="op">=</span> <span class="ident">PyClassImplCollector</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">cls</span><span class="op">&gt;</span><span class="ident">::new</span>();
+
+                    <span class="comment">// Strategy:</span>
+                    <span class="comment">// - Try __getattribute__ first.  Its default is PyObject_GenericGetAttr.</span>
+                    <span class="comment">// - If it returns a result, use it.</span>
+                    <span class="comment">// - If it fails with AttributeError, try __getattr__.</span>
+                    <span class="comment">// - If it fails otherwise, reraise.</span>
+                    <span class="kw">match</span> <span class="ident">collector</span>.<span class="ident">__getattribute__</span>(<span class="ident">py</span>, <span class="ident">_slf</span>, <span class="ident">attr</span>) {
+                        <span class="prelude-val">Ok</span>(<span class="ident">obj</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">obj</span>),
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">is_instance_of</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::exceptions::PyAttributeError</span><span class="op">&gt;</span>(<span class="ident">py</span>) =&gt; {
+                            <span class="ident">collector</span>.<span class="ident">__getattr__</span>(<span class="ident">py</span>, <span class="ident">_slf</span>, <span class="ident">attr</span>)
+                        }
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                    }
+                }),
+            )
+        }
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyType_Slot</span> {
+            <span class="ident">slot</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::Py_tp_getattro</span>,
+            <span class="ident">pfunc</span>: <span class="ident">__wrap</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::getattrofunc</span> <span class="kw">as</span> <span class="kw">_</span>,
+        }
+    }};
+}
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">generate_pyclass_getattro_slot</span>;
 
 <span class="doccomment">/// Macro which expands to three items</span>
 <span class="doccomment">/// - Trait for a __setitem__ dunder</span>
@@ -1626,12 +1782,12 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PyClassThreadChecker</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ThreadCheckerImpl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">ensure</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">if</span> <span class="ident">thread::current</span>().<span class="ident">id</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="macro">panic!</span>(
-                <span class="string">&quot;{} is unsendable, but sent to another thread!&quot;</span>,
-                <span class="ident">std::any::type_name</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
-            );
-        }
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">thread::current</span>().<span class="ident">id</span>(),
+            <span class="self">self</span>.<span class="number">0</span>,
+            <span class="string">&quot;{} is unsendable, but sent to another thread!&quot;</span>,
+            <span class="ident">std::any::type_name</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+        );
     }
     <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">ThreadCheckerImpl</span>(<span class="ident">thread::current</span>().<span class="ident">id</span>(), <span class="ident">PhantomData</span>)
@@ -1706,5 +1862,5 @@
     <span class="ident">result</span>
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

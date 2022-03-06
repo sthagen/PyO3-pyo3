@@ -1186,7 +1186,7 @@
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> [(<span class="number">7</span>, <span class="number">32</span>)].<span class="ident">into_py_dict</span>(<span class="ident">py</span>);
             <span class="macro">assert_eq!</span>(<span class="number">32</span>, <span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">7i32</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">8i32</span>));
+            <span class="macro">assert!</span>(<span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">8i32</span>).<span class="ident">is_none</span>());
             <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> [(<span class="number">7</span>, <span class="number">32</span>)].<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">map</span>, <span class="ident">dict</span>.<span class="ident">extract</span>().<span class="ident">unwrap</span>());
             <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> [(<span class="number">7</span>, <span class="number">32</span>)].<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
@@ -1225,7 +1225,7 @@
 
             <span class="kw">let</span> <span class="ident">ndict</span> <span class="op">=</span> <span class="ident">dict</span>.<span class="ident">copy</span>().<span class="ident">unwrap</span>();
             <span class="macro">assert_eq!</span>(<span class="number">32</span>, <span class="ident">ndict</span>.<span class="ident">get_item</span>(<span class="number">7i32</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ndict</span>.<span class="ident">get_item</span>(<span class="number">8i32</span>));
+            <span class="macro">assert!</span>(<span class="ident">ndict</span>.<span class="ident">get_item</span>(<span class="number">8i32</span>).<span class="ident">is_none</span>());
         });
     }
 
@@ -1263,7 +1263,7 @@
             <span class="kw">let</span> <span class="ident">ob</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
             <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyDict</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
             <span class="macro">assert_eq!</span>(<span class="number">32</span>, <span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">7i32</span>).<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">8i32</span>));
+            <span class="macro">assert!</span>(<span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">8i32</span>).<span class="ident">is_none</span>());
         });
     }
 
@@ -1326,7 +1326,7 @@
             <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PyDict</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">ob</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
             <span class="macro">assert!</span>(<span class="ident">dict</span>.<span class="ident">del_item</span>(<span class="number">7i32</span>).<span class="ident">is_ok</span>());
             <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">dict</span>.<span class="ident">len</span>());
-            <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">7i32</span>));
+            <span class="macro">assert!</span>(<span class="ident">dict</span>.<span class="ident">get_item</span>(<span class="number">7i32</span>).<span class="ident">is_none</span>());
         });
     }
 
@@ -1590,5 +1590,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

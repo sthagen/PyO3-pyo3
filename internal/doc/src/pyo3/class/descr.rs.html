@@ -54,7 +54,10 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+<span id="50">50</span>
+<span id="51">51</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
+<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Python Description Interface</span>
 <span class="doccomment">//!</span>
@@ -67,6 +70,7 @@
 
 <span class="doccomment">/// Descriptor interface</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
+<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.16.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;prefer `#[pymethods]` to `#[pyproto]`&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyDescrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyClass</span> {
     <span class="kw">fn</span> <span class="ident">__get__</span>(
         <span class="ident">slf</span>: <span class="ident"><span class="self">Self</span>::Receiver</span>,
@@ -104,5 +108,5 @@
 <span class="macro">py_ternarys_func!</span>(<span class="ident">descr_get</span>, <span class="ident">PyDescrGetProtocol</span>, <span class="ident"><span class="self">Self</span>::__get__</span>);
 <span class="macro">py_ternarys_func!</span>(<span class="ident">descr_set</span>, <span class="ident">PyDescrSetProtocol</span>, <span class="ident"><span class="self">Self</span>::__set__</span>, <span class="ident">c_int</span>);
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

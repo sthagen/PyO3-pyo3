@@ -48,6 +48,9 @@
 <span id="41">41</span>
 <span id="42">42</span>
 <span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span>};
 <span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote_spanned</span>, <span class="ident">ToTokens</span>};
 
@@ -85,12 +88,15 @@
             <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">deprecation</span>.<span class="ident">ident</span>(<span class="kw-2">*</span><span class="ident">span</span>);
             <span class="macro">quote_spanned!</span>(
                 <span class="kw-2">*</span><span class="ident">span</span> =&gt;
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">_pyo3::impl_::deprecations</span>::#<span class="ident">ident</span>;
+                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::let_unit_value</span>)]</span>
+                {
+                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">_pyo3::impl_::deprecations</span>::#<span class="ident">ident</span>;
+                }
             )
             .<span class="ident">to_tokens</span>(<span class="ident">tokens</span>)
         }
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

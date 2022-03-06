@@ -1084,7 +1084,7 @@
         }
     }
 
-    <span class="doccomment">/// Adda single expression from the comma separated list in the attribute, which is</span>
+    <span class="doccomment">/// Add a single expression from the comma separated list in the attribute, which is</span>
     <span class="doccomment">/// either a single word or an assignment expression</span>
     <span class="kw">fn</span> <span class="ident">add_expr</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">expr</span>: <span class="kw-2">&amp;</span><span class="ident">Expr</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">expr</span> {
@@ -1487,7 +1487,7 @@
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> (<span class="ident">get_class_python_name</span>(<span class="kw-2">&amp;</span><span class="ident">enum_</span>.<span class="ident">ident</span>, <span class="ident">args</span>), <span class="ident">attr</span>)),
     );
     <span class="kw">let</span> <span class="ident">enum_</span> <span class="op">=</span> <span class="ident">PyClassEnum::new</span>(<span class="ident">enum_</span>)<span class="question-mark">?</span>;
-    <span class="ident">impl_enum</span>(<span class="ident">enum_</span>, <span class="ident">args</span>, <span class="ident">doc</span>, <span class="ident">method_type</span>, <span class="ident">options</span>)
+    <span class="prelude-val">Ok</span>(<span class="ident">impl_enum</span>(<span class="ident">enum_</span>, <span class="ident">args</span>, <span class="ident">doc</span>, <span class="ident">method_type</span>, <span class="ident">options</span>))
 }
 
 <span class="kw">fn</span> <span class="ident">impl_enum</span>(
@@ -1496,7 +1496,7 @@
     <span class="ident">doc</span>: <span class="ident">PythonDoc</span>,
     <span class="ident">methods_type</span>: <span class="ident">PyClassMethodsType</span>,
     <span class="ident">options</span>: <span class="ident">PyClassPyO3Options</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">krate</span> <span class="op">=</span> <span class="ident">get_pyo3_crate</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">krate</span>);
     <span class="ident">impl_enum_class</span>(<span class="ident">enum_</span>, <span class="ident">args</span>, <span class="ident">doc</span>, <span class="ident">methods_type</span>, <span class="ident">krate</span>)
 }
@@ -1507,7 +1507,7 @@
     <span class="ident">doc</span>: <span class="ident">PythonDoc</span>,
     <span class="ident">methods_type</span>: <span class="ident">PyClassMethodsType</span>,
     <span class="ident">krate</span>: <span class="ident">syn::Path</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="ident">enum_</span>.<span class="ident">ident</span>;
     <span class="kw">let</span> <span class="ident">variants</span> <span class="op">=</span> <span class="ident">enum_</span>.<span class="ident">variants</span>;
     <span class="kw">let</span> <span class="ident">pytypeinfo</span> <span class="op">=</span> <span class="ident">impl_pytypeinfo</span>(<span class="ident">cls</span>, <span class="ident">args</span>, <span class="prelude-val">None</span>);
@@ -1602,7 +1602,7 @@
     .<span class="ident">doc</span>(<span class="ident">doc</span>)
     .<span class="ident">impl_all</span>();
 
-    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
+    <span class="macro">quote!</span> {
         <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
             <span class="kw">use</span> #<span class="ident">krate</span> <span class="kw">as</span> <span class="ident">_pyo3</span>;
 
@@ -1614,7 +1614,7 @@
                 #(#<span class="ident">default_methods</span>)<span class="op">*</span>
             }
         };
-    })
+    }
 }
 
 <span class="kw">fn</span> <span class="ident">enum_default_methods</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
@@ -2018,5 +2018,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

@@ -557,6 +557,29 @@
 <span id="550">550</span>
 <span id="551">551</span>
 <span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">attributes</span>::{<span class="self">self</span>, <span class="ident">get_pyo3_options</span>, <span class="ident">CrateAttribute</span>, <span class="ident">FromPyWithAttribute</span>},
     <span class="ident">utils::get_pyo3_crate</span>,
@@ -665,8 +688,9 @@
     <span class="ident">StructNewtype</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Ident</span>),
     <span class="doccomment">/// Tuple struct, e.g. `struct Foo(String)`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Fields are extracted from a tuple.</span>
-    <span class="ident">Tuple</span>(<span class="ident">usize</span>),
+    <span class="doccomment">/// Variant contains a list of conversion methods for each of the fields that are directly</span>
+    <span class="doccomment">///  extracted from the tuple.</span>
+    <span class="ident">Tuple</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FieldPyO3Attributes</span><span class="op">&gt;</span>),
     <span class="doccomment">/// Tuple newtype, e.g. `#[transparent] struct Foo(String)`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The wrapped field is directly extracted from the object.</span>
@@ -708,7 +732,15 @@
             (<span class="ident">Fields::Unnamed</span>(<span class="kw">_</span>), <span class="bool-val">true</span>) =&gt; <span class="ident">ContainerType::TupleNewtype</span>,
             (<span class="ident">Fields::Unnamed</span>(<span class="ident">unnamed</span>), <span class="bool-val">false</span>) =&gt; <span class="kw">match</span> <span class="ident">unnamed</span>.<span class="ident">unnamed</span>.<span class="ident">len</span>() {
                 <span class="number">1</span> =&gt; <span class="ident">ContainerType::TupleNewtype</span>,
-                <span class="ident">len</span> =&gt; <span class="ident">ContainerType::Tuple</span>(<span class="ident">len</span>),
+                <span class="kw">_</span> =&gt; {
+                    <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">unnamed</span>
+                        .<span class="ident">unnamed</span>
+                        .<span class="ident">iter</span>()
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> <span class="ident">FieldPyO3Attributes::from_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">attrs</span>))
+                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+
+                    <span class="ident">ContainerType::Tuple</span>(<span class="ident">fields</span>)
+                }
             },
             (<span class="ident">Fields::Named</span>(<span class="ident">named</span>), <span class="bool-val">true</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">field</span> <span class="op">=</span> <span class="ident">named</span>
@@ -755,7 +787,7 @@
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span> {
             <span class="ident">ContainerType::StructNewtype</span>(<span class="ident">ident</span>) =&gt; <span class="self">self</span>.<span class="ident">build_newtype_struct</span>(<span class="prelude-val">Some</span>(<span class="ident">ident</span>)),
             <span class="ident">ContainerType::TupleNewtype</span> =&gt; <span class="self">self</span>.<span class="ident">build_newtype_struct</span>(<span class="prelude-val">None</span>),
-            <span class="ident">ContainerType::Tuple</span>(<span class="ident">len</span>) =&gt; <span class="self">self</span>.<span class="ident">build_tuple_struct</span>(<span class="kw-2">*</span><span class="ident">len</span>),
+            <span class="ident">ContainerType::Tuple</span>(<span class="ident">tups</span>) =&gt; <span class="self">self</span>.<span class="ident">build_tuple_struct</span>(<span class="ident">tups</span>),
             <span class="ident">ContainerType::Struct</span>(<span class="ident">tups</span>) =&gt; <span class="self">self</span>.<span class="ident">build_struct</span>(<span class="ident">tups</span>),
         }
     }
@@ -792,19 +824,33 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">build_tuple_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">TokenStream</span> {
+    <span class="kw">fn</span> <span class="ident">build_tuple_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tups</span>: <span class="kw-2">&amp;</span>[<span class="ident">FieldPyO3Attributes</span>]) -&gt; <span class="ident">TokenStream</span> {
         <span class="kw">let</span> <span class="ident">self_ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">TokenStream</span>, <span class="macro">syn::Token!</span>[,]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Punctuated::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">len</span> {
-            <span class="kw">let</span> <span class="ident">error_msg</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;failed to extract field {}.{}&quot;</span>, <span class="macro">quote!</span>(#<span class="ident">self_ty</span>), <span class="ident">i</span>);
-            <span class="ident">fields</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(
-                <span class="ident">s</span>.<span class="ident">get_item</span>(#<span class="ident">i</span>).<span class="ident">and_then</span>(<span class="ident">_pyo3::types::PyAny::extract</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">_pyo3::PyNativeType::py</span>(<span class="ident">obj</span>);
-                <span class="kw">let</span> <span class="ident">new_err</span> <span class="op">=</span> <span class="ident">_pyo3::exceptions::PyTypeError::new_err</span>(#<span class="ident">error_msg</span>);
-                <span class="ident">new_err</span>.<span class="ident">set_cause</span>(<span class="ident">py</span>, <span class="ident">::std::option::Option::Some</span>(<span class="ident">inner</span>));
-                <span class="ident">new_err</span>
-                })<span class="question-mark">?</span>));
+        <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">attrs</span>) <span class="kw">in</span> <span class="ident">tups</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">let</span> <span class="ident">error_msg</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;failed to extract field {}.{}&quot;</span>, <span class="macro">quote!</span>(#<span class="ident">self_ty</span>), <span class="ident">index</span>);
+
+            <span class="kw">let</span> <span class="ident">parsed_item</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">attrs</span>.<span class="ident">from_py_with</span> {
+                <span class="prelude-val">None</span> =&gt; <span class="macro">quote!</span>(
+                    <span class="ident">obj</span>.<span class="ident">get_item</span>(#<span class="ident">index</span>)<span class="question-mark">?</span>.<span class="ident">extract</span>()
+                ),
+                <span class="prelude-val">Some</span>(<span class="ident">FromPyWithAttribute</span>(<span class="ident">expr_path</span>)) =&gt; <span class="macro">quote!</span> (
+                    #<span class="ident">expr_path</span>(<span class="ident">obj</span>.<span class="ident">get_item</span>(#<span class="ident">index</span>)<span class="question-mark">?</span>)
+                ),
+            };
+
+            <span class="kw">let</span> <span class="ident">extractor</span> <span class="op">=</span> <span class="macro">quote!</span>(
+                #<span class="ident">parsed_item</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">_pyo3::PyNativeType::py</span>(<span class="ident">obj</span>);
+                    <span class="kw">let</span> <span class="ident">new_err</span> <span class="op">=</span> <span class="ident">_pyo3::exceptions::PyTypeError::new_err</span>(#<span class="ident">error_msg</span>);
+                    <span class="ident">new_err</span>.<span class="ident">set_cause</span>(<span class="ident">py</span>, <span class="ident">::std::option::Option::Some</span>(<span class="ident">inner</span>));
+                    <span class="ident">new_err</span>
+                })<span class="question-mark">?</span>
+            );
+
+            <span class="ident">fields</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(#<span class="ident">extractor</span>));
         }
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">tups</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_enum_variant</span> {
             <span class="macro">quote!</span>(<span class="macro">::std::format!</span>(
                 <span class="string">&quot;expected tuple of length {}, but got length {}&quot;</span>,
@@ -1110,5 +1156,5 @@
     ))
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

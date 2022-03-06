@@ -14,9 +14,9 @@
 }</code></pre></div>
 </div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A convenient macro to execute a Python code snippet, with some local variables set.</p>
 <h2 id="panics"><a href="#panics">Panics</a></h2>
-<p>This macro internally calls <a href="prelude/struct.Python.html#method.run"><code>Python::run</code></a> and panics
+<p>This macro internally calls <a href="marker/struct.Python.html#method.run"><code>Python::run</code></a> and panics
 if it returns <code>Err</code>, after printing the error to stdout.</p>
-<p>If you need to handle failures, please use <a href="prelude/struct.Python.html#method.run"><code>Python::run</code></a> instead.</p>
+<p>If you need to handle failures, please use <a href="marker/struct.Python.html#method.run"><code>Python::run</code></a> instead.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">py_run</span>, <span class="ident">types::PyList</span>};
 
@@ -79,5 +79,5 @@ if it returns <code>Err</code>, after printing the error to stdout.</p>
     <span class="kw">let</span> <span class="ident">locals</span> <span class="op">=</span> [(<span class="string">&quot;C&quot;</span>, <span class="ident">py</span>.<span class="ident">get_type</span>::<span class="op">&lt;</span><span class="ident">MyClass</span><span class="op">&gt;</span>())].<span class="ident">into_py_dict</span>(<span class="ident">py</span>);
     <span class="macro">pyo3::py_run!</span>(<span class="ident">py</span>, <span class="kw-2">*</span><span class="ident">locals</span>, <span class="string">&quot;c = C()&quot;</span>);
 });</code></pre></div>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

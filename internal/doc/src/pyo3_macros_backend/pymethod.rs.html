@@ -1159,13 +1159,6 @@
 <span id="1152">1152</span>
 <span id="1153">1153</span>
 <span id="1154">1154</span>
-<span id="1155">1155</span>
-<span id="1156">1156</span>
-<span id="1157">1157</span>
-<span id="1158">1158</span>
-<span id="1159">1159</span>
-<span id="1160">1160</span>
-<span id="1161">1161</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -1206,7 +1199,6 @@
     <span class="kw">fn</span> <span class="ident">from_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">name</span> {
             <span class="comment">// Protocol implemented through slots</span>
-            <span class="string">&quot;__getattr__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__GETATTR__</span>)),
             <span class="string">&quot;__str__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__STR__</span>)),
             <span class="string">&quot;__repr__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__REPR__</span>)),
             <span class="string">&quot;__hash__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__HASH__</span>)),
@@ -1221,6 +1213,12 @@
             <span class="string">&quot;__contains__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__CONTAINS__</span>)),
             <span class="string">&quot;__concat__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__CONCAT__</span>)),
             <span class="string">&quot;__repeat__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__REPEAT__</span>)),
+            <span class="string">&quot;__inplace_concat__&quot;</span> =&gt; {
+                <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__INPLACE_CONCAT__</span>))
+            }
+            <span class="string">&quot;__inplace_repeat__&quot;</span> =&gt; {
+                <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__INPLACE_REPEAT__</span>))
+            }
             <span class="string">&quot;__getitem__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__GETITEM__</span>)),
             <span class="string">&quot;__pos__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__POS__</span>)),
             <span class="string">&quot;__neg__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__NEG__</span>)),
@@ -1247,6 +1245,10 @@
             <span class="string">&quot;__releasebuffer__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__RELEASEBUFFER__</span>)),
             <span class="string">&quot;__clear__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::Slot</span>(<span class="kw-2">&amp;</span><span class="ident">__CLEAR__</span>)),
             <span class="comment">// Protocols implemented through traits</span>
+            <span class="string">&quot;__getattribute__&quot;</span> =&gt; {
+                <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::SlotFragment</span>(<span class="kw-2">&amp;</span><span class="ident">__GETATTRIBUTE__</span>))
+            }
+            <span class="string">&quot;__getattr__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::SlotFragment</span>(<span class="kw-2">&amp;</span><span class="ident">__GETATTR__</span>)),
             <span class="string">&quot;__setattr__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::SlotFragment</span>(<span class="kw-2">&amp;</span><span class="ident">__SETATTR__</span>)),
             <span class="string">&quot;__delattr__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::SlotFragment</span>(<span class="kw-2">&amp;</span><span class="ident">__DELATTR__</span>)),
             <span class="string">&quot;__set__&quot;</span> =&gt; <span class="ident">PyMethodKind::Proto</span>(<span class="ident">PyMethodProtoKind::SlotFragment</span>(<span class="kw-2">&amp;</span><span class="ident">__SET__</span>)),
@@ -1352,7 +1354,7 @@
                     <span class="ident">GeneratedPyMethod::Proto</span>(<span class="ident">impl_call_slot</span>(<span class="ident">cls</span>, <span class="ident">method</span>.<span class="ident">spec</span>)<span class="question-mark">?</span>)
                 }
                 <span class="ident">PyMethodProtoKind::Traverse</span> =&gt; {
-                    <span class="ident">GeneratedPyMethod::Proto</span>(<span class="ident">impl_traverse_slot</span>(<span class="ident">cls</span>, <span class="ident">method</span>.<span class="ident">spec</span>)<span class="question-mark">?</span>)
+                    <span class="ident">GeneratedPyMethod::Proto</span>(<span class="ident">impl_traverse_slot</span>(<span class="ident">cls</span>, <span class="ident">method</span>.<span class="ident">spec</span>))
                 }
                 <span class="ident">PyMethodProtoKind::SlotFragment</span>(<span class="ident">slot_fragment_def</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">proto</span> <span class="op">=</span> <span class="ident">slot_fragment_def</span>.<span class="ident">generate_pyproto_fragment</span>(<span class="ident">cls</span>, <span class="ident">spec</span>)<span class="question-mark">?</span>;
@@ -1466,9 +1468,9 @@
     }})
 }
 
-<span class="kw">fn</span> <span class="ident">impl_traverse_slot</span>(<span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>, <span class="ident">spec</span>: <span class="ident">FnSpec</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">impl_traverse_slot</span>(<span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>, <span class="ident">spec</span>: <span class="ident">FnSpec</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">name</span>;
-    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {{
+    <span class="macro">quote!</span> {{
         <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">__wrap_</span>(
             <span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">_pyo3::ffi::PyObject</span>,
             <span class="ident">visit</span>: <span class="ident">_pyo3::ffi::visitproc</span>,
@@ -1483,7 +1485,7 @@
                 <span class="kw">let</span> <span class="ident">visit</span> <span class="op">=</span> <span class="ident">_pyo3::class::gc::PyVisit::from_raw</span>(<span class="ident">visit</span>, <span class="ident">arg</span>, <span class="ident">py</span>);
                 <span class="kw">let</span> <span class="ident">borrow</span> <span class="op">=</span> <span class="ident">slf</span>.<span class="ident">try_borrow</span>();
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">::std::result::Result::Ok</span>(<span class="ident">borrow</span>) <span class="op">=</span> <span class="ident">borrow</span> {
-                    <span class="ident">_pyo3::class::gc::unwrap_traverse_result</span>(<span class="ident">borrow</span>.#<span class="ident">ident</span>(<span class="ident">visit</span>))
+                    <span class="ident">_pyo3::impl_::pymethods::unwrap_traverse_result</span>(<span class="ident">borrow</span>.#<span class="ident">ident</span>(<span class="ident">visit</span>))
                 } <span class="kw">else</span> {
                     <span class="number">0</span>
                 }
@@ -1493,7 +1495,7 @@
             <span class="ident">slot</span>: <span class="ident">_pyo3::ffi::Py_tp_traverse</span>,
             <span class="ident">pfunc</span>: <span class="ident">__wrap_</span> <span class="kw">as</span> <span class="ident">_pyo3::ffi::traverseproc</span> <span class="kw">as</span> <span class="kw">_</span>
         }
-    }})
+    }}
 }
 
 <span class="kw">fn</span> <span class="ident">impl_py_class_attribute</span>(<span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>, <span class="ident">spec</span>: <span class="kw-2">&amp;</span><span class="ident">FnSpec</span>) -&gt; <span class="ident">TokenStream</span> {
@@ -1732,21 +1734,6 @@
     }
 }
 
-<span class="kw">const</span> <span class="ident">__GETATTR__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_tp_getattro&quot;</span>, <span class="string">&quot;getattrofunc&quot;</span>)
-    .<span class="ident">arguments</span>(<span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>])
-    .<span class="ident">before_call_method</span>(<span class="ident">TokenGenerator</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="macro">quote!</span> {
-            <span class="comment">// Behave like python&#39;s __getattr__ (as opposed to __getattribute__) and check</span>
-            <span class="comment">// for existing fields and methods first</span>
-            <span class="kw">let</span> <span class="ident">existing</span> <span class="op">=</span> <span class="ident">_pyo3::ffi::PyObject_GenericGetAttr</span>(<span class="ident">_slf</span>, <span class="ident">arg0</span>);
-            <span class="kw">if</span> <span class="ident">existing</span>.<span class="ident">is_null</span>() {
-                <span class="comment">// PyObject_HasAttr also tries to get an object and clears the error if it fails</span>
-                <span class="ident">_pyo3::ffi::PyErr_Clear</span>();
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">existing</span>;
-            }
-        }
-    }));
 <span class="kw">const</span> <span class="ident">__STR__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_tp_str&quot;</span>, <span class="string">&quot;reprfunc&quot;</span>);
 <span class="kw">const</span> <span class="ident">__REPR__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_tp_repr&quot;</span>, <span class="string">&quot;reprfunc&quot;</span>);
 <span class="kw">const</span> <span class="ident">__HASH__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_tp_hash&quot;</span>, <span class="string">&quot;hashfunc&quot;</span>)
@@ -1774,6 +1761,10 @@
     .<span class="ident">ret_ty</span>(<span class="ident">Ty::Int</span>);
 <span class="kw">const</span> <span class="ident">__CONCAT__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_sq_concat&quot;</span>, <span class="string">&quot;binaryfunc&quot;</span>).<span class="ident">arguments</span>(<span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>]);
 <span class="kw">const</span> <span class="ident">__REPEAT__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_sq_repeat&quot;</span>, <span class="string">&quot;ssizeargfunc&quot;</span>).<span class="ident">arguments</span>(<span class="kw-2">&amp;</span>[<span class="ident">Ty::PySsizeT</span>]);
+<span class="kw">const</span> <span class="ident">__INPLACE_CONCAT__</span>: <span class="ident">SlotDef</span> <span class="op">=</span>
+    <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_sq_concat&quot;</span>, <span class="string">&quot;binaryfunc&quot;</span>).<span class="ident">arguments</span>(<span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>]);
+<span class="kw">const</span> <span class="ident">__INPLACE_REPEAT__</span>: <span class="ident">SlotDef</span> <span class="op">=</span>
+    <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_sq_repeat&quot;</span>, <span class="string">&quot;ssizeargfunc&quot;</span>).<span class="ident">arguments</span>(<span class="kw-2">&amp;</span>[<span class="ident">Ty::PySsizeT</span>]);
 <span class="kw">const</span> <span class="ident">__GETITEM__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_mp_subscript&quot;</span>, <span class="string">&quot;binaryfunc&quot;</span>).<span class="ident">arguments</span>(<span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>]);
 
 <span class="kw">const</span> <span class="ident">__POS__</span>: <span class="ident">SlotDef</span> <span class="op">=</span> <span class="ident">SlotDef::new</span>(<span class="string">&quot;Py_nb_positive&quot;</span>, <span class="string">&quot;unaryfunc&quot;</span>);
@@ -2028,7 +2019,6 @@
     <span class="ident">func_ty</span>: <span class="ident">StaticIdent</span>,
     <span class="ident">arguments</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">Ty</span>],
     <span class="ident">ret_ty</span>: <span class="ident">Ty</span>,
-    <span class="ident">before_call_method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenGenerator</span><span class="op">&gt;</span>,
     <span class="ident">extract_error_mode</span>: <span class="ident">ExtractErrorMode</span>,
     <span class="ident">return_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ReturnMode</span><span class="op">&gt;</span>,
     <span class="ident">require_unsafe</span>: <span class="ident">bool</span>,
@@ -2043,7 +2033,6 @@
             <span class="ident">func_ty</span>: <span class="ident">StaticIdent</span>(<span class="ident">func_ty</span>),
             <span class="ident">arguments</span>: <span class="ident">NO_ARGUMENTS</span>,
             <span class="ident">ret_ty</span>: <span class="ident">Ty::Object</span>,
-            <span class="ident">before_call_method</span>: <span class="prelude-val">None</span>,
             <span class="ident">extract_error_mode</span>: <span class="ident">ExtractErrorMode::Raise</span>,
             <span class="ident">return_mode</span>: <span class="prelude-val">None</span>,
             <span class="ident">require_unsafe</span>: <span class="bool-val">false</span>,
@@ -2057,11 +2046,6 @@
 
     <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">ret_ty</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ret_ty</span>: <span class="ident">Ty</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident">ret_ty</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">before_call_method</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">before_call_method</span>: <span class="ident">TokenGenerator</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">before_call_method</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">before_call_method</span>);
         <span class="self">self</span>
     }
 
@@ -2094,7 +2078,6 @@
         <span class="kw">let</span> <span class="ident">SlotDef</span> {
             <span class="ident">slot</span>,
             <span class="ident">func_ty</span>,
-            <span class="ident">before_call_method</span>,
             <span class="ident">arguments</span>,
             <span class="ident">extract_error_mode</span>,
             <span class="ident">ret_ty</span>,
@@ -2121,7 +2104,6 @@
         <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>({
             <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">__wrap</span>(<span class="ident">_raw_slf</span>: <span class="kw-2">*mut</span> <span class="ident">_pyo3::ffi::PyObject</span>, #(#<span class="ident">method_arguments</span>),<span class="kw-2">*</span>) -&gt; #<span class="ident">ret_ty</span> {
                 <span class="kw">let</span> <span class="ident">_slf</span> <span class="op">=</span> <span class="ident">_raw_slf</span>;
-                #<span class="ident">before_call_method</span>
                 <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">_pyo3::GILPool::new</span>();
                 <span class="kw">let</span> #<span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
                 <span class="ident">_pyo3::callback::panic_result_into_callback_output</span>(#<span class="ident">py</span>, <span class="ident">::std::panic::catch_unwind</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> -&gt; <span class="ident">_pyo3::PyResult</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> {
@@ -2232,6 +2214,10 @@
     }
 }
 
+<span class="kw">const</span> <span class="ident">__GETATTRIBUTE__</span>: <span class="ident">SlotFragmentDef</span> <span class="op">=</span>
+    <span class="ident">SlotFragmentDef::new</span>(<span class="string">&quot;__getattribute__&quot;</span>, <span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>]).<span class="ident">ret_ty</span>(<span class="ident">Ty::Object</span>);
+<span class="kw">const</span> <span class="ident">__GETATTR__</span>: <span class="ident">SlotFragmentDef</span> <span class="op">=</span>
+    <span class="ident">SlotFragmentDef::new</span>(<span class="string">&quot;__getattr__&quot;</span>, <span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>]).<span class="ident">ret_ty</span>(<span class="ident">Ty::Object</span>);
 <span class="kw">const</span> <span class="ident">__SETATTR__</span>: <span class="ident">SlotFragmentDef</span> <span class="op">=</span>
     <span class="ident">SlotFragmentDef::new</span>(<span class="string">&quot;__setattr__&quot;</span>, <span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>, <span class="ident">Ty::NonNullObject</span>]);
 <span class="kw">const</span> <span class="ident">__DELATTR__</span>: <span class="ident">SlotFragmentDef</span> <span class="op">=</span> <span class="ident">SlotFragmentDef::new</span>(<span class="string">&quot;__delattr__&quot;</span>, <span class="kw-2">&amp;</span>[<span class="ident">Ty::Object</span>]);
@@ -2328,5 +2314,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

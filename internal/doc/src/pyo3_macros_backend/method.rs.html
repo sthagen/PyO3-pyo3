@@ -1164,7 +1164,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>() {
+        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">attrs</span> {
             <span class="kw">match</span> <span class="ident">s</span> {
                 <span class="ident">Argument::Arg</span>(<span class="ident">path</span>, <span class="ident">opt</span>) <span class="op">|</span> <span class="ident">Argument::Kwarg</span>(<span class="ident">path</span>, <span class="ident">opt</span>) =&gt; {
                     <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="ident">name</span>) {
@@ -1181,7 +1181,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_pos_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>() {
+        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">attrs</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Argument::PosOnlyArg</span>(<span class="ident">path</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">s</span> {
                 <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="ident">name</span>) {
                     <span class="kw">return</span> <span class="bool-val">true</span>;
@@ -1192,7 +1192,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_kw_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>() {
+        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">attrs</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Argument::Kwarg</span>(<span class="ident">path</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">s</span> {
                 <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="ident">name</span>) {
                     <span class="kw">return</span> <span class="bool-val">true</span>;
@@ -1480,5 +1480,5 @@
 
 <span class="kw">const</span> <span class="ident">IMPL_TRAIT_ERR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;Python functions cannot have `impl Trait` arguments&quot;</span>;
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>

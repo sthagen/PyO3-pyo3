@@ -456,7 +456,14 @@
 <span id="449">449</span>
 <span id="450">450</span>
 <span id="451">451</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">specialization</span>))]</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">auto_traits</span>, <span class="ident">negative_impls</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc_auto_cfg</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(
     <span class="ident">docsrs</span>, <span class="comment">// rustdoc:: is not supported on msrv</span>
@@ -520,7 +527,10 @@
 <span class="doccomment">//! ## Default feature flags</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The following features are turned on by default:</span>
-<span class="doccomment">//! - `macros`: Enables various macros, including all the attribute macros.</span>
+<span class="doccomment">//! - `macros`: Enables various macros, including all the attribute macros excluding the deprecated</span>
+<span class="doccomment">//! `#[pyproto]` attribute.</span>
+<span class="doccomment">//! - `pyproto`: Adds the deprecated `#[pyproto]` attribute macro. Likely to become optional and</span>
+<span class="doccomment">//! then removed in the future.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Optional feature flags</span>
 <span class="doccomment">//!</span>
@@ -552,9 +562,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Unstable features</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! - `nightly`: Gates some optimizations that rely on</span>
-<span class="doccomment">//! [`#![feature(specialization)]`](https://github.com/rust-lang/rfcs/blob/master/text/1210-impl-specialization.md),</span>
-<span class="doccomment">//! for which you&#39;d also need nightly Rust. You should not use this feature.</span>
+<span class="doccomment">//! - `nightly`: Uses  `#![feature(auto_traits, negative_impls)]` to define [`Ungil`] as an auto trait.</span>
 <span class="comment">//</span>
 <span class="doccomment">//! ## `rustc` environment flags</span>
 <span class="doccomment">//!</span>
@@ -741,6 +749,7 @@
 <span class="doccomment">//! [Python from Rust]: https://github.com/PyO3/pyo3#using-python-from-rust</span>
 <span class="doccomment">//! [Rust from Python]: https://github.com/PyO3/pyo3#using-rust-from-python</span>
 <span class="doccomment">//! [Features chapter of the guide]: https://pyo3.rs/latest/features.html#features-reference &quot;Features Reference - PyO3 user guide&quot;</span>
+<span class="doccomment">//! [`Ungil`]: crate::marker::Ungil</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::class</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{
     <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">PyTryInto</span>,
@@ -751,18 +760,21 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil</span>::{<span class="ident">prepare_freethreaded_python</span>, <span class="ident">with_embedded_python_interpreter</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil</span>::{<span class="ident">GILGuard</span>, <span class="ident">GILPool</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::instance</span>::{<span class="ident">Py</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::marker::Python</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pycell</span>::{<span class="ident">PyCell</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::PyClass</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass_init::PyClassInitializer</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::python</span>::{<span class="ident">Python</span>, <span class="ident">PythonVersionInfo</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeInfo</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyAny</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::version::PythonVersionInfo</span>;
 
 <span class="comment">// Old directory layout, to be rethought?</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pyproto&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">class</span> {
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::impl_::pymethods</span> <span class="kw">as</span> <span class="ident">methods</span>;
+
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::gc</span>::{<span class="ident">PyTraverseError</span>, <span class="ident">PyVisit</span>};
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::methods</span>::{
@@ -779,6 +791,10 @@
 
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">iter</span> {
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass</span>::{<span class="ident">IterNextOutput</span>, <span class="ident">PyIterNextOutput</span>};
+    }
+
+    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gc</span> {
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::impl_::pymethods</span>::{<span class="ident">PyTraverseError</span>, <span class="ident">PyVisit</span>};
     }
 }
 
@@ -813,6 +829,7 @@
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">impl_</span>;
 <span class="kw">mod</span> <span class="ident">instance</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">marker</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">marshal</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">once_cell</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">panic</span>;
@@ -820,9 +837,10 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pycell</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass_init</span>;
-<span class="kw">mod</span> <span class="ident">python</span>;
+
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">type_object</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">types</span>;
+<span class="kw">mod</span> <span class="ident">version</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversions</span>::<span class="kw-2">*</span>;
 
@@ -864,49 +882,45 @@
         };
     }
 
-    <span class="macro">macro_rules!</span> <span class="macro-nonterminal">doctest</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
-            <span class="macro">doctest_impl!</span>(<span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="string">&quot;../&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>)), <span class="macro-nonterminal">$</span><span class="kw">mod</span>);
+    <span class="macro">macro_rules!</span> <span class="macro-nonterminal">doctests</span> {
+        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>:<span class="ident">expr</span> =&gt; <span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span>) =&gt; {
+            $(<span class="macro">doctest_impl!</span>(<span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="string">&quot;../&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">path</span>)), <span class="macro-nonterminal">$</span><span class="kw">mod</span>);)<span class="op">*</span>
         };
     }
 
-    <span class="macro">doctest!</span>(<span class="string">&quot;README.md&quot;</span>, <span class="macro-nonterminal">readme_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/advanced.md&quot;</span>, <span class="ident">guide_advanced_md</span>);
-    <span class="macro">doctest!</span>(
-        <span class="string">&quot;guide/src/building_and_distribution.md&quot;</span>,
-        <span class="ident">guide_building_and_distribution_md</span>
-    );
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/class.md&quot;</span>, <span class="ident">guide_class_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/class/protocols.md&quot;</span>, <span class="ident">guide_class_protocols_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/conversions.md&quot;</span>, <span class="ident">guide_conversions_md</span>);
-    <span class="macro">doctest!</span>(
-        <span class="string">&quot;guide/src/conversions/tables.md&quot;</span>,
-        <span class="ident">guide_conversions_tables_md</span>
-    );
+    <span class="macro">doctests!</span> {
+        <span class="string">&quot;README.md&quot;</span> =&gt; <span class="macro-nonterminal">readme_md</span>,
+        <span class="string">&quot;guide/src/advanced.md&quot;</span> =&gt; <span class="ident">guide_advanced_md</span>,
+        <span class="string">&quot;guide/src/building_and_distribution.md&quot;</span> =&gt; <span class="ident">guide_building_and_distribution_md</span>,
+        <span class="string">&quot;guide/src/building_and_distribution/multiple_python_versions.md&quot;</span> =&gt; <span class="ident">guide_bnd_multiple_python_versions_md</span>,
+        <span class="string">&quot;guide/src/class.md&quot;</span> =&gt; <span class="ident">guide_class_md</span>,
+        <span class="string">&quot;guide/src/class/call.md&quot;</span> =&gt; <span class="ident">guide_class_call</span>,
+        <span class="string">&quot;guide/src/class/object.md&quot;</span> =&gt; <span class="ident">guide_class_object</span>,
+        <span class="string">&quot;guide/src/class/numeric.md&quot;</span> =&gt; <span class="ident">guide_class_numeric</span>,
+        <span class="string">&quot;guide/src/class/protocols.md&quot;</span> =&gt; <span class="ident">guide_class_protocols_md</span>,
+        <span class="string">&quot;guide/src/conversions.md&quot;</span> =&gt; <span class="ident">guide_conversions_md</span>,
+        <span class="string">&quot;guide/src/conversions/tables.md&quot;</span> =&gt; <span class="ident">guide_conversions_tables_md</span>,
+        <span class="string">&quot;guide/src/conversions/traits.md&quot;</span> =&gt; <span class="ident">guide_conversions_traits_md</span>,
+        <span class="string">&quot;guide/src/debugging.md&quot;</span> =&gt; <span class="ident">guide_debugging_md</span>,
 
-    <span class="macro">doctest!</span>(
-        <span class="string">&quot;guide/src/conversions/traits.md&quot;</span>,
-        <span class="ident">guide_conversions_traits_md</span>
-    );
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/debugging.md&quot;</span>, <span class="ident">guide_debugging_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/exception.md&quot;</span>, <span class="ident">guide_exception_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/function.md&quot;</span>, <span class="ident">guide_function_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/migration.md&quot;</span>, <span class="ident">guide_migration_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/module.md&quot;</span>, <span class="ident">guide_module_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/parallelism.md&quot;</span>, <span class="ident">guide_parallelism_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/python_from_rust.md&quot;</span>, <span class="ident">guide_python_from_rust_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/rust_cpython.md&quot;</span>, <span class="ident">guide_rust_cpython_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/trait_bounds.md&quot;</span>, <span class="ident">guide_trait_bounds_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/types.md&quot;</span>, <span class="ident">guide_types_md</span>);
-    <span class="macro">doctest!</span>(<span class="string">&quot;guide/src/faq.md&quot;</span>, <span class="ident">faq</span>);
-    <span class="macro">doctest!</span>(
-        <span class="string">&quot;guide/src/python_typing_hints.md&quot;</span>,
-        <span class="ident">guide_python_typing_hints</span>
-    );
+        <span class="comment">// deliberate choice not to test guide/ecosystem because those pages depend on external</span>
+        <span class="comment">// crates such as pyo3_asyncio.</span>
 
-    <span class="comment">// deliberate choice not to test guide/ecosystem because those pages depend on external crates</span>
-    <span class="comment">// such as pyo3_asyncio.</span>
+        <span class="string">&quot;guide/src/exception.md&quot;</span> =&gt; <span class="ident">guide_exception_md</span>,
+        <span class="string">&quot;guide/src/faq.md&quot;</span> =&gt; <span class="ident">guide_faq_md</span>,
+        <span class="string">&quot;guide/src/features.md&quot;</span> =&gt; <span class="ident">guide_features_md</span>,
+        <span class="string">&quot;guide/src/function.md&quot;</span> =&gt; <span class="ident">guide_function_md</span>,
+        <span class="string">&quot;guide/src/memory.md&quot;</span> =&gt; <span class="ident">guide_memory_md</span>,
+        <span class="string">&quot;guide/src/migration.md&quot;</span> =&gt; <span class="ident">guide_migration_md</span>,
+        <span class="string">&quot;guide/src/module.md&quot;</span> =&gt; <span class="ident">guide_module_md</span>,
+        <span class="string">&quot;guide/src/parallelism.md&quot;</span> =&gt; <span class="ident">guide_parallelism_md</span>,
+        <span class="string">&quot;guide/src/python_from_rust.md&quot;</span> =&gt; <span class="ident">guide_python_from_rust_md</span>,
+        <span class="string">&quot;guide/src/python_typing_hints.md&quot;</span> =&gt; <span class="ident">guide_python_typing_hints_md</span>,
+        <span class="string">&quot;guide/src/rust_cpython.md&quot;</span> =&gt; <span class="ident">guide_rust_cpython_md</span>,
+        <span class="string">&quot;guide/src/trait_bounds.md&quot;</span> =&gt; <span class="ident">guide_trait_bounds_md</span>,
+        <span class="string">&quot;guide/src/types.md&quot;</span> =&gt; <span class="ident">guide_types_md</span>,
+    }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3b348d932 2022-02-19)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c274e4969 2022-03-05)" ></div>
 </body></html>
