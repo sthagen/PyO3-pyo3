@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.2] - 2022-03-15
+
+### Packaging
+
+- Warn when modules are imported on PyPy 3.7 versions older than PyPy 7.3.8, as they are known to have binary compatibility issues. [#2217](https://github.com/PyO3/pyo3/pull/2217)
+- Ensure build script of `pyo3-ffi` runs before that of `pyo3` to fix cross compilation. [#2224](https://github.com/PyO3/pyo3/pull/2224)
+
+## [0.16.1] - 2022-03-05
+
 ### Packaging
 
 - Extend `hashbrown` optional dependency supported versions to include 0.12. [#2197](https://github.com/PyO3/pyo3/pull/2197)
@@ -15,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix incorrect platform detection for Windows in `pyo3-build-config`. [#2198](https://github.com/PyO3/pyo3/pull/2198)
-- Fix cross compiling to aarch64 macOS. [#2201](https://github.com/PyO3/pyo3/pull/2201)
+- Fix regression from 0.16 preventing cross compiling to aarch64 macOS. [#2201](https://github.com/PyO3/pyo3/pull/2201)
 
 ## [0.16.0] - 2022-02-27
 
@@ -1091,7 +1100,9 @@ Yanked
 
 - Initial release
 
-[unreleased]: https://github.com/pyo3/pyo3/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/pyo3/pyo3/compare/v0.16.2...HEAD
+[0.16.2]: https://github.com/pyo3/pyo3/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/pyo3/pyo3/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/pyo3/pyo3/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/pyo3/pyo3/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/pyo3/pyo3/compare/v0.14.5...v0.15.0
