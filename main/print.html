@@ -206,7 +206,7 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies]
-pyo3 = { version = &quot;0.16.0&quot;, features = [&quot;extension-module&quot;] }
+pyo3 = { version = &quot;0.16.2&quot;, features = [&quot;extension-module&quot;] }
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
 <pre><pre class="playground"><code class="language-rust">
@@ -255,7 +255,7 @@ maturin develop
 </code></pre>
 <p>Start a new project with <code>cargo new</code> and add  <code>pyo3</code> to the <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;0.16.0&quot;
+version = &quot;0.16.2&quot;
 features = [&quot;auto-initialize&quot;]
 </code></pre>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>
@@ -896,18 +896,25 @@ impl Number {
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::exceptions::PyValueError;
 </span><span class="boring">#[pyclass]
-</span><span class="boring">struct Number(i32);
+</span><span class="boring">struct Nonzero(i32);
 </span><span class="boring">
 </span>#[pymethods]
-impl Number {
+impl Nonzero {
     #[new]
-    fn new(value: i32) -&gt; Self {
-        Number(value)
+    fn py_new(value: i32) -&gt; PyResult&lt;Self&gt; {
+        if value == 0 {
+            Err(PyValueError::new_err(&quot;cannot be zero&quot;))
+        } else {
+            Ok(Nonzero(value))
+        }
     }
 }
 <span class="boring">}
 </span></code></pre></pre>
+<p>As you can see, the Rust method name is not important here; this way you can
+still use <code>new()</code> for a Rust-level constructor.</p>
 <p>If no method marked with <code>#[new]</code> is declared, object instances can only be
 created from Rust, but not from Python.</p>
 <p>For arguments, see the <code>Method arguments</code> section below.</p>
@@ -7196,18 +7203,25 @@ class StopIteration(Exception):
 PyO3 versions, please see the <a href="https://pyo3.rs/latest/migration.html">migration guide</a>.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0160headunreleaseda"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0160headunreleaseda"><a href="https://github.com/pyo3/pyo3/compare/v0.16.0...HEAD">Unreleased</a></a></h2>
+<h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0162headunreleaseda"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0162headunreleaseda"><a href="https://github.com/pyo3/pyo3/compare/v0.16.2...HEAD">Unreleased</a></a></h2>
+<h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0161v01620162a---2022-03-15"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0161v01620162a---2022-03-15"><a href="https://github.com/pyo3/pyo3/compare/v0.16.1...v0.16.2">0.16.2</a> - 2022-03-15</a></h2>
 <h3 id="packaging"><a class="header" href="#packaging">Packaging</a></h3>
+<ul>
+<li>Warn when modules are imported on PyPy 3.7 versions older than PyPy 7.3.8, as they are known to have binary compatibility issues. <a href="https://github.com/PyO3/pyo3/pull/2217">#2217</a></li>
+<li>Ensure build script of <code>pyo3-ffi</code> runs before that of <code>pyo3</code> to fix cross compilation. <a href="https://github.com/PyO3/pyo3/pull/2224">#2224</a></li>
+</ul>
+<h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0160v01610161a---2022-03-05"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0160v01610161a---2022-03-05"><a href="https://github.com/pyo3/pyo3/compare/v0.16.0...v0.16.1">0.16.1</a> - 2022-03-05</a></h2>
+<h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>
 <ul>
 <li>Extend <code>hashbrown</code> optional dependency supported versions to include 0.12. <a href="https://github.com/PyO3/pyo3/pull/2197">#2197</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
 <li>Fix incorrect platform detection for Windows in <code>pyo3-build-config</code>. <a href="https://github.com/PyO3/pyo3/pull/2198">#2198</a></li>
-<li>Fix cross compiling to aarch64 macOS. <a href="https://github.com/PyO3/pyo3/pull/2201">#2201</a></li>
+<li>Fix regression from 0.16 preventing cross compiling to aarch64 macOS. <a href="https://github.com/PyO3/pyo3/pull/2201">#2201</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0151v01600160a---2022-02-27"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0151v01600160a---2022-02-27"><a href="https://github.com/pyo3/pyo3/compare/v0.15.1...v0.16.0">0.16.0</a> - 2022-02-27</a></h2>
-<h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>
+<h3 id="packaging-2"><a class="header" href="#packaging-2">Packaging</a></h3>
 <ul>
 <li>Update MSRV to Rust 1.48. <a href="https://github.com/PyO3/pyo3/pull/2004">#2004</a></li>
 <li>Update <code>indoc</code> optional dependency to 1.0. <a href="https://github.com/PyO3/pyo3/pull/2004">#2004</a></li>
@@ -7326,7 +7340,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix panic in <code>__get__</code> implementation when accessing descriptor on type object. <a href="https://github.com/PyO3/pyo3/pull/1997">#1997</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0145v01500150a---2021-11-03"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0145v01500150a---2021-11-03"><a href="https://github.com/pyo3/pyo3/compare/v0.14.5...v0.15.0">0.15.0</a> - 2021-11-03</a></h2>
-<h3 id="packaging-2"><a class="header" href="#packaging-2">Packaging</a></h3>
+<h3 id="packaging-3"><a class="header" href="#packaging-3">Packaging</a></h3>
 <ul>
 <li><code>pyo3</code>'s <code>Cargo.toml</code> now advertises <code>links = &quot;python&quot;</code> to inform Cargo that it links against <em>libpython</em>. <a href="https://github.com/PyO3/pyo3/pull/1819">#1819</a></li>
 <li>Added optional <code>anyhow</code> feature to convert <code>anyhow::Error</code> into <code>PyErr</code>. <a href="https://github.com/PyO3/pyo3/pull/1822">#1822</a></li>
@@ -7441,7 +7455,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix crashes on PyPy due to incorrect definitions of <code>PyList_SET_ITEM</code>. <a href="https://github.com/PyO3/pyo3/pull/1713">#1713</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0132v01400140a---2021-07-03"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0132v01400140a---2021-07-03"><a href="https://github.com/pyo3/pyo3/compare/v0.13.2...v0.14.0">0.14.0</a> - 2021-07-03</a></h2>
-<h3 id="packaging-3"><a class="header" href="#packaging-3">Packaging</a></h3>
+<h3 id="packaging-4"><a class="header" href="#packaging-4">Packaging</a></h3>
 <ul>
 <li>Update <code>num-bigint</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1481">#1481</a></li>
 <li>Update <code>num-complex</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1482">#1482</a></li>
@@ -7551,7 +7565,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix <code>ToPyObject</code> impl for <code>HashSet</code> to accept non-default hashers. <a href="https://github.com/PyO3/pyo3/pull/1702">#1702</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0131v01320132a---2021-02-12"><a href="https://github.com/pyo3/pyo3/compare/v0.13.1...v0.13.2">0.13.2</a> - 2021-02-12</a></h2>
-<h3 id="packaging-4"><a class="header" href="#packaging-4">Packaging</a></h3>
+<h3 id="packaging-5"><a class="header" href="#packaging-5">Packaging</a></h3>
 <ul>
 <li>Lower minimum supported Rust version to 1.41. <a href="https://github.com/PyO3/pyo3/pull/1421">#1421</a></li>
 </ul>
@@ -7610,7 +7624,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix missing <code>Py_INCREF</code> on heap type objects on Python versions before 3.8. <a href="https://github.com/PyO3/pyo3/pull/1365">#1365</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0124v01300130a---2020-12-22"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0124v01300130a---2020-12-22"><a href="https://github.com/pyo3/pyo3/compare/v0.12.4...v0.13.0">0.13.0</a> - 2020-12-22</a></h2>
-<h3 id="packaging-5"><a class="header" href="#packaging-5">Packaging</a></h3>
+<h3 id="packaging-6"><a class="header" href="#packaging-6">Packaging</a></h3>
 <ul>
 <li>Drop support for Python 3.5 (as it is now end-of-life). <a href="https://github.com/PyO3/pyo3/pull/1250">#1250</a></li>
 <li>Bump minimum supported Rust version to 1.45. <a href="https://github.com/PyO3/pyo3/pull/1272">#1272</a></li>

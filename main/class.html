@@ -226,18 +226,25 @@ impl Number {
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::exceptions::PyValueError;
 </span><span class="boring">#[pyclass]
-</span><span class="boring">struct Number(i32);
+</span><span class="boring">struct Nonzero(i32);
 </span><span class="boring">
 </span>#[pymethods]
-impl Number {
+impl Nonzero {
     #[new]
-    fn new(value: i32) -&gt; Self {
-        Number(value)
+    fn py_new(value: i32) -&gt; PyResult&lt;Self&gt; {
+        if value == 0 {
+            Err(PyValueError::new_err(&quot;cannot be zero&quot;))
+        } else {
+            Ok(Nonzero(value))
+        }
     }
 }
 <span class="boring">}
 </span></code></pre></pre>
+<p>As you can see, the Rust method name is not important here; this way you can
+still use <code>new()</code> for a Rust-level constructor.</p>
 <p>If no method marked with <code>#[new]</code> is declared, object instances can only be
 created from Rust, but not from Python.</p>
 <p>For arguments, see the <code>Method arguments</code> section below.</p>
