@@ -1,7 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/types/any.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>any.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../scrape-examples.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><div class='internal-banner' style='position:fixed; z-index: 99999; color:red;border:3px solid red;margin-left: auto; margin-right: auto; width: 430px;left:0;right: 0;'><div style='display: flex; align-items: center; justify-content: center;'> ⚠️ Internal Docs ⚠️ Not Public API 👉 <a href='https://pyo3.rs/main/doc/pyo3/index.html' style='color:red;text-decoration:underline;'>Official Docs Here</a></div></div>
-
-<nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
@@ -1007,6 +1005,44 @@
 <span id="1000">1000</span>
 <span id="1001">1001</span>
 <span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::class::basic::CompareOp</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{
     <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
@@ -1089,7 +1125,7 @@
     <span class="doccomment">///     assert!(any.downcast::&lt;PyList&gt;().is_err());</span>
     <span class="doccomment">/// });</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">PyDowncastError</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span> <span class="ident">T</span>: <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>,
     {
@@ -1120,6 +1156,25 @@
     <span class="doccomment">/// Retrieves an attribute value.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.attr_name`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If calling this method becomes performance-critical, the [`intern!`] macro can be used</span>
+    <span class="doccomment">/// to intern `attr_name`, thereby avoiding repeated temporary allocations of Python strings.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example: `intern!`ing the attribute name</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use pyo3::{intern, pyfunction, types::PyModule, PyAny, Python, PyResult};</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #[pyfunction]</span>
+    <span class="doccomment">/// fn version(sys: &amp;PyModule) -&gt; PyResult&lt;&amp;PyAny&gt; {</span>
+    <span class="doccomment">///     sys.getattr(intern!(sys.py(), &quot;version&quot;))</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// # Python::with_gil(|py| {</span>
+    <span class="doccomment">/// #    let sys = py.import(&quot;sys&quot;).unwrap();</span>
+    <span class="doccomment">/// #    version(sys).unwrap();</span>
+    <span class="doccomment">/// # });</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">getattr</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
@@ -1133,6 +1188,25 @@
     <span class="doccomment">/// Sets an attribute value.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.attr_name = value`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If calling this method becomes performance-critical, the [`intern!`] macro can be used</span>
+    <span class="doccomment">/// to intern `attr_name`, thereby avoiding repeated temporary allocations of Python strings.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example: `intern!`ing the attribute name</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use pyo3::{intern, pyfunction, types::PyModule, PyAny, Python, PyResult};</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #[pyfunction]</span>
+    <span class="doccomment">/// fn set_answer(ob: &amp;PyAny) -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">///     ob.setattr(intern!(ob.py(), &quot;answer&quot;), 42)</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// # Python::with_gil(|py| {</span>
+    <span class="doccomment">/// #    let ob = PyModule::new(py, &quot;empty&quot;).unwrap();</span>
+    <span class="doccomment">/// #    set_answer(ob).unwrap();</span>
+    <span class="doccomment">/// # });</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setattr</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToBorrowedObject</span>,
@@ -1667,11 +1741,11 @@
     <span class="doccomment">/// Casts the PyObject to a concrete Python object type.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This can cast only to native Python types, not types implemented in Rust.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">D</span>, <span class="ident">PyDowncastError</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_as</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">D</span>, <span class="ident">PyDowncastError</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     {
-        <span class="ident">D::try_from</span>(<span class="self">self</span>)
+        <span class="op">&lt;</span><span class="ident">D</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Extracts some type from the Python object.</span>
@@ -2010,5 +2084,5 @@ class SimpleClass:
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

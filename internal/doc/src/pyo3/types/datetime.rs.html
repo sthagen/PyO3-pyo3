@@ -1,7 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/types/datetime.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../scrape-examples.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><div class='internal-banner' style='position:fixed; z-index: 99999; color:red;border:3px solid red;margin-left: auto; margin-right: auto; width: 430px;left:0;right: 0;'><div style='display: flex; align-items: center; justify-content: center;'> ⚠️ Internal Docs ⚠️ Not Public API 👉 <a href='https://pyo3.rs/main/doc/pyo3/index.html' style='color:red;text-decoration:underline;'>Official Docs Here</a></div></div>
-
-<nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
@@ -560,7 +558,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
-<span class="kw">fn</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">_py</span>: <span class="ident">Python</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyDateTime_CAPI</span> {
+<span class="kw">fn</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyDateTime_CAPI</span> {
     <span class="kw">unsafe</span> {
         <span class="kw">if</span> <span class="ident">pyo3_ffi::PyDateTimeAPI</span>().<span class="ident">is_null</span>() {
             <span class="ident">PyDateTime_IMPORT</span>()
@@ -707,7 +705,7 @@
 
 <span class="kw">impl</span> <span class="ident">PyDate</span> {
     <span class="doccomment">/// Creates a new `datetime.date`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">year</span>: <span class="ident">i32</span>, <span class="ident">month</span>: <span class="ident">u8</span>, <span class="ident">day</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDate</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">year</span>: <span class="ident">i32</span>, <span class="ident">month</span>: <span class="ident">u8</span>, <span class="ident">day</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDate</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> (<span class="ident">ensure_datetime_api</span>(<span class="ident">py</span>).<span class="ident">Date_FromDate</span>)(
                 <span class="ident">year</span>,
@@ -722,7 +720,7 @@
     <span class="doccomment">/// Construct a `datetime.date` from a POSIX timestamp</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to `datetime.date.fromtimestamp`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_timestamp</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">timestamp</span>: <span class="ident">i64</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDate</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_timestamp</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">timestamp</span>: <span class="ident">i64</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDate</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">time_tuple</span> <span class="op">=</span> <span class="ident">PyTuple::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="ident">timestamp</span>]);
 
         <span class="comment">// safety ensure that the API is loaded</span>
@@ -1000,7 +998,7 @@
 <span class="kw">impl</span> <span class="ident">PyDelta</span> {
     <span class="doccomment">/// Creates a new `timedelta`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">py</span>: <span class="ident">Python</span>,
+        <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">days</span>: <span class="ident">i32</span>,
         <span class="ident">seconds</span>: <span class="ident">i32</span>,
         <span class="ident">microseconds</span>: <span class="ident">i32</span>,
@@ -1035,7 +1033,7 @@
 }
 
 <span class="comment">// Utility function</span>
-<span class="kw">fn</span> <span class="ident">opt_to_pyobj</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyObject</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span> {
+<span class="kw">fn</span> <span class="ident">opt_to_pyobj</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyObject</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span> {
     <span class="comment">// Convenience function for unpacking Options to either an Object or None</span>
     <span class="kw">match</span> <span class="ident">opt</span> {
         <span class="prelude-val">Some</span>(<span class="ident">tzi</span>) =&gt; <span class="ident">tzi</span>.<span class="ident">as_ptr</span>(),
@@ -1060,5 +1058,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

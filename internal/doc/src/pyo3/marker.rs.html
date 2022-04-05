@@ -1,7 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/marker.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>marker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../scrape-examples.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><div class='internal-banner' style='position:fixed; z-index: 99999; color:red;border:3px solid red;margin-left: auto; margin-right: auto; width: 430px;left:0;right: 0;'><div style='display: flex; align-items: center; justify-content: center;'> ⚠️ Internal Docs ⚠️ Not Public API 👉 <a href='https://pyo3.rs/main/doc/pyo3/index.html' style='color:red;text-decoration:underline;'>Official Docs Here</a></div></div>
-
-<nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
@@ -1016,6 +1014,13 @@
 <span id="1009">1009</span>
 <span id="1010">1010</span>
 <span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -1797,7 +1802,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # fn main(){</span>
     <span class="doccomment">/// #[pyfunction]</span>
-    <span class="doccomment">/// fn loop_forever(py: Python) -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">/// fn loop_forever(py: Python&lt;&#39;_&gt;) -&gt; PyResult&lt;()&gt; {</span>
     <span class="doccomment">///     loop {</span>
     <span class="doccomment">///         // As this loop is infinite it should check for signals every once in a while.</span>
     <span class="doccomment">///         // Using `?` causes any `PyErr` (potentially containing `KeyboardInterrupt`)</span>
@@ -1822,22 +1827,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_signals</span>(<span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::PyErr_CheckSignals</span>() };
         <span class="ident">err::error_on_minusone</span>(<span class="self">self</span>, <span class="ident">v</span>)
-    }
-
-    <span class="doccomment">/// Retrieves a Python instance under the assumption that the GIL is already</span>
-    <span class="doccomment">/// acquired at this point, and stays acquired for the lifetime `&#39;py`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Because the output lifetime `&#39;py` is not connected to any input parameter,</span>
-    <span class="doccomment">/// care must be taken that the compiler infers an appropriate lifetime for `&#39;py`</span>
-    <span class="doccomment">/// when calling this function.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The lifetime `&#39;py` must be shorter than the period you *assume* that you have GIL.</span>
-    <span class="doccomment">/// I.e., `Python&lt;&#39;static&gt;` is always *really* unsafe.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">assume_gil_acquired</span>() -&gt; <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span> {
-        <span class="ident">Python</span>(<span class="ident">PhantomData</span>)
     }
 
     <span class="doccomment">/// Create a new pool for managing PyO3&#39;s owned references.</span>
@@ -1897,6 +1886,29 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_pool</span>(<span class="self">self</span>) -&gt; <span class="ident">GILPool</span> {
         <span class="ident">GILPool::new</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;unbound</span><span class="op">&gt;</span> <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;unbound</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Unsafely creates a Python token with an unbounded lifetime.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Many of PyO3 APIs use `Python&lt;&#39;_&gt;` as proof that the GIL is held, but this function can be</span>
+    <span class="doccomment">/// used to call them unsafely.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - This token and any borrowed Python references derived from it can only be safely used</span>
+    <span class="doccomment">/// whilst the currently executing thread is actually holding the GIL.</span>
+    <span class="doccomment">/// - This function creates a token with an *unbounded* lifetime. Safe code can assume that</span>
+    <span class="doccomment">/// holding a `Python&lt;&#39;py&gt;` token means the GIL is and stays acquired for the lifetime `&#39;py`.</span>
+    <span class="doccomment">/// If you let it or borrowed Python references escape to safe code you are</span>
+    <span class="doccomment">/// responsible for bounding the lifetime `&#39;unbound` appropriately. For more on unbounded</span>
+    <span class="doccomment">/// lifetimes, see the [nomicon].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [nomicon]: https://doc.rust-lang.org/nomicon/unbounded-lifetimes.html</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">assume_gil_acquired</span>() -&gt; <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;unbound</span><span class="op">&gt;</span> {
+        <span class="ident">Python</span>(<span class="ident">PhantomData</span>)
     }
 }
 
@@ -2028,5 +2040,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

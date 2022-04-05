@@ -1,7 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pycell.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pycell.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../scrape-examples.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><div class='internal-banner' style='position:fixed; z-index: 99999; color:red;border:3px solid red;margin-left: auto; margin-right: auto; width: 430px;left:0;right: 0;'><div style='display: flex; align-items: center; justify-content: center;'> ⚠️ Internal Docs ⚠️ Not Public API 👉 <a href='https://pyo3.rs/main/doc/pyo3/index.html' style='color:red;text-decoration:underline;'>Official Docs Here</a></div></div>
-
-<nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../pyo3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
@@ -935,8 +933,6 @@
 <span id="928">928</span>
 <span id="929">929</span>
 <span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
 </pre><pre class="rust"><code><span class="doccomment">//! PyO3&#39;s interior mutability primitive.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Rust has strict aliasing rules - you can either have any number of immutable (shared) references or one mutable</span>
@@ -1046,12 +1042,11 @@
 <span class="doccomment">//! fn swap_numbers(a: &amp;mut Number, b: &amp;mut Number) {</span>
 <span class="doccomment">//!     std::mem::swap(&amp;mut a.inner, &amp;mut b.inner);</span>
 <span class="doccomment">//! }</span>
-<span class="doccomment">//! # use pyo3::AsPyPointer;</span>
 <span class="doccomment">//! # fn main() {</span>
 <span class="doccomment">//! #     Python::with_gil(|py|{</span>
 <span class="doccomment">//! #         let n = Py::new(py, Number{inner: 35}).unwrap();</span>
 <span class="doccomment">//! #         let n2 = n.clone_ref(py);</span>
-<span class="doccomment">//! #         assert_eq!(n.as_ptr(), n2.as_ptr());</span>
+<span class="doccomment">//! #         assert!(n.is(&amp;n2));</span>
 <span class="doccomment">//! #         let fun = pyo3::wrap_pyfunction!(swap_numbers, py).unwrap();</span>
 <span class="doccomment">//! #         fun.call1((n, n2)).expect_err(&quot;Managed to create overlapping mutable references. Note: this is undefined behaviour.&quot;);</span>
 <span class="doccomment">//! #     });</span>
@@ -1077,19 +1072,18 @@
 <span class="doccomment">//! #[pyfunction]</span>
 <span class="doccomment">//! fn swap_numbers(a: &amp;PyCell&lt;Number&gt;, b: &amp;PyCell&lt;Number&gt;) {</span>
 <span class="doccomment">//!     // Check that the pointers are unequal</span>
-<span class="doccomment">//!     if a.as_ptr() != b.as_ptr() {</span>
+<span class="doccomment">//!     if !a.is(b) {</span>
 <span class="doccomment">//!         std::mem::swap(&amp;mut a.borrow_mut().inner, &amp;mut b.borrow_mut().inner);</span>
 <span class="doccomment">//!     } else {</span>
 <span class="doccomment">//!         // Do nothing - they are the same object, so don&#39;t need swapping.</span>
 <span class="doccomment">//!     }</span>
 <span class="doccomment">//! }</span>
-<span class="doccomment">//! # use pyo3::AsPyPointer;</span>
 <span class="doccomment">//! # fn main() {</span>
 <span class="doccomment">//! #     // With duplicate numbers</span>
 <span class="doccomment">//! #     Python::with_gil(|py|{</span>
 <span class="doccomment">//! #         let n = Py::new(py, Number{inner: 35}).unwrap();</span>
 <span class="doccomment">//! #         let n2 = n.clone_ref(py);</span>
-<span class="doccomment">//! #         assert_eq!(n.as_ptr(), n2.as_ptr());</span>
+<span class="doccomment">//! #         assert!(n.is(&amp;n2));</span>
 <span class="doccomment">//! #         let fun = pyo3::wrap_pyfunction!(swap_numbers, py).unwrap();</span>
 <span class="doccomment">//! #         fun.call1((n, n2)).unwrap();</span>
 <span class="doccomment">//! #     });</span>
@@ -1098,7 +1092,7 @@
 <span class="doccomment">//! #     Python::with_gil(|py|{</span>
 <span class="doccomment">//! #         let n = Py::new(py, Number{inner: 35}).unwrap();</span>
 <span class="doccomment">//! #         let n2 = Py::new(py, Number{inner: 42}).unwrap();</span>
-<span class="doccomment">//! #         assert_ne!(n.as_ptr(), n2.as_ptr());</span>
+<span class="doccomment">//! #         assert!(!n.is(&amp;n2));</span>
 <span class="doccomment">//! #         let fun = pyo3::wrap_pyfunction!(swap_numbers, py).unwrap();</span>
 <span class="doccomment">//! #         fun.call1((&amp;n, &amp;n2)).unwrap();</span>
 <span class="doccomment">//! #         let n: u32 = n.borrow(py).inner;</span>
@@ -1198,7 +1192,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// In cases where the value in the cell does not need to be accessed immediately after</span>
     <span class="doccomment">/// creation, consider [`Py::new`](crate::Py::new) as a more efficient alternative.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">value</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">initializer</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into</span>();
             <span class="kw">let</span> <span class="ident">self_</span> <span class="op">=</span> <span class="ident">initializer</span>.<span class="ident">create_cell</span>(<span class="ident">py</span>)<span class="question-mark">?</span>;
@@ -1506,7 +1500,7 @@
 <span class="doccomment">///         (Child { name: &quot;Caterpillar&quot; }, Parent { basename: &quot;Butterfly&quot; })</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     fn format(slf: PyRef&lt;Self&gt;) -&gt; String {</span>
+<span class="doccomment">///     fn format(slf: PyRef&lt;&#39;_, Self&gt;) -&gt; String {</span>
 <span class="doccomment">///         // We can get *mut ffi::PyObject from PyRef</span>
 <span class="doccomment">///         use pyo3::AsPyPointer;</span>
 <span class="doccomment">///         let refcnt = unsafe { pyo3::ffi::Py_REFCNT(slf.as_ptr()) };</span>
@@ -1528,7 +1522,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> <span class="ident">PyRef</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns a `Python` token that is bound to the lifetime of the `PyRef`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Python</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> { <span class="ident">Python::assume_gil_acquired</span>() }
     }
 }
@@ -1582,7 +1576,7 @@
     <span class="doccomment">///             .add_subclass(Base2 { name2: &quot;base2&quot; })</span>
     <span class="doccomment">///             .add_subclass(Self { name3: &quot;sub&quot; })</span>
     <span class="doccomment">///     }</span>
-    <span class="doccomment">///     fn name(slf: PyRef&lt;Self&gt;) -&gt; String {</span>
+    <span class="doccomment">///     fn name(slf: PyRef&lt;&#39;_, Self&gt;) -&gt; String {</span>
     <span class="doccomment">///         let subname = slf.name3;</span>
     <span class="doccomment">///         let super_ = slf.into_super();</span>
     <span class="doccomment">///         format!(&quot;{} {} {}&quot;, super_.as_ref().name1, super_.name2, subname)</span>
@@ -1652,7 +1646,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns a `Python` token that is bound to the lifetime of the `PyRefMut`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Python</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> { <span class="ident">Python::assume_gil_acquired</span>() }
     }
 }
@@ -1717,7 +1711,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&gt;</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyObject</span> {
+    <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">PyObject</span> {
         <span class="kw">unsafe</span> { <span class="ident">PyObject::from_borrowed_ptr</span>(<span class="ident">py</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">as_ptr</span>()) }
     }
 }
@@ -1814,7 +1808,7 @@
     <span class="doccomment">/// # Safety</span>
     <span class="doccomment">/// - slf must be a valid pointer to an instance of a T or a subclass.</span>
     <span class="doccomment">/// - slf must not be used after this call (as it will be freed).</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">tp_dealloc</span>(<span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">py</span>: <span class="ident">Python</span>);
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">tp_dealloc</span>(<span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>);
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">PyCellLayout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyCellBase</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>
@@ -1828,7 +1822,7 @@
     <span class="kw">fn</span> <span class="ident">set_borrow_flag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">flag</span>: <span class="ident">BorrowFlag</span>) {
         <span class="self">self</span>.<span class="ident">borrow_flag</span>.<span class="ident">set</span>(<span class="ident">flag</span>)
     }
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">tp_dealloc</span>(<span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">py</span>: <span class="ident">Python</span>) {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">tp_dealloc</span>(<span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
         <span class="comment">// For `#[pyclass]` types which inherit from PyAny, we can just call tp_free</span>
         <span class="kw">if</span> <span class="ident">T::type_object_raw</span>(<span class="ident">py</span>) <span class="op">==</span> <span class="kw-2">&amp;mut</span> <span class="ident">PyBaseObject_Type</span> {
             <span class="kw">return</span> <span class="ident">get_tp_free</span>(<span class="ident">ffi::Py_TYPE</span>(<span class="ident">slf</span>))(<span class="ident">slf</span> <span class="kw">as</span> <span class="kw">_</span>);
@@ -1860,7 +1854,7 @@
     <span class="kw">fn</span> <span class="ident">set_borrow_flag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">flag</span>: <span class="ident">BorrowFlag</span>) {
         <span class="self">self</span>.<span class="ident">ob_base</span>.<span class="ident">set_borrow_flag</span>(<span class="ident">flag</span>)
     }
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">tp_dealloc</span>(<span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">py</span>: <span class="ident">Python</span>) {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">tp_dealloc</span>(<span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
         <span class="comment">// Safety: Python only calls tp_dealloc when no references to the object remain.</span>
         <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="ident">slf</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
         <span class="ident">ManuallyDrop::drop</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cell</span>.<span class="ident">contents</span>.<span class="ident">value</span>);
@@ -1870,5 +1864,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>
