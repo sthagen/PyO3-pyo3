@@ -7,10 +7,12 @@ use pyo3::prelude::*;
 use pyo3::py_run;
 use pyo3::types::IntoPyDict;
 use pyo3::types::PyList;
+use pyo3::types::PyMapping;
+use pyo3::types::PySequence;
 
 mod common;
 
-#[pyclass]
+#[pyclass(mapping)]
 struct Mapping {
     index: HashMap<String, usize>,
 }
@@ -55,10 +57,17 @@ impl Mapping {
             Ok(())
         }
     }
+
+    fn get(&self, py: Python<'_>, key: &str, default: Option<PyObject>) -> Option<PyObject> {
+        self.index
+            .get(key)
+            .map(|value| value.into_py(py))
+            .or(default)
+    }
 }
 
 /// Return a dict with `m = Mapping(['1', '2', '3'])`.
-fn map_dict(py: Python) -> &pyo3::types::PyDict {
+fn map_dict(py: Python<'_>) -> &pyo3::types::PyDict {
     let d = [("Mapping", py.get_type::<Mapping>())].into_py_dict(py);
     py_run!(py, *d, "m = Mapping(['1', '2', '3'])");
     d
@@ -102,4 +111,16 @@ fn test_delitem() {
     );
     py_expect_exception!(py, *d, "del m[-1]", PyTypeError);
     py_expect_exception!(py, *d, "del m['4']", PyKeyError);
+}
+
+#[test]
+fn mapping_is_not_sequence() {
+    Python::with_gil(|py| {
+        let mut index = HashMap::new();
+        index.insert("Foo".into(), 1);
+        index.insert("Bar".into(), 2);
+        let m = Py::new(py, Mapping { index }).unwrap();
+        assert!(m.as_ref(py).downcast::<PyMapping>().is_ok());
+        assert!(m.as_ref(py).downcast::<PySequence>().is_err());
+    });
 }

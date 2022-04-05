@@ -22,8 +22,8 @@ When PyO3 handles a magic method, a couple of changes apply compared to other `#
 The following sections list of all magic methods PyO3 currently handles.  The
 given signatures should be interpreted as follows:
  - All methods take a receiver as first argument, shown as `<self>`. It can be
-   `&self`, `&mut self` or a `PyCell` reference like `self_: PyRef<Self>` and
-   `self_: PyRefMut<Self>`, as described [here](../class.md#inheritance).
+   `&self`, `&mut self` or a `PyCell` reference like `self_: PyRef<'_, Self>` and
+   `self_: PyRefMut<'_, Self>`, as described [here](../class.md#inheritance).
  - An optional `Python<'py>` argument is always allowed as the first argument.
  - Return values can be optionally wrapped in `PyResult`.
  - `object` means that any type is allowed that can be extracted from a Python
@@ -118,10 +118,10 @@ struct MyIterator {
 
 #[pymethods]
 impl MyIterator {
-    fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
     }
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<PyObject> {
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyObject> {
         slf.iter.next()
     }
 }
@@ -142,11 +142,11 @@ struct Iter {
 
 #[pymethods]
 impl Iter {
-    fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<usize> {
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<usize> {
         slf.inner.next()
     }
 }
@@ -158,7 +158,7 @@ struct Container {
 
 #[pymethods]
 impl Container {
-    fn __iter__(slf: PyRef<Self>) -> PyResult<Py<Iter>> {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyResult<Py<Iter>> {
         let iter = Iter {
             inner: slf.iter.clone().into_iter(),
         };
@@ -191,6 +191,18 @@ and `Return` a final value - see its docs for further details and an example.
   - `__anext__(<self>) -> Option<object> or IterANextOutput`
 
 ### Mapping & Sequence types
+
+The magic methods in this section can be used to implement Python container types. They are two main categories of container in Python: "mappings" such as `dict`, with arbitrary keys, and "sequences" such as `list` and `tuple`, with integer keys.
+
+The Python C-API which PyO3 is built upon has separate "slots" for sequences and mappings. When writing a `class` in pure Python, there is no such distinction in the implementation - a `__getitem__` implementation will fill the slots for both the mapping and sequence forms, for example.
+
+By default PyO3 reproduces the Python behaviour of filling both mapping and sequence slots. This makes sense for the "simple" case which matches Python, and also for sequences, where the mapping slot is used anyway to implement slice indexing.
+
+Mapping types usually will not want the sequence slots filled. Having them filled will lead to outcomes which may be unwanted, such as:
+- The mapping type will successfully cast to [`PySequence`]. This may lead to consumers of the type handling it incorrectly.
+- Python provides a default implementation of `__iter__` for sequences, which calls `__getitem__` with consecutive positive integers starting from 0 until an `IndexError` is returned. Unless the mapping only contains consecutive positive integer keys, this `__iter__` implementation will likely not be the intended behavior.
+
+Use the `#[pyclass(mapping)]` annotation to instruct PyO3 to only fill the mapping slots, leaving the sequence ones empty. This will apply to `__getitem__`, `__setitem__`, and `__delitem__`.
 
   - `__len__(<self>) -> usize`
 
@@ -264,7 +276,6 @@ and `Return` a final value - see its docs for further details and an example.
     Concatenates two sequences.
     Used by the `*=` operator, after trying the numeric multiplication via
     the `__imul__` method.
-
 
 ### Descriptors
 
@@ -355,7 +366,7 @@ object.  `__clear__` must clear out any mutable references to other Python
 objects (thus breaking reference cycles). Immutable references do not have to be
 cleared, as every cycle must contain at least one mutable reference.
 
-  - `__traverse__(<self>, pyo3::class::gc::PyVisit) -> Result<(), pyo3::class::gc::PyTraverseError>`
+  - `__traverse__(<self>, pyo3::class::gc::PyVisit<'_>) -> Result<(), pyo3::class::gc::PyTraverseError>`
   - `__clear__(<self>) -> ()`
 
 Example:
@@ -372,7 +383,7 @@ struct ClassWithGCSupport {
 
 #[pymethods]
 impl ClassWithGCSupport {
-    fn __traverse__(&self, visit: PyVisit) -> Result<(), PyTraverseError> {
+    fn __traverse__(&self, visit: PyVisit<'_>) -> Result<(), PyTraverseError> {
         if let Some(obj) = &self.obj {
             visit.call(obj)?
         }
@@ -580,10 +591,10 @@ For a mapping, the keys may be Python objects of arbitrary type.
 
 Iterators can be defined using the [`PyIterProtocol`] trait.
 It includes two methods `__iter__` and `__next__`:
-  * `fn __iter__(slf: PyRefMut<Self>) -> PyResult<impl IntoPy<PyObject>>`
-  * `fn __next__(slf: PyRefMut<Self>) -> PyResult<Option<impl IntoPy<PyObject>>>`
+  * `fn __iter__(slf: PyRefMut<'_, Self>) -> PyResult<impl IntoPy<PyObject>>`
+  * `fn __next__(slf: PyRefMut<'_, Self>) -> PyResult<Option<impl IntoPy<PyObject>>>`
 
-These two methods can be take either `PyRef<Self>` or `PyRefMut<Self>` as their
+These two methods can be take either `PyRef<'_, Self>` or `PyRefMut<'_, Self>` as their
 first argument, so that mutable borrow can be avoided if needed.
 
 For details, look at the `#[pymethods]` regarding iterator methods.
@@ -599,3 +610,4 @@ For details, look at the `#[pymethods]` regarding GC methods.
 [`PyObjectProtocol`]: {{#PYO3_DOCS_URL}}/pyo3/class/basic/trait.PyObjectProtocol.html
 [`PySequenceProtocol`]: {{#PYO3_DOCS_URL}}/pyo3/class/sequence/trait.PySequenceProtocol.html
 [`PyIterProtocol`]: {{#PYO3_DOCS_URL}}/pyo3/class/iter/trait.PyIterProtocol.html
+[`PySequence`]: {{#PYO3_DOCS_URL}}/pyo3/types/struct.PySequence.html

@@ -30,7 +30,7 @@ enum PyImplPyO3Option {
 }
 
 impl Parse for PyImplPyO3Option {
-    fn parse(input: ParseStream) -> Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
         let lookahead = input.lookahead1();
         if lookahead.peek(syn::Token![crate]) {
             input.parse().map(PyImplPyO3Option::Crate)
@@ -61,7 +61,7 @@ impl PyImplOptions {
     fn set_crate(&mut self, path: CrateAttribute) -> Result<()> {
         ensure_spanned!(
             self.krate.is_none(),
-            path.0.span() => "`crate` may only be specified once"
+            path.span() => "`crate` may only be specified once"
         );
 
         self.krate = Some(path);
@@ -88,7 +88,7 @@ pub fn build_py_methods(
 
 pub fn impl_methods(
     ty: &syn::Type,
-    impls: &mut Vec<syn::ImplItem>,
+    impls: &mut [syn::ImplItem],
     methods_type: PyClassMethodsType,
     options: PyImplOptions,
 ) -> syn::Result<TokenStream> {

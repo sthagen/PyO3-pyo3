@@ -80,7 +80,7 @@ impl PyAny {
     ///     assert!(any.downcast::<PyList>().is_err());
     /// });
     /// ```
-    pub fn downcast<T>(&self) -> Result<&T, PyDowncastError>
+    pub fn downcast<T>(&self) -> Result<&T, PyDowncastError<'_>>
     where
         for<'py> T: PyTryFrom<'py>,
     {
@@ -111,6 +111,25 @@ impl PyAny {
     /// Retrieves an attribute value.
     ///
     /// This is equivalent to the Python expression `self.attr_name`.
+    ///
+    /// If calling this method becomes performance-critical, the [`intern!`] macro can be used
+    /// to intern `attr_name`, thereby avoiding repeated temporary allocations of Python strings.
+    ///
+    /// # Example: `intern!`ing the attribute name
+    ///
+    /// ```
+    /// # use pyo3::{intern, pyfunction, types::PyModule, PyAny, Python, PyResult};
+    /// #
+    /// #[pyfunction]
+    /// fn version(sys: &PyModule) -> PyResult<&PyAny> {
+    ///     sys.getattr(intern!(sys.py(), "version"))
+    /// }
+    /// #
+    /// # Python::with_gil(|py| {
+    /// #    let sys = py.import("sys").unwrap();
+    /// #    version(sys).unwrap();
+    /// # });
+    /// ```
     pub fn getattr<N>(&self, attr_name: N) -> PyResult<&PyAny>
     where
         N: ToPyObject,
@@ -124,6 +143,25 @@ impl PyAny {
     /// Sets an attribute value.
     ///
     /// This is equivalent to the Python expression `self.attr_name = value`.
+    ///
+    /// If calling this method becomes performance-critical, the [`intern!`] macro can be used
+    /// to intern `attr_name`, thereby avoiding repeated temporary allocations of Python strings.
+    ///
+    /// # Example: `intern!`ing the attribute name
+    ///
+    /// ```
+    /// # use pyo3::{intern, pyfunction, types::PyModule, PyAny, Python, PyResult};
+    /// #
+    /// #[pyfunction]
+    /// fn set_answer(ob: &PyAny) -> PyResult<()> {
+    ///     ob.setattr(intern!(ob.py(), "answer"), 42)
+    /// }
+    /// #
+    /// # Python::with_gil(|py| {
+    /// #    let ob = PyModule::new(py, "empty").unwrap();
+    /// #    set_answer(ob).unwrap();
+    /// # });
+    /// ```
     pub fn setattr<N, V>(&self, attr_name: N, value: V) -> PyResult<()>
     where
         N: ToBorrowedObject,
@@ -658,11 +696,11 @@ impl PyAny {
     /// Casts the PyObject to a concrete Python object type.
     ///
     /// This can cast only to native Python types, not types implemented in Rust.
-    pub fn cast_as<'a, D>(&'a self) -> Result<&'a D, PyDowncastError>
+    pub fn cast_as<'a, D>(&'a self) -> Result<&'a D, PyDowncastError<'_>>
     where
         D: PyTryFrom<'a>,
     {
-        D::try_from(self)
+        <D as PyTryFrom<'_>>::try_from(self)
     }
 
     /// Extracts some type from the Python object.

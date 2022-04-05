@@ -68,7 +68,7 @@ impl<'a> PyStringData<'a> {
     /// storage format. This should only occur for strings that were created via Python
     /// C APIs that skip input validation (like `PyUnicode_FromKindAndData`) and should
     /// never occur for strings that were created from Python code.
-    pub fn to_string(self, py: Python) -> PyResult<Cow<'a, str>> {
+    pub fn to_string(self, py: Python<'_>) -> PyResult<Cow<'a, str>> {
         use std::ffi::CStr;
         match self {
             Self::Ucs1(data) => match str::from_utf8(data) {
@@ -144,6 +144,26 @@ impl PyString {
         unsafe { py.from_owned_ptr(ffi::PyUnicode_FromStringAndSize(ptr, len)) }
     }
 
+    /// Intern the given string
+    ///
+    /// This will return a reference to the same Python string object if called repeatedly with the same string.
+    ///
+    /// Note that while this is more memory efficient than [`PyString::new`], it unconditionally allocates a
+    /// temporary Python string object and is thereby slower than [`PyString::new`].
+    ///
+    /// Panics if out of memory.
+    pub fn intern<'p>(py: Python<'p>, s: &str) -> &'p PyString {
+        let ptr = s.as_ptr() as *const c_char;
+        let len = s.len() as ffi::Py_ssize_t;
+        unsafe {
+            let mut ob = ffi::PyUnicode_FromStringAndSize(ptr, len);
+            if !ob.is_null() {
+                ffi::PyUnicode_InternInPlace(&mut ob);
+            }
+            py.from_owned_ptr(ob)
+        }
+    }
+
     /// Attempts to create a Python string from a Python [bytes-like object].
     ///
     /// [bytes-like object]: (https://docs.python.org/3/glossary.html#term-bytes-like-object).
@@ -190,7 +210,7 @@ impl PyString {
     ///
     /// Unpaired surrogates invalid UTF-8 sequences are
     /// replaced with `U+FFFD REPLACEMENT CHARACTER`.
-    pub fn to_string_lossy(&self) -> Cow<str> {
+    pub fn to_string_lossy(&self) -> Cow<'_, str> {
         match self.to_str() {
             Ok(s) => Cow::Borrowed(s),
             Err(_) => {
@@ -266,30 +286,30 @@ impl PyString {
 /// See `PyString::new` for details on the conversion.
 impl ToPyObject for str {
     #[inline]
-    fn to_object(&self, py: Python) -> PyObject {
+    fn to_object(&self, py: Python<'_>) -> PyObject {
         PyString::new(py, self).into()
     }
 }
 
 impl<'a> IntoPy<PyObject> for &'a str {
     #[inline]
-    fn into_py(self, py: Python) -> PyObject {
+    fn into_py(self, py: Python<'_>) -> PyObject {
         PyString::new(py, self).into()
     }
 }
 
-/// Converts a Rust `Cow<str>` to a Python object.
+/// Converts a Rust `Cow<'_, str>` to a Python object.
 /// See `PyString::new` for details on the conversion.
 impl<'a> ToPyObject for Cow<'a, str> {
     #[inline]
-    fn to_object(&self, py: Python) -> PyObject {
+    fn to_object(&self, py: Python<'_>) -> PyObject {
         PyString::new(py, self).into()
     }
 }
 
 impl IntoPy<PyObject> for Cow<'_, str> {
     #[inline]
-    fn into_py(self, py: Python) -> PyObject {
+    fn into_py(self, py: Python<'_>) -> PyObject {
         self.to_object(py)
     }
 }
@@ -298,33 +318,33 @@ impl IntoPy<PyObject> for Cow<'_, str> {
 /// See `PyString::new` for details on the conversion.
 impl ToPyObject for String {
     #[inline]
-    fn to_object(&self, py: Python) -> PyObject {
+    fn to_object(&self, py: Python<'_>) -> PyObject {
         PyString::new(py, self).into()
     }
 }
 
 impl ToPyObject for char {
-    fn to_object(&self, py: Python) -> PyObject {
+    fn to_object(&self, py: Python<'_>) -> PyObject {
         self.into_py(py)
     }
 }
 
 impl IntoPy<PyObject> for char {
-    fn into_py(self, py: Python) -> PyObject {
+    fn into_py(self, py: Python<'_>) -> PyObject {
         let mut bytes = [0u8; 4];
         PyString::new(py, self.encode_utf8(&mut bytes)).into()
     }
 }
 
 impl IntoPy<PyObject> for String {
-    fn into_py(self, py: Python) -> PyObject {
+    fn into_py(self, py: Python<'_>) -> PyObject {
         PyString::new(py, &self).into()
     }
 }
 
 impl<'a> IntoPy<PyObject> for &'a String {
     #[inline]
-    fn into_py(self, py: Python) -> PyObject {
+    fn into_py(self, py: Python<'_>) -> PyObject {
         PyString::new(py, self).into()
     }
 }
@@ -349,7 +369,7 @@ impl FromPyObject<'_> for String {
 
 impl FromPyObject<'_> for char {
     fn extract(obj: &PyAny) -> PyResult<Self> {
-        let s = PyString::try_from(obj)?.to_str()?;
+        let s = <PyString as PyTryFrom<'_>>::try_from(obj)?.to_str()?;
         let mut iter = s.chars();
         if let (Some(ch), None) = (iter.next(), iter.next()) {
             Ok(ch)
@@ -590,6 +610,24 @@ mod tests {
                 .to_string()
                 .contains("'utf-32' codec can't decode bytes in position 0-7"));
             assert_eq!(data.to_string_lossy(), Cow::Owned::<str>("𠀀�".into()));
+        });
+    }
+
+    #[test]
+    fn test_intern_string() {
+        Python::with_gil(|py| {
+            let py_string1 = PyString::intern(py, "foo");
+            assert_eq!(py_string1.to_str().unwrap(), "foo");
+
+            let py_string2 = PyString::intern(py, "foo");
+            assert_eq!(py_string2.to_str().unwrap(), "foo");
+
+            assert_eq!(py_string1.as_ptr(), py_string2.as_ptr());
+
+            let py_string3 = PyString::intern(py, "bar");
+            assert_eq!(py_string3.to_str().unwrap(), "bar");
+
+            assert_ne!(py_string1.as_ptr(), py_string3.as_ptr());
         });
     }
 }
