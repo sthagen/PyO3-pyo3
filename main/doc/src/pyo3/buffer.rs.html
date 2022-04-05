@@ -803,7 +803,7 @@
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">PyBuffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">PyBuffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;PyBuffer&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;buf&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">buf</span>)
             .<span class="ident">field</span>(<span class="string">&quot;obj&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">obj</span>)
@@ -1224,7 +1224,7 @@
     <span class="doccomment">/// To check whether the buffer format is compatible before calling this method,</span>
     <span class="doccomment">/// you can use `&lt;T as buffer::Element&gt;::is_compatible_format(buf.format())`.</span>
     <span class="doccomment">/// Alternatively, `match buffer::ElementType::from_format(buf.format())`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_to_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">target</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_to_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">target</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">copy_to_slice_impl</span>(<span class="ident">py</span>, <span class="ident">target</span>, <span class="string">b&#39;C&#39;</span>)
     }
 
@@ -1237,11 +1237,11 @@
     <span class="doccomment">/// To check whether the buffer format is compatible before calling this method,</span>
     <span class="doccomment">/// you can use `&lt;T as buffer::Element&gt;::is_compatible_format(buf.format())`.</span>
     <span class="doccomment">/// Alternatively, `match buffer::ElementType::from_format(buf.format())`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_to_fortran_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">target</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_to_fortran_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">target</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">copy_to_slice_impl</span>(<span class="ident">py</span>, <span class="ident">target</span>, <span class="string">b&#39;F&#39;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">copy_to_slice_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">target</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>], <span class="ident">fort</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">copy_to_slice_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">target</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>], <span class="ident">fort</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">mem::size_of_val</span>(<span class="ident">target</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len_bytes</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PyBufferError::new_err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;slice to copy to (of length {}) does not match buffer length of {}&quot;</span>,
@@ -1271,7 +1271,7 @@
     <span class="doccomment">/// If the buffer is multi-dimensional, the elements are written in C-style order.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Fails if the buffer format is not compatible with type `T`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_vec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_vec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">to_vec_impl</span>(<span class="ident">py</span>, <span class="string">b&#39;C&#39;</span>)
     }
 
@@ -1279,11 +1279,11 @@
     <span class="doccomment">/// If the buffer is multi-dimensional, the elements are written in Fortran-style order.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Fails if the buffer format is not compatible with type `T`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_fortran_vec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_fortran_vec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">to_vec_impl</span>(<span class="ident">py</span>, <span class="string">b&#39;F&#39;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">to_vec_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">fort</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_vec_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">fort</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">item_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">item_count</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">item_count</span>);
         <span class="kw">unsafe</span> {
@@ -1319,7 +1319,7 @@
     <span class="doccomment">/// To check whether the buffer format is compatible before calling this method,</span>
     <span class="doccomment">/// use `&lt;T as buffer::Element&gt;::is_compatible_format(buf.format())`.</span>
     <span class="doccomment">/// Alternatively, `match buffer::ElementType::from_format(buf.format())`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">copy_from_slice_impl</span>(<span class="ident">py</span>, <span class="ident">source</span>, <span class="string">b&#39;C&#39;</span>)
     }
 
@@ -1333,11 +1333,11 @@
     <span class="doccomment">/// To check whether the buffer format is compatible before calling this method,</span>
     <span class="doccomment">/// use `&lt;T as buffer::Element&gt;::is_compatible_format(buf.format())`.</span>
     <span class="doccomment">/// Alternatively, `match buffer::ElementType::from_format(buf.format())`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_fortran_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_fortran_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">copy_from_slice_impl</span>(<span class="ident">py</span>, <span class="ident">source</span>, <span class="string">b&#39;F&#39;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">copy_from_slice_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>], <span class="ident">fort</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">copy_from_slice_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>], <span class="ident">fort</span>: <span class="ident">u8</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">readonly</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PyBufferError::new_err</span>(<span class="string">&quot;cannot write to read-only buffer&quot;</span>));
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">mem::size_of_val</span>(<span class="ident">source</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len_bytes</span>() {
@@ -1372,7 +1372,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">release</span>(<span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">release</span>(<span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
         <span class="comment">// First move self into a ManuallyDrop, so that PyBuffer::drop will</span>
         <span class="comment">// never be called. (It would acquire the GIL and call PyBuffer_Release</span>
         <span class="comment">// again.)</span>
@@ -1524,5 +1524,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

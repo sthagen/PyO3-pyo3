@@ -541,6 +541,24 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
 </pre><pre class="rust"><code><span class="comment">// FFI note: this file changed a lot between 3.6 and 3.10.</span>
 <span class="comment">// Some missing definitions may not be marked &quot;skipped&quot;.</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyport</span>::{<span class="ident">Py_hash_t</span>, <span class="ident">Py_ssize_t</span>};
@@ -748,9 +766,21 @@
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyType_GetSlot&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyType_GetSlot</span>(<span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>, <span class="ident">arg2</span>: <span class="ident">c_int</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
 
-    <span class="comment">// skipped non-limited / 3.9 PyType_FromModuleAndSpec</span>
-    <span class="comment">// skipped non-limited / 3.9 PyType_GetModule</span>
-    <span class="comment">// skipped non-limited / 3.9 PyType_GetModuleState</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_3_10</span>, <span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyType_FromModuleAndSpec&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyType_FromModuleAndSpec</span>(
+        <span class="ident">module</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+        <span class="ident">spec</span>: <span class="kw-2">*mut</span> <span class="ident">PyType_Spec</span>,
+        <span class="ident">bases</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_3_10</span>, <span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyType_GetModule&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyType_GetModule</span>(<span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_3_10</span>, <span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyType_GetModuleState&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyType_GetModuleState</span>(<span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
@@ -867,6 +897,12 @@
 
 <span class="comment">// Flag bits for printing:</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_PRINT_RAW</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>; <span class="comment">// No string quotes etc.</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_10</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_TPFLAGS_SEQUENCE</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_10</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_TPFLAGS_MAPPING</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_TPFLAGS_DISALLOW_INSTANTIATION</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">7</span>;
@@ -1080,5 +1116,5 @@
     (<span class="ident">Py_TYPE</span>(<span class="ident">op</span>) <span class="op">==</span> <span class="macro">addr_of_mut_shim!</span>(<span class="ident">PyType_Type</span>)) <span class="kw">as</span> <span class="ident">c_int</span>
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

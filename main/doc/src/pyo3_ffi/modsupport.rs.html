@@ -164,6 +164,11 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::methodobject::PyMethodDef</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::moduleobject::PyModuleDef</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object::PyObject</span>;
@@ -243,7 +248,12 @@
         <span class="ident">name</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
         <span class="ident">value</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
     ) -&gt; <span class="ident">c_int</span>;
-    <span class="comment">// skipped non-limited / 3.9 PyModule_AddType</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_3_10</span>, <span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyModule_AddType&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyModule_AddType</span>(
+        <span class="ident">module</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+        <span class="ident">type_</span>: <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::object::PyTypeObject</span>,
+    ) -&gt; <span class="ident">c_int</span>;
     <span class="comment">// skipped PyModule_AddIntMacro</span>
     <span class="comment">// skipped PyModule_AddStringMacro</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyModule_SetDocString</span>(<span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>, <span class="ident">arg2</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>) -&gt; <span class="ident">c_int</span>;
@@ -326,5 +336,5 @@
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">_Py_PackageContext</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>;
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

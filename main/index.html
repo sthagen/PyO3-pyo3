@@ -205,7 +205,7 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies]
-pyo3 = { version = &quot;0.16.2&quot;, features = [&quot;extension-module&quot;] }
+pyo3 = { version = &quot;0.16.3&quot;, features = [&quot;extension-module&quot;] }
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
 <pre><pre class="playground"><code class="language-rust">
@@ -223,7 +223,7 @@ fn sum_as_string(a: usize, b: usize) -&gt; PyResult&lt;String&gt; {
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
 /// import the module.
 #[pymodule]
-fn string_sum(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn string_sum(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
     Ok(())
 }
@@ -254,7 +254,7 @@ maturin develop
 </code></pre>
 <p>Start a new project with <code>cargo new</code> and add  <code>pyo3</code> to the <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;0.16.2&quot;
+version = &quot;0.16.3&quot;
 features = [&quot;auto-initialize&quot;]
 </code></pre>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>
@@ -286,7 +286,8 @@ about this topic.</p>
 <li><a href="https://github.com/gperinazzo/dict-derive">dict-derive</a> <em>Derive FromPyObject to automatically transform Python dicts into Rust structs</em></li>
 <li><a href="https://github.com/vorner/pyo3-log">pyo3-log</a> <em>Bridge from Rust to Python logging</em></li>
 <li><a href="https://github.com/davidhewitt/pythonize">pythonize</a> <em>Serde serializer for converting Rust objects to JSON-compatible Python objects</em></li>
-<li><a href="https://github.com/awestlake87/pyo3-asyncio">pyo3-asyncio</a> Utilities for working with Python's Asyncio library and async functions</li>
+<li><a href="https://github.com/awestlake87/pyo3-asyncio">pyo3-asyncio</a> <em>Utilities for working with Python's Asyncio library and async functions</em></li>
+<li><a href="https://github.com/mityax/rustimport">rustimport</a> <em>Directly import Rust files or crates from Python, without manual compilation step. Provides pyo3 integration by default and generates pyo3 binding code automatically.</em></li>
 </ul>
 <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <ul>

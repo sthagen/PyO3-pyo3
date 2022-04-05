@@ -10,7 +10,7 @@
 <p>To use this feature, add this to your <strong><code>Cargo.toml</code></strong>:</p>
 <div class="example-wrap"><pre class="language-toml"><code>[dependencies]
 num-bigint = &quot;*&quot;
-pyo3 = { version = &quot;0.16.2&quot;, features = [&quot;num-bigint&quot;] }</code></pre></div>
+pyo3 = { version = &quot;0.16.3&quot;, features = [&quot;num-bigint&quot;] }</code></pre></div>
 <p>Note that you must use compatible versions of num-bigint and PyO3.
 The required num-bigint version may vary based on the version of PyO3.</p>
 <h3 id="examples"><a href="#examples">Examples</a></h3>
@@ -27,7 +27,7 @@ in which case it will fail its conversion and raise <code>OverflowError</code>.<
 }
 
 <span class="attribute">#[<span class="ident">pymodule</span>]</span>
-<span class="kw">fn</span> <span class="ident">my_module</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">PyModule</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">my_module</span>(<span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">PyModule</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="ident">m</span>.<span class="ident">add_function</span>(<span class="macro">wrap_pyfunction!</span>(<span class="ident">add_one</span>, <span class="ident">m</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -37,5 +37,5 @@ in which case it will fail its conversion and raise <code>OverflowError</code>.<
 n = 1 &lt;&lt; 1337
 value = add_one(n)
 
-assert n + 1 == value</code></pre></div></div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+assert n + 1 == value</code></pre></div></div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

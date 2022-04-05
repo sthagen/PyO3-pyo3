@@ -244,6 +244,7 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
+<span id="242">242</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -345,7 +346,7 @@
     <span class="doccomment">/// Similar to [`as_ref`](#method.as_ref), and also consumes this `Py` and registers the</span>
     <span class="doccomment">/// Python object reference in PyO3&#39;s object storage. The reference count for the Python</span>
     <span class="doccomment">/// object will not be decreased until the GIL lifetime ends.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_ref</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyIterator</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_ref</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyIterator</span> {
         <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_owned_ptr</span>(<span class="self">self</span>.<span class="ident">into_ptr</span>()) }
     }
 }
@@ -458,7 +459,8 @@ def fibonacci(target):
     <span class="kw">fn</span> <span class="ident">iterator_try_from</span>() {
         <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">obj</span>: <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyAny</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">10</span>, <span class="number">20</span>].<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ref</span>(<span class="ident">py</span>).<span class="ident">iter</span>().<span class="ident">unwrap</span>().<span class="ident">into</span>();
-            <span class="kw">let</span> <span class="ident">iter</span>: <span class="kw-2">&amp;</span><span class="ident">PyIterator</span> <span class="op">=</span> <span class="ident">PyIterator::try_from</span>(<span class="ident">obj</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">iter</span>: <span class="kw-2">&amp;</span><span class="ident">PyIterator</span> <span class="op">=</span>
+                <span class="op">&lt;</span><span class="ident">PyIterator</span> <span class="kw">as</span> <span class="ident">PyTryFrom</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">obj</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
             <span class="macro">assert!</span>(<span class="ident">obj</span>.<span class="ident">is</span>(<span class="ident">iter</span>));
         });
     }
@@ -486,5 +488,5 @@ def fibonacci(target):
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

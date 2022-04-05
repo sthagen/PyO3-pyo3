@@ -149,7 +149,7 @@ For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</
 <h2 id="from-015-to-016"><a class="header" href="#from-015-to-016">from 0.15.* to 0.16</a></h2>
 <h3 id="drop-support-for-older-technologies"><a class="header" href="#drop-support-for-older-technologies">Drop support for older technologies</a></h3>
 <p>PyO3 0.16 has increased minimum Rust version to 1.48 and minimum Python version to 3.7. This enables use of newer language features (enabling some of the other additions in 0.16) and simplifies maintenance of the project.</p>
-<p>### <code>#[pyproto]</code> has been deprecated</p>
+<h3 id="pyproto-has-been-deprecated"><a class="header" href="#pyproto-has-been-deprecated"><code>#[pyproto]</code> has been deprecated</a></h3>
 <p>In PyO3 0.15, the <code>#[pymethods]</code> attribute macro gained support for implementing &quot;magic methods&quot; such as <code>__str__</code> (aka &quot;dunder&quot; methods). This implementation was not quite finalized at the time, with a few edge cases to be decided upon. The existing <code>#[pyproto]</code> attribute macro was left untouched, because it covered these edge cases.</p>
 <p>In PyO3 0.16, the <code>#[pymethods]</code> implementation has been completed and is now the preferred way to implement magic methods. To allow the PyO3 project to move forward, <code>#[pyproto]</code> has been deprecated (with expected removal in PyO3 0.18).</p>
 <p>Migration from <code>#[pyproto]</code> to <code>#[pymethods]</code> is straightforward; copying the existing methods directly from the <code>#[pyproto]</code> trait implementation is all that is needed in most cases.</p>
@@ -235,7 +235,7 @@ method <code>eq()</code>.</p>
     use pyo3::prelude::*;
 
     #[pymodule]
-    fn private_submodule(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+    fn private_submodule(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
         Ok(())
     }
 }
@@ -244,7 +244,7 @@ use pyo3::prelude::*;
 use foo::*;
 
 #[pymodule]
-fn my_module(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_module(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_wrapped(wrap_pymodule!(private_submodule))?;
     Ok(())
 }
@@ -258,7 +258,7 @@ fn my_module(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     use pyo3::prelude::*;
 
     #[pymodule]
-    pub(crate) fn private_submodule(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+    pub(crate) fn private_submodule(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
         Ok(())
     }
 }
@@ -268,7 +268,7 @@ use pyo3::wrap_pymodule;
 use foo::*;
 
 #[pymodule]
-fn my_module(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_module(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_wrapped(wrap_pymodule!(private_submodule))?;
     Ok(())
 }
@@ -419,7 +419,7 @@ adjust accordingly.</p>
 </span>struct MyPyObjectWrapper(PyObject);
 
 impl FromPy&lt;MyPyObjectWrapper&gt; for PyObject {
-    fn from_py(other: MyPyObjectWrapper, _py: Python) -&gt; Self {
+    fn from_py(other: MyPyObjectWrapper, _py: Python&lt;'_&gt;) -&gt; Self {
         other.0
     }
 }
@@ -432,7 +432,7 @@ impl FromPy&lt;MyPyObjectWrapper&gt; for PyObject {
 </span>struct MyPyObjectWrapper(PyObject);
 
 impl IntoPy&lt;PyObject&gt; for MyPyObjectWrapper {
-    fn into_py(self, _py: Python) -&gt; PyObject {
+    fn into_py(self, _py: Python&lt;'_&gt;) -&gt; PyObject {
         self.0
     }
 }
@@ -759,10 +759,10 @@ let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
 let obj_cell: &amp;PyCell&lt;MyClass&gt; = obj.extract().unwrap();
 let obj_cloned: MyClass = obj.extract().unwrap(); // extracted by cloning the object
 {
-    let obj_ref: PyRef&lt;MyClass&gt; = obj.extract().unwrap();
+    let obj_ref: PyRef&lt;'_, MyClass&gt; = obj.extract().unwrap();
     // we need to drop obj_ref before we can extract a PyRefMut due to Rust's rules of references
 }
-let obj_ref_mut: PyRefMut&lt;MyClass&gt; = obj.extract().unwrap();
+let obj_ref_mut: PyRefMut&lt;'_, MyClass&gt; = obj.extract().unwrap();
 <span class="boring">})
 </span><span class="boring">}
 </span></code></pre></pre>

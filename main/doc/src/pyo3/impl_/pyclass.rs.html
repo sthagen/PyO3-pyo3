@@ -931,6 +931,9 @@
 <span id="926">926</span>
 <span id="927">927</span>
 <span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions</span>::{<span class="ident">PyAttributeError</span>, <span class="ident">PyNotImplementedError</span>},
     <span class="ident">ffi</span>,
@@ -965,7 +968,7 @@
     <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span>;
     <span class="doccomment">/// Empties the dictionary of its key-value pairs.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">clear_dict</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {}
+    <span class="kw">fn</span> <span class="ident">clear_dict</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {}
     <span class="macro">private_decl!</span> {}
 }
 
@@ -979,7 +982,7 @@
     <span class="doccomment">/// - `_obj` must be a pointer to the pyclass instance which contains `self`.</span>
     <span class="doccomment">/// - The GIL must be held.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clear_weakrefs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_obj</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {}
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clear_weakrefs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_obj</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {}
     <span class="macro">private_decl!</span> {}
 }
 
@@ -1015,7 +1018,7 @@
         <span class="self">Self</span>(<span class="ident">std::ptr::null_mut</span>())
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">clear_dict</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_dict</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_null</span>() {
             <span class="kw">unsafe</span> { <span class="ident">ffi::PyDict_Clear</span>(<span class="self">self</span>.<span class="number">0</span>) }
         }
@@ -1035,7 +1038,7 @@
         <span class="self">Self</span>(<span class="ident">std::ptr::null_mut</span>())
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clear_weakrefs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">obj</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">_py</span>: <span class="ident">Python</span>) {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clear_weakrefs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">obj</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>, <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_null</span>() {
             <span class="ident">ffi::PyObject_ClearWeakRefs</span>(<span class="ident">obj</span>)
         }
@@ -1088,6 +1091,9 @@
     <span class="doccomment">/// #[pyclass(extends=...)]</span>
     <span class="kw">const</span> <span class="ident">IS_SUBCLASS</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
+    <span class="doccomment">/// #[pyclass(mapping)]</span>
+    <span class="kw">const</span> <span class="ident">IS_MAPPING</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
     <span class="doccomment">/// Layout</span>
     <span class="kw">type</span> <span class="ident">Layout</span>: <span class="ident">PyLayout</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
 
@@ -1138,7 +1144,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__getattribute__</span>(
         <span class="self">self</span>,
-        <span class="ident">py</span>: <span class="ident">Python</span>,
+        <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">attr</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
@@ -1158,7 +1164,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__getattr__</span>(
         <span class="self">self</span>,
-        <span class="ident">py</span>: <span class="ident">Python</span>,
+        <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">attr</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
@@ -1232,7 +1238,7 @@
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">set</span>(
                 <span class="self">self</span>,
-                <span class="ident">_py</span>: <span class="ident">Python</span>,
+                <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
                 <span class="ident">_attr</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
                 <span class="ident">_value</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">ffi::PyObject</span><span class="op">&gt;</span>,
@@ -1248,7 +1254,7 @@
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">del</span>(
                 <span class="self">self</span>,
-                <span class="ident">_py</span>: <span class="ident">Python</span>,
+                <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
                 <span class="ident">_attr</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
             ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -1349,7 +1355,7 @@
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>(
                 <span class="self">self</span>,
-                <span class="ident">_py</span>: <span class="ident">Python</span>,
+                <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
                 <span class="ident">_other</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
             ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
@@ -1364,7 +1370,7 @@
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>(
                 <span class="self">self</span>,
-                <span class="ident">_py</span>: <span class="ident">Python</span>,
+                <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
                 <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
                 <span class="ident">_other</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
             ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
@@ -1544,7 +1550,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__pow__</span>(
         <span class="self">self</span>,
-        <span class="ident">_py</span>: <span class="ident">Python</span>,
+        <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">_other</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">_mod</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
@@ -1560,7 +1566,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__rpow__</span>(
         <span class="self">self</span>,
-        <span class="ident">_py</span>: <span class="ident">Python</span>,
+        <span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">_slf</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">_other</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
         <span class="ident">_mod</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>,
@@ -1608,7 +1614,7 @@
 <span class="doccomment">/// Do not implement this trait manually. Instead, use `#[pyclass(freelist = N)]`</span>
 <span class="doccomment">/// on a Rust struct to implement it.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyClassWithFreeList</span>: <span class="ident">PyClass</span> {
-    <span class="kw">fn</span> <span class="ident">get_free_list</span>(<span class="ident">py</span>: <span class="ident">Python</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">FreeList</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get_free_list</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">FreeList</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// Implementation of tp_alloc for `freelist` classes.</span>
@@ -1670,7 +1676,7 @@
 <span class="doccomment">/// Workaround for Python issue 35810; no longer necessary in Python 3.8</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_8</span>))]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bpo_35810_workaround</span>(<span class="ident">_py</span>: <span class="ident">Python</span>, <span class="ident">ty</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyTypeObject</span>) {
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bpo_35810_workaround</span>(<span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">ty</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::PyTypeObject</span>) {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_LIMITED_API</span>)]</span>
     {
         <span class="comment">// Must check version at runtime for abi3 wheels - they could run against a higher version</span>
@@ -1860,5 +1866,5 @@
     <span class="ident">result</span>
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

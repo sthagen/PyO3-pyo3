@@ -411,6 +411,13 @@
 <span id="406">406</span>
 <span id="407">407</span>
 <span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -421,8 +428,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::PyClass</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeObject</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyCFunction</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyList</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyCFunction</span>, <span class="ident">PyDict</span>, <span class="ident">PyList</span>, <span class="ident">PyString</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
 <span class="kw">use</span> <span class="ident">std::str</span>;
@@ -581,12 +587,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// `__all__` declares the items that will be imported with `from my_module import *`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyList</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">getattr</span>(<span class="string">&quot;__all__&quot;</span>) {
+        <span class="kw">let</span> <span class="ident">__all__</span> <span class="op">=</span> <span class="ident">__all__</span>(<span class="self">self</span>.<span class="ident">py</span>());
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">getattr</span>(<span class="ident">__all__</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">idx</span>) =&gt; <span class="ident">idx</span>.<span class="ident">downcast</span>().<span class="ident">map_err</span>(<span class="ident">PyErr::from</span>),
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">is_instance_of</span>::<span class="op">&lt;</span><span class="ident">exceptions::PyAttributeError</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">py</span>()) {
                     <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">PyList::empty</span>(<span class="self">self</span>.<span class="ident">py</span>());
-                    <span class="self">self</span>.<span class="ident">setattr</span>(<span class="string">&quot;__all__&quot;</span>, <span class="ident">l</span>).<span class="ident">map_err</span>(<span class="ident">PyErr::from</span>)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.<span class="ident">setattr</span>(<span class="ident">__all__</span>, <span class="ident">l</span>).<span class="ident">map_err</span>(<span class="ident">PyErr::from</span>)<span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(<span class="ident">l</span>)
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>)
@@ -615,7 +622,6 @@
     <span class="doccomment">/// May fail if the module does not have a `__file__` attribute.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">PyPy</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filename</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyString</span>;
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">py</span>()
                 .<span class="ident">from_owned_ptr_or_err</span>::<span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span>(<span class="ident">ffi::PyModule_GetFilenameObject</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()))<span class="question-mark">?</span>
@@ -634,7 +640,7 @@
     <span class="doccomment">/// use pyo3::prelude::*;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// #[pymodule]</span>
-    <span class="doccomment">/// fn my_module(_py: Python, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">/// fn my_module(_py: Python&lt;&#39;_&gt;, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
     <span class="doccomment">///     module.add(&quot;c&quot;, 299_792_458)?;</span>
     <span class="doccomment">///     Ok(())</span>
     <span class="doccomment">/// }</span>
@@ -678,7 +684,7 @@
     <span class="doccomment">/// struct Foo { /* fields omitted */ }</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// #[pymodule]</span>
-    <span class="doccomment">/// fn my_module(_py: Python, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">/// fn my_module(_py: Python&lt;&#39;_&gt;, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
     <span class="doccomment">///     module.add_class::&lt;Foo&gt;()?;</span>
     <span class="doccomment">///     Ok(())</span>
     <span class="doccomment">/// }</span>
@@ -717,7 +723,7 @@
     {
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
         <span class="kw">let</span> <span class="ident">function</span> <span class="op">=</span> <span class="ident">wrapper</span>(<span class="ident">py</span>).<span class="ident">convert</span>(<span class="ident">py</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">getattr</span>(<span class="ident">py</span>, <span class="string">&quot;__name__&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">getattr</span>(<span class="ident">py</span>, <span class="ident">__name__</span>(<span class="ident">py</span>))<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">extract</span>(<span class="ident">py</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">name</span>, <span class="ident">function</span>)
     }
@@ -737,7 +743,7 @@
     <span class="doccomment">/// use pyo3::prelude::*;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// #[pymodule]</span>
-    <span class="doccomment">/// fn my_module(py: Python, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">/// fn my_module(py: Python&lt;&#39;_&gt;, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
     <span class="doccomment">///     let submodule = PyModule::new(py, &quot;submodule&quot;)?;</span>
     <span class="doccomment">///     submodule.add(&quot;super_useful_constant&quot;, &quot;important&quot;)?;</span>
     <span class="doccomment">///</span>
@@ -780,7 +786,7 @@
     <span class="doccomment">///     println!(&quot;Hello world!&quot;)</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// #[pymodule]</span>
-    <span class="doccomment">/// fn my_module(_py: Python, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">/// fn my_module(_py: Python&lt;&#39;_&gt;, module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
     <span class="doccomment">///     module.add_function(wrap_pyfunction!(say_hello, module)?)</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
@@ -802,9 +808,17 @@
     <span class="doccomment">/// [1]: crate::prelude::pyfunction</span>
     <span class="doccomment">/// [2]: crate::wrap_pyfunction</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">fun</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">PyCFunction</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">fun</span>.<span class="ident">getattr</span>(<span class="string">&quot;__name__&quot;</span>)<span class="question-mark">?</span>.<span class="ident">extract</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">fun</span>.<span class="ident">getattr</span>(<span class="ident">__name__</span>(<span class="self">self</span>.<span class="ident">py</span>()))<span class="question-mark">?</span>.<span class="ident">extract</span>()<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">name</span>, <span class="ident">fun</span>)
     }
+}
+
+<span class="kw">fn</span> <span class="ident">__all__</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyString</span> {
+    <span class="macro">intern!</span>(<span class="ident">py</span>, <span class="string">&quot;__all__&quot;</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">__name__</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyString</span> {
+    <span class="macro">intern!</span>(<span class="ident">py</span>, <span class="string">&quot;__name__&quot;</span>)
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -820,5 +834,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

@@ -161,7 +161,7 @@ fn search(contents: &amp;str, needle: &amp;str) -&gt; usize {
 </code></pre>
 <p>To enable parallel execution of this function, the <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> method can be used to temporarily release the GIL, thus allowing other Python threads to run. We then have a function exposed to the Python runtime which calls <code>search_sequential</code> inside a closure passed to <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.allow_threads"><code>Python::allow_threads</code></a> to enable true parallelism:</p>
 <pre><code class="language-rust ignore">#[pyfunction]
-fn search_sequential_allow_threads(py: Python, contents: &amp;str, needle: &amp;str) -&gt; usize {
+fn search_sequential_allow_threads(py: Python&lt;'_&gt;, contents: &amp;str, needle: &amp;str) -&gt; usize {
     py.allow_threads(|| search_sequential(contents, needle))
 }
 </code></pre>

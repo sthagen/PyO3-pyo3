@@ -461,6 +461,16 @@
 <span id="456">456</span>
 <span id="457">457</span>
 <span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">auto_traits</span>, <span class="ident">negative_impls</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc_auto_cfg</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(
@@ -471,9 +481,18 @@
         <span class="ident">rustdoc::bare_urls</span>
     )
 )]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">elided_lifetimes_in_paths</span>, <span class="ident">unused_lifetimes</span>)]</span>
 <span class="comment">// Deny some lints in doctests.</span>
 <span class="comment">// Use `#[allow(...)]` locally to override.</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">attr</span>(<span class="ident">deny</span>(<span class="ident">warnings</span>), <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unused_assignments</span>))))]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">attr</span>(
+    <span class="ident">deny</span>(
+        <span class="ident">elided_lifetimes_in_paths</span>,
+        <span class="ident">unused_lifetimes</span>,
+        <span class="ident">rust_2021_prelude_collisions</span>,
+        <span class="ident">warnings</span>
+    ),
+    <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unused_assignments</span>)
+)))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">coverage</span>, <span class="ident">feature</span>(<span class="ident">no_coverage</span>))]</span> <span class="comment">// used in src/test_hygiene.rs</span>
 
 <span class="doccomment">//! Rust bindings to the Python interpreter.</span>
@@ -623,7 +642,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! /// A Python module implemented in Rust.</span>
 <span class="doccomment">//! #[pymodule]</span>
-<span class="doccomment">//! fn string_sum(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
+<span class="doccomment">//! fn string_sum(py: Python&lt;&#39;_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {</span>
 <span class="doccomment">//!     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     Ok(())</span>
@@ -829,6 +848,7 @@
 <span class="kw">mod</span> <span class="ident">instance</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">marker</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">marshal</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">once_cell</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">panic</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
@@ -920,5 +940,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (52b34550a 2022-03-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
 </body></html>

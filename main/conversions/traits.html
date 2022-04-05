@@ -363,7 +363,7 @@ attribute can be applied to single-field-variants.</p>
 </span><span class="boring">    Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {
 </span><span class="boring">        {
 </span><span class="boring">            let thing = 42_u8.to_object(py);
-</span><span class="boring">            let rust_thing: RustyEnum = thing.extract(py)?;
+</span><span class="boring">            let rust_thing: RustyEnum&lt;'_&gt; = thing.extract(py)?;
 </span><span class="boring">
 </span><span class="boring">            assert_eq!(
 </span><span class="boring">                42,
@@ -375,7 +375,7 @@ attribute can be applied to single-field-variants.</p>
 </span><span class="boring">        }
 </span><span class="boring">        {
 </span><span class="boring">            let thing = PyString::new(py, &quot;text&quot;);
-</span><span class="boring">            let rust_thing: RustyEnum = thing.extract()?;
+</span><span class="boring">            let rust_thing: RustyEnum&lt;'_&gt; = thing.extract()?;
 </span><span class="boring">
 </span><span class="boring">            assert_eq!(
 </span><span class="boring">                &quot;text&quot;,
@@ -387,7 +387,7 @@ attribute can be applied to single-field-variants.</p>
 </span><span class="boring">        }
 </span><span class="boring">        {
 </span><span class="boring">            let thing = (32_u8, 73_u8).to_object(py);
-</span><span class="boring">            let rust_thing: RustyEnum = thing.extract(py)?;
+</span><span class="boring">            let rust_thing: RustyEnum&lt;'_&gt; = thing.extract(py)?;
 </span><span class="boring">
 </span><span class="boring">            assert_eq!(
 </span><span class="boring">                (32, 73),
@@ -399,7 +399,7 @@ attribute can be applied to single-field-variants.</p>
 </span><span class="boring">        }
 </span><span class="boring">        {
 </span><span class="boring">            let thing = (&quot;foo&quot;, 73_u8).to_object(py);
-</span><span class="boring">            let rust_thing: RustyEnum = thing.extract(py)?;
+</span><span class="boring">            let rust_thing: RustyEnum&lt;'_&gt; = thing.extract(py)?;
 </span><span class="boring">
 </span><span class="boring">            assert_eq!(
 </span><span class="boring">                (String::from(&quot;foo&quot;), 73),
@@ -423,7 +423,7 @@ attribute can be applied to single-field-variants.</p>
 </span><span class="boring">
 </span><span class="boring">            let class = module.getattr(&quot;Foo&quot;)?;
 </span><span class="boring">            let instance = class.call0()?;
-</span><span class="boring">            let rust_thing: RustyEnum = instance.extract()?;
+</span><span class="boring">            let rust_thing: RustyEnum&lt;'_&gt; = instance.extract()?;
 </span><span class="boring">
 </span><span class="boring">            assert_eq!(
 </span><span class="boring">                (0, 1, 2),
@@ -447,7 +447,7 @@ attribute can be applied to single-field-variants.</p>
 </span><span class="boring">
 </span><span class="boring">            let class = module.getattr(&quot;Foo&quot;)?;
 </span><span class="boring">            let instance = class.call0()?;
-</span><span class="boring">            let rust_thing: RustyEnum = instance.extract()?;
+</span><span class="boring">            let rust_thing: RustyEnum&lt;'_&gt; = instance.extract()?;
 </span><span class="boring">
 </span><span class="boring">            assert_eq!(
 </span><span class="boring">                (3, 4),
@@ -460,7 +460,7 @@ attribute can be applied to single-field-variants.</p>
 </span><span class="boring">
 </span><span class="boring">        {
 </span><span class="boring">            let thing = PyBytes::new(py, b&quot;text&quot;);
-</span><span class="boring">            let rust_thing: RustyEnum = thing.extract()?;
+</span><span class="boring">            let rust_thing: RustyEnum&lt;'_&gt; = thing.extract()?;
 </span><span class="boring">
 </span><span class="boring">            assert_eq!(
 </span><span class="boring">                b&quot;text&quot;,
@@ -584,7 +584,7 @@ names:</p>
 struct MyPyObjectWrapper(PyObject);
 
 impl IntoPy&lt;PyObject&gt; for MyPyObjectWrapper {
-    fn into_py(self, py: Python) -&gt; PyObject {
+    fn into_py(self, py: Python&lt;'_&gt;) -&gt; PyObject {
         self.0
     }
 }

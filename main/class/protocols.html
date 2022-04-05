@@ -166,8 +166,8 @@
 given signatures should be interpreted as follows:</p>
 <ul>
 <li>All methods take a receiver as first argument, shown as <code>&lt;self&gt;</code>. It can be
-<code>&amp;self</code>, <code>&amp;mut self</code> or a <code>PyCell</code> reference like <code>self_: PyRef&lt;Self&gt;</code> and
-<code>self_: PyRefMut&lt;Self&gt;</code>, as described <a href="../class.html#inheritance">here</a>.</li>
+<code>&amp;self</code>, <code>&amp;mut self</code> or a <code>PyCell</code> reference like <code>self_: PyRef&lt;'_, Self&gt;</code> and
+<code>self_: PyRefMut&lt;'_, Self&gt;</code>, as described <a href="../class.html#inheritance">here</a>.</li>
 <li>An optional <code>Python&lt;'py&gt;</code> argument is always allowed as the first argument.</li>
 <li>Return values can be optionally wrapped in <code>PyResult</code>.</li>
 <li><code>object</code> means that any type is allowed that can be extracted from a Python
@@ -272,10 +272,10 @@ struct MyIterator {
 
 #[pymethods]
 impl MyIterator {
-    fn __iter__(slf: PyRef&lt;Self&gt;) -&gt; PyRef&lt;Self&gt; {
+    fn __iter__(slf: PyRef&lt;'_, Self&gt;) -&gt; PyRef&lt;'_, Self&gt; {
         slf
     }
-    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; Option&lt;PyObject&gt; {
+    fn __next__(mut slf: PyRefMut&lt;'_, Self&gt;) -&gt; Option&lt;PyObject&gt; {
         slf.iter.next()
     }
 }
@@ -297,11 +297,11 @@ struct Iter {
 
 #[pymethods]
 impl Iter {
-    fn __iter__(slf: PyRef&lt;Self&gt;) -&gt; PyRef&lt;Self&gt; {
+    fn __iter__(slf: PyRef&lt;'_, Self&gt;) -&gt; PyRef&lt;'_, Self&gt; {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut&lt;Self&gt;) -&gt; Option&lt;usize&gt; {
+    fn __next__(mut slf: PyRefMut&lt;'_, Self&gt;) -&gt; Option&lt;usize&gt; {
         slf.inner.next()
     }
 }
@@ -313,7 +313,7 @@ struct Container {
 
 #[pymethods]
 impl Container {
-    fn __iter__(slf: PyRef&lt;Self&gt;) -&gt; PyResult&lt;Py&lt;Iter&gt;&gt; {
+    fn __iter__(slf: PyRef&lt;'_, Self&gt;) -&gt; PyResult&lt;Py&lt;Iter&gt;&gt; {
         let iter = Iter {
             inner: slf.iter.clone().into_iter(),
         };
@@ -343,6 +343,15 @@ and <code>Return</code> a final value - see its docs for further details and an 
 <li><code>__anext__(&lt;self&gt;) -&gt; Option&lt;object&gt; or IterANextOutput</code></li>
 </ul>
 <h3 id="mapping--sequence-types"><a class="header" href="#mapping--sequence-types">Mapping &amp; Sequence types</a></h3>
+<p>The magic methods in this section can be used to implement Python container types. They are two main categories of container in Python: &quot;mappings&quot; such as <code>dict</code>, with arbitrary keys, and &quot;sequences&quot; such as <code>list</code> and <code>tuple</code>, with integer keys.</p>
+<p>The Python C-API which PyO3 is built upon has separate &quot;slots&quot; for sequences and mappings. When writing a <code>class</code> in pure Python, there is no such distinction in the implementation - a <code>__getitem__</code> implementation will fill the slots for both the mapping and sequence forms, for example.</p>
+<p>By default PyO3 reproduces the Python behaviour of filling both mapping and sequence slots. This makes sense for the &quot;simple&quot; case which matches Python, and also for sequences, where the mapping slot is used anyway to implement slice indexing.</p>
+<p>Mapping types usually will not want the sequence slots filled. Having them filled will lead to outcomes which may be unwanted, such as:</p>
+<ul>
+<li>The mapping type will successfully cast to <a href="https://pyo3.rs/main/doc/pyo3/types/struct.PySequence.html"><code>PySequence</code></a>. This may lead to consumers of the type handling it incorrectly.</li>
+<li>Python provides a default implementation of <code>__iter__</code> for sequences, which calls <code>__getitem__</code> with consecutive positive integers starting from 0 until an <code>IndexError</code> is returned. Unless the mapping only contains consecutive positive integer keys, this <code>__iter__</code> implementation will likely not be the intended behavior.</li>
+</ul>
+<p>Use the <code>#[pyclass(mapping)]</code> annotation to instruct PyO3 to only fill the mapping slots, leaving the sequence ones empty. This will apply to <code>__getitem__</code>, <code>__setitem__</code>, and <code>__delitem__</code>.</p>
 <ul>
 <li>
 <p><code>__len__(&lt;self&gt;) -&gt; usize</code></p>
@@ -505,7 +514,7 @@ object.  <code>__clear__</code> must clear out any mutable references to other P
 objects (thus breaking reference cycles). Immutable references do not have to be
 cleared, as every cycle must contain at least one mutable reference.</p>
 <ul>
-<li><code>__traverse__(&lt;self&gt;, pyo3::class::gc::PyVisit) -&gt; Result&lt;(), pyo3::class::gc::PyTraverseError&gt;</code></li>
+<li><code>__traverse__(&lt;self&gt;, pyo3::class::gc::PyVisit&lt;'_&gt;) -&gt; Result&lt;(), pyo3::class::gc::PyTraverseError&gt;</code></li>
 <li><code>__clear__(&lt;self&gt;) -&gt; ()</code></li>
 </ul>
 <p>Example:</p>
@@ -523,7 +532,7 @@ struct ClassWithGCSupport {
 
 #[pymethods]
 impl ClassWithGCSupport {
-    fn __traverse__(&amp;self, visit: PyVisit) -&gt; Result&lt;(), PyTraverseError&gt; {
+    fn __traverse__(&amp;self, visit: PyVisit&lt;'_&gt;) -&gt; Result&lt;(), PyTraverseError&gt; {
         if let Some(obj) = &amp;self.obj {
             visit.call(obj)?
         }
@@ -717,10 +726,10 @@ for the <code>__getitem__()</code> method.</p>
 <p>Iterators can be defined using the <a href="https://pyo3.rs/main/doc/pyo3/class/iter/trait.PyIterProtocol.html"><code>PyIterProtocol</code></a> trait.
 It includes two methods <code>__iter__</code> and <code>__next__</code>:</p>
 <ul>
-<li><code>fn __iter__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
-<li><code>fn __next__(slf: PyRefMut&lt;Self&gt;) -&gt; PyResult&lt;Option&lt;impl IntoPy&lt;PyObject&gt;&gt;&gt;</code></li>
+<li><code>fn __iter__(slf: PyRefMut&lt;'_, Self&gt;) -&gt; PyResult&lt;impl IntoPy&lt;PyObject&gt;&gt;</code></li>
+<li><code>fn __next__(slf: PyRefMut&lt;'_, Self&gt;) -&gt; PyResult&lt;Option&lt;impl IntoPy&lt;PyObject&gt;&gt;&gt;</code></li>
 </ul>
-<p>These two methods can be take either <code>PyRef&lt;Self&gt;</code> or <code>PyRefMut&lt;Self&gt;</code> as their
+<p>These two methods can be take either <code>PyRef&lt;'_, Self&gt;</code> or <code>PyRefMut&lt;'_, Self&gt;</code> as their
 first argument, so that mutable borrow can be avoided if needed.</p>
 <p>For details, look at the <code>#[pymethods]</code> regarding iterator methods.</p>
 <h4 id="garbage-collector-integration-1"><a class="header" href="#garbage-collector-integration-1">Garbage Collector Integration</a></h4>

@@ -157,7 +157,7 @@ fn double(x: usize) -&gt; usize {
 
 /// This module is implemented in Rust.
 #[pymodule]
-fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(double, m)?)?;
     Ok(())
 }
@@ -179,7 +179,7 @@ fn double(x: usize) -&gt; usize {
 
 #[pymodule]
 #[pyo3(name = &quot;custom_name&quot;)]
-fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(double, m)?)?;
     Ok(())
 }
@@ -215,7 +215,7 @@ references to the <code>PyModule</code> so that each module registers its own FF
 use pyo3::prelude::*;
 
 #[pymodule]
-fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     dirutil::register(py, m)?;
     osutil::register(py, m)?;
     Ok(())
@@ -225,7 +225,7 @@ fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 <span class="boring">mod dirutil {
 </span>use pyo3::prelude::*;
 
-pub(crate) fn register(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+pub(crate) fn register(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_class::&lt;SomeClass&gt;()?;
     Ok(())
 }
@@ -238,7 +238,7 @@ struct SomeClass {/* ... */}
 <span class="boring">mod osutil {
 </span>use pyo3::prelude::*;
 
-pub(crate) fn register(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+pub(crate) fn register(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(determine_current_os, m)?)?;
     Ok(())
 }
@@ -260,7 +260,7 @@ use pyo3::prelude::*;
 use osutil::*;
 
 #[pymodule]
-fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(determine_current_os, m)?)?;
     Ok(())
 }
@@ -286,12 +286,12 @@ For example, you could define the modules <code>parent_module</code> and <code>p
 </span>use pyo3::prelude::*;
 
 #[pymodule]
-fn parent_module(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn parent_module(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     register_child_module(py, m)?;
     Ok(())
 }
 
-fn register_child_module(py: Python, parent_module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn register_child_module(py: Python&lt;'_&gt;, parent_module: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     let child_module = PyModule::new(py, &quot;child_module&quot;)?;
     child_module.add_function(wrap_pyfunction!(func, child_module)?)?;
     parent_module.add_submodule(child_module)?;

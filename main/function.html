@@ -157,7 +157,7 @@ fn double(x: usize) -&gt; usize {
 }
 
 #[pymodule]
-fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(double, m)?)?;
     Ok(())
 }
@@ -198,7 +198,7 @@ fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 fn no_args_py() -&gt; usize { 42 }
 
 #[pymodule]
-fn module_with_functions(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn module_with_functions(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(no_args_py, m)?)?;
     Ok(())
 }
@@ -260,7 +260,7 @@ fn pyfunction_with_module(module: &amp;PyModule) -&gt; PyResult&lt;&amp;str&gt; 
 }
 
 #[pymodule]
-fn module_with_fn(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn module_with_fn(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(pyfunction_with_module, m)?)
 }
 <span class="boring">}
@@ -281,7 +281,7 @@ fn num_kwds(kwds: Option&lt;&amp;PyDict&gt;) -&gt; usize {
 }
 
 #[pymodule]
-fn module_with_functions(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn module_with_functions(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_function(wrap_pyfunction!(num_kwds, m)?).unwrap();
     Ok(())
 }
@@ -398,7 +398,7 @@ annotated with <code>#[pyfn]</code>. To simplify PyO3, it is expected that <code
 </span>use pyo3::prelude::*;
 
 #[pymodule]
-fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
     #[pyfn(m)]
     fn double(x: usize) -&gt; usize {
@@ -417,7 +417,7 @@ documented in the rest of this chapter. The code above is expanded to the follow
 </span>use pyo3::prelude::*;
 
 #[pymodule]
-fn my_extension(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 
     #[pyfunction]
     fn double(x: usize) -&gt; usize {

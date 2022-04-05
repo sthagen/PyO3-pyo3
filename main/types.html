@@ -233,9 +233,9 @@ let _: Py&lt;MyClass&gt; = obj.extract()?;
 // To MyClass with PyAny::extract, if MyClass: Clone
 let _: MyClass = obj.extract()?;
 
-// To PyRef&lt;MyClass&gt; or PyRefMut&lt;MyClass&gt; with PyAny::extract
-let _: PyRef&lt;MyClass&gt; = obj.extract()?;
-let _: PyRefMut&lt;MyClass&gt; = obj.extract()?;
+// To PyRef&lt;'_, MyClass&gt; or PyRefMut&lt;'_, MyClass&gt; with PyAny::extract
+let _: PyRef&lt;'_, MyClass&gt; = obj.extract()?;
+let _: PyRefMut&lt;'_, MyClass&gt; = obj.extract()?;
 <span class="boring">Ok(())
 </span><span class="boring">}).unwrap();
 </span><span class="boring">}
@@ -330,11 +330,11 @@ let _: &amp;PyCell&lt;MyClass&gt; = my_class.into_ref(py);
 let _: Py&lt;PyAny&gt; = my_class.into_py(py);
 
 <span class="boring">let my_class = my_class_clone;
-</span>// To PyRef&lt;MyClass&gt; with Py::borrow or Py::try_borrow
-let _: PyRef&lt;MyClass&gt; = my_class.try_borrow(py)?;
+</span>// To PyRef&lt;'_, MyClass&gt; with Py::borrow or Py::try_borrow
+let _: PyRef&lt;'_, MyClass&gt; = my_class.try_borrow(py)?;
 
-// To PyRefMut&lt;MyClass&gt; with Py::borrow_mut or Py::try_borrow_mut
-let _: PyRefMut&lt;MyClass&gt; = my_class.try_borrow_mut(py)?;
+// To PyRefMut&lt;'_, MyClass&gt; with Py::borrow_mut or Py::try_borrow_mut
+let _: PyRefMut&lt;'_, MyClass&gt; = my_class.try_borrow_mut(py)?;
 <span class="boring">Ok(())
 </span><span class="boring">}).unwrap();
 </span><span class="boring">});
@@ -360,12 +360,12 @@ so it also exposes all of the methods on <code>PyAny</code>.</p>
 </span>let cell: &amp;PyCell&lt;MyClass&gt; = PyCell::new(py, MyClass { })?;
 
 // To PyRef&lt;T&gt; with .borrow() or .try_borrow()
-let py_ref: PyRef&lt;MyClass&gt; = cell.try_borrow()?;
+let py_ref: PyRef&lt;'_, MyClass&gt; = cell.try_borrow()?;
 let _: &amp;MyClass = &amp;*py_ref;
 <span class="boring">drop(py_ref);
 </span>
 // To PyRefMut&lt;T&gt; with .borrow_mut() or .try_borrow_mut()
-let mut py_ref_mut: PyRefMut&lt;MyClass&gt; = cell.try_borrow_mut()?;
+let mut py_ref_mut: PyRefMut&lt;'_, MyClass&gt; = cell.try_borrow_mut()?;
 let _: &amp;mut MyClass = &amp;mut *py_ref_mut;
 <span class="boring">Ok(())
 </span><span class="boring">}).unwrap();

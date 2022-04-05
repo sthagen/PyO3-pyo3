@@ -182,7 +182,7 @@ the module like this, so that it is importable from Python:</p>
 create_exception!(mymodule, CustomError, PyException);
 
 #[pymodule]
-fn mymodule(py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn mymodule(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     // ... other elements added to module ...
     m.add(&quot;CustomError&quot;, py.get_type::&lt;CustomError&gt;())?;
 
@@ -281,7 +281,7 @@ struct CustomIOError;
 impl std::error::Error for CustomIOError {}
 
 impl fmt::Display for CustomIOError {
-    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
         write!(f, &quot;Oh no!&quot;)
     }
 }

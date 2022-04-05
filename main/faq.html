@@ -237,7 +237,7 @@ struct Outer {
 #[pymethods]
 impl Outer {
     #[new]
-    fn __new__(py: Python) -&gt; PyResult&lt;Self&gt; {
+    fn __new__(py: Python&lt;'_&gt;) -&gt; PyResult&lt;Self&gt; {
         Ok(Self {
             inner: Py::new(py, Inner {})?,
         })

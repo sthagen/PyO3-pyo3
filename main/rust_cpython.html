@@ -189,15 +189,15 @@ and most APIs are available with references.</p>
 <p><strong>rust-cpython</strong></p>
 <pre><code class="language-rust ignore">impl PyList {
 
-   fn new(py: Python) -&gt; PyList {...}
+   fn new(py: Python&lt;'_&gt;) -&gt; PyList {...}
 
-   fn get_item(&amp;self, py: Python, index: isize) -&gt; PyObject {...}
+   fn get_item(&amp;self, py: Python&lt;'_&gt;, index: isize) -&gt; PyObject {...}
 }
 </code></pre>
 <p><strong>pyo3</strong></p>
 <pre><code class="language-rust ignore">impl PyList {
 
-   fn new(py: Python) -&gt; &amp;PyList {...}
+   fn new(py: Python&lt;'_&gt;) -&gt; &amp;PyList {...}
 
    fn get_item(&amp;self, index: isize) -&gt; &amp;PyAny {...}
 }

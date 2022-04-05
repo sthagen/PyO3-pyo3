@@ -277,7 +277,7 @@ impl Number {
 </span><span class="boring">
 </span>#[pymethods]
 impl Number {
-    fn __pos__(slf: PyRef&lt;Self&gt;) -&gt; PyRef&lt;Self&gt; {
+    fn __pos__(slf: PyRef&lt;'_, Self&gt;) -&gt; PyRef&lt;'_, Self&gt; {
         slf
     }
 
@@ -466,7 +466,7 @@ impl Number {
 }
 
 #[pymodule]
-fn my_module(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn my_module(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     m.add_class::&lt;Number&gt;()?;
     Ok(())
 }
@@ -563,7 +563,7 @@ use pyo3::ffi;
 use pyo3::conversion::AsPyPointer;
 
 fn wrap(obj: &amp;PyAny) -&gt; Result&lt;i32, PyErr&gt; {
-    let py: Python = obj.py();
+    let py: Python&lt;'_&gt; = obj.py();
 
     unsafe {
         let ptr = obj.as_ptr();
