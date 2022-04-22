@@ -577,6 +577,45 @@
 <span id="572">572</span>
 <span id="573">573</span>
 <span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
 </pre><pre class="rust"><code><span class="doccomment">//! FFI bindings to the functions and structs defined in `datetime.h`</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This is the unsafe thin  wrapper around the [CPython C API](https://docs.python.org/3/c-api/datetime.html),</span>
@@ -617,11 +656,29 @@
 
 <span class="comment">// skipped non-limited PyDateTime_TZInfo</span>
 <span class="comment">// skipped non-limited _PyDateTime_BaseTZInfo</span>
-<span class="comment">// skipped non-limited _PyDateTime_BaseTime</span>
+
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="doccomment">/// Structure representing a `datetime.time` without a `tzinfo` member.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_BaseTime</span> {
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">hashcode</span>: <span class="ident">Py_hash_t</span>,
+    <span class="kw">pub</span> <span class="ident">hastzinfo</span>: <span class="ident">c_char</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">data</span>: [<span class="ident">c_uchar</span>; <span class="ident">_PyDateTime_TIME_DATASIZE</span>],
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">fold</span>: <span class="ident">c_uchar</span>,
+}
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// Structure representing a `datetime.time`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Safety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Care should be taken when reading the `tzinfo` field of this type. If the time does not have a</span>
+<span class="doccomment">/// tzinfo then the Python interpreter is free to allocate it as a [PyDateTime_BaseTime].</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_Time</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
@@ -645,11 +702,28 @@
     <span class="kw">pub</span> <span class="ident">data</span>: [<span class="ident">c_uchar</span>; <span class="ident">_PyDateTime_DATE_DATASIZE</span>],
 }
 
-<span class="comment">// skipped non-limited _PyDateTime_BaseDateTime</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="doccomment">/// Structure representing a `datetime.datetime` without a `tzinfo` member.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_BaseDateTime</span> {
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">hashcode</span>: <span class="ident">Py_hash_t</span>,
+    <span class="kw">pub</span> <span class="ident">hastzinfo</span>: <span class="ident">c_char</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">data</span>: [<span class="ident">c_uchar</span>; <span class="ident">_PyDateTime_DATETIME_DATASIZE</span>],
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">fold</span>: <span class="ident">c_uchar</span>,
+}
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// Structure representing a `datetime.datetime`</span>
+<span class="doccomment">/// Structure representing a `datetime.datetime`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Safety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Care should be taken when reading the `tzinfo` field of this type. If the datetime does not have a</span>
+<span class="doccomment">/// tzinfo then the Python interpreter is free to allocate it as a [PyDateTime_BaseDateTime].</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_DateTime</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
@@ -734,7 +808,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="macro">macro_rules!</span> <span class="ident">_PyDateTime_GET_TZINFO</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">o</span>: <span class="ident">expr</span>) =&gt; {
-        (<span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">o</span>).<span class="ident">tzinfo</span>
+        <span class="kw">if</span> (<span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">o</span>).<span class="ident">hastzinfo</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+            (<span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">o</span>).<span class="ident">tzinfo</span>
+        } <span class="kw">else</span> {
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Py_None</span>()
+        }
     };
 }
 
@@ -1152,5 +1230,5 @@
 <span class="kw">static</span> <span class="ident">PyDateTimeAPI_impl</span>: <span class="ident">PyDateTimeAPISingleton</span> <span class="op">=</span>
     <span class="ident">PyDateTimeAPISingleton</span>(<span class="ident">UnsafeCell::new</span>(<span class="ident">ptr::null_mut</span>()));
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (60e50fc1c 2022-04-04)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
 </body></html>

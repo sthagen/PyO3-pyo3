@@ -205,7 +205,7 @@ name = &quot;string_sum&quot;
 crate-type = [&quot;cdylib&quot;]
 
 [dependencies]
-pyo3 = { version = &quot;0.16.3&quot;, features = [&quot;extension-module&quot;] }
+pyo3 = { version = &quot;0.16.4&quot;, features = [&quot;extension-module&quot;] }
 </code></pre>
 <p><strong><code>src/lib.rs</code></strong></p>
 <pre><pre class="playground"><code class="language-rust">
@@ -254,7 +254,7 @@ maturin develop
 </code></pre>
 <p>Start a new project with <code>cargo new</code> and add  <code>pyo3</code> to the <code>Cargo.toml</code> like this:</p>
 <pre><code class="language-toml">[dependencies.pyo3]
-version = &quot;0.16.3&quot;
+version = &quot;0.16.4&quot;
 features = [&quot;auto-initialize&quot;]
 </code></pre>
 <p>Example program displaying the value of <code>sys.version</code> and the current user name:</p>

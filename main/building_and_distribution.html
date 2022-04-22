@@ -259,10 +259,19 @@ See the <a href="https://github.com/PyO3/maturin/pull/353">corresponding</a> <a 
 For example, if you set the <code>abi3-py37</code> feature, your extension wheel can be used on all Python 3 versions from Python 3.7 and up. <code>maturin</code> and <code>setuptools-rust</code> will give the wheel a name like <code>my-extension-1.0-cp37-abi3-manylinux2020_x86_64.whl</code>.</p>
 <p>As your extension module may be run with multiple different Python versions you may occasionally find you need to check the Python version at runtime to customize behavior. See <a href="./building_and_distribution/multiple_python_versions.html#checking-the-python-version-at-runtime">the relevant section of this guide</a> on supporting multiple Python versions at runtime.</p>
 <p>PyO3 is only able to link your extension module to api3 version up to and including your host Python version. E.g., if you set <code>abi3-py38</code> and try to compile the crate with a host of Python 3.7, the build will fail.</p>
-<p>As an advanced feature, you can build PyO3 wheel without calling Python interpreter with the environment variable <code>PYO3_NO_PYTHON</code> set. On unix systems this works unconditionally; on Windows you must also set the <code>RUSTFLAGS</code> evironment variable to contain <code>-L native=/path/to/python/libs</code> so that the linker can find <code>python3.lib</code>.</p>
 <blockquote>
 <p>Note: If you set more that one of these api version feature flags the lowest version always wins. For example, with both <code>abi3-py37</code> and <code>abi3-py38</code> set, PyO3 would build a wheel which supports Python 3.7 and up.</p>
 </blockquote>
+<h4 id="building-abi3-extensions-without-a-python-interpreter"><a class="header" href="#building-abi3-extensions-without-a-python-interpreter">Building <code>abi3</code> extensions without a Python interpreter</a></h4>
+<p>As an advanced feature, you can build PyO3 wheel without calling Python interpreter with the environment variable <code>PYO3_NO_PYTHON</code> set.
+Also, if the build host Python interpreter is not found or is too old or otherwise unusable,
+PyO3 will still attempt to compile <code>abi3</code> extension modules after displaying a warning message.
+On Unix-like systems this works unconditionally; on Windows you must also set the <code>RUSTFLAGS</code> environment variable
+to contain <code>-L native=/path/to/python/libs</code> so that the linker can find <code>python3.lib</code>.</p>
+<p>If the <code>python3.dll</code> import library is not available, an experimental <code>generate-abi3-import-lib</code> crate
+feature may be enabled, and the required library will be created and used by PyO3 automatically.</p>
+<p><em>Note</em>: MSVC targets require LLVM binutils (<code>llvm-dlltool</code>) to be available in <code>PATH</code> for
+the automatic import library generation feature to work.</p>
 <h4 id="missing-features"><a class="header" href="#missing-features">Missing features</a></h4>
 <p>Due to limitations in the Python API, there are a few <code>pyo3</code> features that do
 not work when compiling for <code>abi3</code>. These are:</p>
@@ -307,8 +316,8 @@ not work when compiling for <code>abi3</code>. These are:</p>
 <ul>
 <li>A toolchain for your target.</li>
 <li>The appropriate options in your Cargo <code>.config</code> for the platform you're targeting and the toolchain you are using.</li>
-<li>A Python interpreter that's already been compiled for your target.</li>
-<li>A Python interpreter that is built for your host and available through the <code>PATH</code> or setting the <a href="#python-version"><code>PYO3_PYTHON</code></a> variable.</li>
+<li>A Python interpreter that's already been compiled for your target (optional when building &quot;abi3&quot; extension modules).</li>
+<li>A Python interpreter that is built for your host and available through the <code>PATH</code> or setting the <a href="#python-version"><code>PYO3_PYTHON</code></a> variable (optional when building &quot;abi3&quot; extension modules).</li>
 </ul>
 <p>After you've obtained the above, you can build a cross-compiled PyO3 module by using Cargo's <code>--target</code> flag. PyO3's build script will detect that you are attempting a cross-compile based on your host machine and the desired target.</p>
 <p>When cross-compiling, PyO3's build script cannot execute the target Python interpreter to query the configuration, so there are a few additional environment variables you may need to set:</p>
@@ -318,6 +327,13 @@ not work when compiling for <code>abi3</code>. These are:</p>
 <li><code>PYO3_CROSS_PYTHON_VERSION</code>: Major and minor version (e.g. 3.9) of the target Python installation. This variable is only needed if PyO3 cannot determine the version to target from <code>abi3-py3*</code> features, or if <code>PYO3_CROSS_LIB_DIR</code> is not set, or if there are multiple versions of Python present in <code>PYO3_CROSS_LIB_DIR</code>.</li>
 <li><code>PYO3_CROSS_PYTHON_IMPLEMENTATION</code>: Python implementation name (&quot;CPython&quot; or &quot;PyPy&quot;) of the target Python installation. CPython is assumed by default when this variable is not set, unless <code>PYO3_CROSS_LIB_DIR</code> is set for a Unix-like target and PyO3 can get the interpreter configuration from <code>_sysconfigdata*.py</code>.</li>
 </ul>
+<p>An experimental <code>pyo3</code> crate feature <code>generate-abi3-import-lib</code> enables the user to cross-compile
+&quot;abi3&quot; extension modules for Windows targets without setting the <code>PYO3_CROSS_LIB_DIR</code> environment
+variable or providing any Windows Python library files. It uses an external <a href="https://docs.rs/python3-dll-a/latest/python3_dll_a/"><code>python3-dll-a</code></a> crate
+to generate import libraries for the Stable ABI Python DLL for MinGW-w64 and MSVC compile targets.
+<em>Note</em>: MSVC targets require LLVM binutils to be available on the host system.
+More specifically, <code>python3-dll-a</code> requires <code>llvm-dlltool</code> executable to be present in <code>PATH</code> when
+targeting <code>*-pc-windows-msvc</code>.</p>
 <p>An example might look like the following (assuming your target's sysroot is at <code>/home/pyo3/cross/sysroot</code> and that your target is <code>armv7</code>):</p>
 <pre><code class="language-sh">export PYO3_CROSS_LIB_DIR=&quot;/home/pyo3/cross/sysroot/usr/lib&quot;
 
@@ -335,8 +351,10 @@ export PYO3_CROSS_LIB_DIR=&quot;/home/pyo3/cross/sysroot/usr/lib&quot;
 
 cargo build --target x86_64-pc-windows-gnu
 </code></pre>
-<p>Any of the <code>abi3-py3*</code> features can be enabled instead of setting <code>PYO3_CROSS_PYTHON_VERSION</code> in the above examples.
-<code>PYO3_CROSS_LIB_DIR</code> can often be omitted when cross compiling extension modules for Unix and macOS targets.</p>
+<p>Any of the <code>abi3-py3*</code> features can be enabled instead of setting <code>PYO3_CROSS_PYTHON_VERSION</code> in the above examples.</p>
+<p><code>PYO3_CROSS_LIB_DIR</code> can often be omitted when cross compiling extension modules for Unix and macOS targets,
+or when cross compiling &quot;abi3&quot; extension modules for Windows and the experimental <code>generate-abi3-import-lib</code>
+crate feature is enabled.</p>
 <p>The following resources may also be useful for cross-compiling:</p>
 <ul>
 <li><a href="https://github.com/japaric/rust-cross">github.com/japaric/rust-cross</a> is a primer on cross compiling Rust.</li>
