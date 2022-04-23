@@ -1023,7 +1023,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>))]</span>
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeObject</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyTypeInfo</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Python</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FromPyObject</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToPyObject</span>};
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>))]</span>
@@ -1270,5 +1270,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (f4ec0e7cf 2022-04-22)" ></div>
 </body></html>
