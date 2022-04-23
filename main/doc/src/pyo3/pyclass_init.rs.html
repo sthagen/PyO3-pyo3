@@ -297,31 +297,18 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Contains initialization utilities for `#[pyclass]`.</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::callback::IntoPyCallbackOutput</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::impl_::pyclass</span>::{<span class="ident">PyClassBaseType</span>, <span class="ident">PyClassDict</span>, <span class="ident">PyClassThreadChecker</span>, <span class="ident">PyClassWeakRef</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::MutablePyClass</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ffi::PyTypeObject</span>,
-    <span class="ident">pycell</span>::{<span class="ident">BorrowFlag</span>, <span class="ident">PyCellContents</span>},
+    <span class="ident">pycell</span>::{<span class="ident">PyCellContents</span>, <span class="ident">PyClassBorrowChecker</span>, <span class="ident">PyClassMutability</span>},
     <span class="ident">type_object</span>::{<span class="ident">get_tp_alloc</span>, <span class="ident">PyTypeInfo</span>},
 };
 <span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell</span>::{<span class="ident">Cell</span>, <span class="ident">UnsafeCell</span>},
+    <span class="ident">cell::UnsafeCell</span>,
     <span class="ident">marker::PhantomData</span>,
     <span class="ident">mem</span>::{<span class="ident">ManuallyDrop</span>, <span class="ident">MaybeUninit</span>},
 };
@@ -541,14 +528,6 @@
         <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">subtype</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span><span class="op">&gt;</span> {
-        <span class="doccomment">/// Layout of a PyCellBase after base new has been called, but the borrow flag has not</span>
-        <span class="doccomment">/// yet been initialized.</span>
-        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">PartiallyInitializedPyCellBase</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="ident">_ob_base</span>: <span class="ident">T</span>,
-            <span class="ident">borrow_flag</span>: <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">BorrowFlag</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        }
-
         <span class="doccomment">/// Layout of a PyCell after base new has been called, but the contents have not yet been</span>
         <span class="doccomment">/// written.</span>
         <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
@@ -560,19 +539,12 @@
         <span class="kw">let</span> <span class="self">Self</span> { <span class="ident">init</span>, <span class="ident">super_init</span> } <span class="op">=</span> <span class="self">self</span>;
         <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">super_init</span>.<span class="ident">into_new_object</span>(<span class="ident">py</span>, <span class="ident">subtype</span>)<span class="question-mark">?</span>;
 
-        <span class="comment">// FIXME: Only need to initialize borrow flag once per whole hierarchy</span>
-        <span class="kw">let</span> <span class="ident">base</span>: <span class="kw-2">*mut</span> <span class="ident">PartiallyInitializedPyCellBase</span><span class="op">&lt;</span><span class="ident">T::BaseNativeType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">obj</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="ident">std::ptr::write</span>(
-            (<span class="kw-2">*</span><span class="ident">base</span>).<span class="ident">borrow_flag</span>.<span class="ident">as_mut_ptr</span>(),
-            <span class="ident">Cell::new</span>(<span class="ident">BorrowFlag::UNUSED</span>),
-        );
-
-        <span class="comment">// FIXME: Initialize borrow flag if necessary??</span>
         <span class="kw">let</span> <span class="ident">cell</span>: <span class="kw-2">*mut</span> <span class="ident">PartiallyInitializedPyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">obj</span> <span class="kw">as</span> <span class="kw">_</span>;
         <span class="ident">std::ptr::write</span>(
             (<span class="kw-2">*</span><span class="ident">cell</span>).<span class="ident">contents</span>.<span class="ident">as_mut_ptr</span>(),
             <span class="ident">PyCellContents</span> {
                 <span class="ident">value</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">UnsafeCell::new</span>(<span class="ident">init</span>)),
+                <span class="ident">borrow_checker</span>: <span class="op">&lt;</span><span class="ident">T::PyClassMutability</span> <span class="kw">as</span> <span class="ident">PyClassMutability</span><span class="op">&gt;</span><span class="ident">::Storage::new</span>(),
                 <span class="ident">thread_checker</span>: <span class="ident">T::ThreadChecker::new</span>(),
                 <span class="ident">dict</span>: <span class="ident">T::Dict::new</span>(),
                 <span class="ident">weakref</span>: <span class="ident">T::WeakRef::new</span>(),
@@ -597,8 +569,8 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">S</span>, <span class="ident">B</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">BaseType</span> <span class="op">=</span> <span class="ident">B</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">PyClass</span>,
+    <span class="ident">S</span>: <span class="ident">MutablePyClass</span><span class="op">&lt;</span><span class="ident">BaseType</span> <span class="op">=</span> <span class="ident">B</span><span class="op">&gt;</span>,
+    <span class="ident">B</span>: <span class="ident">MutablePyClass</span>,
     <span class="ident">B::BaseType</span>: <span class="ident">PyClassBaseType</span><span class="op">&lt;</span><span class="ident">Initializer</span> <span class="op">=</span> <span class="ident">PyNativeTypeInitializer</span><span class="op">&lt;</span><span class="ident">B::BaseType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sub_and_base</span>: (<span class="ident">S</span>, <span class="ident">B</span>)) -&gt; <span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
@@ -620,5 +592,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (f4ec0e7cf 2022-04-22)" ></div>
 </body></html>

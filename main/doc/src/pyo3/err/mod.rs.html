@@ -911,7 +911,7 @@
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::panic::PanicException</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeObject</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeInfo</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyTraceback</span>, <span class="ident">PyType</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions</span>::{<span class="self">self</span>, <span class="ident">PyBaseException</span>},
@@ -1002,7 +1002,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="ident">PyErr</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeObject</span>,
+        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
         <span class="ident">A</span>: <span class="ident">PyErrArguments</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="ident">PyErr::from_state</span>(<span class="ident">PyErrState::LazyTypeAndValue</span> {
@@ -1338,7 +1338,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_instance_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PyTypeObject</span>,
+        <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
     {
         <span class="self">self</span>.<span class="ident">is_instance</span>(<span class="ident">py</span>, <span class="ident">T::type_object</span>(<span class="ident">py</span>))
     }
@@ -1814,5 +1814,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (f4ec0e7cf 2022-04-22)" ></div>
 </body></html>

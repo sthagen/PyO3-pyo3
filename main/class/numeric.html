@@ -151,7 +151,7 @@
 be reinventing the wheel.</li>
 <li>We can raise exceptions whenever <code>Number</code> overflows, but that makes the API painful to use.</li>
 <li>We can wrap around the boundary of <code>i32</code>. This is the approach we'll take here. To do that we'll just forward to <code>i32</code>'s
-<code>wrapping_*</code> methods. </li>
+<code>wrapping_*</code> methods.</li>
 </ul>
 <h3 id="fixing-our-constructor"><a class="header" href="#fixing-our-constructor">Fixing our constructor</a></h3>
 <p>Let's address the first overflow, in <code>Number</code>'s constructor:</p>
@@ -474,7 +474,7 @@ fn my_module(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 </span><span class="boring">def hash_djb2(s: str):
 </span><span class="boring">    n = Number(0)
 </span><span class="boring">    five = Number(5)
-</span><span class="boring">    
+</span><span class="boring">
 </span><span class="boring">    for x in s:
 </span><span class="boring">        n = Number(ord(x)) + ((n &lt;&lt; five) - n)
 </span><span class="boring">    return n
@@ -522,7 +522,7 @@ fn my_module(_py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
 </span>&quot;#;
 
 <span class="boring">
-</span><span class="boring">use pyo3::type_object::PyTypeObject;
+</span><span class="boring">use pyo3::PyTypeInfo;
 </span><span class="boring">
 </span><span class="boring">fn main() -&gt; PyResult&lt;()&gt; {
 </span><span class="boring">    Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {

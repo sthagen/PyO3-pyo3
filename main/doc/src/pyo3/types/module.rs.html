@@ -417,7 +417,6 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
-<span id="415">415</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -427,7 +426,6 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exceptions</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::PyClass</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeObject</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyCFunction</span>, <span class="ident">PyDict</span>, <span class="ident">PyList</span>, <span class="ident">PyString</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
@@ -711,7 +709,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">PyClass</span>,
     {
-        <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">T::NAME</span>, <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PyTypeObject</span><span class="op">&gt;</span><span class="ident">::type_object</span>(<span class="self">self</span>.<span class="ident">py</span>()))
+        <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">T::NAME</span>, <span class="ident">T::type_object</span>(<span class="self">self</span>.<span class="ident">py</span>()))
     }
 
     <span class="doccomment">/// Adds a function or a (sub)module to a module, using the functions name as name.</span>
@@ -834,5 +832,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (f4ec0e7cf 2022-04-22)" ></div>
 </body></html>

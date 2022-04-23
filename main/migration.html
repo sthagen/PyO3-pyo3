@@ -146,6 +146,35 @@
                         <h1 id="migrating-from-older-pyo3-versions"><a class="header" href="#migrating-from-older-pyo3-versions">Migrating from older PyO3 versions</a></h1>
 <p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next.
 For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</a>.</p>
+<h2 id="from-016-to-017"><a class="header" href="#from-016-to-017">from 0.16.* to 0.17</a></h2>
+<h3 id="the-pyproto-feature-is-now-disabled-by-default"><a class="header" href="#the-pyproto-feature-is-now-disabled-by-default">The <code>pyproto</code> feature is now disabled by default</a></h3>
+<p>In preparation for removing the deprecated <code>#[pyproto]</code> attribute macro in a future PyO3 version, it is now gated behind an opt-in feature flag. This also gives a slight saving to compile times for code which does not use the deprecated macro.</p>
+<h3 id="pytypeobject-trait-has-been-deprecated"><a class="header" href="#pytypeobject-trait-has-been-deprecated"><code>PyTypeObject</code> trait has been deprecated</a></h3>
+<p>The <code>PyTypeObject</code> trait already was near-useless; almost all functionality was already on the <code>PyTypeInfo</code> trait, which <code>PyTypeObject</code> had a blanket implementation based upon. In PyO3 0.17 the final method, <code>PyTypeObject::type_object</code> was moved to <code>PyTypeInfo::type_object</code>.</p>
+<p>To migrate, update trait bounds and imports from <code>PyTypeObject</code> to <code>PyTypeInfo</code>.</p>
+<p>Before:</p>
+<pre><code class="language-rust ignore">use pyo3::Python;
+use pyo3::type_object::PyTypeObject;
+use pyo3::types::PyType;
+
+fn get_type_object&lt;T: PyTypeObject&gt;(py: Python&lt;'_&gt;) -&gt; &amp;PyType {
+    T::type_object(py)
+}
+</code></pre>
+<p>After</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::{Python, PyTypeInfo};
+use pyo3::types::PyType;
+
+fn get_type_object&lt;T: PyTypeInfo&gt;(py: Python&lt;'_&gt;) -&gt; &amp;PyType {
+    T::type_object(py)
+}
+
+<span class="boring">Python::with_gil(|py| { get_type_object::&lt;pyo3::types::PyList&gt;(py); });
+</span><span class="boring">}
+</span></code></pre></pre>
 <h2 id="from-015-to-016"><a class="header" href="#from-015-to-016">from 0.15.* to 0.16</a></h2>
 <h3 id="drop-support-for-older-technologies"><a class="header" href="#drop-support-for-older-technologies">Drop support for older technologies</a></h3>
 <p>PyO3 0.16 has increased minimum Rust version to 1.48 and minimum Python version to 3.7. This enables use of newer language features (enabling some of the other additions in 0.16) and simplifies maintenance of the project.</p>

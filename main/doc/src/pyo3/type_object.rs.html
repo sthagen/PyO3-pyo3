@@ -237,6 +237,23 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! Python type object information</span>
 
@@ -290,8 +307,13 @@
     <span class="doccomment">/// Utility type to make Py::as_ref work.</span>
     <span class="kw">type</span> <span class="ident">AsRefTarget</span>: <span class="ident">PyNativeType</span>;
 
-    <span class="doccomment">/// PyTypeObject instance for this type.</span>
+    <span class="doccomment">/// Returns the PyTypeObject instance for this type.</span>
     <span class="kw">fn</span> <span class="ident">type_object_raw</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">ffi::PyTypeObject</span>;
+
+    <span class="doccomment">/// Returns the safe abstraction over the type object.</span>
+    <span class="kw">fn</span> <span class="ident">type_object</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyType</span> {
+        <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>(<span class="ident"><span class="self">Self</span>::type_object_raw</span>(<span class="ident">py</span>) <span class="kw">as</span> <span class="kw">_</span>) }
+    }
 
     <span class="doccomment">/// Checks if `object` is an instance of this type or a subclass of this type.</span>
     <span class="kw">fn</span> <span class="ident">is_type_of</span>(<span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">PyAny</span>) -&gt; <span class="ident">bool</span> {
@@ -304,27 +326,19 @@
     }
 }
 
-<span class="doccomment">/// Python object types that have a corresponding type object.</span>
+<span class="doccomment">/// Legacy trait which previously held the `type_object` method now found on `PyTypeInfo`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Safety</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This trait is marked unsafe because not fulfilling the contract for type_object</span>
-<span class="doccomment">/// leads to UB.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See also [PyTypeInfo::type_object_raw](trait.PyTypeInfo.html#tymethod.type_object_raw).</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">PyTypeObject</span> {
-    <span class="doccomment">/// Returns the safe abstraction over the type object.</span>
-    <span class="kw">fn</span> <span class="ident">type_object</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyType</span>;
-}
+<span class="doccomment">/// This trait used to have stringent safety requirements, but they are now irrelevant as it is deprecated.</span>
+<span class="attribute">#[<span class="ident">deprecated</span>(
+    <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.17.0&quot;</span>,
+    <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;PyTypeObject::type_object was moved to PyTypeInfo::type_object&quot;</span>
+)]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">PyTypeObject</span>: <span class="ident">PyTypeInfo</span> {}
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PyTypeObject</span> <span class="kw">for</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">PyTypeInfo</span>,
-{
-    <span class="kw">fn</span> <span class="ident">type_object</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyType</span> {
-        <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_borrowed_ptr</span>(<span class="ident"><span class="self">Self</span>::type_object_raw</span>(<span class="ident">py</span>) <span class="kw">as</span> <span class="kw">_</span>) }
-    }
-}
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyTypeInfo</span><span class="op">&gt;</span> <span class="ident">PyTypeObject</span> <span class="kw">for</span> <span class="ident">T</span> {}
 
 <span class="doccomment">/// Lazy type object for PyClass.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
@@ -471,6 +485,26 @@
         <span class="ident">std::mem::transmute</span>(<span class="ident">ptr</span>)
     }
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">test_deprecated_type_object</span>() {
+        <span class="comment">// Even though PyTypeObject is deprecated, simple usages of it as a trait bound should continue to work.</span>
+        <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::PyTypeObject</span>;
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyList</span>, <span class="ident">PyType</span>};
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Python</span>;
+
+        <span class="kw">fn</span> <span class="ident">get_type_object</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PyTypeObject</span><span class="op">&gt;</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyType</span> {
+            <span class="ident">T::type_object</span>(<span class="ident">py</span>)
+        }
+
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="macro">assert!</span>(<span class="ident">get_type_object</span>::<span class="op">&lt;</span><span class="ident">PyList</span><span class="op">&gt;</span>(<span class="ident">py</span>).<span class="ident">is</span>(<span class="op">&lt;</span><span class="ident">PyList</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::PyTypeInfo</span><span class="op">&gt;</span><span class="ident">::type_object</span>(<span class="ident">py</span>)))
+        });
+    }
+}
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (f4ec0e7cf 2022-04-22)" ></div>
 </body></html>

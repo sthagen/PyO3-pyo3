@@ -178,7 +178,6 @@ section for further detail.</p>
 <li><code>#[pyfunction]</code></li>
 <li><code>#[pyclass]</code></li>
 <li><code>#[pymethods]</code></li>
-<li><code>#[pyproto]</code></li>
 <li><code>#[derive(FromPyObject)]</code></li>
 </ul>
 <p>It also provides the <code>py_run!</code> macro.</p>
@@ -191,10 +190,7 @@ section for further detail.</p>
 <p>Most users should only need a single <code>#[pymethods]</code> per <code>#[pyclass]</code>. In addition, not all platforms (e.g. Wasm) are supported by <code>inventory</code>. For this reason this feature is not enabled by default, meaning fewer dependencies and faster compilation for the majority of users.</p>
 <p>See <a href="class.html#implementation-details">the <code>#[pyclass]</code> implementation details</a> for more information.</p>
 <h3 id="pyproto"><a class="header" href="#pyproto"><code>pyproto</code></a></h3>
-<p>This feature enables the <code>#[pyproto]</code> macro, which is an alternative (older, soon-to-be-deprecated) to <code>#[pymethods]</code> for defining magic methods such as <code>__eq__</code>.</p>
-<blockquote>
-<p>This feature is enabled by default. To disable it, set <code>default-features = false</code> for the <code>pyo3</code> entry in your Cargo.toml.</p>
-</blockquote>
+<p>This feature enables the <code>#[pyproto]</code> macro, which is a deprecated alternative to <code>#[pymethods]</code> for defining magic methods such as <code>__eq__</code>.</p>
 <h3 id="nightly"><a class="header" href="#nightly"><code>nightly</code></a></h3>
 <p>The <code>nightly</code> feature needs the nightly Rust compiler. This allows PyO3 to use the auto_traits and negative_impls features to fix the <code>Python::allow_threads</code> function.</p>
 <h3 id="resolve-config"><a class="header" href="#resolve-config"><code>resolve-config</code></a></h3>

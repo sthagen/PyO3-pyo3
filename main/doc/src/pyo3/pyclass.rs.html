@@ -583,18 +583,17 @@
 <span id="578">578</span>
 <span id="579">579</span>
 <span id="580">580</span>
-<span id="581">581</span>
 </pre><pre class="rust"><code><span class="doccomment">//! `PyClass` and related traits.</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pycell</span>::{<span class="ident">Immutable</span>, <span class="ident">Mutable</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">callback::IntoPyCallbackOutput</span>,
     <span class="ident">exceptions::PyTypeError</span>,
     <span class="ident">ffi</span>,
     <span class="ident">impl_::pyclass</span>::{
-        <span class="ident">assign_sequence_item_from_mapping</span>, <span class="ident">get_sequence_item_from_mapping</span>, <span class="ident">tp_dealloc</span>, <span class="ident">PyClassDict</span>,
-        <span class="ident">PyClassImpl</span>, <span class="ident">PyClassItems</span>, <span class="ident">PyClassWeakRef</span>,
+        <span class="ident">assign_sequence_item_from_mapping</span>, <span class="ident">get_sequence_item_from_mapping</span>, <span class="ident">tp_dealloc</span>, <span class="ident">PyClassImpl</span>,
+        <span class="ident">PyClassItems</span>,
     },
-    <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyCell</span>, <span class="ident">PyErr</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>,
-    <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>,
+    <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyCell</span>, <span class="ident">PyErr</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">convert::TryInto</span>,
@@ -611,14 +610,13 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyClass</span>:
     <span class="ident">PyTypeInfo</span><span class="op">&lt;</span><span class="ident">AsRefTarget</span> <span class="op">=</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PyClassImpl</span><span class="op">&lt;</span><span class="ident">Layout</span> <span class="op">=</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>
 {
-    <span class="doccomment">/// Specify this class has `#[pyclass(dict)]` or not.</span>
-    <span class="kw">type</span> <span class="ident">Dict</span>: <span class="ident">PyClassDict</span>;
-    <span class="doccomment">/// Specify this class has `#[pyclass(weakref)]` or not.</span>
-    <span class="kw">type</span> <span class="ident">WeakRef</span>: <span class="ident">PyClassWeakRef</span>;
-    <span class="doccomment">/// The closest native ancestor. This is `PyAny` by default, and when you declare</span>
-    <span class="doccomment">/// `#[pyclass(extends=PyDict)]`, it&#39;s `PyDict`.</span>
-    <span class="kw">type</span> <span class="ident">BaseNativeType</span>: <span class="ident">PyTypeInfo</span> <span class="op">+</span> <span class="ident">PyNativeType</span>;
 }
+
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MutablePyClass</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Mutability</span> <span class="op">=</span> <span class="ident">Mutable</span><span class="op">&gt;</span> {}
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ImmutablePyClass</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Mutability</span> <span class="op">=</span> <span class="ident">Immutable</span><span class="op">&gt;</span> {}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MutablePyClass</span> <span class="kw">for</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Mutability</span> <span class="op">=</span> <span class="ident">Mutable</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ImmutablePyClass</span> <span class="kw">for</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Mutability</span> <span class="op">=</span> <span class="ident">Immutable</span><span class="op">&gt;</span> {}
 
 <span class="kw">fn</span> <span class="ident">into_raw</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_void</span> {
     <span class="ident">Box::into_raw</span>(<span class="ident">vec</span>.<span class="ident">into_boxed_slice</span>()) <span class="kw">as</span> <span class="kw">_</span>
@@ -1166,5 +1164,5 @@
     })
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (f4ec0e7cf 2022-04-22)" ></div>
 </body></html>

@@ -200,7 +200,7 @@ enum MyEnum {
 <span class="boring">}
 </span></code></pre></pre>
 <p>Because Python objects are freely shared between threads by the Python interpreter, all types annotated with <code>#[pyclass]</code> must implement <code>Send</code> (unless annotated with <a href="#customizing-the-class"><code>#[pyclass(unsendable)]</code></a>).</p>
-<p>The above example generates implementations for <a href="https://pyo3.rs/main/doc/pyo3/type_object/trait.PyTypeInfo.html"><code>PyTypeInfo</code></a>, <a href="https://pyo3.rs/main/doc/pyo3/type_object/trait.PyTypeObject.html"><code>PyTypeObject</code></a>, and <a href="https://pyo3.rs/main/doc/pyo3/pyclass/trait.PyClass.html"><code>PyClass</code></a> for <code>MyClass</code> and <code>MyEnum</code>. To see these generated implementations, refer to the <a href="#implementation-details">implementation details</a> at the end of this chapter.</p>
+<p>The above example generates implementations for <a href="https://pyo3.rs/main/doc/pyo3/type_object/trait.PyTypeInfo.html"><code>PyTypeInfo</code></a> and <a href="https://pyo3.rs/main/doc/pyo3/pyclass/trait.PyClass.html"><code>PyClass</code></a> for <code>MyClass</code> and <code>MyEnum</code>. To see these generated implementations, refer to the <a href="#implementation-details">implementation details</a> at the end of this chapter.</p>
 <h2 id="constructor"><a class="header" href="#constructor">Constructor</a></h2>
 <p>By default it is not possible to create an instance of a custom class from Python code.
 To declare a constructor, you need to define a method and annotate it with the <code>#[new]</code>
@@ -1079,19 +1079,14 @@ enum BadSubclass{
 </span><span class="boring">#[cfg(not(feature = &quot;multiple-pymethods&quot;))] {
 </span><span class="boring">use pyo3::prelude::*;
 </span>// Note: the implementation differs slightly with the `multiple-pymethods` feature enabled.
-
-/// Class for demonstration
 struct MyClass {
 <span class="boring">    #[allow(dead_code)]
 </span>    num: i32,
 }
-
-unsafe impl pyo3::PyTypeInfo for MyClass {
-    type AsRefTarget = PyCell&lt;Self&gt;;
-
+unsafe impl ::pyo3::type_object::PyTypeInfo for MyClass {
+    type AsRefTarget = ::pyo3::PyCell&lt;Self&gt;;
     const NAME: &amp;'static str = &quot;MyClass&quot;;
-    const MODULE: Option&lt;&amp;'static str&gt; = None;
-
+    const MODULE: ::std::option::Option&lt;&amp;'static str&gt; = ::std::option::Option::None;
     #[inline]
     fn type_object_raw(py: pyo3::Python&lt;'_&gt;) -&gt; *mut pyo3::ffi::PyTypeObject {
         use pyo3::type_object::LazyStaticType;
@@ -1100,10 +1095,14 @@ unsafe impl pyo3::PyTypeInfo for MyClass {
     }
 }
 
-impl pyo3::pyclass::PyClass for MyClass {
-    type Dict = pyo3::impl_::pyclass::PyClassDummySlot;
-    type WeakRef = pyo3::impl_::pyclass::PyClassDummySlot;
-    type BaseNativeType = PyAny;
+impl ::pyo3::PyClass for MyClass { }
+
+impl&lt;'a&gt; ::pyo3::derive_utils::ExtractExt&lt;'a&gt; for &amp;'a mut MyClass {
+    type Target = ::pyo3::PyRefMut&lt;'a, MyClass&gt;;
+}
+
+impl&lt;'a&gt; ::pyo3::derive_utils::ExtractExt&lt;'a&gt; for &amp;'a MyClass {
+    type Target = ::pyo3::PyRef&lt;'a, MyClass&gt;;
 }
 
 impl pyo3::IntoPy&lt;PyObject&gt; for MyClass {
@@ -1119,6 +1118,11 @@ impl pyo3::impl_::pyclass::PyClassImpl for MyClass {
     type Layout = PyCell&lt;MyClass&gt;;
     type BaseType = PyAny;
     type ThreadChecker = pyo3::impl_::pyclass::ThreadCheckerStub&lt;MyClass&gt;;
+    type Mutability = pyo3::pycell::Mutable;
+    type PyClassMutability = pyo3::pycell::MutableClass;
+    type Dict = ::pyo3::impl_::pyclass::PyClassDummySlot;
+    type WeakRef = ::pyo3::impl_::pyclass::PyClassDummySlot;
+    type BaseNativeType = ::pyo3::PyAny;
 
     fn for_all_items(visitor: &amp;mut dyn FnMut(&amp;pyo3::impl_::pyclass::PyClassItems)) {
         use pyo3::impl_::pyclass::*;
@@ -1128,6 +1132,7 @@ impl pyo3::impl_::pyclass::PyClassImpl for MyClass {
         visitor(collector.py_methods());
     }
 }
+
 <span class="boring">Python::with_gil(|py| {
 </span><span class="boring">    let cls = py.get_type::&lt;MyClass&gt;();
 </span><span class="boring">    pyo3::py_run!(py, cls, &quot;assert cls.__name__ == 'MyClass'&quot;)
