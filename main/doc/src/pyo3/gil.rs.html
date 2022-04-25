@@ -1053,7 +1053,7 @@
     <span class="doccomment">/// `GILGuard` will also contain a `GILPool`.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">acquire</span>() -&gt; <span class="ident">GILGuard</span> {
         <span class="comment">// Maybe auto-initialize the GIL:</span>
-        <span class="comment">//  - If auto-initialize feature set and supported, try to initalize the interpreter.</span>
+        <span class="comment">//  - If auto-initialize feature set and supported, try to initialize the interpreter.</span>
         <span class="comment">//  - If the auto-initialize feature is set but unsupported, emit hard errors only when the</span>
         <span class="comment">//    extension-module feature is not activated - extension modules don&#39;t care about</span>
         <span class="comment">//    auto-initialize so this avoids breaking existing builds.</span>
@@ -1078,7 +1078,7 @@
                     <span class="macro">assert_ne!</span>(
                         <span class="ident">ffi::Py_IsInitialized</span>(),
                         <span class="number">0</span>,
-                        <span class="string">&quot;The Python interpreter is not initalized and the `auto-initialize` \
+                        <span class="string">&quot;The Python interpreter is not initialized and the `auto-initialize` \
                          feature is not enabled.\n\n\
                          Consider calling `pyo3::prepare_freethreaded_python()` before attempting \
                          to use Python APIs.&quot;</span>
@@ -1752,5 +1752,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (f4ec0e7cf 2022-04-22)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (18f314e70 2022-04-24)" ></div>
 </body></html>

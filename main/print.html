@@ -1690,7 +1690,7 @@ Python::with_gil(|py| {
 })
 <span class="boring">}
 </span></code></pre></pre>
-<p>All methods defined by PyO3 can be overriden. For example here's how you override <code>__repr__</code>:</p>
+<p>All methods defined by PyO3 can be overridden. For example here's how you override <code>__repr__</code>:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -2748,7 +2748,7 @@ impl Number {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<h3 id="unary-arithmethic-operations"><a class="header" href="#unary-arithmethic-operations">Unary arithmethic operations</a></h3>
+<h3 id="unary-arithmetic-operations"><a class="header" href="#unary-arithmetic-operations">Unary arithmetic operations</a></h3>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -3444,7 +3444,7 @@ struct RustyTransparentStruct {
 </span></code></pre></pre>
 <h4 id="deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums"><a class="header" href="#deriving-a-hrefhttpspyo3rsmaindocpyo3conversiontraitfrompyobjecthtmlfrompyobjecta-for-enums">Deriving <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a> for enums</a></h4>
 <p>The <code>FromPyObject</code> derivation for enums generates code that tries to extract the variants in the
-order of the fields. As soon as a variant can be extracted succesfully, that variant is returned.
+order of the fields. As soon as a variant can be extracted successfully, that variant is returned.
 This makes it possible to extract Python union types like <code>str | int</code>.</p>
 <p>The same customizations and restrictions described for struct derivations apply to enum variants,
 i.e. a tuple variant assumes that the input is a Python tuple, and a struct variant defaults to
@@ -5750,7 +5750,7 @@ fn main() -&gt; PyResult&lt;()&gt; {
 <li>The initialization code calls some Python API which temporarily releases the GIL e.g. <code>Python::import</code>.</li>
 <li>Another thread (thread B) acquires the Python GIL and attempts to access the same <code>lazy_static</code> value.</li>
 <li>Thread B is blocked, because it waits for <code>lazy_static</code>'s initialization to lock to release.</li>
-<li>Thread A is blocked, because it waits to re-aquire the GIL which thread B still holds.</li>
+<li>Thread A is blocked, because it waits to re-acquire the GIL which thread B still holds.</li>
 <li>Deadlock.</li>
 </ol>
 <p>PyO3 provides a struct <a href="https://pyo3.rs/main/doc/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> which works equivalently to <code>OnceCell</code> but relies solely on the Python GIL for thread safety. This means it can be used in place of <code>lazy_static</code> or <code>once_cell</code> where you are experiencing the deadlock described above. See the documentation for <a href="https://pyo3.rs/main/doc/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> for an example how to use it.</p>
@@ -7685,7 +7685,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3 id="fixed-10"><a class="header" href="#fixed-10">Fixed</a></h3>
 <ul>
 <li>Remove FFI definition <code>PyCFunction_ClearFreeList</code> for Python 3.9 and later. <a href="https://github.com/PyO3/pyo3/pull/1425">#1425</a></li>
-<li><code>PYO3_CROSS_LIB_DIR</code> enviroment variable no long required when compiling for x86-64 Python from macOS arm64 and reverse. <a href="https://github.com/PyO3/pyo3/pull/1428">#1428</a></li>
+<li><code>PYO3_CROSS_LIB_DIR</code> environment variable no long required when compiling for x86-64 Python from macOS arm64 and reverse. <a href="https://github.com/PyO3/pyo3/pull/1428">#1428</a></li>
 <li>Fix FFI definition <code>_PyEval_RequestCodeExtraIndex</code>, which took an argument of the wrong type. <a href="https://github.com/PyO3/pyo3/pull/1429">#1429</a></li>
 <li>Fix FFI definition <code>PyIndex_Check</code> missing with the <code>abi3</code> feature. <a href="https://github.com/PyO3/pyo3/pull/1436">#1436</a></li>
 <li>Fix incorrect <code>TypeError</code> raised when keyword-only argument passed along with a positional argument in <code>*args</code>. <a href="https://github.com/PyO3/pyo3/pull/1440">#1440</a></li>
@@ -7694,7 +7694,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>No longer include <code>__doc__</code> in <code>__all__</code> generated for <code>#[pymodule]</code>. <a href="https://github.com/PyO3/pyo3/pull/1509">#1509</a></li>
 <li>Always use cross-compiling configuration if any of the <code>PYO3_CROSS</code> family of environment variables are set. <a href="https://github.com/PyO3/pyo3/pull/1514">#1514</a></li>
 <li>Support <code>EnvironmentError</code>, <code>IOError</code>, and <code>WindowsError</code> on PyPy. <a href="https://github.com/PyO3/pyo3/pull/1533">#1533</a></li>
-<li>Fix unneccessary rebuilds when cycling between <code>cargo check</code> and <code>cargo clippy</code> in a Python virtualenv. <a href="https://github.com/PyO3/pyo3/pull/1557">#1557</a></li>
+<li>Fix unnecessary rebuilds when cycling between <code>cargo check</code> and <code>cargo clippy</code> in a Python virtualenv. <a href="https://github.com/PyO3/pyo3/pull/1557">#1557</a></li>
 <li>Fix segfault when dereferencing <code>ffi::PyDateTimeAPI</code> without the GIL. <a href="https://github.com/PyO3/pyo3/pull/1563">#1563</a></li>
 <li>Fix memory leak in <code>FromPyObject</code> implementations for <code>u128</code> and <code>i128</code>. <a href="https://github.com/PyO3/pyo3/pull/1638">#1638</a></li>
 <li>Fix <code>#[pyclass(extends=PyDict)]</code> leaking the dict contents on drop. <a href="https://github.com/PyO3/pyo3/pull/1657">#1657</a></li>
@@ -8257,7 +8257,7 @@ default = [&quot;extension-module&quot;]
 <h3 id="changed-19"><a class="header" href="#changed-19">Changed</a></h3>
 <ul>
 <li>Removes the types from the root module and the prelude. They now live in <code>pyo3::types</code> instead.</li>
-<li>All exceptions are consturcted with <code>py_err</code> instead of <code>new</code>, as they return <code>PyErr</code> and not <code>Self</code>.</li>
+<li>All exceptions are constructed with <code>py_err</code> instead of <code>new</code>, as they return <code>PyErr</code> and not <code>Self</code>.</li>
 <li><code>as_mut</code> and friends take and <code>&amp;mut self</code> instead of <code>&amp;self</code></li>
 <li><code>ObjectProtocol::call</code> now takes an <code>Option&lt;&amp;PyDict&gt;</code> for the kwargs instead of an <code>IntoPyDictPointer</code>.</li>
 <li><code>IntoPyDictPointer</code> was replace by <code>IntoPyDict</code> which doesn't convert <code>PyDict</code> itself anymore and returns a <code>PyDict</code> instead of <code>*mut PyObject</code>.</li>

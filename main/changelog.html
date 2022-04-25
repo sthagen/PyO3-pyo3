@@ -555,7 +555,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3 id="fixed-10"><a class="header" href="#fixed-10">Fixed</a></h3>
 <ul>
 <li>Remove FFI definition <code>PyCFunction_ClearFreeList</code> for Python 3.9 and later. <a href="https://github.com/PyO3/pyo3/pull/1425">#1425</a></li>
-<li><code>PYO3_CROSS_LIB_DIR</code> enviroment variable no long required when compiling for x86-64 Python from macOS arm64 and reverse. <a href="https://github.com/PyO3/pyo3/pull/1428">#1428</a></li>
+<li><code>PYO3_CROSS_LIB_DIR</code> environment variable no long required when compiling for x86-64 Python from macOS arm64 and reverse. <a href="https://github.com/PyO3/pyo3/pull/1428">#1428</a></li>
 <li>Fix FFI definition <code>_PyEval_RequestCodeExtraIndex</code>, which took an argument of the wrong type. <a href="https://github.com/PyO3/pyo3/pull/1429">#1429</a></li>
 <li>Fix FFI definition <code>PyIndex_Check</code> missing with the <code>abi3</code> feature. <a href="https://github.com/PyO3/pyo3/pull/1436">#1436</a></li>
 <li>Fix incorrect <code>TypeError</code> raised when keyword-only argument passed along with a positional argument in <code>*args</code>. <a href="https://github.com/PyO3/pyo3/pull/1440">#1440</a></li>
@@ -564,7 +564,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>No longer include <code>__doc__</code> in <code>__all__</code> generated for <code>#[pymodule]</code>. <a href="https://github.com/PyO3/pyo3/pull/1509">#1509</a></li>
 <li>Always use cross-compiling configuration if any of the <code>PYO3_CROSS</code> family of environment variables are set. <a href="https://github.com/PyO3/pyo3/pull/1514">#1514</a></li>
 <li>Support <code>EnvironmentError</code>, <code>IOError</code>, and <code>WindowsError</code> on PyPy. <a href="https://github.com/PyO3/pyo3/pull/1533">#1533</a></li>
-<li>Fix unneccessary rebuilds when cycling between <code>cargo check</code> and <code>cargo clippy</code> in a Python virtualenv. <a href="https://github.com/PyO3/pyo3/pull/1557">#1557</a></li>
+<li>Fix unnecessary rebuilds when cycling between <code>cargo check</code> and <code>cargo clippy</code> in a Python virtualenv. <a href="https://github.com/PyO3/pyo3/pull/1557">#1557</a></li>
 <li>Fix segfault when dereferencing <code>ffi::PyDateTimeAPI</code> without the GIL. <a href="https://github.com/PyO3/pyo3/pull/1563">#1563</a></li>
 <li>Fix memory leak in <code>FromPyObject</code> implementations for <code>u128</code> and <code>i128</code>. <a href="https://github.com/PyO3/pyo3/pull/1638">#1638</a></li>
 <li>Fix <code>#[pyclass(extends=PyDict)]</code> leaking the dict contents on drop. <a href="https://github.com/PyO3/pyo3/pull/1657">#1657</a></li>
@@ -1127,7 +1127,7 @@ default = [&quot;extension-module&quot;]
 <h3 id="changed-19"><a class="header" href="#changed-19">Changed</a></h3>
 <ul>
 <li>Removes the types from the root module and the prelude. They now live in <code>pyo3::types</code> instead.</li>
-<li>All exceptions are consturcted with <code>py_err</code> instead of <code>new</code>, as they return <code>PyErr</code> and not <code>Self</code>.</li>
+<li>All exceptions are constructed with <code>py_err</code> instead of <code>new</code>, as they return <code>PyErr</code> and not <code>Self</code>.</li>
 <li><code>as_mut</code> and friends take and <code>&amp;mut self</code> instead of <code>&amp;self</code></li>
 <li><code>ObjectProtocol::call</code> now takes an <code>Option&lt;&amp;PyDict&gt;</code> for the kwargs instead of an <code>IntoPyDictPointer</code>.</li>
 <li><code>IntoPyDictPointer</code> was replace by <code>IntoPyDict</code> which doesn't convert <code>PyDict</code> itself anymore and returns a <code>PyDict</code> instead of <code>*mut PyObject</code>.</li>
