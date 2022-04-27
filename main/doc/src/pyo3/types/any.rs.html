@@ -1043,10 +1043,27 @@
 <span id="1038">1038</span>
 <span id="1039">1039</span>
 <span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::class::basic::CompareOp</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{
-    <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
-};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exceptions::PyTypeError</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeInfo</span>;
@@ -1148,9 +1165,9 @@
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">attr_name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">attr_name</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">ffi::PyObject_HasAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
-        })
+        <span class="kw">unsafe</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">ffi::PyObject_HasAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()).<span class="ident">as_ptr</span>()) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
+        }
     }
 
     <span class="doccomment">/// Retrieves an attribute value.</span>
@@ -1179,10 +1196,12 @@
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">attr_name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">attr_name</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">py</span>()
-                .<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PyObject_GetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>))
-        })
+        <span class="kw">unsafe</span> {
+            <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PyObject_GetAttr</span>(
+                <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">attr_name</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()).<span class="ident">as_ptr</span>(),
+            ))
+        }
     }
 
     <span class="doccomment">/// Sets an attribute value.</span>
@@ -1209,17 +1228,20 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setattr</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">N</span>: <span class="ident">ToBorrowedObject</span>,
-        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
+        <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">attr_name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="kw">move</span> <span class="op">|</span><span class="ident">attr_name</span><span class="op">|</span> {
-            <span class="ident">value</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="kw">unsafe</span> {
-                <span class="ident">err::error_on_minusone</span>(
-                    <span class="self">self</span>.<span class="ident">py</span>(),
-                    <span class="ident">ffi::PyObject_SetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>, <span class="ident">value</span>),
-                )
-            })
-        })
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="ident">py</span>,
+                <span class="ident">ffi::PyObject_SetAttr</span>(
+                    <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                    <span class="ident">attr_name</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                    <span class="ident">value</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                ),
+            )
+        }
     }
 
     <span class="doccomment">/// Deletes an attribute.</span>
@@ -1229,9 +1251,13 @@
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">attr_name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">attr_name</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="ident">err::error_on_minusone</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="ident">ffi::PyObject_DelAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>))
-        })
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="self">self</span>.<span class="ident">py</span>(),
+                <span class="ident">ffi::PyObject_DelAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>()),
+            )
+        }
     }
 
     <span class="doccomment">/// Returns an [`Ordering`] between `self` and `other`.</span>
@@ -1284,26 +1310,29 @@
     <span class="kw">where</span>
         <span class="ident">O</span>: <span class="ident">ToPyObject</span>,
     {
+        <span class="self">self</span>.<span class="ident">_compare</span>(<span class="ident">other</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()))
+    }
+
+    <span class="kw">fn</span> <span class="ident">_compare</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PyObject</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
+        <span class="kw">let</span> <span class="ident">other</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">as_ptr</span>();
         <span class="comment">// Almost the same as ffi::PyObject_RichCompareBool, but this one doesn&#39;t try self == other.</span>
         <span class="comment">// See https://github.com/PyO3/pyo3/issues/985 for more.</span>
         <span class="kw">let</span> <span class="ident">do_compare</span> <span class="op">=</span> <span class="op">|</span><span class="ident">other</span>, <span class="ident">op</span><span class="op">|</span> <span class="kw">unsafe</span> {
             <span class="ident">PyObject::from_owned_ptr_or_err</span>(<span class="ident">py</span>, <span class="ident">ffi::PyObject_RichCompare</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">other</span>, <span class="ident">op</span>))
                 .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">obj</span><span class="op">|</span> <span class="ident">obj</span>.<span class="ident">is_true</span>(<span class="ident">py</span>))
         };
-        <span class="ident">other</span>.<span class="ident">with_borrowed_ptr</span>(<span class="ident">py</span>, <span class="op">|</span><span class="ident">other</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">do_compare</span>(<span class="ident">other</span>, <span class="ident">ffi::Py_EQ</span>)<span class="question-mark">?</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">Ordering::Equal</span>)
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">do_compare</span>(<span class="ident">other</span>, <span class="ident">ffi::Py_LT</span>)<span class="question-mark">?</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">Ordering::Less</span>)
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">do_compare</span>(<span class="ident">other</span>, <span class="ident">ffi::Py_GT</span>)<span class="question-mark">?</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">Ordering::Greater</span>)
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">PyTypeError::new_err</span>(
-                    <span class="string">&quot;PyAny::compare(): All comparisons returned false&quot;</span>,
-                ))
-            }
-        })
+        <span class="kw">if</span> <span class="ident">do_compare</span>(<span class="ident">other</span>, <span class="ident">ffi::Py_EQ</span>)<span class="question-mark">?</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">Ordering::Equal</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">do_compare</span>(<span class="ident">other</span>, <span class="ident">ffi::Py_LT</span>)<span class="question-mark">?</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">Ordering::Less</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">do_compare</span>(<span class="ident">other</span>, <span class="ident">ffi::Py_GT</span>)<span class="question-mark">?</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">Ordering::Greater</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">PyTypeError::new_err</span>(
+                <span class="string">&quot;PyAny::compare(): All comparisons returned false&quot;</span>,
+            ))
+        }
     }
 
     <span class="doccomment">/// Tests whether two Python objects obey a given [`CompareOp`].</span>
@@ -1341,13 +1370,11 @@
         <span class="ident">O</span>: <span class="ident">ToPyObject</span>,
     {
         <span class="kw">unsafe</span> {
-            <span class="ident">other</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">other</span><span class="op">|</span> {
-                <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PyObject_RichCompare</span>(
-                    <span class="self">self</span>.<span class="ident">as_ptr</span>(),
-                    <span class="ident">other</span>,
-                    <span class="ident">compare_op</span> <span class="kw">as</span> <span class="ident">c_int</span>,
-                ))
-            })
+            <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PyObject_RichCompare</span>(
+                <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">other</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()).<span class="ident">as_ptr</span>(),
+                <span class="ident">compare_op</span> <span class="kw">as</span> <span class="ident">c_int</span>,
+            ))
         }
     }
 
@@ -1564,9 +1591,9 @@
         <span class="ident">args</span>: <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">kwargs</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDict</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span> {
-        <span class="ident">name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="kw">unsafe</span> {
+        <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::PyObject_GetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">name</span>);
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::PyObject_GetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">name</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>());
             <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PyErr::fetch</span>(<span class="ident">py</span>));
             }
@@ -1578,7 +1605,7 @@
             <span class="ident">ffi::Py_XDECREF</span>(<span class="ident">args</span>);
             <span class="ident">ffi::Py_XDECREF</span>(<span class="ident">kwargs</span>);
             <span class="ident">result</span>
-        })
+        }
     }
 
     <span class="doccomment">/// Calls a method on the object without arguments.</span>
@@ -1684,12 +1711,14 @@
     <span class="doccomment">/// This is equivalent to the Python expression `self[key]`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_item</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">K</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">py</span>()
-                .<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PyObject_GetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>))
-        })
+        <span class="kw">unsafe</span> {
+            <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PyObject_GetItem</span>(
+                <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">key</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()).<span class="ident">as_ptr</span>(),
+            ))
+        }
     }
 
     <span class="doccomment">/// Sets a collection item value.</span>
@@ -1697,14 +1726,20 @@
     <span class="doccomment">/// This is equivalent to the Python expression `self[key] = value`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_item</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
-        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">K</span>: <span class="ident">ToPyObject</span>,
+        <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="kw">move</span> <span class="op">|</span><span class="ident">key</span><span class="op">|</span> {
-            <span class="ident">value</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="kw">unsafe</span> {
-                <span class="ident">err::error_on_minusone</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="ident">ffi::PyObject_SetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>, <span class="ident">value</span>))
-            })
-        })
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="ident">py</span>,
+                <span class="ident">ffi::PyObject_SetItem</span>(
+                    <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                    <span class="ident">key</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                    <span class="ident">value</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                ),
+            )
+        }
     }
 
     <span class="doccomment">/// Deletes an item from the collection.</span>
@@ -1712,11 +1747,14 @@
     <span class="doccomment">/// This is equivalent to the Python expression `del self[key]`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_item</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">K</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="ident">err::error_on_minusone</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="ident">ffi::PyObject_DelItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>))
-        })
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="self">self</span>.<span class="ident">py</span>(),
+                <span class="ident">ffi::PyObject_DelItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()).<span class="ident">as_ptr</span>()),
+            )
+        }
     }
 
     <span class="doccomment">/// Takes an object and returns an iterator for it.</span>
@@ -1834,15 +1872,15 @@
     <span class="doccomment">/// Determines if self contains `value`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `value in self`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="ident">ffi::PySequence_Contains</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>)
-        });
-        <span class="kw">match</span> <span class="ident">r</span> {
+        <span class="self">self</span>.<span class="ident">_contains</span>(<span class="ident">value</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()))
+    }
+
+    <span class="kw">fn</span> <span class="ident">_contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">PyObject</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw">unsafe</span> { <span class="ident">ffi::PySequence_Contains</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">value</span>.<span class="ident">as_ptr</span>()) } {
             <span class="number">0</span> =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
             <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">PyErr::fetch</span>(<span class="self">self</span>.<span class="ident">py</span>())),
@@ -2084,5 +2122,5 @@ class SimpleClass:
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (18f314e70 2022-04-24)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>

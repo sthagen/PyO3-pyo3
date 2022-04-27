@@ -795,16 +795,20 @@
 <span id="790">790</span>
 <span id="791">791</span>
 <span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyList</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::IntoPyPointer</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>,
-    <span class="ident">ToPyObject</span>,
-};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::ptr::NonNull</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">collections</span>, <span class="ident">hash</span>};
@@ -879,15 +883,15 @@
     <span class="doccomment">/// This is equivalent to the Python expression `key in self`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">K</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="kw">match</span> <span class="ident">ffi::PyDict_Contains</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>) {
+        <span class="kw">unsafe</span> {
+            <span class="kw">match</span> <span class="ident">ffi::PyDict_Contains</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()).<span class="ident">as_ptr</span>()) {
                 <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
                 <span class="number">0</span> =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
                 <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">PyErr::fetch</span>(<span class="self">self</span>.<span class="ident">py</span>())),
             }
-        })
+        }
     }
 
     <span class="doccomment">/// Gets an item from the dictionary.</span>
@@ -897,15 +901,15 @@
     <span class="doccomment">/// To get a `KeyError` for non-existing keys, use `PyAny::get_item`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_item</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyAny</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">K</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::PyDict_GetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>);
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::PyDict_GetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">py</span>()).<span class="ident">as_ptr</span>());
             <span class="ident">NonNull::new</span>(<span class="ident">ptr</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
                 <span class="comment">// PyDict_GetItem return s borrowed ptr, must make it owned for safety (see #890).</span>
                 <span class="self">self</span>.<span class="ident">py</span>().<span class="ident">from_owned_ptr</span>(<span class="ident">ffi::_Py_NewRef</span>(<span class="ident">p</span>.<span class="ident">as_ptr</span>()))
             })
-        })
+        }
     }
 
     <span class="doccomment">/// Sets an item value.</span>
@@ -916,11 +920,17 @@
         <span class="ident">K</span>: <span class="ident">ToPyObject</span>,
         <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="kw">move</span> <span class="op">|</span><span class="ident">key</span><span class="op">|</span> {
-            <span class="ident">value</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="kw">unsafe</span> {
-                <span class="ident">err::error_on_minusone</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="ident">ffi::PyDict_SetItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>, <span class="ident">value</span>))
-            })
-        })
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="ident">py</span>,
+                <span class="ident">ffi::PyDict_SetItem</span>(
+                    <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                    <span class="ident">key</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                    <span class="ident">value</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                ),
+            )
+        }
     }
 
     <span class="doccomment">/// Deletes an item.</span>
@@ -928,11 +938,15 @@
     <span class="doccomment">/// This is equivalent to the Python statement `del self[key]`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_item</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">K</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">key</span>.<span class="ident">with_borrowed_ptr</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="ident">err::error_on_minusone</span>(<span class="self">self</span>.<span class="ident">py</span>(), <span class="ident">ffi::PyDict_DelItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>))
-        })
+        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">py</span>();
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="ident">py</span>,
+                <span class="ident">ffi::PyDict_DelItem</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">key</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>()),
+            )
+        }
     }
 
     <span class="doccomment">/// Returns a list of dict keys.</span>
@@ -1588,5 +1602,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (18f314e70 2022-04-24)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>

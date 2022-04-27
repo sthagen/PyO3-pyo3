@@ -1034,8 +1034,16 @@
 <span id="1029">1029</span>
 <span id="1030">1030</span>
 <span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{<span class="ident">PyTryFrom</span>, <span class="ident">ToBorrowedObject</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion::PyTryFrom</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pycell</span>::{<span class="ident">PyBorrowError</span>, <span class="ident">PyBorrowMutError</span>, <span class="ident">PyCell</span>};
@@ -1599,9 +1607,12 @@
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">attr_name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="ident">py</span>, <span class="op">|</span><span class="ident">attr_name</span><span class="op">|</span> <span class="kw">unsafe</span> {
-            <span class="ident">PyObject::from_owned_ptr_or_err</span>(<span class="ident">py</span>, <span class="ident">ffi::PyObject_GetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>))
-        })
+        <span class="kw">unsafe</span> {
+            <span class="ident">PyObject::from_owned_ptr_or_err</span>(
+                <span class="ident">py</span>,
+                <span class="ident">ffi::PyObject_GetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>()),
+            )
+        }
     }
 
     <span class="doccomment">/// Sets an attribute value.</span>
@@ -1631,11 +1642,16 @@
         <span class="ident">N</span>: <span class="ident">ToPyObject</span>,
         <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     {
-        <span class="ident">attr_name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="ident">py</span>, <span class="kw">move</span> <span class="op">|</span><span class="ident">attr_name</span><span class="op">|</span> {
-            <span class="ident">value</span>.<span class="ident">with_borrowed_ptr</span>(<span class="ident">py</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="kw">unsafe</span> {
-                <span class="ident">err::error_on_minusone</span>(<span class="ident">py</span>, <span class="ident">ffi::PyObject_SetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">attr_name</span>, <span class="ident">value</span>))
-            })
-        })
+        <span class="kw">unsafe</span> {
+            <span class="ident">err::error_on_minusone</span>(
+                <span class="ident">py</span>,
+                <span class="ident">ffi::PyObject_SetAttr</span>(
+                    <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                    <span class="ident">attr_name</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                    <span class="ident">value</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>(),
+                ),
+            )
+        }
     }
 
     <span class="doccomment">/// Calls the object.</span>
@@ -1692,10 +1708,10 @@
         <span class="ident">args</span>: <span class="kw">impl</span> <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">kwargs</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyDict</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span> {
-        <span class="ident">name</span>.<span class="ident">with_borrowed_ptr</span>(<span class="ident">py</span>, <span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="kw">unsafe</span> {
+        <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">into_py</span>(<span class="ident">py</span>).<span class="ident">into_ptr</span>();
             <span class="kw">let</span> <span class="ident">kwargs</span> <span class="op">=</span> <span class="ident">kwargs</span>.<span class="ident">into_ptr</span>();
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::PyObject_GetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">name</span>);
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::PyObject_GetAttr</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">name</span>.<span class="ident">to_object</span>(<span class="ident">py</span>).<span class="ident">as_ptr</span>());
             <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PyErr::fetch</span>(<span class="ident">py</span>));
             }
@@ -1704,7 +1720,7 @@
             <span class="ident">ffi::Py_XDECREF</span>(<span class="ident">args</span>);
             <span class="ident">ffi::Py_XDECREF</span>(<span class="ident">kwargs</span>);
             <span class="ident">result</span>
-        })
+        }
     }
 
     <span class="doccomment">/// Calls a method on the object with only positional arguments.</span>
@@ -2066,5 +2082,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (18f314e70 2022-04-24)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>

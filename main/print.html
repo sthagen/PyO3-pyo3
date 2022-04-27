@@ -7285,10 +7285,11 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
-<li>Move <code>PyTypeObject::type_object</code> method to <code>PyTypeInfo</code> trait, and deprecate <code>PyTypeObject</code> trait. <a href="https://github.com/PyO3/pyo3/pull/2284">#2284</a></li>
-<li>The deprecated <code>pyproto</code> feature is now disabled by default. <a href="https://github.com/PyO3/pyo3/pull/2321">#2321</a></li>
+<li>Move <code>PyTypeObject::type_object</code> method to <code>PyTypeInfo</code> trait, and deprecate <code>PyTypeObject</code> trait. <a href="https://github.com/PyO3/pyo3/pull/2287">#2287</a></li>
+<li>The deprecated <code>pyproto</code> feature is now disabled by default. <a href="https://github.com/PyO3/pyo3/pull/2322">#2322</a></li>
+<li>Deprecate <code>ToBorrowedObject</code> trait (it is only used as a wrapper for <code>ToPyObject</code>). <a href="https://github.com/PyO3/pyo3/pull/2333">#2333</a></li>
 </ul>
-<h2 id="0164---2022-04-14"><a class="header" href="#0164---2022-04-14">[0.16.4] - 2022-04-14</a></h2>
+<h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0163v01640164a---2022-04-14"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0163v01640164a---2022-04-14"><a href="https://github.com/pyo3/pyo3/compare/v0.16.3...v0.16.4">0.16.4</a> - 2022-04-14</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
 <ul>
 <li>Add <code>PyTzInfoAccess</code> trait for safe access to time zone information. <a href="https://github.com/PyO3/pyo3/pull/2263">#2263</a></li>
@@ -7307,7 +7308,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix segfault when calling FFI methods <code>PyDateTime_DATE_GET_TZINFO</code> or <code>PyDateTime_TIME_GET_TZINFO</code> on <code>datetime</code> or <code>time</code> without a tzinfo. <a href="https://github.com/PyO3/pyo3/pull/2289">#2289</a></li>
 <li>Fix directory names starting with the letter <code>n</code> breaking serialization of the interpreter configuration on Windows since PyO3 0.16.3. <a href="https://github.com/PyO3/pyo3/pull/2299">#2299</a></li>
 </ul>
-<h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0163v01640163a---2022-04-05"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0163v01640163a---2022-04-05"><a href="https://github.com/pyo3/pyo3/compare/v0.16.3...v0.16.4">0.16.3</a> - 2022-04-05</a></h2>
+<h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0162v01630163a---2022-04-05"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0162v01630163a---2022-04-05"><a href="https://github.com/pyo3/pyo3/compare/v0.16.2...v0.16.3">0.16.3</a> - 2022-04-05</a></h2>
 <h3 id="packaging"><a class="header" href="#packaging">Packaging</a></h3>
 <ul>
 <li>Extend <code>parking_lot</code> dependency supported versions to include 0.12. <a href="https://github.com/PyO3/pyo3/pull/2239">#2239</a></li>
