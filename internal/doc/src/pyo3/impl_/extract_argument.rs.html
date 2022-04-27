@@ -758,20 +758,6 @@
 <span id="753">753</span>
 <span id="754">754</span>
 <span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions::PyTypeError</span>,
     <span class="ident">ffi</span>,
@@ -781,7 +767,6 @@
 
 <span class="doccomment">/// The standard implementation of how PyO3 extracts a `#[pyfunction]` or `#[pymethod]` function argument.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_argument</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyAny</span>, <span class="ident">arg_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>,
@@ -795,7 +780,6 @@
 <span class="doccomment">/// Alternative to [`extract_argument`] used for `Option&lt;T&gt;` arguments (because they are implicitly treated</span>
 <span class="doccomment">/// as optional if at the end of the positional parameters).</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_optional_argument</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, <span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">obj</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyAny</span><span class="op">&gt;</span>,
     <span class="ident">arg_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
@@ -804,17 +788,13 @@
     <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>,
 {
     <span class="kw">match</span> <span class="ident">obj</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">obj</span>) =&gt; <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">extract</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">value</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">argument_extraction_error</span>(<span class="ident">obj</span>.<span class="ident">py</span>(), <span class="ident">arg_name</span>, <span class="ident">e</span>)),
-        },
+        <span class="prelude-val">Some</span>(<span class="ident">obj</span>) =&gt; <span class="ident">extract_argument</span>(<span class="ident">obj</span>, <span class="ident">arg_name</span>),
         <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
     }
 }
 
 <span class="doccomment">/// Alternative to [`extract_argument`] used when the argument has a default value provided by an annotation.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_argument_with_default</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, <span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">obj</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyAny</span><span class="op">&gt;</span>,
     <span class="ident">arg_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
@@ -824,10 +804,7 @@
     <span class="ident">T</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>,
 {
     <span class="kw">match</span> <span class="ident">obj</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">obj</span>) =&gt; <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">extract</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">value</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">argument_extraction_error</span>(<span class="ident">obj</span>.<span class="ident">py</span>(), <span class="ident">arg_name</span>, <span class="ident">e</span>)),
-        },
+        <span class="prelude-val">Some</span>(<span class="ident">obj</span>) =&gt; <span class="ident">extract_argument</span>(<span class="ident">obj</span>, <span class="ident">arg_name</span>),
         <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">default</span>()),
     }
 }
@@ -837,7 +814,6 @@
 <span class="doccomment">/// # Safety</span>
 <span class="doccomment">/// - `obj` must not be None (this helper is only used for required function arguments).</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_py_with</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, <span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyAny</span>,
     <span class="ident">arg_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
@@ -852,7 +828,6 @@
 
 <span class="doccomment">/// Alternative to [`extract_argument`] used when the argument has a `#[pyo3(from_py_with)]` annotation and also a default value.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_py_with_with_default</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, <span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">obj</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyAny</span><span class="op">&gt;</span>,
     <span class="ident">arg_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
@@ -860,10 +835,7 @@
     <span class="ident">default</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>() -&gt; <span class="ident">T</span>,
 ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">obj</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">obj</span>) =&gt; <span class="kw">match</span> <span class="ident">extractor</span>(<span class="ident">obj</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">value</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">argument_extraction_error</span>(<span class="ident">obj</span>.<span class="ident">py</span>(), <span class="ident">arg_name</span>, <span class="ident">e</span>)),
-        },
+        <span class="prelude-val">Some</span>(<span class="ident">obj</span>) =&gt; <span class="ident">from_py_with</span>(<span class="ident">obj</span>, <span class="ident">arg_name</span>, <span class="ident">extractor</span>),
         <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">default</span>()),
     }
 }
@@ -1542,5 +1514,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (18f314e70 2022-04-24)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>

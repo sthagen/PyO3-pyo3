@@ -946,7 +946,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PySequence</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">PyErr</span>, <span class="ident">PyObject</span>,
-    <span class="ident">PyResult</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToBorrowedObject</span>, <span class="ident">ToPyObject</span>,
+    <span class="ident">PyResult</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
 };
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1154,7 +1154,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     {
         <span class="self">self</span>.<span class="ident">as_sequence</span>().<span class="ident">contains</span>(<span class="ident">value</span>)
     }
@@ -1165,7 +1165,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">ToBorrowedObject</span>,
+        <span class="ident">V</span>: <span class="ident">ToPyObject</span>,
     {
         <span class="self">self</span>.<span class="ident">as_sequence</span>().<span class="ident">index</span>(<span class="ident">value</span>)
     }
@@ -1872,5 +1872,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (18f314e70 2022-04-24)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>
