@@ -149,8 +149,17 @@
 <p>The easiest way to convert a Python object to a Rust value is using
 <code>.extract()</code>.  It returns a <code>PyResult</code> with a type error if the conversion
 fails, so usually you will use something like</p>
-<pre><code class="language-ignore">let v: Vec&lt;i32&gt; = obj.extract()?;
-</code></pre>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">use pyo3::types::PyList;
+</span><span class="boring">fn main() -&gt; PyResult&lt;()&gt; {
+</span><span class="boring">    Python::with_gil(|py| {
+</span><span class="boring">        let list = PyList::new(py, b&quot;foo&quot;);
+</span>let v: Vec&lt;i32&gt; = list.extract()?;
+<span class="boring">        assert_eq!(&amp;v, &amp;[102, 111, 111]);
+</span><span class="boring">        Ok(())
+</span><span class="boring">    })
+</span><span class="boring">}
+</span></code></pre></pre>
 <p>This method is available for many Python object types, and can produce a wide
 variety of Rust types, which you can check out in the implementor list of
 <a href="https://pyo3.rs/main/doc/pyo3/conversion/trait.FromPyObject.html"><code>FromPyObject</code></a>.</p>

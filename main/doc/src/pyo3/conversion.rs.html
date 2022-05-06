@@ -591,6 +591,79 @@
 <span id="586">586</span>
 <span id="587">587</span>
 <span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Defines conversions between Rust and Python types.</span>
@@ -603,30 +676,88 @@
 };
 <span class="kw">use</span> <span class="ident">std::ptr::NonNull</span>;
 
-<span class="doccomment">/// This trait represents that **we can do zero-cost conversion from the object</span>
-<span class="doccomment">/// to a FFI pointer**.</span>
+<span class="doccomment">/// Returns a borrowed pointer to a Python object.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This trait is implemented for types that internally wrap a pointer to a Python object.</span>
+<span class="doccomment">/// The returned pointer will be valid for as long as `self` is. It may be null depending on the</span>
+<span class="doccomment">/// implementation.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use pyo3::{prelude::*, AsPyPointer};</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use pyo3::prelude::*;</span>
+<span class="doccomment">/// use pyo3::AsPyPointer;</span>
+<span class="doccomment">/// use pyo3::types::PyString;</span>
+<span class="doccomment">/// use pyo3::ffi;</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// Python::with_gil(|py| {</span>
-<span class="doccomment">///     let dict = pyo3::types::PyDict::new(py);</span>
-<span class="doccomment">///     // All native object wrappers implement AsPyPointer!!!</span>
-<span class="doccomment">///     assert_ne!(dict.as_ptr(), std::ptr::null_mut());</span>
+<span class="doccomment">///     let s: Py&lt;PyString&gt; = &quot;foo&quot;.into_py(py);</span>
+<span class="doccomment">///     let ptr = s.as_ptr();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let is_really_a_pystring = unsafe { ffi::PyUnicode_CheckExact(ptr) };</span>
+<span class="doccomment">///     assert_eq!(is_really_a_pystring, 1);</span>
 <span class="doccomment">/// });</span>
 <span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Safety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It is your responsibility to make sure that the underlying Python object is not dropped too</span>
+<span class="doccomment">/// early. For example, the following code will cause undefined behavior:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust,no_run</span>
+<span class="doccomment">/// # use pyo3::prelude::*;</span>
+<span class="doccomment">/// # use pyo3::AsPyPointer;</span>
+<span class="doccomment">/// # use pyo3::ffi;</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// Python::with_gil(|py| {</span>
+<span class="doccomment">///     let ptr: *mut ffi::PyObject = 0xabad1dea_u32.into_py(py).as_ptr();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let isnt_a_pystring = unsafe {</span>
+<span class="doccomment">///         // `ptr` is dangling, this is UB</span>
+<span class="doccomment">///         ffi::PyUnicode_CheckExact(ptr)</span>
+<span class="doccomment">///     };</span>
+<span class="doccomment">/// #    assert_eq!(isnt_a_pystring, 0);</span>
+<span class="doccomment">/// });</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This happens because the pointer returned by `as_ptr` does not carry any lifetime information</span>
+<span class="doccomment">/// and the Python object is dropped immediately after the `0xabad1dea_u32.into_py(py).as_ptr()`</span>
+<span class="doccomment">/// expression is evaluated. To fix the problem, bind Python object to a local variable like earlier</span>
+<span class="doccomment">/// to keep the Python object alive until the end of its scope.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AsPyPointer</span> {
-    <span class="doccomment">/// Retrieves the underlying FFI pointer (as a borrowed pointer).</span>
+    <span class="doccomment">/// Returns the underlying FFI pointer as a borrowed pointer.</span>
     <span class="kw">fn</span> <span class="ident">as_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>;
 }
 
-<span class="doccomment">/// This trait allows retrieving the underlying FFI pointer from Python objects.</span>
+<span class="doccomment">/// Returns an owned pointer to a Python object.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The returned pointer will be valid until you decrease its reference count. It may be null</span>
+<span class="doccomment">/// depending on the implementation.</span>
+<span class="doccomment">/// It is your responsibility to decrease the reference count of the pointer to avoid leaking memory.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use pyo3::prelude::*;</span>
+<span class="doccomment">/// use pyo3::IntoPyPointer;</span>
+<span class="doccomment">/// use pyo3::types::PyString;</span>
+<span class="doccomment">/// use pyo3::ffi;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Python::with_gil(|py| {</span>
+<span class="doccomment">///     let s: Py&lt;PyString&gt; = &quot;foo&quot;.into_py(py);</span>
+<span class="doccomment">///     let ptr = s.into_ptr();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let is_really_a_pystring = unsafe { ffi::PyUnicode_CheckExact(ptr) };</span>
+<span class="doccomment">///     assert_eq!(is_really_a_pystring, 1);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     // Because we took ownership of the pointer,</span>
+<span class="doccomment">///     // we must manually decrement it to avoid leaking memory</span>
+<span class="doccomment">///     unsafe { ffi::Py_DECREF(ptr) };</span>
+<span class="doccomment">/// });</span>
+<span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoPyPointer</span> {
-    <span class="doccomment">/// Retrieves the underlying FFI pointer. Whether pointer owned or borrowed</span>
-    <span class="doccomment">/// depends on implementation.</span>
+    <span class="doccomment">/// Returns the underlying FFI pointer as an owned pointer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If `self` has ownership of the underlying pointer, it will &quot;steal&quot; ownership of it.</span>
     <span class="kw">fn</span> <span class="ident">into_ptr</span>(<span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span>;
 }
 
@@ -781,17 +912,32 @@
     <span class="kw">fn</span> <span class="ident">into_py</span>(<span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">T</span>;
 }
 
-<span class="doccomment">/// `FromPyObject` is implemented by various types that can be extracted from</span>
-<span class="doccomment">/// a Python object reference.</span>
+<span class="doccomment">/// Extract a type from a Python object.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Normal usage is through the helper methods `Py::extract` or `PyAny::extract`:</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// let obj: Py&lt;PyAny&gt; = ...;</span>
-<span class="doccomment">/// let value: &amp;TargetType = obj.extract(py)?;</span>
+<span class="doccomment">/// Normal usage is through the `extract` methods on [`Py`] and  [`PyAny`], which forward to this trait.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let any: &amp;PyAny = ...;</span>
-<span class="doccomment">/// let value: &amp;TargetType = any.extract()?;</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use pyo3::prelude::*;</span>
+<span class="doccomment">/// use pyo3::types::PyString;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt; {</span>
+<span class="doccomment">/// Python::with_gil(|py| {</span>
+<span class="doccomment">///     let obj: Py&lt;PyString&gt; = PyString::new(py, &quot;blah&quot;).into();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     // Straight from an owned reference</span>
+<span class="doccomment">///     let s: &amp;str = obj.extract(py)?;</span>
+<span class="doccomment">/// #   assert_eq!(s, &quot;blah&quot;);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     // Or from a borrowed reference</span>
+<span class="doccomment">///     let obj: &amp;PyString = obj.as_ref(py);</span>
+<span class="doccomment">///     let s: &amp;str = obj.extract()?;</span>
+<span class="doccomment">/// #   assert_eq!(s, &quot;blah&quot;);</span>
+<span class="doccomment">/// #   Ok(())</span>
+<span class="doccomment">/// })</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note: depending on the implementation, the lifetime of the extracted result may</span>
@@ -1180,5 +1326,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>

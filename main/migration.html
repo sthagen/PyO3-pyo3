@@ -147,20 +147,45 @@
 <p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next.
 For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</a>.</p>
 <h2 id="from-016-to-017"><a class="header" href="#from-016-to-017">from 0.16.* to 0.17</a></h2>
+<h3 id="added-impl-intopypypystring-for-str"><a class="header" href="#added-impl-intopypypystring-for-str">Added <code>impl IntoPy&lt;Py&lt;PyString&gt;&gt; for &amp;str</code></a></h3>
+<p>This may cause inference errors.</p>
+<p>Before:</p>
+<pre><pre class="playground"><code class="language-rust compile_fail"><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">
+</span><span class="boring">fn main() {
+</span>Python::with_gil(|py| {
+    // Cannot infer either `Py&lt;PyAny&gt;` or `Py&lt;PyString&gt;`
+    let _test = &quot;test&quot;.into_py(py);
+});
+<span class="boring">}
+</span></code></pre></pre>
+<p>After, some type annotations may be necessary:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use pyo3::prelude::*;
+</span><span class="boring">
+</span><span class="boring">fn main() {
+</span>Python::with_gil(|py| {
+    let _test: Py&lt;PyAny&gt; = &quot;test&quot;.into_py(py);
+});
+<span class="boring">}
+</span></code></pre></pre>
 <h3 id="the-pyproto-feature-is-now-disabled-by-default"><a class="header" href="#the-pyproto-feature-is-now-disabled-by-default">The <code>pyproto</code> feature is now disabled by default</a></h3>
 <p>In preparation for removing the deprecated <code>#[pyproto]</code> attribute macro in a future PyO3 version, it is now gated behind an opt-in feature flag. This also gives a slight saving to compile times for code which does not use the deprecated macro.</p>
 <h3 id="pytypeobject-trait-has-been-deprecated"><a class="header" href="#pytypeobject-trait-has-been-deprecated"><code>PyTypeObject</code> trait has been deprecated</a></h3>
 <p>The <code>PyTypeObject</code> trait already was near-useless; almost all functionality was already on the <code>PyTypeInfo</code> trait, which <code>PyTypeObject</code> had a blanket implementation based upon. In PyO3 0.17 the final method, <code>PyTypeObject::type_object</code> was moved to <code>PyTypeInfo::type_object</code>.</p>
 <p>To migrate, update trait bounds and imports from <code>PyTypeObject</code> to <code>PyTypeInfo</code>.</p>
 <p>Before:</p>
-<pre><code class="language-rust ignore">use pyo3::Python;
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::Python;
 use pyo3::type_object::PyTypeObject;
 use pyo3::types::PyType;
 
 fn get_type_object&lt;T: PyTypeObject&gt;(py: Python&lt;'_&gt;) -&gt; &amp;PyType {
     T::type_object(py)
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -183,7 +208,10 @@ fn get_type_object&lt;T: PyTypeInfo&gt;(py: Python&lt;'_&gt;) -&gt; &amp;PyType 
 <p>In PyO3 0.16, the <code>#[pymethods]</code> implementation has been completed and is now the preferred way to implement magic methods. To allow the PyO3 project to move forward, <code>#[pyproto]</code> has been deprecated (with expected removal in PyO3 0.18).</p>
 <p>Migration from <code>#[pyproto]</code> to <code>#[pymethods]</code> is straightforward; copying the existing methods directly from the <code>#[pyproto]</code> trait implementation is all that is needed in most cases.</p>
 <p>Before:</p>
-<pre><code class="language-rust ignore">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 use pyo3::class::{PyBasicProtocol, PyIterProtocol};
 use pyo3::types::PyString;
 
@@ -203,9 +231,13 @@ impl PyIterProtocol for MyClass {
         PyString::new(slf.py(), &quot;hello, world&quot;).iter()
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After</p>
-<pre><code class="language-rust ignore">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 use pyo3::types::PyString;
 
 #[pyclass]
@@ -221,7 +253,8 @@ impl MyClass {
         PyString::new(slf.py(), &quot;hello, world&quot;).iter()
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h3 id="removed-partialeq-for-object-wrappers"><a class="header" href="#removed-partialeq-for-object-wrappers">Removed <code>PartialEq</code> for object wrappers</a></h3>
 <p>The Python object wrappers <code>Py</code> and <code>PyAny</code> had implementations of <code>PartialEq</code>
 so that <code>object_a == object_b</code> would compare the Python objects for pointer
@@ -341,7 +374,10 @@ Python::with_gil(|py| {
 <p>In the interest of having onle one way to do things, the <code>#[pyproto]</code> forms of these methods have been deprecated.</p>
 <p>To migrate just move the affected methods from a <code>#[pyproto]</code> to a <code>#[pymethods]</code> block.</p>
 <p>Before:</p>
-<pre><code class="language-rust ignore">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
 use pyo3::class::basic::PyBasicProtocol;
 
 #[pyclass]
@@ -353,7 +389,8 @@ impl PyBasicProtocol for MyClass {
         b&quot;hello, world&quot;
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -405,8 +442,12 @@ Exception types</a>).</p>
 <h4 id="intopyresultt-for-pyerr-has-been-removed"><a class="header" href="#intopyresultt-for-pyerr-has-been-removed"><code>Into&lt;PyResult&lt;T&gt;&gt;</code> for <code>PyErr</code> has been removed</a></h4>
 <p>This implementation was redundant. Just construct the <code>Result::Err</code> variant directly.</p>
 <p>Before:</p>
-<pre><code class="language-rust ignore">let result: PyResult&lt;()&gt; = PyErr::new::&lt;TypeError, _&gt;(&quot;error message&quot;).into();
-</code></pre>
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let result: PyResult&lt;()&gt; = PyErr::new::&lt;TypeError, _&gt;(&quot;error message&quot;).into();
+<span class="boring">}
+</span></code></pre></pre>
 <p>After (also using the new reworked exception types; see the following section):</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -420,10 +461,17 @@ Exception types</a>).</p>
 0.12, these types have been replaced with full definitions and are usable in the same way as <code>PyAny</code>, <code>PyDict</code> etc. This
 makes it possible to interact with Python exception objects.</p>
 <p>The new types also have names starting with the &quot;Py&quot; prefix. For example, before:</p>
-<pre><code class="language-rust ignore">let err: PyErr = TypeError::py_err(&quot;error message&quot;);
-</code></pre>
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let err: PyErr = TypeError::py_err(&quot;error message&quot;);
+<span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
-<pre><code class="language-rust ignore"><span class="boring">use pyo3::{PyErr, PyResult, Python, type_object::PyTypeObject};
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::{PyErr, PyResult, Python, type_object::PyTypeObject};
 </span><span class="boring">use pyo3::exceptions::{PyBaseException, PyTypeError};
 </span><span class="boring">Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {
 </span>let err: PyErr = PyTypeError::new_err(&quot;error message&quot;);
@@ -436,7 +484,8 @@ let instance: &amp;PyBaseException = err.instance(py);
 assert_eq!(instance.getattr(&quot;__class__&quot;)?, PyTypeError::type_object(py).as_ref());
 <span class="boring">Ok(())
 </span><span class="boring">}).unwrap();
-</span></code></pre>
+</span><span class="boring">}
+</span></code></pre></pre>
 <h3 id="frompy-has-been-removed"><a class="header" href="#frompy-has-been-removed"><code>FromPy</code> has been removed</a></h3>
 <p>To simplify the PyO3 conversion traits, the <code>FromPy</code> trait has been removed. Previously there were
 two ways to define the to-Python conversion for a type:
@@ -444,7 +493,10 @@ two ways to define the to-Python conversion for a type:
 <p>Now there is only one way to define the conversion, <code>IntoPy</code>, so downstream crates may need to
 adjust accordingly.</p>
 <p>Before:</p>
-<pre><code class="language-rust ignore"><span class="boring">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
 </span>struct MyPyObjectWrapper(PyObject);
 
 impl FromPy&lt;MyPyObjectWrapper&gt; for PyObject {
@@ -452,7 +504,8 @@ impl FromPy&lt;MyPyObjectWrapper&gt; for PyObject {
         other.0
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>After</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -469,11 +522,15 @@ impl IntoPy&lt;PyObject&gt; for MyPyObjectWrapper {
 </span></code></pre></pre>
 <p>Similarly, code which was using the <code>FromPy</code> trait can be trivially rewritten to use <code>IntoPy</code>.</p>
 <p>Before:</p>
-<pre><code class="language-rust ignore"><span class="boring">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">Python::with_gil(|py| {
 </span>let obj = PyObject::from_py(1.234, py);
 <span class="boring">})
-</span></code></pre>
+</span><span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -494,12 +551,16 @@ was <code>Py&lt;T&gt;</code>. This removed the need for a trait, so the <code>As
 <p>This should require no code changes except removing <code>use pyo3::AsPyRef</code> for code which did not use
 <code>pyo3::prelude::*</code>.</p>
 <p>Before:</p>
-<pre><code class="language-rust ignore">use pyo3::{AsPyRef, Py, types::PyList};
+<pre><pre class="playground"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::{AsPyRef, Py, types::PyList};
 <span class="boring">pyo3::Python::with_gil(|py| {
 </span>let list_py: Py&lt;PyList&gt; = PyList::empty(py).into();
 let list_ref: &amp;PyList = list_py.as_ref(py);
 <span class="boring">})
-</span></code></pre>
+</span><span class="boring">}
+</span></code></pre></pre>
 <p>After:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -768,7 +829,7 @@ Instead you should extract <code>PyRef&lt;T&gt;</code> or <code>PyRefMut&lt;T&gt
 If <code>T</code> implements <code>Clone</code>, you can extract <code>T</code> itself.
 In addition, you can also extract <code>&amp;PyCell&lt;T&gt;</code>, though you rarely need it.</p>
 <p>Before:</p>
-<pre><code class="language-ignore">let obj: &amp;PyAny = create_obj();
+<pre><code class="language-compile_fail">let obj: &amp;PyAny = create_obj();
 let obj_ref: &amp;MyClass = obj.extract().unwrap();
 let obj_ref_mut: &amp;mut MyClass = obj.extract().unwrap();
 </code></pre>
@@ -821,7 +882,13 @@ impl PySequenceProtocol for ByteSequence {
 <span class="boring">}
 </span></code></pre></pre>
 <p>After:</p>
-<pre><code class="language-rust ignore"><span class="boring">use pyo3::prelude::*;
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">#[allow(deprecated)]
+</span><span class="boring">#[cfg(feature = &quot;pyproto&quot;)]
+</span><span class="boring">{
+</span><span class="boring">use pyo3::prelude::*;
 </span><span class="boring">use pyo3::class::PySequenceProtocol;
 </span>#[pyclass]
 struct ByteSequence {
@@ -835,7 +902,9 @@ impl PySequenceProtocol for ByteSequence {
         Ok(Self { elements })
     }
 }
-</code></pre>
+}
+<span class="boring">}
+</span></code></pre></pre>
 
                     </main>
 

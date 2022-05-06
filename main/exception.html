@@ -178,8 +178,14 @@ Python::with_gil(|py| {
 </span></code></pre></pre>
 <p>When using PyO3 to create an extension module, you can add the new exception to
 the module like this, so that it is importable from Python:</p>
-<pre><code class="language-rust ignore">
-create_exception!(mymodule, CustomError, PyException);
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::prelude::*;
+use pyo3::types::PyModule;
+use pyo3::exceptions::PyException;
+
+pyo3::create_exception!(mymodule, CustomError, PyException);
 
 #[pymodule]
 fn mymodule(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
@@ -189,7 +195,8 @@ fn mymodule(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     Ok(())
 }
 
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="raising-an-exception"><a class="header" href="#raising-an-exception">Raising an exception</a></h2>
 <p>To raise an exception from <code>pyfunction</code>s and <code>pymethods</code>, you should return an <code>Err(PyErr)</code>.
 If returned to Python code, this <a href="https://pyo3.rs/main/doc/pyo3/struct.PyErr.html"><code>PyErr</code></a> will then be raised as a Python exception. Many PyO3 APIs also return <a href="https://pyo3.rs/main/doc/pyo3/type.PyResult.html"><code>PyResult</code></a>.</p>
@@ -215,7 +222,7 @@ fn divide(a: i32, b: i32) -&gt; PyResult&lt;i32&gt; {
 </span><span class="boring">	});
 </span><span class="boring">}
 </span></code></pre></pre>
-<p>You can also manually write and fetch errors in the Python interpreter's global state:</p>
+<p>You can manually write and fetch errors in the Python interpreter's global state:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -229,9 +236,7 @@ Python::with_gil(|py| {
 });
 <span class="boring">}
 </span></code></pre></pre>
-<p>If you already have a Python exception object, you can simply call <a href="https://pyo3.rs/main/doc/pyo3/struct.PyErr.html#method.from_value"><code>PyErr::from_value</code></a>.</p>
-<pre><code class="language-rust ignore">PyErr::from_value(py, err).restore(py);
-</code></pre>
+<p>If you already have a Python exception object, you can use <a href="https://pyo3.rs/main/doc/pyo3/struct.PyErr.html#method.from_value"><code>PyErr::from_value</code></a> to create a <code>PyErr</code> from it.</p>
 <h2 id="checking-exception-types"><a class="header" href="#checking-exception-types">Checking exception types</a></h2>
 <p>Python has an <a href="https://docs.python.org/3/library/functions.html#isinstance"><code>isinstance</code></a> method to check an object's type.
 In PyO3 every object has the <a href="https://pyo3.rs/main/doc/pyo3/struct.PyAny.html#method.is_instance"><code>PyAny::is_instance</code></a> and <a href="https://pyo3.rs/main/doc/pyo3/struct.PyAny.html#method.is_instance_of"><code>PyAny::is_instance_of</code></a> methods which do the same thing.</p>

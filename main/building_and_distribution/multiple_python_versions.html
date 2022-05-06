@@ -182,19 +182,19 @@ pyo3-build-config = &quot;git = &quot;https://github.com/pyo3/pyo3&quot;&quot;
 <p>After these steps you are ready to annotate your code!</p>
 <h3 id="common-usages-of-pyo3-build-cfg-flags"><a class="header" href="#common-usages-of-pyo3-build-cfg-flags">Common usages of <code>pyo3-build-cfg</code> flags</a></h3>
 <p>The <code>#[cfg]</code> flags added by <code>pyo3-build-cfg</code> can be combined with all of Rust's logic in the <code>#[cfg]</code> attribute to create very precise conditional code generation. The following are some common patterns implemented using these flags:</p>
-<pre><code class="language-rust ignore">#[cfg(Py_3_7)]
+<pre><code class="language-text">#[cfg(Py_3_7)]
 </code></pre>
 <p>This <code>#[cfg]</code> marks code that will only be present on Python 3.7 and upwards. There are similar options <code>Py_3_8</code>, <code>Py_3_9</code>, <code>Py_3_10</code> and so on for each minor version.</p>
-<pre><code class="language-rust ignore">#[cfg(not(Py_3_7))]
+<pre><code class="language-text">#[cfg(not(Py_3_7))]
 </code></pre>
 <p>This <code>#[cfg]</code> marks code that will only be present on Python versions before (but not including) Python 3.7.</p>
-<pre><code class="language-rust ignore">#[cfg(not(Py_LIMITED_API))]
+<pre><code class="language-text">#[cfg(not(Py_LIMITED_API))]
 </code></pre>
 <p>This <code>#[cfg]</code> marks code that is only available when building for the unlimited Python API (i.e. PyO3's <code>abi3</code> feature is not enabled). This might be useful if you want to ship your extension module as an <code>abi3</code> wheel and also allow users to compile it from source to make use of optimizations only possible with the unlimited API.</p>
-<pre><code class="language-rust ignore">#[cfg(any(Py_3_9, not(Py_LIMITED_API)))]
+<pre><code class="language-text">#[cfg(any(Py_3_9, not(Py_LIMITED_API)))]
 </code></pre>
 <p>This <code>#[cfg]</code> marks code which is available when running Python 3.9 or newer, or when using the unlimited API with an older Python version. Patterns like this are commonly seen on Python APIs which were added to the limited Python API in a specific minor version.</p>
-<pre><code class="language-rust ignore">#[cfg(PyPy)]
+<pre><code class="language-text">#[cfg(PyPy)]
 </code></pre>
 <p>This <code>#[cfg]</code> marks code which is running on PyPy.</p>
 <h2 id="checking-the-python-version-at-runtime"><a class="header" href="#checking-the-python-version-at-runtime">Checking the Python version at runtime</a></h2>
@@ -202,10 +202,19 @@ pyo3-build-config = &quot;git = &quot;https://github.com/pyo3/pyo3&quot;&quot;
 <p>For example with PyO3's <code>abi3-py38</code> feature, your extension will be compiled as if it were for Python 3.8. If you were using <code>pyo3-build-config</code>, <code>#[cfg(Py_3_8)]</code> would be present. Your user could freely install and run your abi3 extension on Python 3.9.</p>
 <p>There's no way to detect your user doing that at compile time, so instead you need to fall back to runtime checks.</p>
 <p>PyO3 provides the APIs <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.version"><code>Python::version()</code></a> and <a href="https://pyo3.rs/main/doc/pyo3/struct.Python.html#method.version_info"><code>Python::version_info()</code></a> to query the running Python version. This allows you to do the following, for example:</p>
-<pre><code class="language-rust ignore">if py.version_info() &gt;= (3, 9) {
-   // run this code only if Python 3.9 or up
-}
-</code></pre>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::Python;
+
+Python::with_gil(|py| {
+   // PyO3 supports Python 3.7 and up.
+   assert!(py.version_info() &gt;= (3, 7));
+   assert!(py.version_info() &gt;= (3, 7, 0));
+});
+
+<span class="boring">}
+</span></code></pre></pre>
 
                     </main>
 

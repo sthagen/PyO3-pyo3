@@ -482,17 +482,17 @@
         <span class="ident">rustdoc::bare_urls</span>
     )
 )]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">elided_lifetimes_in_paths</span>, <span class="ident">unused_lifetimes</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">rust_2018_idioms</span>, <span class="ident">unused_lifetimes</span>)]</span>
 <span class="comment">// Deny some lints in doctests.</span>
 <span class="comment">// Use `#[allow(...)]` locally to override.</span>
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">attr</span>(
     <span class="ident">deny</span>(
-        <span class="ident">elided_lifetimes_in_paths</span>,
+        <span class="ident">rust_2018_idioms</span>,
         <span class="ident">unused_lifetimes</span>,
         <span class="ident">rust_2021_prelude_collisions</span>,
         <span class="ident">warnings</span>
     ),
-    <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unused_assignments</span>)
+    <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unused_assignments</span>, <span class="ident">unused_extern_crates</span>)
 )))]</span>
 
 <span class="doccomment">//! Rust bindings to the Python interpreter.</span>
@@ -942,5 +942,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>
