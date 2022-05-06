@@ -1022,6 +1022,10 @@
 <span id="1017">1017</span>
 <span id="1018">1018</span>
 <span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -1146,10 +1150,11 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil</span>::{<span class="self">self</span>, <span class="ident">GILGuard</span>, <span class="ident">GILPool</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::impl_::not_send::NotSend</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyModule</span>, <span class="ident">PyType</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyDict</span>, <span class="ident">PyModule</span>, <span class="ident">PyString</span>, <span class="ident">PyType</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::version::PythonVersionInfo</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">PyTypeInfo</span>,
+    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">Py</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>,
+    <span class="ident">PyTypeInfo</span>,
 };
 <span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -1614,7 +1619,10 @@
     }
 
     <span class="doccomment">/// Imports the Python module with the specified name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyModule</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyModule</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">N</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    {
         <span class="ident">PyModule::import</span>(<span class="self">self</span>, <span class="ident">name</span>)
     }
 
@@ -2042,5 +2050,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>

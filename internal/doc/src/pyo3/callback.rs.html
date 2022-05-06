@@ -501,7 +501,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// For example this pyfunction:</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// ```no_compile</span>
 <span class="doccomment">/// fn foo(&amp;self) -&gt; &amp;Bar {</span>
 <span class="doccomment">///     &amp;self.bar</span>
 <span class="doccomment">/// }</span>
@@ -509,7 +509,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// It is wrapped in proc macros with handle_panic like so:</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// ```no_compile</span>
 <span class="doccomment">/// pyo3::callback::handle_panic(|_py| {</span>
 <span class="doccomment">///     let _slf = #slf;</span>
 <span class="doccomment">///     pyo3::callback::convert(_py, #foo)</span>
@@ -518,7 +518,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// If callback_body was used instead:</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// ```no_compile</span>
 <span class="doccomment">/// pyo3::callback_body!(py, {</span>
 <span class="doccomment">///     let _slf = #slf;</span>
 <span class="doccomment">///     #foo</span>
@@ -576,5 +576,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>

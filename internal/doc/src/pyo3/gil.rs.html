@@ -877,6 +877,8 @@
 <span id="872">872</span>
 <span id="873">873</span>
 <span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Interaction with Python&#39;s global interpreter lock</span>
@@ -976,14 +978,16 @@
 <span class="doccomment">/// - The return value of the closure must not contain any Python value, _including_ `PyResult`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use pyo3::prelude::*;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt;{</span>
+<span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// unsafe {</span>
-<span class="doccomment">///     pyo3::with_embedded_python_interpreter(|py| py.run(&quot;print(&#39;Hello World&#39;)&quot;, None, None))</span>
+<span class="doccomment">///     pyo3::with_embedded_python_interpreter(|py| {</span>
+<span class="doccomment">///        if let Err(e) = py.run(&quot;print(&#39;Hello World&#39;)&quot;, None, None){</span>
+<span class="doccomment">///            // We must make sure to not return a `PyErr`!</span>
+<span class="doccomment">///            e.print(py);</span>
+<span class="doccomment">///        }</span>
+<span class="doccomment">///     });</span>
 <span class="doccomment">/// }</span>
-<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">with_embedded_python_interpreter</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
@@ -1752,5 +1756,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>

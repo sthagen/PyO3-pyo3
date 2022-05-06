@@ -420,6 +420,10 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="comment">//</span>
 <span class="comment">// based on Daniel Grunwald&#39;s https://github.com/dgrunwald/rust-cpython</span>
@@ -430,7 +434,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::PyClass</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyAny</span>, <span class="ident">PyCFunction</span>, <span class="ident">PyDict</span>, <span class="ident">PyList</span>, <span class="ident">PyString</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">Py</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
 <span class="kw">use</span> <span class="ident">std::str</span>;
 
@@ -487,8 +491,11 @@
     <span class="doccomment">/// ```python</span>
     <span class="doccomment">/// import antigravity</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyModule</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">name</span>: <span class="ident">PyObject</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">into_py</span>(<span class="ident">py</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">name</span>: <span class="ident">N</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyModule</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">N</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">name</span>: <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">into_py</span>(<span class="ident">py</span>);
         <span class="kw">unsafe</span> { <span class="ident">py</span>.<span class="ident">from_owned_ptr_or_err</span>(<span class="ident">ffi::PyImport_Import</span>(<span class="ident">name</span>.<span class="ident">as_ptr</span>())) }
     }
 
@@ -511,43 +518,44 @@
     <span class="doccomment">/// - Any Python exceptions are raised while initializing the module.</span>
     <span class="doccomment">/// - Any of the arguments cannot be converted to [`CString`](std::ffi::CString)s.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">/// # Example: bundle in a file at compile time with [`include_str!`][1]:</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Include a file at compile time by using [`std::include_str` macro][1]:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// use pyo3::prelude::*;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt; {</span>
-    <span class="doccomment">///       let code = include_str!(&quot;../example.py&quot;);</span>
-    <span class="doccomment">///       Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {</span>
-    <span class="doccomment">///           PyModule::from_code(py, code, &quot;example&quot;, &quot;example&quot;)?;</span>
-    <span class="doccomment">///           Ok(())</span>
-    <span class="doccomment">///       })?;</span>
-    <span class="doccomment">///       Ok(())</span>
+    <span class="doccomment">/// // This path is resolved relative to this file.</span>
+    <span class="doccomment">/// let code = include_str!(&quot;../../assets/script.py&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">///     PyModule::from_code(py, code, &quot;example&quot;, &quot;example&quot;)?;</span>
+    <span class="doccomment">///     Ok(())</span>
+    <span class="doccomment">/// })?;</span>
+    <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Load a file at runtime by using [`std::fs::read_to_string`][2] function. It is recommended</span>
-    <span class="doccomment">/// to use an absolute path to your Python files because then your binary can be run from</span>
-    <span class="doccomment">/// anywhere:</span>
+    <span class="doccomment">/// # Example: Load a file at runtime with [`std::fs::read_to_string`][2].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```ignore</span>
-    <span class="doccomment">/// use std::fs;</span>
+    <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// use pyo3::prelude::*;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # fn main() -&gt; PyResult&lt;()&gt; {</span>
-    <span class="doccomment">///       let code = fs::read_to_string(&quot;/some/absolute/path/to/example.py&quot;)?;</span>
-    <span class="doccomment">///       Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {</span>
-    <span class="doccomment">///           PyModule::from_code(py, &amp;code, &quot;example&quot;, &quot;example&quot;)?;</span>
-    <span class="doccomment">///           Ok(())</span>
-    <span class="doccomment">///       })?;</span>
-    <span class="doccomment">///       Ok(())</span>
+    <span class="doccomment">/// // This path is resolved by however the platform resolves paths,</span>
+    <span class="doccomment">/// // which also makes this less portable. Consider using `include_str`</span>
+    <span class="doccomment">/// // if you just want to bundle a script with your module.</span>
+    <span class="doccomment">/// let code = std::fs::read_to_string(&quot;assets/script.py&quot;)?;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Python::with_gil(|py| -&gt; PyResult&lt;()&gt; {</span>
+    <span class="doccomment">///     PyModule::from_code(py, &amp;code, &quot;example&quot;, &quot;example&quot;)?;</span>
+    <span class="doccomment">///     Ok(())</span>
+    <span class="doccomment">/// })?;</span>
+    <span class="doccomment">/// Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [1]: https://doc.rust-lang.org/std/macro.include_str.html</span>
-    <span class="doccomment">/// [2]: https://doc.rust-lang.org/std/fs/fn.read_to_string.html</span>
+    <span class="doccomment">/// [1]: std::include_str</span>
+    <span class="doccomment">/// [2]: std::fs::read_to_string</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_code</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>(
         <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
@@ -838,5 +846,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>

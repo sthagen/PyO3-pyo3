@@ -7,23 +7,20 @@
     <h1 class="fqn"><span class="in-band">Function <a href="../index.html">pyo3</a>::<wbr><a href="index.html">callback</a>::<wbr><a class="fn" href="#">handle_panic</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../src/pyo3/callback.rs.html#241-249">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust fn"><code>pub unsafe fn handle_panic&lt;F, R&gt;(body: F) -&gt; R <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: for&lt;'py&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(<a class="struct" href="../marker/struct.Python.html" title="struct pyo3::marker::Python">Python</a>&lt;'py&gt;) -&gt; <a class="type" href="../err/type.PyResult.html" title="type pyo3::err::PyResult">PyResult</a>&lt;R&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/panic/unwind_safe/trait.UnwindSafe.html" title="trait core::panic::unwind_safe::UnwindSafe">UnwindSafe</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="trait.PyCallbackOutput.html" title="trait pyo3::callback::PyCallbackOutput">PyCallbackOutput</a>,&nbsp;</span></code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Variant of the above which does not perform the callback conversion. This allows the callback
 conversion to be done manually in the case where lifetimes might otherwise cause issue.</p>
 <p>For example this pyfunction:</p>
-
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">fn</span> <span class="ident">foo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Bar</span> {
-    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bar</span>
+<div class="example-wrap"><pre class="language-no_compile"><code>fn foo(&amp;self) -&gt; &amp;Bar {
+    &amp;self.bar
 }</code></pre></div>
 <p>It is wrapped in proc macros with handle_panic like so:</p>
-
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="ident">pyo3::callback::handle_panic</span>(<span class="op">|</span><span class="ident">_py</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">_slf</span> <span class="op">=</span> #<span class="ident">slf</span>;
-    <span class="ident">pyo3::callback::convert</span>(<span class="ident">_py</span>, #<span class="ident">foo</span>)
+<div class="example-wrap"><pre class="language-no_compile"><code>pyo3::callback::handle_panic(|_py| {
+    let _slf = #slf;
+    pyo3::callback::convert(_py, #foo)
 })</code></pre></div>
 <p>If callback_body was used instead:</p>
-
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="macro">pyo3::callback_body!</span>(<span class="ident">py</span>, {
-    <span class="kw">let</span> <span class="ident">_slf</span> <span class="op">=</span> #<span class="ident">slf</span>;
-    #<span class="ident">foo</span>
+<div class="example-wrap"><pre class="language-no_compile"><code>pyo3::callback_body!(py, {
+    let _slf = #slf;
+    #foo
 })</code></pre></div>
 <p>Then this will fail to compile, because the result of #foo borrows _slf, but _slf drops when
 the block passed to the macro ends.</p>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
 </body></html>
