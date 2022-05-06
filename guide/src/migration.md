@@ -5,6 +5,35 @@ For a detailed list of all changes, see the [CHANGELOG](changelog.md).
 
 ## from 0.16.* to 0.17
 
+
+### Added `impl IntoPy<Py<PyString>> for &str`
+
+This may cause inference errors.
+
+Before:
+```rust,compile_fail
+# use pyo3::prelude::*;
+#
+# fn main() {
+Python::with_gil(|py| {
+    // Cannot infer either `Py<PyAny>` or `Py<PyString>`
+    let _test = "test".into_py(py);
+});
+# }
+```
+
+After, some type annotations may be necessary:
+
+```rust
+# use pyo3::prelude::*;
+#
+# fn main() {
+Python::with_gil(|py| {
+    let _test: Py<PyAny> = "test".into_py(py);
+});
+# }
+```
+
 ### The `pyproto` feature is now disabled by default
 
 In preparation for removing the deprecated `#[pyproto]` attribute macro in a future PyO3 version, it is now gated behind an opt-in feature flag. This also gives a slight saving to compile times for code which does not use the deprecated macro.
@@ -17,7 +46,7 @@ To migrate, update trait bounds and imports from `PyTypeObject` to `PyTypeInfo`.
 
 Before:
 
-```rust,ignore
+```rust,compile_fail
 use pyo3::Python;
 use pyo3::type_object::PyTypeObject;
 use pyo3::types::PyType;
@@ -56,7 +85,7 @@ Migration from `#[pyproto]` to `#[pymethods]` is straightforward; copying the ex
 
 Before:
 
-```rust,ignore
+```rust,compile_fail
 use pyo3::prelude::*;
 use pyo3::class::{PyBasicProtocol, PyIterProtocol};
 use pyo3::types::PyString;
@@ -81,7 +110,7 @@ impl PyIterProtocol for MyClass {
 
 After
 
-```rust,ignore
+```rust,compile_fail
 use pyo3::prelude::*;
 use pyo3::types::PyString;
 
@@ -245,7 +274,7 @@ To migrate just move the affected methods from a `#[pyproto]` to a `#[pymethods]
 
 Before:
 
-```rust,ignore
+```rust,compile_fail
 use pyo3::prelude::*;
 use pyo3::class::basic::PyBasicProtocol;
 
@@ -329,7 +358,7 @@ Exception types](#exception-types-have-been-reworked)).
 This implementation was redundant. Just construct the `Result::Err` variant directly.
 
 Before:
-```rust,ignore
+```rust,compile_fail
 let result: PyResult<()> = PyErr::new::<TypeError, _>("error message").into();
 ```
 
@@ -347,13 +376,13 @@ makes it possible to interact with Python exception objects.
 
 The new types also have names starting with the "Py" prefix. For example, before:
 
-```rust,ignore
+```rust,compile_fail
 let err: PyErr = TypeError::py_err("error message");
 ```
 
 After:
 
-```rust,ignore
+```rust,compile_fail
 # use pyo3::{PyErr, PyResult, Python, type_object::PyTypeObject};
 # use pyo3::exceptions::{PyBaseException, PyTypeError};
 # Python::with_gil(|py| -> PyResult<()> {
@@ -378,7 +407,7 @@ Now there is only one way to define the conversion, `IntoPy`, so downstream crat
 adjust accordingly.
 
 Before:
-```rust,ignore
+```rust,compile_fail
 # use pyo3::prelude::*;
 struct MyPyObjectWrapper(PyObject);
 
@@ -404,7 +433,7 @@ impl IntoPy<PyObject> for MyPyObjectWrapper {
 Similarly, code which was using the `FromPy` trait can be trivially rewritten to use `IntoPy`.
 
 Before:
-```rust,ignore
+```rust,compile_fail
 # use pyo3::prelude::*;
 # Python::with_gil(|py| {
 let obj = PyObject::from_py(1.234, py);
@@ -432,7 +461,7 @@ This should require no code changes except removing `use pyo3::AsPyRef` for code
 `pyo3::prelude::*`.
 
 Before:
-```rust,ignore
+```rust,compile_fail
 use pyo3::{AsPyRef, Py, types::PyList};
 # pyo3::Python::with_gil(|py| {
 let list_py: Py<PyList> = PyList::empty(py).into();
@@ -693,7 +722,7 @@ If `T` implements `Clone`, you can extract `T` itself.
 In addition, you can also extract `&PyCell<T>`, though you rarely need it.
 
 Before:
-```ignore
+```compile_fail
 let obj: &PyAny = create_obj();
 let obj_ref: &MyClass = obj.extract().unwrap();
 let obj_ref_mut: &mut MyClass = obj.extract().unwrap();
@@ -746,7 +775,10 @@ impl PySequenceProtocol for ByteSequence {
 ```
 
 After:
-```rust,ignore
+```rust
+# #[allow(deprecated)]
+# #[cfg(feature = "pyproto")]
+# {
 # use pyo3::prelude::*;
 # use pyo3::class::PySequenceProtocol;
 #[pyclass]
@@ -760,6 +792,7 @@ impl PySequenceProtocol for ByteSequence {
         elements.extend_from_slice(&other.elements);
         Ok(Self { elements })
     }
+}
 }
 ```
 
