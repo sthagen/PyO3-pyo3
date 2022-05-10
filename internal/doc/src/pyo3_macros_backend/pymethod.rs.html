@@ -1160,6 +1160,23 @@
 <span id="1155">1155</span>
 <span id="1156">1156</span>
 <span id="1157">1157</span>
+<span id="1158">1158</span>
+<span id="1159">1159</span>
+<span id="1160">1160</span>
+<span id="1161">1161</span>
+<span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
+<span id="1168">1168</span>
+<span id="1169">1169</span>
+<span id="1170">1170</span>
+<span id="1171">1171</span>
+<span id="1172">1172</span>
+<span id="1173">1173</span>
+<span id="1174">1174</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -1657,6 +1674,22 @@
             <span class="ident">self_type</span>.<span class="ident">receiver</span>(<span class="ident">cls</span>, <span class="ident">ExtractErrorMode::Raise</span>)
         }
     };
+
+    <span class="kw">let</span> <span class="ident">conversion</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">property_type</span> {
+        <span class="ident">PropertyType::Descriptor</span> { .. } =&gt; {
+            <span class="macro">quote!</span> {
+                <span class="kw">let</span> <span class="ident">item</span>: <span class="ident">_pyo3::Py</span><span class="op">&lt;</span><span class="ident">_pyo3::PyAny</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">_pyo3::IntoPy::into_py</span>(<span class="ident">item</span>, <span class="ident">_py</span>);
+                <span class="ident">::std::result::Result::Ok</span>(<span class="ident">_pyo3::conversion::IntoPyPointer::into_ptr</span>(<span class="ident">item</span>))
+            }
+        }
+        <span class="comment">// Forward to `IntoPyCallbackOutput`, to handle `#[getter]`s returning results.</span>
+        <span class="ident">PropertyType::Function</span> { .. } =&gt; {
+            <span class="macro">quote!</span> {
+                <span class="ident">_pyo3::callback::convert</span>(<span class="ident">_py</span>, <span class="ident">item</span>)
+            }
+        }
+    };
+
     <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
         <span class="ident">_pyo3::class::PyMethodDefType::Getter</span>({
             #<span class="ident">deprecations</span>
@@ -1671,7 +1704,8 @@
                         <span class="kw">let</span> <span class="ident">_py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
                         <span class="ident">_pyo3::callback::panic_result_into_callback_output</span>(<span class="ident">_py</span>, <span class="ident">::std::panic::catch_unwind</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> -&gt; <span class="ident">_pyo3::PyResult</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> {
                             #<span class="ident">slf</span>
-                            <span class="ident">_pyo3::callback::convert</span>(<span class="ident">_py</span>, #<span class="ident">getter_impl</span>)
+                            <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> #<span class="ident">getter_impl</span>;
+                            #<span class="ident">conversion</span>
                         }))
                     }
                     <span class="ident">__wrap</span>
@@ -2318,5 +2352,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (88860d547 2022-05-09)" ></div>
 </body></html>
