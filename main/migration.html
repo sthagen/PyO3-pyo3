@@ -200,6 +200,8 @@ fn get_type_object&lt;T: PyTypeInfo&gt;(py: Python&lt;'_&gt;) -&gt; &amp;PyType 
 <span class="boring">Python::with_gil(|py| { get_type_object::&lt;pyo3::types::PyList&gt;(py); });
 </span><span class="boring">}
 </span></code></pre></pre>
+<h3 id="implt-const-n-usize-intopypyobject-for-t-n-now-requires-t-intopy-rather-than-t-topyobject"><a class="header" href="#implt-const-n-usize-intopypyobject-for-t-n-now-requires-t-intopy-rather-than-t-topyobject"><code>impl&lt;T, const N: usize&gt; IntoPy&lt;PyObject&gt; for [T; N]</code> now requires <code>T: IntoPy</code> rather than <code>T: ToPyObject</code></a></h3>
+<p>If this leads to errors, simply implement <code>IntoPy</code>. Because pyclasses already implement <code>IntoPy</code>, you probably don't need to worry about this.</p>
 <h2 id="from-015-to-016"><a class="header" href="#from-015-to-016">from 0.15.* to 0.16</a></h2>
 <h3 id="drop-support-for-older-technologies"><a class="header" href="#drop-support-for-older-technologies">Drop support for older technologies</a></h3>
 <p>PyO3 0.16 has increased minimum Rust version to 1.48 and minimum Python version to 3.7. This enables use of newer language features (enabling some of the other additions in 0.16) and simplifies maintenance of the project.</p>

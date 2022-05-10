@@ -22,6 +22,7 @@
 <span id="17">17</span>
 <span id="18">18</span>
 <span id="19">19</span>
+<span id="20">20</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Internals of PyO3 which are accessed by code expanded from PyO3&#39;s procedural macros.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Usage of any of these APIs in downstream code is implicitly acknowledging that these</span>
@@ -33,6 +34,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freelist</span>;
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">frompyobject</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ghost</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">not_send</span>;
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pyclass</span>;
@@ -42,5 +44,5 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pymethods</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pymodule</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (30f386087 2022-05-05)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (88860d547 2022-05-09)" ></div>
 </body></html>
