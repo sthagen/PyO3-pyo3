@@ -160,13 +160,17 @@
 <p><a href="https://raw.githubusercontent.com/python/cpython/master/Misc/valgrind-python.supp">Download the suppressions file for cpython</a>.</p>
 <p>Run Valgrind with <code>valgrind --suppressions=valgrind-python.supp ./my-command --with-options</code></p>
 <h2 id="getting-a-stacktrace"><a class="header" href="#getting-a-stacktrace">Getting a stacktrace</a></h2>
-<p>The best start to investigate a crash such as an segmentation fault is a backtrace.</p>
+<p>The best start to investigate a crash such as an segmentation fault is a backtrace. You can set <code>RUST_BACKTRACE=1</code> as an environment variable to get the stack trace on a <code>panic!</code>. Alternatively you can use a debugger such as <code>gdb</code> to explore the issue. Rust provides a wrapper, <code>rust-gdb</code>, which has pretty-printers for inspecting Rust variables. Since PyO3 uses <code>cdylib</code> for Python shared objects, it does not receive the pretty-print debug hooks in <code>rust-gdb</code> (<a href="https://github.com/rust-lang/rust/issues/96365">rust-lang/rust#96365</a>). The mentioned issue contains a workaround for enabling pretty-printers in this case.</p>
 <ul>
 <li>Link against a debug build of python as described in the previous chapter</li>
-<li>Run <code>gdb &lt;my-binary&gt;</code></li>
+<li>Run <code>rust-gdb &lt;my-binary&gt;</code></li>
+<li>Set a breakpoint (<code>b</code>) on <code>rust_panic</code> if you are investigating a <code>panic!</code></li>
 <li>Enter <code>r</code> to run</li>
 <li>After the crash occurred, enter <code>bt</code> or <code>bt full</code> to print the stacktrace</li>
 </ul>
+<p>Often it is helpful to run a small piece of Python code to exercise a section of Rust.</p>
+<pre><code class="language-console">rust-gdb --args python -c &quot;import my_package; my_package.sum_to_string(1, 2)&quot;
+</code></pre>
 
                     </main>
 

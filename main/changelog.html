@@ -165,6 +165,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
 <li>Fixed incorrectly disabled FFI definition <code>PyThreadState_DeleteCurrent</code>. <a href="https://github.com/PyO3/pyo3/pull/2357">#2357</a></li>
+<li>Correct FFI definition <code>PyEval_EvalCodeEx</code> to take <code>*const *mut PyObject</code> array arguments instead of <code>*mut *mut PyObject</code> (this was changed in CPython 3.6). <a href="https://github.com/PyO3/pyo3/pull/2368">#2368</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0163v01640164a---2022-04-14"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0163v01640164a---2022-04-14"><a href="https://github.com/pyo3/pyo3/compare/v0.16.3...v0.16.4">0.16.4</a> - 2022-04-14</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>

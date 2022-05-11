@@ -4681,13 +4681,17 @@ test_word_count_python_sequential                      27.3985 (15.82)    45.452
 <p><a href="https://raw.githubusercontent.com/python/cpython/master/Misc/valgrind-python.supp">Download the suppressions file for cpython</a>.</p>
 <p>Run Valgrind with <code>valgrind --suppressions=valgrind-python.supp ./my-command --with-options</code></p>
 <h2 id="getting-a-stacktrace"><a class="header" href="#getting-a-stacktrace">Getting a stacktrace</a></h2>
-<p>The best start to investigate a crash such as an segmentation fault is a backtrace.</p>
+<p>The best start to investigate a crash such as an segmentation fault is a backtrace. You can set <code>RUST_BACKTRACE=1</code> as an environment variable to get the stack trace on a <code>panic!</code>. Alternatively you can use a debugger such as <code>gdb</code> to explore the issue. Rust provides a wrapper, <code>rust-gdb</code>, which has pretty-printers for inspecting Rust variables. Since PyO3 uses <code>cdylib</code> for Python shared objects, it does not receive the pretty-print debug hooks in <code>rust-gdb</code> (<a href="https://github.com/rust-lang/rust/issues/96365">rust-lang/rust#96365</a>). The mentioned issue contains a workaround for enabling pretty-printers in this case.</p>
 <ul>
 <li>Link against a debug build of python as described in the previous chapter</li>
-<li>Run <code>gdb &lt;my-binary&gt;</code></li>
+<li>Run <code>rust-gdb &lt;my-binary&gt;</code></li>
+<li>Set a breakpoint (<code>b</code>) on <code>rust_panic</code> if you are investigating a <code>panic!</code></li>
 <li>Enter <code>r</code> to run</li>
 <li>After the crash occurred, enter <code>bt</code> or <code>bt full</code> to print the stacktrace</li>
 </ul>
+<p>Often it is helpful to run a small piece of Python code to exercise a section of Rust.</p>
+<pre><code class="language-console">rust-gdb --args python -c &quot;import my_package; my_package.sum_to_string(1, 2)&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="features-reference"><a class="header" href="#features-reference">Features Reference</a></h1>
 <p>PyO3 provides a number of Cargo features to customise functionality. This chapter of the guide provides detail on each of them.</p>
 <p>By default, only the <code>macros</code> feature is enabled.</p>
@@ -7444,6 +7448,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
 <li>Fixed incorrectly disabled FFI definition <code>PyThreadState_DeleteCurrent</code>. <a href="https://github.com/PyO3/pyo3/pull/2357">#2357</a></li>
+<li>Correct FFI definition <code>PyEval_EvalCodeEx</code> to take <code>*const *mut PyObject</code> array arguments instead of <code>*mut *mut PyObject</code> (this was changed in CPython 3.6). <a href="https://github.com/PyO3/pyo3/pull/2368">#2368</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0163v01640164a---2022-04-14"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0163v01640164a---2022-04-14"><a href="https://github.com/pyo3/pyo3/compare/v0.16.3...v0.16.4">0.16.4</a> - 2022-04-14</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>

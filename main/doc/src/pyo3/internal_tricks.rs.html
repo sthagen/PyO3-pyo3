@@ -199,7 +199,6 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
-<span id="197">197</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="ident">Py_ssize_t</span>, <span class="ident">PY_SSIZE_T_MAX</span>};
 <span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
 
@@ -215,7 +214,6 @@
 
 <span class="macro">macro_rules!</span> <span class="ident">private_impl</span> {
     () =&gt; {
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
         <span class="kw">fn</span> <span class="ident">__private__</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::internal_tricks::PrivateMarker</span> {
             <span class="ident"><span class="kw">crate</span>::internal_tricks::PrivateMarker</span>
         }
@@ -398,5 +396,5 @@
     <span class="macro">panic!</span>(<span class="string">&quot;slice index starts at {} but ends at {}&quot;</span>, <span class="ident">index</span>, <span class="ident">end</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (88860d547 2022-05-09)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (ecd44958e 2022-05-10)" ></div>
 </body></html>
