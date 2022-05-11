@@ -449,8 +449,6 @@
 <span id="444">444</span>
 <span id="445">445</span>
 <span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Raw FFI declarations for Python&#39;s C API.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! PyO3 can be used to write native Python modules or run Python code and modules from Rust.</span>
@@ -749,7 +747,6 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::descrobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::dictobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::enumobject</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::eval</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::fileobject</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::fileutils</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::floatobject</span>::<span class="kw-2">*</span>;
@@ -819,7 +816,6 @@
 <span class="comment">// skipped dynamic_annotations.h</span>
 <span class="kw">mod</span> <span class="ident">enumobject</span>;
 <span class="comment">// skipped errcode.h</span>
-<span class="kw">mod</span> <span class="ident">eval</span>;
 <span class="comment">// skipped exports.h</span>
 <span class="kw">mod</span> <span class="ident">fileobject</span>;
 <span class="kw">mod</span> <span class="ident">fileutils</span>;
@@ -900,5 +896,5 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::cpython</span>::<span class="kw-2">*</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (88860d547 2022-05-09)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (ecd44958e 2022-05-10)" ></div>
 </body></html>
