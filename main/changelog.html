@@ -153,6 +153,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>Implement <code>ToPyObject</code> for <code>[T; N]</code>. <a href="https://github.com/PyO3/pyo3/pull/2313">#2313</a></li>
 <li>Added the internal <code>IntoPyResult</code> trait to give better error messages when function return types do not implement <code>IntoPy</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
+<li>Add <code>PyDictKeys</code>, <code>PyDictValues</code> and <code>PyDictItems</code> Rust types to represent <code>dict_keys</code>, <code>dict_values</code> and <code>dict_items</code> types. <a href="https://github.com/PyO3/pyo3/pull/2358">#2358</a></li>
+<li>Add an experimental <code>generate-import-lib</code> feature to support auto-generating non-abi3 python import libraries for Windows targets. <a href="https://github.com/PyO3/pyo3/pull/2364">#2364</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
@@ -161,6 +163,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>The deprecated <code>pyproto</code> feature is now disabled by default. <a href="https://github.com/PyO3/pyo3/pull/2322">#2322</a></li>
 <li>Deprecate <code>ToBorrowedObject</code> trait (it is only used as a wrapper for <code>ToPyObject</code>). <a href="https://github.com/PyO3/pyo3/pull/2333">#2333</a></li>
 <li><code>impl&lt;T, const N: usize&gt; IntoPy&lt;PyObject&gt; for [T; N]</code> now requires <code>T: IntoPy</code> rather than <code>T: ToPyObject</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
+<li>Deprecate experimental <code>generate-abi3-import-lib</code> feature in favor of the new <code>generate-import-lib</code> feature. <a href="https://github.com/PyO3/pyo3/pull/2364">#2364</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>

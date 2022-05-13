@@ -802,6 +802,77 @@
 <span id="797">797</span>
 <span id="798">798</span>
 <span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
@@ -824,6 +895,42 @@
     <span class="ident">ffi::PyDictObject</span>,
     <span class="ident">ffi::PyDict_Type</span>,
     #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi::PyDict_Check</span>
+);
+
+<span class="doccomment">/// Represents a Python `dict_keys`.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDictKeys</span>(<span class="ident">PyAny</span>);
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="macro">pyobject_native_type_core!</span>(
+    <span class="ident">PyDictKeys</span>,
+    <span class="ident">ffi::PyDictKeys_Type</span>,
+    #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi::PyDictKeys_Check</span>
+);
+
+<span class="doccomment">/// Represents a Python `dict_values`.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDictValues</span>(<span class="ident">PyAny</span>);
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="macro">pyobject_native_type_core!</span>(
+    <span class="ident">PyDictValues</span>,
+    <span class="ident">ffi::PyDictValues_Type</span>,
+    #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi::PyDictValues_Check</span>
+);
+
+<span class="doccomment">/// Represents a Python `dict_items`.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDictItems</span>(<span class="ident">PyAny</span>);
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="macro">pyobject_native_type_core!</span>(
+    <span class="ident">PyDictItems</span>,
+    <span class="ident">ffi::PyDictItems_Type</span>,
+    #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">ffi::PyDictItems_Check</span>
 );
 
 <span class="kw">impl</span> <span class="ident">PyDict</span> {
@@ -1183,14 +1290,10 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion::IntoPy</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::dict::IntoPyDict</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyList</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyDict</span>, <span class="ident">PyTuple</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyObject</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Python</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyTryFrom</span>, <span class="ident">ToPyObject</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">types::PyList</span>, <span class="ident">PyTypeInfo</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">types::PyTuple</span>, <span class="ident">IntoPy</span>, <span class="ident">PyObject</span>, <span class="ident">PyTryFrom</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>};
     <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1600,7 +1703,46 @@
             );
         });
     }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">fn</span> <span class="ident">abc_dict</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyDict</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">i32</span><span class="op">&gt;</span><span class="ident">::new</span>();
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;a&quot;</span>, <span class="number">1</span>);
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;b&quot;</span>, <span class="number">2</span>);
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;c&quot;</span>, <span class="number">3</span>);
+        <span class="ident">map</span>.<span class="ident">into_py_dict</span>(<span class="ident">py</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">fn</span> <span class="ident">dict_keys_view</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="ident">abc_dict</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">dict</span>.<span class="ident">call_method0</span>(<span class="string">&quot;keys&quot;</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert!</span>(<span class="ident">keys</span>.<span class="ident">is_instance</span>(<span class="ident">PyDictKeys::type_object</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>());
+        })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">fn</span> <span class="ident">dict_values_view</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="ident">abc_dict</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">dict</span>.<span class="ident">call_method0</span>(<span class="string">&quot;values&quot;</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert!</span>(<span class="ident">values</span>.<span class="ident">is_instance</span>(<span class="ident">PyDictValues::type_object</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>());
+        })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">fn</span> <span class="ident">dict_items_view</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="ident">abc_dict</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">dict</span>.<span class="ident">call_method0</span>(<span class="string">&quot;items&quot;</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert!</span>(<span class="ident">items</span>.<span class="ident">is_instance</span>(<span class="ident">PyDictItems::type_object</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>());
+        })
+    }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (ecd44958e 2022-05-10)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (a5ad0d29a 2022-05-12)" ></div>
 </body></html>

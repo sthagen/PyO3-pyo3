@@ -269,7 +269,7 @@ Also, if the build host Python interpreter is not found or is too old or otherwi
 PyO3 will still attempt to compile <code>abi3</code> extension modules after displaying a warning message.
 On Unix-like systems this works unconditionally; on Windows you must also set the <code>RUSTFLAGS</code> environment variable
 to contain <code>-L native=/path/to/python/libs</code> so that the linker can find <code>python3.lib</code>.</p>
-<p>If the <code>python3.dll</code> import library is not available, an experimental <code>generate-abi3-import-lib</code> crate
+<p>If the <code>python3.dll</code> import library is not available, an experimental <code>generate-import-lib</code> crate
 feature may be enabled, and the required library will be created and used by PyO3 automatically.</p>
 <p><em>Note</em>: MSVC targets require LLVM binutils (<code>llvm-dlltool</code>) to be available in <code>PATH</code> for
 the automatic import library generation feature to work.</p>
@@ -328,12 +328,12 @@ not work when compiling for <code>abi3</code>. These are:</p>
 <li><code>PYO3_CROSS_PYTHON_VERSION</code>: Major and minor version (e.g. 3.9) of the target Python installation. This variable is only needed if PyO3 cannot determine the version to target from <code>abi3-py3*</code> features, or if <code>PYO3_CROSS_LIB_DIR</code> is not set, or if there are multiple versions of Python present in <code>PYO3_CROSS_LIB_DIR</code>.</li>
 <li><code>PYO3_CROSS_PYTHON_IMPLEMENTATION</code>: Python implementation name (&quot;CPython&quot; or &quot;PyPy&quot;) of the target Python installation. CPython is assumed by default when this variable is not set, unless <code>PYO3_CROSS_LIB_DIR</code> is set for a Unix-like target and PyO3 can get the interpreter configuration from <code>_sysconfigdata*.py</code>.</li>
 </ul>
-<p>An experimental <code>pyo3</code> crate feature <code>generate-abi3-import-lib</code> enables the user to cross-compile
-&quot;abi3&quot; extension modules for Windows targets without setting the <code>PYO3_CROSS_LIB_DIR</code> environment
+<p>An experimental <code>pyo3</code> crate feature <code>generate-import-lib</code> enables the user to cross-compile
+extension modules for Windows targets without setting the <code>PYO3_CROSS_LIB_DIR</code> environment
 variable or providing any Windows Python library files. It uses an external <a href="https://docs.rs/python3-dll-a/latest/python3_dll_a/"><code>python3-dll-a</code></a> crate
-to generate import libraries for the Stable ABI Python DLL for MinGW-w64 and MSVC compile targets.
-<em>Note</em>: MSVC targets require LLVM binutils to be available on the host system.
-More specifically, <code>python3-dll-a</code> requires <code>llvm-dlltool</code> executable to be present in <code>PATH</code> when
+to generate import libraries for the Python DLL for MinGW-w64 and MSVC compile targets.
+<em>Note</em>: MSVC targets require LLVM binutils or MSVC build tools to be available on the host system.
+More specifically, <code>python3-dll-a</code> requires <code>llvm-dlltool</code> or <code>lib.exe</code> executable to be present in <code>PATH</code> when
 targeting <code>*-pc-windows-msvc</code>.</p>
 <p>An example might look like the following (assuming your target's sysroot is at <code>/home/pyo3/cross/sysroot</code> and that your target is <code>armv7</code>):</p>
 <pre><code class="language-sh">export PYO3_CROSS_LIB_DIR=&quot;/home/pyo3/cross/sysroot/usr/lib&quot;
@@ -354,7 +354,7 @@ cargo build --target x86_64-pc-windows-gnu
 </code></pre>
 <p>Any of the <code>abi3-py3*</code> features can be enabled instead of setting <code>PYO3_CROSS_PYTHON_VERSION</code> in the above examples.</p>
 <p><code>PYO3_CROSS_LIB_DIR</code> can often be omitted when cross compiling extension modules for Unix and macOS targets,
-or when cross compiling &quot;abi3&quot; extension modules for Windows and the experimental <code>generate-abi3-import-lib</code>
+or when cross compiling extension modules for Windows and the experimental <code>generate-import-lib</code>
 crate feature is enabled.</p>
 <p>The following resources may also be useful for cross-compiling:</p>
 <ul>

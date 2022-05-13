@@ -4708,10 +4708,10 @@ test_word_count_python_sequential                      27.3985 (15.82)    45.452
 <p>(<code>abi3-py37</code>, <code>abi3-py38</code>, <code>abi3-py39</code>, and <code>abi3-py310</code>)</p>
 <p>These features are extensions of the <code>abi3</code> feature to specify the exact minimum Python version which the multiple-version-wheel will support.</p>
 <p>See the <a href="building_and_distribution.html#minimum-python-version-for-abi3">building and distribution</a> section for further detail.</p>
-<h3 id="generate-abi3-import-lib"><a class="header" href="#generate-abi3-import-lib"><code>generate-abi3-import-lib</code></a></h3>
-<p>This experimental feature is used to generate import libraries for the Stable ABI Python DLL
+<h3 id="generate-import-lib"><a class="header" href="#generate-import-lib"><code>generate-import-lib</code></a></h3>
+<p>This experimental feature is used to generate import libraries for Python DLL
 for MinGW-w64 and MSVC (cross-)compile targets.</p>
-<p>Enabling it allows to (cross-)compile <code>abi3</code> extension modules to any Windows targets
+<p>Enabling it allows to (cross-)compile extension modules to any Windows targets
 without having to install the Windows Python distribution files for the target.</p>
 <p>See the <a href="building_and_distribution.html#building-abi3-extensions-without-a-python-interpreter">building and distribution</a>
 section for further detail.</p>
@@ -5115,7 +5115,7 @@ Also, if the build host Python interpreter is not found or is too old or otherwi
 PyO3 will still attempt to compile <code>abi3</code> extension modules after displaying a warning message.
 On Unix-like systems this works unconditionally; on Windows you must also set the <code>RUSTFLAGS</code> environment variable
 to contain <code>-L native=/path/to/python/libs</code> so that the linker can find <code>python3.lib</code>.</p>
-<p>If the <code>python3.dll</code> import library is not available, an experimental <code>generate-abi3-import-lib</code> crate
+<p>If the <code>python3.dll</code> import library is not available, an experimental <code>generate-import-lib</code> crate
 feature may be enabled, and the required library will be created and used by PyO3 automatically.</p>
 <p><em>Note</em>: MSVC targets require LLVM binutils (<code>llvm-dlltool</code>) to be available in <code>PATH</code> for
 the automatic import library generation feature to work.</p>
@@ -5174,12 +5174,12 @@ not work when compiling for <code>abi3</code>. These are:</p>
 <li><code>PYO3_CROSS_PYTHON_VERSION</code>: Major and minor version (e.g. 3.9) of the target Python installation. This variable is only needed if PyO3 cannot determine the version to target from <code>abi3-py3*</code> features, or if <code>PYO3_CROSS_LIB_DIR</code> is not set, or if there are multiple versions of Python present in <code>PYO3_CROSS_LIB_DIR</code>.</li>
 <li><code>PYO3_CROSS_PYTHON_IMPLEMENTATION</code>: Python implementation name (&quot;CPython&quot; or &quot;PyPy&quot;) of the target Python installation. CPython is assumed by default when this variable is not set, unless <code>PYO3_CROSS_LIB_DIR</code> is set for a Unix-like target and PyO3 can get the interpreter configuration from <code>_sysconfigdata*.py</code>.</li>
 </ul>
-<p>An experimental <code>pyo3</code> crate feature <code>generate-abi3-import-lib</code> enables the user to cross-compile
-&quot;abi3&quot; extension modules for Windows targets without setting the <code>PYO3_CROSS_LIB_DIR</code> environment
+<p>An experimental <code>pyo3</code> crate feature <code>generate-import-lib</code> enables the user to cross-compile
+extension modules for Windows targets without setting the <code>PYO3_CROSS_LIB_DIR</code> environment
 variable or providing any Windows Python library files. It uses an external <a href="https://docs.rs/python3-dll-a/latest/python3_dll_a/"><code>python3-dll-a</code></a> crate
-to generate import libraries for the Stable ABI Python DLL for MinGW-w64 and MSVC compile targets.
-<em>Note</em>: MSVC targets require LLVM binutils to be available on the host system.
-More specifically, <code>python3-dll-a</code> requires <code>llvm-dlltool</code> executable to be present in <code>PATH</code> when
+to generate import libraries for the Python DLL for MinGW-w64 and MSVC compile targets.
+<em>Note</em>: MSVC targets require LLVM binutils or MSVC build tools to be available on the host system.
+More specifically, <code>python3-dll-a</code> requires <code>llvm-dlltool</code> or <code>lib.exe</code> executable to be present in <code>PATH</code> when
 targeting <code>*-pc-windows-msvc</code>.</p>
 <p>An example might look like the following (assuming your target's sysroot is at <code>/home/pyo3/cross/sysroot</code> and that your target is <code>armv7</code>):</p>
 <pre><code class="language-sh">export PYO3_CROSS_LIB_DIR=&quot;/home/pyo3/cross/sysroot/usr/lib&quot;
@@ -5200,7 +5200,7 @@ cargo build --target x86_64-pc-windows-gnu
 </code></pre>
 <p>Any of the <code>abi3-py3*</code> features can be enabled instead of setting <code>PYO3_CROSS_PYTHON_VERSION</code> in the above examples.</p>
 <p><code>PYO3_CROSS_LIB_DIR</code> can often be omitted when cross compiling extension modules for Unix and macOS targets,
-or when cross compiling &quot;abi3&quot; extension modules for Windows and the experimental <code>generate-abi3-import-lib</code>
+or when cross compiling extension modules for Windows and the experimental <code>generate-import-lib</code>
 crate feature is enabled.</p>
 <p>The following resources may also be useful for cross-compiling:</p>
 <ul>
@@ -7436,6 +7436,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>Implement <code>ToPyObject</code> for <code>[T; N]</code>. <a href="https://github.com/PyO3/pyo3/pull/2313">#2313</a></li>
 <li>Added the internal <code>IntoPyResult</code> trait to give better error messages when function return types do not implement <code>IntoPy</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
+<li>Add <code>PyDictKeys</code>, <code>PyDictValues</code> and <code>PyDictItems</code> Rust types to represent <code>dict_keys</code>, <code>dict_values</code> and <code>dict_items</code> types. <a href="https://github.com/PyO3/pyo3/pull/2358">#2358</a></li>
+<li>Add an experimental <code>generate-import-lib</code> feature to support auto-generating non-abi3 python import libraries for Windows targets. <a href="https://github.com/PyO3/pyo3/pull/2364">#2364</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
@@ -7444,6 +7446,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>The deprecated <code>pyproto</code> feature is now disabled by default. <a href="https://github.com/PyO3/pyo3/pull/2322">#2322</a></li>
 <li>Deprecate <code>ToBorrowedObject</code> trait (it is only used as a wrapper for <code>ToPyObject</code>). <a href="https://github.com/PyO3/pyo3/pull/2333">#2333</a></li>
 <li><code>impl&lt;T, const N: usize&gt; IntoPy&lt;PyObject&gt; for [T; N]</code> now requires <code>T: IntoPy</code> rather than <code>T: ToPyObject</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
+<li>Deprecate experimental <code>generate-abi3-import-lib</code> feature in favor of the new <code>generate-import-lib</code> feature. <a href="https://github.com/PyO3/pyo3/pull/2364">#2364</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
