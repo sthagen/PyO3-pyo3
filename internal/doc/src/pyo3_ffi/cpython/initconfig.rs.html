@@ -3,7 +3,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../pyo3_ffi/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../pyo3_ffi/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../pyo3_ffi/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -200,6 +202,20 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><pre class="rust"><code><span class="comment">/* --- PyStatus ----------------------------------------------- */</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Py_ssize_t</span>;
@@ -294,10 +310,14 @@
     <span class="kw">pub</span> <span class="ident">_use_peg_parser</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">tracemalloc</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">import_time</span>: <span class="ident">c_int</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_11</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">code_debug_ranges</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">show_ref_count</span>: <span class="ident">c_int</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_9</span>))]</span>
     <span class="kw">pub</span> <span class="ident">show_alloc_count</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">dump_refs</span>: <span class="ident">c_int</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_11</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">dump_refs_file</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
     <span class="kw">pub</span> <span class="ident">malloc_stats</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">filesystem_encoding</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
     <span class="kw">pub</span> <span class="ident">filesystem_errors</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
@@ -312,6 +332,8 @@
     <span class="kw">pub</span> <span class="ident">warnoptions</span>: <span class="ident">PyWideStringList</span>,
     <span class="kw">pub</span> <span class="ident">site_import</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">bytes_warning</span>: <span class="ident">c_int</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">warn_default_encoding</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">inspect</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">interactive</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">optimization_level</span>: <span class="ident">c_int</span>,
@@ -329,9 +351,13 @@
     <span class="kw">pub</span> <span class="ident">legacy_windows_stdio</span>: <span class="ident">c_int</span>,
 
     <span class="kw">pub</span> <span class="ident">check_hash_pycs_mode</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_11</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">use_frozen_modules</span>: <span class="ident">c_int</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_11</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">safe_path</span>: <span class="ident">c_int</span>,
+    <span class="kw">pub</span> <span class="ident">pathconfig_warnings</span>: <span class="ident">c_int</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
     <span class="kw">pub</span> <span class="ident">program_name</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
-    <span class="kw">pub</span> <span class="ident">pathconfig_warnings</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">pythonpath_env</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
     <span class="kw">pub</span> <span class="ident">home</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
@@ -339,6 +365,8 @@
 
     <span class="kw">pub</span> <span class="ident">module_search_paths_set</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">module_search_paths</span>: <span class="ident">PyWideStringList</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_11</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">stdlib_dir</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
     <span class="kw">pub</span> <span class="ident">executable</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
     <span class="kw">pub</span> <span class="ident">base_executable</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
     <span class="kw">pub</span> <span class="ident">prefix</span>: <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>,
@@ -355,6 +383,8 @@
     <span class="kw">pub</span> <span class="ident">_init_main</span>: <span class="ident">c_int</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)]</span>
     <span class="kw">pub</span> <span class="ident">_isolated_interpreter</span>: <span class="ident">c_int</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_11</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">_is_python_build</span>: <span class="ident">c_int</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">Py_3_10</span>)))]</span>
     <span class="kw">pub</span> <span class="ident">orig_argv</span>: <span class="ident">PyWideStringList</span>,
 }
@@ -398,5 +428,5 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_GetArgcArgv</span>(<span class="ident">argc</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>, <span class="ident">argv</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">wchar_t</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (a5ad0d29a 2022-05-12)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
 </body></html>

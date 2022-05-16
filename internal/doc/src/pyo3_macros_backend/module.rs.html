@@ -3,7 +3,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../pyo3_macros_backend/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../pyo3_macros_backend/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../pyo3_macros_backend/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -189,6 +191,25 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! Code generation for the function that initializes a python module and adds classes and function.</span>
 
@@ -198,9 +219,8 @@
     },
     <span class="ident">pyfunction</span>::{<span class="ident">impl_wrap_pyfunction</span>, <span class="ident">PyFunctionOptions</span>},
     <span class="ident">utils</span>::{<span class="ident">get_pyo3_crate</span>, <span class="ident">PythonDoc</span>},
-    <span class="ident">wrap::module_def_ident</span>,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span>};
+<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
 <span class="kw">use</span> <span class="ident">quote::quote</span>;
 <span class="kw">use</span> <span class="ident">syn</span>::{
     <span class="ident">ext::IdentExt</span>,
@@ -261,29 +281,49 @@
 ) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">name</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">fnname</span>.<span class="ident">unraw</span>());
     <span class="kw">let</span> <span class="ident">krate</span> <span class="op">=</span> <span class="ident">get_pyo3_crate</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">krate</span>);
-    <span class="kw">let</span> <span class="ident">cb_name</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;PyInit_{}&quot;</span>, <span class="ident">name</span>), <span class="ident">Span::call_site</span>());
-
-    <span class="kw">let</span> <span class="ident">module_def_name</span> <span class="op">=</span> <span class="ident">module_def_ident</span>(<span class="ident">fnname</span>);
+    <span class="kw">let</span> <span class="ident">pyinit_symbol</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;PyInit_{}&quot;</span>, <span class="ident">name</span>);
 
     <span class="macro">quote!</span> {
-        <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-        <span class="doccomment">/// This autogenerated function is called by the python interpreter when importing</span>
-        <span class="doccomment">/// the module.</span>
-        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> #<span class="ident">cb_name</span>() -&gt; <span class="kw-2">*mut</span> #<span class="ident">krate::ffi::PyObject</span> {
-            <span class="kw">unsafe</span> { #<span class="ident">module_def_name</span>.<span class="ident">module_init</span>() }
+        <span class="comment">// Create a module with the same name as the `#[pymodule]` - this way `use &lt;the module&gt;`</span>
+        <span class="comment">// will actually bring both the module and the function into scope.</span>
+        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+        #<span class="ident">visibility</span> <span class="kw">mod</span> #<span class="ident">fnname</span> {
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">MakeDef</span>;
+            <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">DEF</span>: #<span class="ident">krate::impl_::pymodule::ModuleDef</span> <span class="op">=</span> <span class="ident">MakeDef::make_def</span>();
+
+            <span class="doccomment">/// This autogenerated function is called by the python interpreter when importing</span>
+            <span class="doccomment">/// the module.</span>
+            <span class="attribute">#[<span class="ident">export_name</span> <span class="op">=</span> #<span class="ident">pyinit_symbol</span>]</span>
+            <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">init</span>() -&gt; <span class="kw-2">*mut</span> #<span class="ident">krate::ffi::PyObject</span> {
+                <span class="ident">DEF</span>.<span class="ident">module_init</span>()
+            }
         }
 
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        #<span class="ident">visibility</span> <span class="kw">static</span> #<span class="ident">module_def_name</span>: #<span class="ident">krate::impl_::pymodule::ModuleDef</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            #<span class="ident">krate::impl_::pymodule::ModuleDef::new</span>(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(#<span class="ident">name</span>), <span class="string">&quot;\0&quot;</span>), #<span class="ident">doc</span>, #<span class="ident">krate::impl_::pymodule::ModuleInitializer</span>(#<span class="ident">fnname</span>))
+        <span class="comment">// Generate the definition inside an anonymous function in the same scope as the original function -</span>
+        <span class="comment">// this avoids complications around the fact that the generated module has a different scope</span>
+        <span class="comment">// (and `super` doesn&#39;t always refer to the outer scope, e.g. if the `#[pymodule] is</span>
+        <span class="comment">// inside a function body)</span>
+        <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+            <span class="kw">use</span> #<span class="ident">krate::impl_::pymodule</span> <span class="kw">as</span> <span class="ident">impl_</span>;
+            <span class="kw">impl</span> #<span class="ident">fnname::MakeDef</span> {
+                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">make_def</span>() -&gt; <span class="ident">impl_::ModuleDef</span> {
+                    <span class="kw">const</span> <span class="ident">INITIALIZER</span>: <span class="ident">impl_::ModuleInitializer</span> <span class="op">=</span> <span class="ident">impl_::ModuleInitializer</span>(#<span class="ident">fnname</span>);
+                    <span class="kw">unsafe</span> {
+                        <span class="ident">impl_::ModuleDef::new</span>(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(#<span class="ident">name</span>), <span class="string">&quot;\0&quot;</span>), #<span class="ident">doc</span>, <span class="ident">INITIALIZER</span>)
+                    }
+                }
+            }
         };
     }
 }
 
 <span class="doccomment">/// Finds and takes care of the #[pyfn(...)] in `#[pymodule]`</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process_functions_in_module</span>(<span class="ident">func</span>: <span class="kw-2">&amp;mut</span> <span class="ident">syn::ItemFn</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process_functions_in_module</span>(
+    <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PyModuleOptions</span>,
+    <span class="ident">func</span>: <span class="kw-2">&amp;mut</span> <span class="ident">syn::ItemFn</span>,
+) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Stmt</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="ident">krate</span> <span class="op">=</span> <span class="ident">get_pyo3_crate</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">krate</span>);
 
     <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="kw">in</span> <span class="ident">func</span>.<span class="ident">block</span>.<span class="ident">stmts</span>.<span class="ident">drain</span>(..) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Stmt::Item</span>(<span class="ident">syn::Item::Fn</span>(<span class="ident">func</span>)) <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">stmt</span> {
@@ -293,7 +333,7 @@
                 <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">func</span>.<span class="ident">sig</span>.<span class="ident">ident</span>;
                 <span class="kw">let</span> <span class="ident">statements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Stmt</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">syn::parse_quote!</span> {
                     #<span class="ident">wrapped_function</span>
-                    #<span class="ident">module_name</span>.<span class="ident">add_function</span>(#<span class="ident">name::wrap</span>(#<span class="ident">name::DEF</span>, #<span class="ident">module_name</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+                    #<span class="ident">module_name</span>.<span class="ident">add_function</span>(#<span class="ident">krate::impl_::pyfunction::wrap_pyfunction</span>(<span class="kw-2">&amp;</span>#<span class="ident">name::DEF</span>, #<span class="ident">module_name</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 };
                 <span class="ident">stmts</span>.<span class="ident">extend</span>(<span class="ident">statements</span>);
             }
@@ -376,5 +416,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (a5ad0d29a 2022-05-12)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
 </body></html>

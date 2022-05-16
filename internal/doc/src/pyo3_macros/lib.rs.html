@@ -3,7 +3,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../pyo3_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../pyo3_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../pyo3_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -257,25 +259,6 @@
 <span id="252">252</span>
 <span id="253">253</span>
 <span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! This crate declares only the proc macro attributes, as a crate defining proc macro attributes</span>
 <span class="doccomment">//! must not contain any other public items.</span>
@@ -287,8 +270,8 @@
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
 <span class="kw">use</span> <span class="ident">pyo3_macros_backend</span>::{
     <span class="ident">build_derive_from_pyobject</span>, <span class="ident">build_py_class</span>, <span class="ident">build_py_enum</span>, <span class="ident">build_py_function</span>, <span class="ident">build_py_methods</span>,
-    <span class="ident">get_doc</span>, <span class="ident">process_functions_in_module</span>, <span class="ident">pymodule_impl</span>, <span class="ident">wrap_pyfunction_impl</span>, <span class="ident">wrap_pymodule_impl</span>,
-    <span class="ident">PyClassArgs</span>, <span class="ident">PyClassMethodsType</span>, <span class="ident">PyFunctionOptions</span>, <span class="ident">PyModuleOptions</span>, <span class="ident">WrapPyFunctionArgs</span>,
+    <span class="ident">get_doc</span>, <span class="ident">process_functions_in_module</span>, <span class="ident">pymodule_impl</span>, <span class="ident">PyClassArgs</span>, <span class="ident">PyClassMethodsType</span>,
+    <span class="ident">PyFunctionOptions</span>, <span class="ident">PyModuleOptions</span>,
 };
 <span class="kw">use</span> <span class="ident">quote::quote</span>;
 <span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse::Nothing</span>, <span class="ident">parse_macro_input</span>};
@@ -319,7 +302,7 @@
         <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="ident">e</span>.<span class="ident">into_compile_error</span>().<span class="ident">into</span>(),
     };
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">process_functions_in_module</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ast</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">process_functions_in_module</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ast</span>) {
         <span class="kw">return</span> <span class="ident">err</span>.<span class="ident">into_compile_error</span>().<span class="ident">into</span>();
     }
 
@@ -472,25 +455,6 @@
     .<span class="ident">into</span>()
 }
 
-<span class="doccomment">/// Wraps a Rust function annotated with [`#[pyfunction]`](macro@crate::pyfunction).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This can be used with `PyModule::add_function` to add free functions to a `PyModule` - see its</span>
-<span class="doccomment">/// documentation for more information.</span>
-<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_pyfunction</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">WrapPyFunctionArgs</span>);
-    <span class="ident">wrap_pyfunction_impl</span>(<span class="ident">args</span>).<span class="ident">into</span>()
-}
-
-<span class="doccomment">/// Returns a function that takes a `Python` instance and returns a Python module.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Use this together with [`#[pymodule]`](macro@crate::pymodule) and `PyModule::add_wrapped`.</span>
-<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_pymodule</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">syn::Path</span>);
-    <span class="ident">wrap_pymodule_impl</span>(<span class="ident">path</span>).<span class="ident">unwrap_or_compile_error</span>().<span class="ident">into</span>()
-}
-
 <span class="kw">fn</span> <span class="ident">pyclass_impl</span>(
     <span class="ident">attrs</span>: <span class="ident">TokenStream</span>,
     <span class="kw-2">mut</span> <span class="ident">ast</span>: <span class="ident">syn::ItemStruct</span>,
@@ -550,5 +514,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (a5ad0d29a 2022-05-12)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
 </body></html>

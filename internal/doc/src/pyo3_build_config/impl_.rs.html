@@ -3,7 +3,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../pyo3_build_config/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../pyo3_build_config/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../pyo3_build_config/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -2558,6 +2560,28 @@
 <span id="2553">2553</span>
 <span id="2554">2554</span>
 <span id="2555">2555</span>
+<span id="2556">2556</span>
+<span id="2557">2557</span>
+<span id="2558">2558</span>
+<span id="2559">2559</span>
+<span id="2560">2560</span>
+<span id="2561">2561</span>
+<span id="2562">2562</span>
+<span id="2563">2563</span>
+<span id="2564">2564</span>
+<span id="2565">2565</span>
+<span id="2566">2566</span>
+<span id="2567">2567</span>
+<span id="2568">2568</span>
+<span id="2569">2569</span>
+<span id="2570">2570</span>
+<span id="2571">2571</span>
+<span id="2572">2572</span>
+<span id="2573">2573</span>
+<span id="2574">2574</span>
+<span id="2575">2575</span>
+<span id="2576">2576</span>
+<span id="2577">2577</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Main implementation module included in both the `pyo3-build-config` library crate</span>
 <span class="doccomment">//! and its build script.</span>
 
@@ -3014,6 +3038,28 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
             <span class="ident">suppress_build_script_link_lines</span>: <span class="ident">suppress_build_script_link_lines</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>),
             <span class="ident">extra_build_script_lines</span>,
         })
+    }
+
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unnecessary_wraps</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixup_import_libs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">target_triple_from_env</span>();
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lib_name</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">target</span>.<span class="ident">operating_system</span> <span class="op">==</span> <span class="ident">OperatingSystem::Windows</span> {
+            <span class="self">self</span>.<span class="ident">lib_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">default_lib_name_windows</span>(
+                <span class="self">self</span>.<span class="ident">version</span>,
+                <span class="self">self</span>.<span class="ident">implementation</span>,
+                <span class="self">self</span>.<span class="ident">abi3</span>,
+                <span class="bool-val">false</span>,
+            ));
+        }
+        <span class="comment">// Auto generate python3.dll import libraries for Windows targets.</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;python3-dll-a&quot;</span>)]</span>
+        {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lib_dir</span>.<span class="ident">is_none</span>() {
+                <span class="kw">let</span> <span class="ident">py_version</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">abi3</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">version</span>) };
+                <span class="self">self</span>.<span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident"><span class="self">self</span>::import_lib::generate_import_lib</span>(<span class="kw-2">&amp;</span><span class="ident">target</span>, <span class="ident">py_version</span>)<span class="question-mark">?</span>;
+            }
+        }
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
@@ -5114,5 +5160,5 @@ for key, val in build_time_vars.items():
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (a5ad0d29a 2022-05-12)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
 </body></html>
