@@ -1123,6 +1123,7 @@
 <span id="1116">1116</span>
 <span id="1117">1117</span>
 <span id="1118">1118</span>
+<span id="1119">1119</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion::PyTryFrom</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
@@ -1666,8 +1667,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.attr_name`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If calling this method becomes performance-critical, the [`intern!`] macro can be used</span>
-    <span class="doccomment">/// to intern `attr_name`, thereby avoiding repeated temporary allocations of Python strings.</span>
+    <span class="doccomment">/// If calling this method becomes performance-critical, the [`intern!`](crate::intern) macro</span>
+    <span class="doccomment">/// can be used to intern `attr_name`, thereby avoiding repeated temporary allocations of</span>
+    <span class="doccomment">/// Python strings.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example: `intern!`ing the attribute name</span>
     <span class="doccomment">///</span>
@@ -1702,8 +1704,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.attr_name = value`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`] macro can be used</span>
-    <span class="doccomment">/// to intern `attr_name`.</span>
+    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`](crate::intern)</span>
+    <span class="doccomment">/// macro can be used to intern `attr_name`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example: `intern!`ing the attribute name</span>
     <span class="doccomment">///</span>
@@ -1785,8 +1787,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.name(*args, **kwargs)`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`] macro can be used</span>
-    <span class="doccomment">/// to intern `name`.</span>
+    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`](crate::intern)</span>
+    <span class="doccomment">/// macro can be used to intern `name`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">A</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
@@ -1816,8 +1818,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.name(*args)`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`] macro can be used</span>
-    <span class="doccomment">/// to intern `name`.</span>
+    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`](crate::intern)</span>
+    <span class="doccomment">/// macro can be used to intern `name`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method1</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -1830,8 +1832,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to the Python expression `self.name()`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`] macro can be used</span>
-    <span class="doccomment">/// to intern `name`.</span>
+    <span class="doccomment">/// To avoid repeated temporary allocations of Python strings, the [`intern!`](crate::intern)</span>
+    <span class="doccomment">/// macro can be used to intern `name`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_method0</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">name</span>: <span class="ident">N</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">IntoPy</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -2242,5 +2244,5 @@ a = A()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c06728704 2022-05-19)" ></div>
 </body></html>

@@ -1010,8 +1010,8 @@
 <span class="doccomment">//! The structs in this module represent Python&#39;s built-in exceptions, while the modules comprise</span>
 <span class="doccomment">//! structs representing errors defined in Python code.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! The latter are created with the [`import_exception`] macro, which you can use yourself</span>
-<span class="doccomment">//! to import Python exceptions.</span>
+<span class="doccomment">//! The latter are created with the [`import_exception`](crate::import_exception) macro, which you</span>
+<span class="doccomment">//! can use yourself to import Python exceptions.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::ffi::CStr</span>;
@@ -2002,5 +2002,5 @@ Python::with_gil(|py| {
     <span class="macro">test_exception!</span>(<span class="ident">PyWindowsError</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (42e1761c7 2022-05-15)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c06728704 2022-05-19)" ></div>
 </body></html>
