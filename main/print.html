@@ -1400,8 +1400,7 @@ impl MyClass {
 </span></code></pre></pre>
 <h2 id="class-attributes"><a class="header" href="#class-attributes">Class attributes</a></h2>
 <p>To create a class attribute (also called <a href="https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables">class variable</a>), a method without
-any arguments can be annotated with the <code>#[classattr]</code> attribute. The return type must be <code>T</code> for
-some <code>T</code> that implements <code>IntoPy&lt;PyObject&gt;</code>.</p>
+any arguments can be annotated with the <code>#[classattr]</code> attribute.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -1422,6 +1421,10 @@ Python::with_gil(|py| {
 });
 <span class="boring">}
 </span></code></pre></pre>
+<blockquote>
+<p>Note: if the method has a <code>Result</code> return type and returns an <code>Err</code>, PyO3 will panic during
+class creation.</p>
+</blockquote>
 <p>If the class attribute is defined with <code>const</code> code only, one can also annotate associated
 constants:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -7446,6 +7449,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Deprecate <code>ToBorrowedObject</code> trait (it is only used as a wrapper for <code>ToPyObject</code>). <a href="https://github.com/PyO3/pyo3/pull/2333">#2333</a></li>
 <li><code>impl&lt;T, const N: usize&gt; IntoPy&lt;PyObject&gt; for [T; N]</code> now requires <code>T: IntoPy</code> rather than <code>T: ToPyObject</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
 <li>Correct <code>wrap_pymodule</code> to match normal namespacing rules: it no longer &quot;sees through&quot; glob imports of <code>use submodule::*</code> when <code>submodule::submodule</code> is a <code>#[pymodule]</code>. <a href="https://github.com/PyO3/pyo3/pull/2363">#2363</a></li>
+<li>Allow <code>#[classattr]</code> methods to be fallible. <a href="https://github.com/PyO3/pyo3/pull/2385">#2385</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>

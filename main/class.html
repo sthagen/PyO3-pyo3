@@ -727,8 +727,7 @@ impl MyClass {
 </span></code></pre></pre>
 <h2 id="class-attributes"><a class="header" href="#class-attributes">Class attributes</a></h2>
 <p>To create a class attribute (also called <a href="https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables">class variable</a>), a method without
-any arguments can be annotated with the <code>#[classattr]</code> attribute. The return type must be <code>T</code> for
-some <code>T</code> that implements <code>IntoPy&lt;PyObject&gt;</code>.</p>
+any arguments can be annotated with the <code>#[classattr]</code> attribute.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -749,6 +748,10 @@ Python::with_gil(|py| {
 });
 <span class="boring">}
 </span></code></pre></pre>
+<blockquote>
+<p>Note: if the method has a <code>Result</code> return type and returns an <code>Err</code>, PyO3 will panic during
+class creation.</p>
+</blockquote>
 <p>If the class attribute is defined with <code>const</code> code only, one can also annotate associated
 constants:</p>
 <pre><pre class="playground"><code class="language-rust">
