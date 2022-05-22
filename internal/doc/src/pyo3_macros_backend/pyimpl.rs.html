@@ -473,9 +473,9 @@
             <span class="ident">_pyo3::class::PyClassAttributeDef::new</span>(
                 #<span class="ident">python_name</span>,
                 <span class="ident">_pyo3::impl_::pymethods::PyClassAttributeFactory</span>({
-                    <span class="kw">fn</span> <span class="ident">__wrap</span>(<span class="ident">py</span>: <span class="ident">_pyo3::Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">_pyo3::PyObject</span> {
+                    <span class="kw">fn</span> <span class="ident">__wrap</span>(<span class="ident">py</span>: <span class="ident">_pyo3::Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">_pyo3::PyResult</span><span class="op">&lt;</span><span class="ident">_pyo3::PyObject</span><span class="op">&gt;</span> {
                         #<span class="ident">deprecations</span>
-                        <span class="ident">_pyo3::IntoPy::into_py</span>(#<span class="ident">cls</span>::#<span class="ident">member</span>, <span class="ident">py</span>)
+                        <span class="ident">::std::result::Result::Ok</span>(<span class="ident">_pyo3::IntoPy::into_py</span>(#<span class="ident">cls</span>::#<span class="ident">member</span>, <span class="ident">py</span>))
                     }
                     <span class="ident">__wrap</span>
                 })
@@ -596,5 +596,5 @@
         .<span class="ident">collect</span>()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c06728704 2022-05-19)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (9257f5aad 2022-05-21)" ></div>
 </body></html>
