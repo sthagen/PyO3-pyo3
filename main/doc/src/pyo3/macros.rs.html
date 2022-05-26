@@ -157,6 +157,29 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
 </pre><pre class="rust"><code><span class="doccomment">/// A convenient macro to execute a Python code snippet, with some local variables set.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
@@ -309,6 +332,29 @@
         }
     };
 }
+
+<span class="doccomment">/// Add the module to the initialization table in order to make embedded Python code to use it.</span>
+<span class="doccomment">/// Module name is the argument.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Use it before [`prepare_freethreaded_python`](crate::prepare_freethreaded_python) and</span>
+<span class="doccomment">/// leave feature `auto-initialize` off</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">append_to_inittab</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>:<span class="ident">ident</span>) =&gt; {
+        <span class="kw">unsafe</span> {
+            <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::Py_IsInitialized</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="macro">::std::panic!</span>(
+                    <span class="string">&quot;called `append_to_inittab` but a Python interpreter is already running.&quot;</span>
+                );
+            }
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ffi::PyImport_AppendInittab</span>(
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::NAME</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">::std::os::raw::c_char</span>,
+                <span class="ident">::std::option::Option::Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::init</span>),
+            );
+        }
+    };
+}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (9257f5aad 2022-05-21)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4cbaac699 2022-05-25)" ></div>
 </body></html>

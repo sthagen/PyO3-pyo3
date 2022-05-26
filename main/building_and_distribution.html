@@ -312,6 +312,8 @@ not work when compiling for <code>abi3</code>. These are:</p>
 </li>
 </ul>
 <p>If you encounter these or other complications when linking the interpreter statically, discuss them on <a href="https://github.com/PyO3/pyo3/issues/416">issue 416 on PyO3's Github</a>. It is hoped that eventually that discussion will contain enough information and solutions that PyO3 can offer first-class support for static embedding.</p>
+<h3 id="import-your-module-when-embedding-the-python-interpreter"><a class="header" href="#import-your-module-when-embedding-the-python-interpreter">Import your module when embedding the Python interpreter</a></h3>
+<p>When you run your Rust binary with an embedded interpreter, any <code>#[pymodule]</code> created modules won't be accessible to import unless added to a table called <code>PyImport_Inittab</code> before the embedded interpreter is initialized. This will cause Python statements in your embedded interpreter such as <code>import your_new_module</code> to fail. You can call the macro <a href="https://pyo3.rs/main/doc/pyo3/macro.append_to_inittab.html"><code>append_to_inittab</code></a> with your module before initializing the Python interpreter to add the module function into that table. (The Python interpreter will be initialized by calling <code>prepare_freethreaded_python</code>, <code>with_embedded_interpreter</code>, or <code>Python::with_gil</code> with the <a href="features.html#auto-initialize"><code>auto-initialize</code></a> feature enabled.)</p>
 <h2 id="cross-compiling"><a class="header" href="#cross-compiling">Cross Compiling</a></h2>
 <p>Thanks to Rust's great cross-compilation support, cross-compiling using PyO3 is relatively straightforward. To get started, you'll need a few pieces of software:</p>
 <ul>
