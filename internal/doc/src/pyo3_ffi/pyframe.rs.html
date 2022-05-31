@@ -16,7 +16,12 @@
 <span id="9">9</span>
 <span id="10">10</span>
 <span id="11">11</span>
-</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_3_10</span>, <span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyCodeObject</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyFrameObject</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
@@ -25,8 +30,9 @@
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_GetLineNumber</span>(<span class="ident">f</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_3_10</span>, <span class="ident">all</span>(<span class="ident">Py_3_9</span>, <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_GetCode</span>(<span class="ident">f</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyCodeObject</span>;
 }
-<span class="comment">// skipped PyFrame_GetCode</span>
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4cbaac699 2022-05-25)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
 </body></html>

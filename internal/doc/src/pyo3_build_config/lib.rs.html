@@ -413,7 +413,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_interpreter_config</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">InterpreterConfig</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">CONFIG_FILE</span>.<span class="ident">is_empty</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">interperter_config</span> <span class="op">=</span> <span class="ident">InterpreterConfig::from_reader</span>(<span class="ident">Cursor::new</span>(<span class="ident">CONFIG_FILE</span>))<span class="question-mark">?</span>;
-            <span class="ident">interperter_config</span>.<span class="ident">fixup_import_libs</span>()<span class="question-mark">?</span>;
+            <span class="ident">interperter_config</span>.<span class="ident">generate_import_libs</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">interperter_config</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">interpreter_config</span>) <span class="op">=</span> <span class="ident">make_cross_compile_config</span>()<span class="question-mark">?</span> {
             <span class="comment">// This is a cross compile and need to write the config file.</span>
@@ -462,5 +462,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4cbaac699 2022-05-25)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
 </body></html>

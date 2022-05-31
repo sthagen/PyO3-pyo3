@@ -2582,6 +2582,20 @@
 <span id="2575">2575</span>
 <span id="2576">2576</span>
 <span id="2577">2577</span>
+<span id="2578">2578</span>
+<span id="2579">2579</span>
+<span id="2580">2580</span>
+<span id="2581">2581</span>
+<span id="2582">2582</span>
+<span id="2583">2583</span>
+<span id="2584">2584</span>
+<span id="2585">2585</span>
+<span id="2586">2586</span>
+<span id="2587">2587</span>
+<span id="2588">2588</span>
+<span id="2589">2589</span>
+<span id="2590">2590</span>
+<span id="2591">2591</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Main implementation module included in both the `pyo3-build-config` library crate</span>
 <span class="doccomment">//! and its build script.</span>
 
@@ -3024,6 +3038,14 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
         <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">version</span>.<span class="ident">ok_or</span>(<span class="string">&quot;missing value for version&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">implementation</span> <span class="op">=</span> <span class="ident">implementation</span>.<span class="ident">unwrap_or</span>(<span class="ident">PythonImplementation::CPython</span>);
         <span class="kw">let</span> <span class="ident">abi3</span> <span class="op">=</span> <span class="ident">abi3</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
+        <span class="comment">// Fixup lib_name if it&#39;s not set</span>
+        <span class="kw">let</span> <span class="ident">lib_name</span> <span class="op">=</span> <span class="ident">lib_name</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="ident">target</span>)) <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;TARGET&quot;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">target</span><span class="op">|</span> <span class="ident">target</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Triple</span><span class="op">&gt;</span>()) {
+                <span class="ident">default_lib_name_for_target</span>(<span class="ident">version</span>, <span class="ident">implementation</span>, <span class="ident">abi3</span>, <span class="kw-2">&amp;</span><span class="ident">target</span>)
+            } <span class="kw">else</span> {
+                <span class="prelude-val">None</span>
+            }
+        });
 
         <span class="prelude-val">Ok</span>(<span class="ident">InterpreterConfig</span> {
             <span class="ident">implementation</span>,
@@ -3040,25 +3062,21 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
         })
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;python3-dll-a&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unnecessary_wraps</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixup_import_libs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">target_triple_from_env</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lib_name</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">target</span>.<span class="ident">operating_system</span> <span class="op">==</span> <span class="ident">OperatingSystem::Windows</span> {
-            <span class="self">self</span>.<span class="ident">lib_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">default_lib_name_windows</span>(
-                <span class="self">self</span>.<span class="ident">version</span>,
-                <span class="self">self</span>.<span class="ident">implementation</span>,
-                <span class="self">self</span>.<span class="ident">abi3</span>,
-                <span class="bool-val">false</span>,
-            ));
-        }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_import_libs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Auto generate python3.dll import libraries for Windows targets.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;python3-dll-a&quot;</span>)]</span>
-        {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lib_dir</span>.<span class="ident">is_none</span>() {
-                <span class="kw">let</span> <span class="ident">py_version</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">abi3</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">version</span>) };
-                <span class="self">self</span>.<span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident"><span class="self">self</span>::import_lib::generate_import_lib</span>(<span class="kw-2">&amp;</span><span class="ident">target</span>, <span class="ident">py_version</span>)<span class="question-mark">?</span>;
-            }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lib_dir</span>.<span class="ident">is_none</span>() {
+            <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">target_triple_from_env</span>();
+            <span class="kw">let</span> <span class="ident">py_version</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">abi3</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">version</span>) };
+            <span class="self">self</span>.<span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident">import_lib::generate_import_lib</span>(<span class="kw-2">&amp;</span><span class="ident">target</span>, <span class="ident">py_version</span>)<span class="question-mark">?</span>;
         }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;python3-dll-a&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unnecessary_wraps</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_import_libs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -3996,18 +4014,8 @@ for key, val in build_time_vars.items():
         .<span class="ident">implementation</span>
         .<span class="ident">unwrap_or</span>(<span class="ident">PythonImplementation::CPython</span>);
 
-    <span class="kw">let</span> <span class="ident">lib_name</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">cross_compile_config</span>.<span class="ident">target</span>.<span class="ident">operating_system</span> <span class="op">==</span> <span class="ident">OperatingSystem::Windows</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">default_lib_name_windows</span>(
-            <span class="ident">version</span>,
-            <span class="ident">implementation</span>,
-            <span class="ident">abi3</span>,
-            <span class="bool-val">false</span>,
-        ))
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_linking_libpython_for_target</span>(<span class="kw-2">&amp;</span><span class="ident">cross_compile_config</span>.<span class="ident">target</span>) {
-        <span class="prelude-val">Some</span>(<span class="ident">default_lib_name_unix</span>(<span class="ident">version</span>, <span class="ident">implementation</span>, <span class="prelude-val">None</span>))
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    };
+    <span class="kw">let</span> <span class="ident">lib_name</span> <span class="op">=</span>
+        <span class="ident">default_lib_name_for_target</span>(<span class="ident">version</span>, <span class="ident">implementation</span>, <span class="ident">abi3</span>, <span class="kw-2">&amp;</span><span class="ident">cross_compile_config</span>.<span class="ident">target</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident">cross_compile_config</span>.<span class="ident">lib_dir_string</span>();
 
@@ -4115,6 +4123,26 @@ for key, val in build_time_vars.items():
 <span class="comment">//</span>
 <span class="comment">// This contains only the limited ABI symbols.</span>
 <span class="kw">const</span> <span class="ident">WINDOWS_ABI3_LIB_NAME</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;python3&quot;</span>;
+
+<span class="kw">fn</span> <span class="ident">default_lib_name_for_target</span>(
+    <span class="ident">version</span>: <span class="ident">PythonVersion</span>,
+    <span class="ident">implementation</span>: <span class="ident">PythonImplementation</span>,
+    <span class="ident">abi3</span>: <span class="ident">bool</span>,
+    <span class="ident">target</span>: <span class="kw-2">&amp;</span><span class="ident">Triple</span>,
+) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">target</span>.<span class="ident">operating_system</span> <span class="op">==</span> <span class="ident">OperatingSystem::Windows</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">default_lib_name_windows</span>(
+            <span class="ident">version</span>,
+            <span class="ident">implementation</span>,
+            <span class="ident">abi3</span>,
+            <span class="bool-val">false</span>,
+        ))
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_linking_libpython_for_target</span>(<span class="ident">target</span>) {
+        <span class="prelude-val">Some</span>(<span class="ident">default_lib_name_unix</span>(<span class="ident">version</span>, <span class="ident">implementation</span>, <span class="prelude-val">None</span>))
+    } <span class="kw">else</span> {
+        <span class="prelude-val">None</span>
+    }
+}
 
 <span class="kw">fn</span> <span class="ident">default_lib_name_windows</span>(
     <span class="ident">version</span>: <span class="ident">PythonVersion</span>,
@@ -5160,5 +5188,5 @@ for key, val in build_time_vars.items():
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4cbaac699 2022-05-25)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
 </body></html>
