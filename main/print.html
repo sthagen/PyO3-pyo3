@@ -7454,6 +7454,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Correct <code>wrap_pymodule</code> to match normal namespacing rules: it no longer &quot;sees through&quot; glob imports of <code>use submodule::*</code> when <code>submodule::submodule</code> is a <code>#[pymodule]</code>. <a href="https://github.com/PyO3/pyo3/pull/2363">#2363</a></li>
 <li>Allow <code>#[classattr]</code> methods to be fallible. <a href="https://github.com/PyO3/pyo3/pull/2385">#2385</a></li>
 <li>Prevent multiple <code>#[pymethods]</code> with the same name for a single <code>#[pyclass]</code>. <a href="https://github.com/PyO3/pyo3/pull/2399">#2399</a></li>
+<li>Fixup <code>lib_name</code> when using <code>PYO3_CONFIG_FILE</code>. <a href="https://github.com/PyO3/pyo3/pull/2404">#2404</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
