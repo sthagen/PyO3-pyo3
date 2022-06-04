@@ -210,7 +210,19 @@ Caused by:
 <li>on Linux, rename <code>libyour_module.so</code> to <code>your_module.so</code>.</li>
 </ul>
 <p>You can then open a Python shell in the output directory and you'll be able to run <code>import your_module</code>.</p>
+<p>If you're packaging your library for redistribution, you should indicated the Python interpreter your library is compiled for by including the <a href="#platform-tags">platform tag</a> in its name. This prevents incompatible interpreters from trying to import your library. If you're compiling for PyPy you <em>must</em> include the platform tag, or PyPy will ignore the module.</p>
 <p>See, as an example, Bazel rules to build PyO3 on Linux at https://github.com/TheButlah/rules_pyo3.</p>
+<h4 id="platform-tags"><a class="header" href="#platform-tags">Platform tags</a></h4>
+<p>Rather than using just the <code>.so</code> or <code>.pyd</code> extension suggested above (depending on OS), uou can prefix the shared library extension with a platform tag to indicate the interpreter it is compatible with. You can query your interpreter's platform tag from the <code>sysconfig</code> module. Some example outputs of this are seen below:</p>
+<pre><code class="language-bash"># CPython 3.10 on macOS
+.cpython-310-darwin.so
+
+# PyPy 7.3 (Python 3.8) on Linux
+$ python -c 'import sysconfig; print(sysconfig.get_config_var(&quot;EXT_SUFFIX&quot;))'
+.pypy38-pp73-x86_64-linux-gnu.so
+</code></pre>
+<p>So, for example, a valid module library name on CPython 3.10 for macOS is <code>your_module.cpython-310-darwin.so</code>, and its equivalent when compiled for PyPy 7.3 on Linux would be <code>your_module.pypy38-pp73-x86_64-linux-gnu.so</code>.</p>
+<p>See <a href="https://peps.python.org/pep-3149/">PEP 3149</a> for more background on platform tags.</p>
 <h4 id="macos"><a class="header" href="#macos">macOS</a></h4>
 <p>On macOS, because the <code>extension-module</code> feature disables linking to <code>libpython</code> (<a href="#the-extension-module-feature">see the next section</a>), some additional linker arguments need to be set. <code>maturin</code> and <code>setuptools-rust</code> both pass these arguments for PyO3 automatically, but projects using manual builds will need to set these directly in order to support macOS.</p>
 <p>The easiest way to set the correct linker arguments is to add a <a href="https://doc.rust-lang.org/cargo/reference/build-scripts.html"><code>build.rs</code></a> with the following content:</p>

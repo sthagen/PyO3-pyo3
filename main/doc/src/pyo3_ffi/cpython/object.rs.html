@@ -393,8 +393,13 @@
 <span id="386">386</span>
 <span id="387">387</span>
 <span id="388">388</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyObject</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyObject</span>, <span class="ident">Py_ssize_t</span>};
+<span class="kw">use</span> <span class="ident">std::mem</span>;
+<span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_uint</span>, <span class="ident">c_ulong</span>, <span class="ident">c_void</span>};
 
 <span class="comment">// skipped _Py_NewReference</span>
 <span class="comment">// skipped _Py_ForgetReference</span>
@@ -513,209 +518,210 @@
     <span class="ident">kwnames</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 ) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
 
-<span class="kw">mod</span> <span class="ident">typeobject</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyObject</span>, <span class="ident">Py_ssize_t</span>};
-    <span class="kw">use</span> <span class="ident">std::mem</span>;
-    <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_uint</span>, <span class="ident">c_ulong</span>, <span class="ident">c_void</span>};
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyNumberMethods</span> {
+    <span class="kw">pub</span> <span class="ident">nb_add</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_subtract</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_remainder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_divmod</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_power</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ternaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_negative</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_positive</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_absolute</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_bool</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::inquiry</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_invert</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_lshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_rshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_and</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_xor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_or</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_int</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_reserved</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+    <span class="kw">pub</span> <span class="ident">nb_float</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_add</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_subtract</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_remainder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_power</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ternaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_lshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_rshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_and</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_xor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_or</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_floor_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_true_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_floor_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_true_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_index</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_matrix_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">nb_inplace_matrix_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+}
 
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyNumberMethods</span> {
-        <span class="kw">pub</span> <span class="ident">nb_add</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_subtract</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_remainder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_divmod</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_power</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ternaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_negative</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_positive</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_absolute</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_bool</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::inquiry</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_invert</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_lshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_rshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_and</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_xor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_or</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_int</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_reserved</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-        <span class="kw">pub</span> <span class="ident">nb_float</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_add</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_subtract</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_remainder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_power</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ternaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_lshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_rshift</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_and</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_xor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_or</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_floor_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_true_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_floor_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_true_divide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_index</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_matrix_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">nb_inplace_matrix_multiply</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-    }
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySequenceMethods</span> {
+    <span class="kw">pub</span> <span class="ident">sq_length</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::lenfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">sq_concat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">sq_repeat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeargfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">sq_item</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeargfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">was_sq_slice</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+    <span class="kw">pub</span> <span class="ident">sq_ass_item</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeobjargproc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">was_sq_ass_slice</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+    <span class="kw">pub</span> <span class="ident">sq_contains</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::objobjproc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">sq_inplace_concat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">sq_inplace_repeat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeargfunc</span><span class="op">&gt;</span>,
+}
 
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySequenceMethods</span> {
-        <span class="kw">pub</span> <span class="ident">sq_length</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::lenfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">sq_concat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">sq_repeat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeargfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">sq_item</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeargfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">was_sq_slice</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-        <span class="kw">pub</span> <span class="ident">sq_ass_item</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeobjargproc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">was_sq_ass_slice</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-        <span class="kw">pub</span> <span class="ident">sq_contains</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::objobjproc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">sq_inplace_concat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">sq_inplace_repeat</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ssizeargfunc</span><span class="op">&gt;</span>,
-    }
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyMappingMethods</span> {
+    <span class="kw">pub</span> <span class="ident">mp_length</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::lenfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">mp_subscript</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">mp_ass_subscript</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::objobjargproc</span><span class="op">&gt;</span>,
+}
 
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyMappingMethods</span> {
-        <span class="kw">pub</span> <span class="ident">mp_length</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::lenfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">mp_subscript</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::binaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">mp_ass_subscript</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::objobjargproc</span><span class="op">&gt;</span>,
-    }
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">sendfunc</span> <span class="op">=</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
+    <span class="ident">iter</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="ident">value</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="ident">result</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+) -&gt; <span class="ident">object::PySendResult</span>;
 
-    <span class="comment">// skipped PySendResult</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyAsyncMethods</span> {
+    <span class="kw">pub</span> <span class="ident">am_await</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">am_aiter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">am_anext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">am_send</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">sendfunc</span><span class="op">&gt;</span>,
+}
 
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyAsyncMethods</span> {
-        <span class="kw">pub</span> <span class="ident">am_await</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">am_aiter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">am_anext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::unaryfunc</span><span class="op">&gt;</span>,
-    }
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBufferProcs</span> {
+    <span class="kw">pub</span> <span class="ident">bf_getbuffer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::getbufferproc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">bf_releasebuffer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::releasebufferproc</span><span class="op">&gt;</span>,
+}
 
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyBufferProcs</span> {
-        <span class="kw">pub</span> <span class="ident">bf_getbuffer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::getbufferproc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">bf_releasebuffer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::releasebufferproc</span><span class="op">&gt;</span>,
-    }
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">printfunc</span> <span class="op">=</span>
+    <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>, <span class="ident">arg2</span>: <span class="kw-2">*mut</span> <span class="ident">::libc::FILE</span>, <span class="ident">arg3</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
 
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">printfunc</span> <span class="op">=</span>
-        <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>, <span class="ident">arg2</span>: <span class="kw-2">*mut</span> <span class="ident">::libc::FILE</span>, <span class="ident">arg3</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTypeObject</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">ob_refcnt</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">ob_pypy_link</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">ob_type</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">ob_size</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">object::PyVarObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_name</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
+    <span class="kw">pub</span> <span class="ident">tp_basicsize</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="kw">pub</span> <span class="ident">tp_itemsize</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="kw">pub</span> <span class="ident">tp_dealloc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::destructor</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_8</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">tp_print</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">printfunc</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_vectorcall_offset</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="kw">pub</span> <span class="ident">tp_getattr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::getattrfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_setattr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::setattrfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_as_async</span>: <span class="kw-2">*mut</span> <span class="ident">PyAsyncMethods</span>,
+    <span class="kw">pub</span> <span class="ident">tp_repr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::reprfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_as_number</span>: <span class="kw-2">*mut</span> <span class="ident">PyNumberMethods</span>,
+    <span class="kw">pub</span> <span class="ident">tp_as_sequence</span>: <span class="kw-2">*mut</span> <span class="ident">PySequenceMethods</span>,
+    <span class="kw">pub</span> <span class="ident">tp_as_mapping</span>: <span class="kw-2">*mut</span> <span class="ident">PyMappingMethods</span>,
+    <span class="kw">pub</span> <span class="ident">tp_hash</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::hashfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_call</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ternaryfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_str</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::reprfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_getattro</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::getattrofunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_setattro</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::setattrofunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_as_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">PyBufferProcs</span>,
+    <span class="kw">pub</span> <span class="ident">tp_flags</span>: <span class="ident">c_ulong</span>,
+    <span class="kw">pub</span> <span class="ident">tp_doc</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
+    <span class="kw">pub</span> <span class="ident">tp_traverse</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::traverseproc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_clear</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::inquiry</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_richcompare</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::richcmpfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_weaklistoffset</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="kw">pub</span> <span class="ident">tp_iter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::getiterfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_iternext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::iternextfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_methods</span>: <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::methodobject::PyMethodDef</span>,
+    <span class="kw">pub</span> <span class="ident">tp_members</span>: <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::structmember::PyMemberDef</span>,
+    <span class="kw">pub</span> <span class="ident">tp_getset</span>: <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::descrobject::PyGetSetDef</span>,
+    <span class="kw">pub</span> <span class="ident">tp_base</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_dict</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_descr_get</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::descrgetfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_descr_set</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::descrsetfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_dictoffset</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="kw">pub</span> <span class="ident">tp_init</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::initproc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_alloc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::allocfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_new</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::newfunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_free</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::freefunc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_is_gc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::inquiry</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_bases</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_mro</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_cache</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_subclasses</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_weaklist</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">tp_del</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::destructor</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tp_version_tag</span>: <span class="ident">c_uint</span>,
+    <span class="kw">pub</span> <span class="ident">tp_finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::destructor</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_vectorcall</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::vectorcallfunc</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>)))]</span>
+    <span class="kw">pub</span> <span class="ident">tp_print</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">printfunc</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_pypy_flags</span>: <span class="ident">std::os::raw::c_long</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_allocs</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_frees</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_maxalloc</span>: <span class="ident">Py_ssize_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_prev</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">tp_next</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
+}
 
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTypeObject</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">ob_refcnt</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">ob_pypy_link</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">ob_type</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">ob_size</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-        <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">object::PyVarObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_name</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="kw">pub</span> <span class="ident">tp_basicsize</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="kw">pub</span> <span class="ident">tp_itemsize</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="kw">pub</span> <span class="ident">tp_dealloc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::destructor</span><span class="op">&gt;</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_8</span>))]</span>
-        <span class="kw">pub</span> <span class="ident">tp_print</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">printfunc</span><span class="op">&gt;</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_vectorcall_offset</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="kw">pub</span> <span class="ident">tp_getattr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::getattrfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_setattr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::setattrfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_as_async</span>: <span class="kw-2">*mut</span> <span class="ident">PyAsyncMethods</span>,
-        <span class="kw">pub</span> <span class="ident">tp_repr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::reprfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_as_number</span>: <span class="kw-2">*mut</span> <span class="ident">PyNumberMethods</span>,
-        <span class="kw">pub</span> <span class="ident">tp_as_sequence</span>: <span class="kw-2">*mut</span> <span class="ident">PySequenceMethods</span>,
-        <span class="kw">pub</span> <span class="ident">tp_as_mapping</span>: <span class="kw-2">*mut</span> <span class="ident">PyMappingMethods</span>,
-        <span class="kw">pub</span> <span class="ident">tp_hash</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::hashfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_call</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::ternaryfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_str</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::reprfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_getattro</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::getattrofunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_setattro</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::setattrofunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_as_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">PyBufferProcs</span>,
-        <span class="kw">pub</span> <span class="ident">tp_flags</span>: <span class="ident">c_ulong</span>,
-        <span class="kw">pub</span> <span class="ident">tp_doc</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="kw">pub</span> <span class="ident">tp_traverse</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::traverseproc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_clear</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::inquiry</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_richcompare</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::richcmpfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_weaklistoffset</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="kw">pub</span> <span class="ident">tp_iter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::getiterfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_iternext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::iternextfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_methods</span>: <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::methodobject::PyMethodDef</span>,
-        <span class="kw">pub</span> <span class="ident">tp_members</span>: <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::structmember::PyMemberDef</span>,
-        <span class="kw">pub</span> <span class="ident">tp_getset</span>: <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::descrobject::PyGetSetDef</span>,
-        <span class="kw">pub</span> <span class="ident">tp_base</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_dict</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_descr_get</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::descrgetfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_descr_set</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::descrsetfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_dictoffset</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="kw">pub</span> <span class="ident">tp_init</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::initproc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_alloc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::allocfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_new</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::newfunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_free</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::freefunc</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_is_gc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::inquiry</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_bases</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_mro</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_cache</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_subclasses</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_weaklist</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">tp_del</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::destructor</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">tp_version_tag</span>: <span class="ident">c_uint</span>,
-        <span class="kw">pub</span> <span class="ident">tp_finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::destructor</span><span class="op">&gt;</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_vectorcall</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::vectorcallfunc</span><span class="op">&gt;</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_pypy_flags</span>: <span class="ident">std::os::raw::c_long</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_allocs</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_frees</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_maxalloc</span>: <span class="ident">Py_ssize_t</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_prev</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;COUNT_ALLOCS&quot;</span>)]</span>
-        <span class="kw">pub</span> <span class="ident">tp_next</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
-    }
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyHeapTypeObject</span> {
+    <span class="kw">pub</span> <span class="ident">ht_type</span>: <span class="ident">PyTypeObject</span>,
+    <span class="kw">pub</span> <span class="ident">as_async</span>: <span class="ident">PyAsyncMethods</span>,
+    <span class="kw">pub</span> <span class="ident">as_number</span>: <span class="ident">PyNumberMethods</span>,
+    <span class="kw">pub</span> <span class="ident">as_mapping</span>: <span class="ident">PyMappingMethods</span>,
+    <span class="kw">pub</span> <span class="ident">as_sequence</span>: <span class="ident">PySequenceMethods</span>,
+    <span class="kw">pub</span> <span class="ident">as_buffer</span>: <span class="ident">PyBufferProcs</span>,
+    <span class="kw">pub</span> <span class="ident">ht_name</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">ht_slots</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">ht_qualname</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">ht_cached_keys</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">ht_module</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+}
 
-    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyHeapTypeObject</span> {
-        <span class="kw">pub</span> <span class="ident">ht_type</span>: <span class="ident">PyTypeObject</span>,
-        <span class="kw">pub</span> <span class="ident">as_async</span>: <span class="ident">PyAsyncMethods</span>,
-        <span class="kw">pub</span> <span class="ident">as_number</span>: <span class="ident">PyNumberMethods</span>,
-        <span class="kw">pub</span> <span class="ident">as_mapping</span>: <span class="ident">PyMappingMethods</span>,
-        <span class="kw">pub</span> <span class="ident">as_sequence</span>: <span class="ident">PySequenceMethods</span>,
-        <span class="kw">pub</span> <span class="ident">as_buffer</span>: <span class="ident">PyBufferProcs</span>,
-        <span class="kw">pub</span> <span class="ident">ht_name</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">ht_slots</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">ht_qualname</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
-        <span class="kw">pub</span> <span class="ident">ht_cached_keys</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-    }
-
-    <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PyHeapTypeObject</span> {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-            <span class="kw">unsafe</span> { <span class="ident">mem::zeroed</span>() }
-        }
-    }
-
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PyHeapTypeObject</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyHeapType_GET_MEMBERS</span>(
-        <span class="ident">etype</span>: <span class="kw-2">*mut</span> <span class="ident">PyHeapTypeObject</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::structmember::PyMemberDef</span> {
-        <span class="kw">let</span> <span class="ident">py_type</span> <span class="op">=</span> <span class="ident">object::Py_TYPE</span>(<span class="ident">etype</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>);
-        <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">etype</span>.<span class="ident">offset</span>((<span class="kw-2">*</span><span class="ident">py_type</span>).<span class="ident">tp_basicsize</span>);
-        <span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::structmember::PyMemberDef</span>
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="kw">unsafe</span> { <span class="ident">mem::zeroed</span>() }
     }
 }
 
-<span class="comment">// The exported types depend on whether Py_LIMITED_API is set</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::typeobject</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyHeapType_GET_MEMBERS</span>(
+    <span class="ident">etype</span>: <span class="kw-2">*mut</span> <span class="ident">PyHeapTypeObject</span>,
+) -&gt; <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::structmember::PyMemberDef</span> {
+    <span class="kw">let</span> <span class="ident">py_type</span> <span class="op">=</span> <span class="ident">object::Py_TYPE</span>(<span class="ident">etype</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>);
+    <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">etype</span>.<span class="ident">offset</span>((<span class="kw-2">*</span><span class="ident">py_type</span>).<span class="ident">tp_basicsize</span>);
+    <span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident"><span class="kw">crate</span>::structmember::PyMemberDef</span>
+}
 
 <span class="comment">// skipped _PyType_Name</span>
 <span class="comment">// skipped _PyType_Lookup</span>
@@ -782,5 +788,5 @@
 <span class="comment">// skipped Py_TRASHCAN_SAFE_BEGIN</span>
 <span class="comment">// skipped Py_TRASHCAN_SAFE_END</span>
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

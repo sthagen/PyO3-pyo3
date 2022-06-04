@@ -13,6 +13,8 @@
 <span id="6">6</span>
 <span id="7">7</span>
 <span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_single_input</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">256</span>;
@@ -20,7 +22,9 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_eval_input</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">258</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_func_type_input</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">345</span>;
-<span class="comment">// skipped Py_fstring_input</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)]</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_fstring_input</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">800</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

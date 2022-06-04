@@ -1214,7 +1214,7 @@
     <span class="kw">impl</span> <span class="op">!</span><span class="ident">Ungil</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::ffi::PyCodeObject</span> {}
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
     <span class="kw">impl</span> <span class="op">!</span><span class="ident">Ungil</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::ffi::PyDictKeysObject</span> {}
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="kw">impl</span> <span class="op">!</span><span class="ident">Ungil</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::ffi::PyArena</span> {}
 }
 
@@ -2052,5 +2052,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

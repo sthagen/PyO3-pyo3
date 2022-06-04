@@ -51,6 +51,9 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">libc::size_t</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
 
@@ -79,7 +82,7 @@
 }
 
 <span class="comment">// skipped PyMemAllocatorName</span>
-
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyMemAllocatorEx</span> {
@@ -93,10 +96,13 @@
 }
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyMem_GetAllocator</span>(<span class="ident">domain</span>: <span class="ident">PyMemAllocatorDomain</span>, <span class="ident">allocator</span>: <span class="kw-2">*mut</span> <span class="ident">PyMemAllocatorEx</span>);
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyMem_SetAllocator</span>(<span class="ident">domain</span>: <span class="ident">PyMemAllocatorDomain</span>, <span class="ident">allocator</span>: <span class="kw-2">*mut</span> <span class="ident">PyMemAllocatorEx</span>);
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyMem_SetupDebugHooks</span>();
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

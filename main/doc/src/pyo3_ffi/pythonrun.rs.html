@@ -68,27 +68,15 @@
 <span id="61">61</span>
 <span id="62">62</span>
 <span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">not</span>(<span class="ident">Py_3_10</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="kw">use</span> <span class="ident">libc::FILE</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">not</span>(<span class="ident">Py_3_10</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>), <span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">not</span>(<span class="ident">Py_3_10</span>))))]</span>
 <span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_LIMITED_API</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_CompileString</span>(<span class="ident">string</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>, <span class="ident">p</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>, <span class="ident">s</span>: <span class="ident">c_int</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
 
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyErr_Print&quot;</span>)]</span>
@@ -105,25 +93,15 @@
 
 <span class="comment">// skipped PyOS_CheckStack under Microsoft C</span>
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyCompilerFlags</span> {
-    <span class="kw">pub</span> <span class="ident">cf_flags</span>: <span class="ident">c_int</span>,
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_LIMITED_API</span>)]</span>
-<span class="macro">opaque_struct!</span>(<span class="ident">PyCompilerFlags</span>);
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">not</span>(<span class="ident">Py_3_10</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="macro">opaque_struct!</span>(<span class="ident">_mod</span>);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="macro">opaque_struct!</span>(<span class="ident">symtable</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="macro">opaque_struct!</span>(<span class="ident">_node</span>);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">not</span>(<span class="ident">Py_3_10</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyParser_SimpleParseString</span>(<span class="ident">s</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>, <span class="ident">b</span>: <span class="ident">c_int</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">_node</span> {
@@ -131,7 +109,7 @@
     <span class="ident"><span class="kw">crate</span>::PyParser_SimpleParseStringFlags</span>(<span class="ident">s</span>, <span class="ident">b</span>, <span class="number">0</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">not</span>(<span class="ident">Py_3_10</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyParser_SimpleParseFile</span>(<span class="ident">fp</span>: <span class="kw-2">*mut</span> <span class="ident">FILE</span>, <span class="ident">s</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>, <span class="ident">b</span>: <span class="ident">c_int</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">_node</span> {
@@ -146,7 +124,7 @@
         <span class="ident">filename</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
         <span class="ident">start</span>: <span class="ident">c_int</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">symtable</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>, <span class="ident">PyPy</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_SymtableStringObject</span>(
         <span class="ident">str</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
         <span class="ident">filename</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
@@ -154,5 +132,5 @@
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">symtable</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

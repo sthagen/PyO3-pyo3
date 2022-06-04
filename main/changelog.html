@@ -155,6 +155,10 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Added the internal <code>IntoPyResult</code> trait to give better error messages when function return types do not implement <code>IntoPy</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
 <li>Add <code>PyDictKeys</code>, <code>PyDictValues</code> and <code>PyDictItems</code> Rust types to represent <code>dict_keys</code>, <code>dict_values</code> and <code>dict_items</code> types. <a href="https://github.com/PyO3/pyo3/pull/2358">#2358</a></li>
 <li>Add macro <code>append_to_inittab</code>. <a href="https://github.com/PyO3/pyo3/pull/2377">#2377</a></li>
+<li>Add FFI definition <code>PyFrame_GetCode</code>. <a href="https://github.com/PyO3/pyo3/pull/2406">#2406</a></li>
+<li>Added <code>PyCode</code> and <code>PyFrame</code> high level objects. <a href="https://github.com/PyO3/pyo3/pull/2408">#2408</a></li>
+<li>Add FFI definitions <code>Py_fstring_input</code>, <code>sendfunc</code>, and <code>_PyErr_StackItem</code>. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
+<li>Add <code>PyDateTime::new_with_fold</code>, <code>PyTime::new_with_fold</code>, <code>PyTime::get_fold</code>, <code>PyDateTime::get_fold</code> for PyPy. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
@@ -167,12 +171,26 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow <code>#[classattr]</code> methods to be fallible. <a href="https://github.com/PyO3/pyo3/pull/2385">#2385</a></li>
 <li>Prevent multiple <code>#[pymethods]</code> with the same name for a single <code>#[pyclass]</code>. <a href="https://github.com/PyO3/pyo3/pull/2399">#2399</a></li>
 <li>Fixup <code>lib_name</code> when using <code>PYO3_CONFIG_FILE</code>. <a href="https://github.com/PyO3/pyo3/pull/2404">#2404</a></li>
+<li>Iterators over <code>PySet</code> and <code>PyDict</code> will now panic if the underlying collection is mutated during the iteration. <a href="https://github.com/PyO3/pyo3/pull/2380">#2380</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
 <li>Fixed incorrectly disabled FFI definition <code>PyThreadState_DeleteCurrent</code>. <a href="https://github.com/PyO3/pyo3/pull/2357">#2357</a></li>
 <li>Correct FFI definition <code>PyEval_EvalCodeEx</code> to take <code>*const *mut PyObject</code> array arguments instead of <code>*mut *mut PyObject</code> (this was changed in CPython 3.6). <a href="https://github.com/PyO3/pyo3/pull/2368">#2368</a></li>
 <li>Fix &quot;raw-ident&quot; structs (e.g. <code>#[pyclass] struct r#RawName</code>) incorrectly having <code>r#</code> at the start of the class name created in Python. <a href="https://github.com/PyO3/pyo3/pull/2395">#2395</a></li>
+<li>Correct FFI definition <code>Py_tracefunc</code> to be <code>unsafe extern &quot;C&quot; fn</code> (was previously safe). <a href="https://github.com/PyO3/pyo3/pull/2407">#2407</a></li>
+<li>Fix case where <code>ValueError</code> without message could be raised by the <code>#[derive(FromPyObject)]</code> generated implementation for a tuple struct. <a href="https://github.com/PyO3/pyo3/pull/2414">#2414</a></li>
+<li>Fix compile failure when using <code>#[pyo3(from_py_with = &quot;pouf&quot;)]</code> in on a field in a <code>#[derive(FromPyObject)]</code> struct. <a href="https://github.com/PyO3/pyo3/pull/2414">#2414</a></li>
+<li>Fix FFI definitions <code>_PyDateTime_BaseTime</code> and <code>_PyDateTime_BaseDateTime</code> lacking leading underscores in their names. <a href="https://github.com/PyO3/pyo3/pull/2421">#2421</a></li>
+<li>Remove FFI definition <code>PyArena</code> on Python 3.10 and up. <a href="https://github.com/PyO3/pyo3/pull/2421">#2421</a></li>
+<li>Fix FFI definition <code>PyCompilerFlags</code> missing member <code>cf_feature_version</code> on Python 3.8 and up. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
+<li>Fix FFI definition <code>PyAsyncMethods</code> missing member <code>am_send</code> on Python 3.10 and up. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
+<li>Fix FFI definition <code>PyGenObject</code> having multiple incorrect members on various Python versions. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
+<li>Fix FFI definition <code>PySyntaxErrorObject</code> missing members <code>end_lineno</code> and <code>end_offset</code> on Python 3.10 and up. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
+<li>Fix FFI definition <code>PyHeapTypeObject</code> missing member <code>ht_module</code> on Python 3.9 and up. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
+<li>Fix FFI definition <code>PyFrameObject</code> having multiple incorrect members on various Python versions. <a href="https://github.com/PyO3/pyo3/pull/2424">#2424</a></li>
+<li>Fix FFI definition <code>PyTypeObject</code> missing deprecated field <code>tp_print</code> on Python 3.8. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
+<li>Fix FFI definitions <code>PyDateTime_CAPI</code>. <code>PyDateTime_Date</code>, <code>PyASCIIObject</code>, <code>PyBaseExceptionObject</code>, <code>PyListObject</code>, and <code>PyTypeObject</code> on PyPy. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a href="https://github.com/pyo3/pyo3/compare/v0.16.4...v0.16.5">0.16.5</a> - 2022-05-15</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>

@@ -171,17 +171,26 @@
 <span id="164">164</span>
 <span id="165">165</span>
 <span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyport::Py_ssize_t</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_uchar</span>, <span class="ident">c_void</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="kw">use</span> <span class="ident">std::os::raw::c_uchar</span>;
+<span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_void</span>};
 
 <span class="comment">// skipped _Py_CODEUNIT</span>
 <span class="comment">// skipped _Py_OPCODE</span>
 <span class="comment">// skipped _Py_OPARG</span>
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">PyPy</span>)))]</span>
 <span class="macro">opaque_struct!</span>(<span class="ident">_PyOpcache</span>);
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyCodeObject</span> {
@@ -216,6 +225,9 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
     <span class="kw">pub</span> <span class="ident">co_opcache_size</span>: <span class="ident">c_uchar</span>,
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+<span class="macro">opaque_struct!</span>(<span class="ident">PyCodeObject</span>);
 
 <span class="comment">/* Masks for co_flags */</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CO_OPTIMIZED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0001</span>;
@@ -338,5 +350,5 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_PyCode_SetExtra</span>(<span class="ident">code</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>, <span class="ident">index</span>: <span class="ident">Py_ssize_t</span>, <span class="ident">extra</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>) -&gt; <span class="ident">c_int</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

@@ -618,6 +618,9 @@
 <span id="611">611</span>
 <span id="612">612</span>
 <span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
 </pre><pre class="rust"><code><span class="doccomment">//! FFI bindings to the functions and structs defined in `datetime.h`</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This is the unsafe thin  wrapper around the [CPython C API](https://docs.python.org/3/c-api/datetime.html),</span>
@@ -631,12 +634,13 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyObject</span>, <span class="ident">PyObject_TypeCheck</span>, <span class="ident">PyTypeObject</span>, <span class="ident">Py_TYPE</span>};
 <span class="kw">use</span> <span class="ident">std::cell::UnsafeCell</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_uchar</span>};
+<span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
 <span class="kw">use</span> <span class="ident">std::ptr</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">use</span> {
     <span class="kw">crate</span>::{<span class="ident">PyCapsule_Import</span>, <span class="ident">Py_hash_t</span>},
     <span class="ident">std::ffi::CString</span>,
+    <span class="ident">std::os::raw::c_uchar</span>,
 };
 
 <span class="comment">// Type struct wrappers</span>
@@ -659,10 +663,11 @@
 <span class="comment">// skipped non-limited PyDateTime_TZInfo</span>
 <span class="comment">// skipped non-limited _PyDateTime_BaseTZInfo</span>
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// Structure representing a `datetime.time` without a `tzinfo` member.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_BaseTime</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">_PyDateTime_BaseTime</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">hashcode</span>: <span class="ident">Py_hash_t</span>,
@@ -676,11 +681,6 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// Structure representing a `datetime.time`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Safety</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Care should be taken when reading the `tzinfo` field of this type. If the time does not have a</span>
-<span class="doccomment">/// tzinfo then the Python interpreter is free to allocate it as a [PyDateTime_BaseTime].</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_Time</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
@@ -690,6 +690,10 @@
     <span class="kw">pub</span> <span class="ident">data</span>: [<span class="ident">c_uchar</span>; <span class="ident">_PyDateTime_TIME_DATASIZE</span>],
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">fold</span>: <span class="ident">c_uchar</span>,
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Care should be taken when reading this field. If the time does not have a</span>
+    <span class="doccomment">/// tzinfo then CPython may allocate as a `_PyDateTime_BaseTime` without this field.</span>
     <span class="kw">pub</span> <span class="ident">tzinfo</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 }
 
@@ -700,14 +704,17 @@
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">hashcode</span>: <span class="ident">Py_hash_t</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">hastzinfo</span>: <span class="ident">c_char</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">data</span>: [<span class="ident">c_uchar</span>; <span class="ident">_PyDateTime_DATE_DATASIZE</span>],
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// Structure representing a `datetime.datetime` without a `tzinfo` member.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_BaseDateTime</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">_PyDateTime_BaseDateTime</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">hashcode</span>: <span class="ident">Py_hash_t</span>,
@@ -721,11 +728,6 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// Structure representing a `datetime.datetime`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Safety</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Care should be taken when reading the `tzinfo` field of this type. If the datetime does not have a</span>
-<span class="doccomment">/// tzinfo then the Python interpreter is free to allocate it as a [PyDateTime_BaseDateTime].</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyDateTime_DateTime</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
@@ -735,6 +737,10 @@
     <span class="kw">pub</span> <span class="ident">data</span>: [<span class="ident">c_uchar</span>; <span class="ident">_PyDateTime_DATETIME_DATASIZE</span>],
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">fold</span>: <span class="ident">c_uchar</span>,
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Care should be taken when reading this field. If the time does not have a</span>
+    <span class="doccomment">/// tzinfo then CPython may allocate as a `_PyDateTime_BaseDateTime` without this field.</span>
     <span class="kw">pub</span> <span class="ident">tzinfo</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 }
 
@@ -988,7 +994,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyDateTime_DATE_GET_SECOND</span>(<span class="ident">o</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDateTime_DATE_GET_MICROSECOND&quot;</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyDateTime_DATE_GET_MICROSECOND</span>(<span class="ident">o</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="comment">// skipped PyDateTime_DATE_GET_FOLD (not in PyPy)</span>
+    <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDateTime_GET_FOLD&quot;</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyDateTime_DATE_GET_FOLD</span>(<span class="ident">o</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
     <span class="comment">// skipped PyDateTime_DATE_GET_TZINFO (not in PyPy)</span>
 
     <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDateTime_TIME_GET_HOUR&quot;</span>]</span>
@@ -999,7 +1006,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyDateTime_TIME_GET_SECOND</span>(<span class="ident">o</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
     <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDateTime_TIME_GET_MICROSECOND&quot;</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyDateTime_TIME_GET_MICROSECOND</span>(<span class="ident">o</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="comment">// skipped PyDateTime_TIME_GET_FOLD (not in PyPy)</span>
+    <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDateTime_TIME_GET_FOLD&quot;</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyDateTime_TIME_GET_FOLD</span>(<span class="ident">o</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">c_int</span>;
     <span class="comment">// skipped PyDateTime_TIME_GET_TZINFO (not in PyPy)</span>
 
     <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPyDateTime_DELTA_GET_DAYS&quot;</span>]</span>
@@ -1061,7 +1069,6 @@
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">Date_FromTimestamp</span>:
         <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">cls</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>, <span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">DateTime_FromDateAndTimeAndFold</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
         <span class="ident">year</span>: <span class="ident">c_int</span>,
         <span class="ident">month</span>: <span class="ident">c_int</span>,
@@ -1074,7 +1081,6 @@
         <span class="ident">fold</span>: <span class="ident">c_int</span>,
         <span class="ident">cls</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">Time_FromTimeAndFold</span>: <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
         <span class="ident">hour</span>: <span class="ident">c_int</span>,
         <span class="ident">minute</span>: <span class="ident">c_int</span>,
@@ -1232,5 +1238,5 @@
 <span class="kw">static</span> <span class="ident">PyDateTimeAPI_impl</span>: <span class="ident">PyDateTimeAPISingleton</span> <span class="op">=</span>
     <span class="ident">PyDateTimeAPISingleton</span>(<span class="ident">UnsafeCell::new</span>(<span class="ident">ptr::null_mut</span>()));
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

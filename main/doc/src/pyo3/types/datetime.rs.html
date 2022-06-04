@@ -594,14 +594,6 @@
 <span id="587">587</span>
 <span id="588">588</span>
 <span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Safe Rust wrappers for types defined in the Python `datetime` library</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! For more details about these types, see the [Python</span>
@@ -611,19 +603,17 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
     <span class="self">self</span>, <span class="ident">PyDateTime_CAPI</span>, <span class="ident">PyDateTime_FromTimestamp</span>, <span class="ident">PyDateTime_IMPORT</span>, <span class="ident">PyDate_FromTimestamp</span>,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="ident">PyDateTime_DATE_GET_FOLD</span>, <span class="ident">PyDateTime_TIME_GET_FOLD</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
-    <span class="ident">PyDateTime_DATE_GET_HOUR</span>, <span class="ident">PyDateTime_DATE_GET_MICROSECOND</span>, <span class="ident">PyDateTime_DATE_GET_MINUTE</span>,
-    <span class="ident">PyDateTime_DATE_GET_SECOND</span>,
+    <span class="ident">PyDateTime_DATE_GET_FOLD</span>, <span class="ident">PyDateTime_DATE_GET_HOUR</span>, <span class="ident">PyDateTime_DATE_GET_MICROSECOND</span>,
+    <span class="ident">PyDateTime_DATE_GET_MINUTE</span>, <span class="ident">PyDateTime_DATE_GET_SECOND</span>,
 };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
     <span class="ident">PyDateTime_DELTA_GET_DAYS</span>, <span class="ident">PyDateTime_DELTA_GET_MICROSECONDS</span>, <span class="ident">PyDateTime_DELTA_GET_SECONDS</span>,
 };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{<span class="ident">PyDateTime_GET_DAY</span>, <span class="ident">PyDateTime_GET_MONTH</span>, <span class="ident">PyDateTime_GET_YEAR</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ffi</span>::{
-    <span class="ident">PyDateTime_TIME_GET_HOUR</span>, <span class="ident">PyDateTime_TIME_GET_MICROSECOND</span>, <span class="ident">PyDateTime_TIME_GET_MINUTE</span>,
-    <span class="ident">PyDateTime_TIME_GET_SECOND</span>,
+    <span class="ident">PyDateTime_TIME_GET_FOLD</span>, <span class="ident">PyDateTime_TIME_GET_HOUR</span>, <span class="ident">PyDateTime_TIME_GET_MICROSECOND</span>,
+    <span class="ident">PyDateTime_TIME_GET_MINUTE</span>, <span class="ident">PyDateTime_TIME_GET_SECOND</span>,
 };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::instance::PyNativeType</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyTuple</span>;
@@ -760,7 +750,6 @@
     <span class="doccomment">/// This typically occurs at the end of daylight savings time. Only valid if the</span>
     <span class="doccomment">/// represented time is ambiguous.</span>
     <span class="doccomment">/// See [PEP 495](https://www.python.org/dev/peps/pep-0495/) for more detail.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">fn</span> <span class="ident">get_fold</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 }
 
@@ -877,7 +866,6 @@
     <span class="doccomment">/// This typically occurs at the end of daylight savings time. Only valid if the</span>
     <span class="doccomment">/// represented time is ambiguous.</span>
     <span class="doccomment">/// See [PEP 495](https://www.python.org/dev/peps/pep-0495/) for more detail.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_fold</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>(
         <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -967,7 +955,6 @@
         <span class="kw">unsafe</span> { <span class="ident">PyDateTime_DATE_GET_MICROSECOND</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) <span class="kw">as</span> <span class="ident">u32</span> }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">fn</span> <span class="ident">get_fold</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">unsafe</span> { <span class="ident">PyDateTime_DATE_GET_FOLD</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) <span class="op">&gt;</span> <span class="number">0</span> }
     }
@@ -1021,7 +1008,6 @@
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="doccomment">/// Alternate constructor that takes a `fold` argument. See [`PyDateTime::new_with_fold`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_fold</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>(
         <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
@@ -1065,7 +1051,6 @@
         <span class="kw">unsafe</span> { <span class="ident">PyDateTime_TIME_GET_MICROSECOND</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) <span class="kw">as</span> <span class="ident">u32</span> }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">fn</span> <span class="ident">get_fold</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">unsafe</span> { <span class="ident">PyDateTime_TIME_GET_FOLD</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> }
     }
@@ -1156,7 +1141,6 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_new_with_fold</span>() {
         <span class="ident"><span class="kw">crate</span>::Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
@@ -1200,5 +1184,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>
