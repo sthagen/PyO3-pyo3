@@ -196,8 +196,12 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A write-once cell mediated by the Python GIL.</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Python</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">types::PyString</span>, <span class="ident">Py</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::cell::UnsafeCell</span>;
 
 <span class="doccomment">/// A write-once cell similar to [`once_cell::OnceCell`](https://docs.rs/once_cell/1.4.0/once_cell/).</span>
@@ -349,22 +353,26 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">intern</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">text</span>: <span class="ident">expr</span>) =&gt; {{
-        <span class="kw">fn</span> <span class="ident">isolate_from_dyn_env</span>(<span class="ident">py</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::types::PyString</span> {
-            <span class="kw">static</span> <span class="ident">INTERNED</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::once_cell::GILOnceCell</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Py</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::types::PyString</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::once_cell::GILOnceCell::new</span>();
-
-            <span class="ident">INTERNED</span>
-                .<span class="ident">get_or_init</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::conversion::IntoPy::into_py</span>(
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::types::PyString::intern</span>(<span class="ident">py</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">text</span>),
-                        <span class="ident">py</span>,
-                    )
-                })
-                .<span class="ident">as_ref</span>(<span class="ident">py</span>)
-        }
-
-        <span class="ident">isolate_from_dyn_env</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>)
+        <span class="kw">static</span> <span class="ident">INTERNED</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::once_cell::Interned</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::once_cell::Interned::new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">text</span>);
+        <span class="ident">INTERNED</span>.<span class="ident">get</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">py</span>)
     }};
+}
+
+<span class="doccomment">/// Implementation detail for `intern!` macro.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Interned</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">GILOnceCell</span><span class="op">&lt;</span><span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyString</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span> <span class="ident">Interned</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Interned</span>(<span class="ident">value</span>, <span class="ident">GILOnceCell::new</span>())
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">PyString</span> {
+        <span class="self">self</span>.<span class="number">1</span>
+            .<span class="ident">get_or_init</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">PyString::intern</span>(<span class="ident">py</span>, <span class="self">self</span>.<span class="number">0</span>).<span class="ident">into</span>())
+            .<span class="ident">as_ref</span>(<span class="ident">py</span>)
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -388,5 +396,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

@@ -259,10 +259,10 @@
 <span id="252">252</span>
 <span id="253">253</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>), <span class="ident">not</span>(<span class="ident">Py_3_10</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_LIMITED_API</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyarena::PyArena</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyCompilerFlags</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">_mod</span>, <span class="ident">_node</span>};
 <span class="kw">use</span> <span class="ident">libc::FILE</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
@@ -314,7 +314,7 @@
         <span class="ident">flags</span>: <span class="kw-2">*mut</span> <span class="ident">PyCompilerFlags</span>,
     ) -&gt; <span class="ident">c_int</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyParser_ASTFromString</span>(
         <span class="ident">s</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
         <span class="ident">filename</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
@@ -322,7 +322,7 @@
         <span class="ident">flags</span>: <span class="kw-2">*mut</span> <span class="ident">PyCompilerFlags</span>,
         <span class="ident">arena</span>: <span class="kw-2">*mut</span> <span class="ident">PyArena</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">_mod</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyParser_ASTFromStringObject</span>(
         <span class="ident">s</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
         <span class="ident">filename</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
@@ -330,7 +330,7 @@
         <span class="ident">flags</span>: <span class="kw-2">*mut</span> <span class="ident">PyCompilerFlags</span>,
         <span class="ident">arena</span>: <span class="kw-2">*mut</span> <span class="ident">PyArena</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">_mod</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyParser_ASTFromFile</span>(
         <span class="ident">fp</span>: <span class="kw-2">*mut</span> <span class="ident">FILE</span>,
         <span class="ident">filename</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
@@ -342,7 +342,7 @@
         <span class="ident">errcode</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>,
         <span class="ident">arena</span>: <span class="kw-2">*mut</span> <span class="ident">PyArena</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">_mod</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyParser_ASTFromFileObject</span>(
         <span class="ident">fp</span>: <span class="kw-2">*mut</span> <span class="ident">FILE</span>,
         <span class="ident">filename</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
@@ -478,14 +478,14 @@
 <span class="comment">// skipped macro PyRun_AnyFileFlags</span>
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyParser_SimpleParseStringFlags</span>(
         <span class="ident">arg1</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
         <span class="ident">arg2</span>: <span class="ident">c_int</span>,
         <span class="ident">arg3</span>: <span class="ident">c_int</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">_node</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyParser_SimpleParseStringFlagsFilename</span>(
         <span class="ident">arg1</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
@@ -493,7 +493,7 @@
         <span class="ident">arg3</span>: <span class="ident">c_int</span>,
         <span class="ident">arg4</span>: <span class="ident">c_int</span>,
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">_node</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_10</span>)))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">Py_3_9</span>, <span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Python 3.9&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyParser_SimpleParseFileFlags</span>(
         <span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">FILE</span>,
@@ -512,5 +512,5 @@
     ) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

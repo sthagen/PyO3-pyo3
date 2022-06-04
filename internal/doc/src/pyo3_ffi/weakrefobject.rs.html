@@ -60,9 +60,11 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="macro">opaque_struct!</span>(<span class="ident">PyWeakReference</span>);
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
@@ -116,5 +118,5 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyWeakref_GetObject</span>(<span class="ident">_ref</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

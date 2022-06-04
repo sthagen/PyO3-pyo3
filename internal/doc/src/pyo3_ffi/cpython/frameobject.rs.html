@@ -93,56 +93,61 @@
 <span id="86">86</span>
 <span id="87">87</span>
 <span id="88">88</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::cpython::code</span>::{<span class="ident">PyCodeObject</span>, <span class="ident">CO_MAXBLOCKS</span>};
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::cpython::code::PyCodeObject</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pystate::PyThreadState</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_11</span>)))]</span>
+<span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
+<span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
-<span class="comment">// skipped _framestate</span>
-<span class="comment">// skipped PyFrameState</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_11</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PyFrameState</span> <span class="op">=</span> <span class="ident">c_char</span>;
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_11</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTryBlock</span> {
     <span class="kw">pub</span> <span class="ident">b_type</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">b_handler</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">b_level</span>: <span class="ident">c_int</span>,
 }
 
-<span class="doccomment">/// struct _frame as typedef&#39;ed in pyframe.h</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_11</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyFrameObject</span> {
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyVarObject</span>,
-    <span class="kw">pub</span> <span class="ident">f_back</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>,       <span class="comment">/* previous frame, or NULL */</span>
-    <span class="kw">pub</span> <span class="ident">f_code</span>: <span class="kw-2">*mut</span> <span class="ident">PyCodeObject</span>,        <span class="comment">/* code segment */</span>
-    <span class="kw">pub</span> <span class="ident">f_builtins</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,        <span class="comment">/* builtin symbol table (PyDictObject) */</span>
-    <span class="kw">pub</span> <span class="ident">f_globals</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,         <span class="comment">/* global symbol table (PyDictObject) */</span>
-    <span class="kw">pub</span> <span class="ident">f_locals</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,          <span class="comment">/* local symbol table (any mapping) */</span>
-    <span class="kw">pub</span> <span class="ident">f_valuestack</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>, <span class="comment">/* points after the last local */</span>
-    <span class="comment">/* Next free slot in f_valuestack.  Frame creation sets to f_valuestack.
-    Frame evaluation usually NULLs it, but a frame that yields sets it
-    to the current stack top. */</span>
-    <span class="kw">pub</span> <span class="ident">f_stacktop</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
-    <span class="kw">pub</span> <span class="ident">f_trace</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>, <span class="comment">/* Trace function */</span>
+    <span class="kw">pub</span> <span class="ident">f_back</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>,
+    <span class="kw">pub</span> <span class="ident">f_code</span>: <span class="kw-2">*mut</span> <span class="ident">PyCodeObject</span>,
+    <span class="kw">pub</span> <span class="ident">f_builtins</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">f_globals</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">f_locals</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">f_valuestack</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 
-    <span class="kw">pub</span> <span class="ident">f_exc_type</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
-    <span class="kw">pub</span> <span class="ident">f_exc_value</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
-    <span class="kw">pub</span> <span class="ident">f_exc_traceback</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">f_stacktop</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">f_trace</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">f_stackdepth</span>: <span class="ident">c_int</span>,
+    <span class="kw">pub</span> <span class="ident">f_trace_lines</span>: <span class="ident">c_char</span>,
+    <span class="kw">pub</span> <span class="ident">f_trace_opcodes</span>: <span class="ident">c_char</span>,
+
     <span class="kw">pub</span> <span class="ident">f_gen</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 
-    <span class="kw">pub</span> <span class="ident">f_lasti</span>: <span class="ident">c_int</span>, <span class="comment">/* Last instruction if called */</span>
-    <span class="comment">/* Call PyFrame_GetLineNumber() instead of reading this field
-     directly.  As of 2.3 f_lineno is only valid when tracing is
-     active (i.e. when f_trace is set).  At other times we use
-     PyCode_Addr2Line to calculate the line from the current
-    bytecode index. */</span>
-    <span class="kw">pub</span> <span class="ident">f_lineno</span>: <span class="ident">c_int</span>,                          <span class="comment">/* Current line number */</span>
-    <span class="kw">pub</span> <span class="ident">f_iblock</span>: <span class="ident">c_int</span>,                          <span class="comment">/* index in f_blockstack */</span>
-    <span class="kw">pub</span> <span class="ident">f_executing</span>: <span class="ident">c_char</span>,                      <span class="comment">/* whether the frame is still executing */</span>
-    <span class="kw">pub</span> <span class="ident">f_blockstack</span>: [<span class="ident">PyTryBlock</span>; <span class="ident">CO_MAXBLOCKS</span>], <span class="comment">/* for try and loop blocks */</span>
-    <span class="kw">pub</span> <span class="ident">f_localsplus</span>: [<span class="kw-2">*mut</span> <span class="ident">PyObject</span>; <span class="number">1</span>],         <span class="comment">/* locals+stack, dynamically sized */</span>
+    <span class="kw">pub</span> <span class="ident">f_lasti</span>: <span class="ident">c_int</span>,
+    <span class="kw">pub</span> <span class="ident">f_lineno</span>: <span class="ident">c_int</span>,
+    <span class="kw">pub</span> <span class="ident">f_iblock</span>: <span class="ident">c_int</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">f_executing</span>: <span class="ident">c_char</span>,
+    <span class="kw">pub</span> <span class="ident">f_state</span>: <span class="ident">PyFrameState</span>,
+    <span class="kw">pub</span> <span class="ident">f_blockstack</span>: [<span class="ident">PyTryBlock</span>; <span class="ident"><span class="kw">crate</span>::CO_MAXBLOCKS</span>],
+    <span class="kw">pub</span> <span class="ident">f_localsplus</span>: [<span class="kw-2">*mut</span> <span class="ident">PyObject</span>; <span class="number">1</span>],
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_11</span>))]</span>
+<span class="macro">opaque_struct!</span>(<span class="ident">PyFrameObject</span>);
 
 <span class="comment">// skipped _PyFrame_IsRunnable</span>
 <span class="comment">// skipped _PyFrame_IsExecuting</span>
@@ -169,6 +174,7 @@
     <span class="comment">// skipped _PyFrame_New_NoTrack</span>
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_BlockSetup</span>(<span class="ident">f</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>, <span class="ident">_type</span>: <span class="ident">c_int</span>, <span class="ident">handler</span>: <span class="ident">c_int</span>, <span class="ident">level</span>: <span class="ident">c_int</span>);
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_11</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_BlockPop</span>(<span class="ident">f</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyTryBlock</span>;
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_LocalsToFast</span>(<span class="ident">f</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>, <span class="ident">clear</span>: <span class="ident">c_int</span>);
@@ -182,5 +188,5 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_ClearFreeList</span>() -&gt; <span class="ident">c_int</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>

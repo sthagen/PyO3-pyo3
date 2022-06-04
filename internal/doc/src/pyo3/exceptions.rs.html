@@ -1003,6 +1003,22 @@
 <span id="996">996</span>
 <span id="997">997</span>
 <span id="998">998</span>
+<span id="999">999</span>
+<span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Exception types defined by Python.</span>
@@ -1400,12 +1416,15 @@ Python::with_gil(|py| {
     <span class="ident">PyExc_FloatingPointError</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;FloatingPointError&quot;</span>)
 );
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="macro">impl_native_exception!</span>(
     <span class="ident">PyOSError</span>,
     <span class="ident">PyExc_OSError</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;OSError&quot;</span>),
     <span class="ident">ffi::PyOSErrorObject</span>
 );
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+<span class="macro">impl_native_exception!</span>(<span class="ident">PyOSError</span>, <span class="ident">PyExc_OSError</span>, <span class="macro">native_doc!</span>(<span class="string">&quot;OSError&quot;</span>));
 <span class="macro">impl_native_exception!</span>(<span class="ident">PyImportError</span>, <span class="ident">PyExc_ImportError</span>, <span class="macro">native_doc!</span>(<span class="string">&quot;ImportError&quot;</span>));
 
 <span class="macro">impl_native_exception!</span>(
@@ -1443,35 +1462,48 @@ Python::with_gil(|py| {
     <span class="ident">PyExc_NotImplementedError</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;NotImplementedError&quot;</span>)
 );
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="macro">impl_native_exception!</span>(
     <span class="ident">PySyntaxError</span>,
     <span class="ident">PyExc_SyntaxError</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;SyntaxError&quot;</span>),
     <span class="ident">ffi::PySyntaxErrorObject</span>
 );
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+<span class="macro">impl_native_exception!</span>(<span class="ident">PySyntaxError</span>, <span class="ident">PyExc_SyntaxError</span>, <span class="macro">native_doc!</span>(<span class="string">&quot;SyntaxError&quot;</span>));
 <span class="macro">impl_native_exception!</span>(
     <span class="ident">PyReferenceError</span>,
     <span class="ident">PyExc_ReferenceError</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;ReferenceError&quot;</span>)
 );
 <span class="macro">impl_native_exception!</span>(<span class="ident">PySystemError</span>, <span class="ident">PyExc_SystemError</span>, <span class="macro">native_doc!</span>(<span class="string">&quot;SystemError&quot;</span>));
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="macro">impl_native_exception!</span>(
     <span class="ident">PySystemExit</span>,
     <span class="ident">PyExc_SystemExit</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;SystemExit&quot;</span>),
     <span class="ident">ffi::PySystemExitObject</span>
 );
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+<span class="macro">impl_native_exception!</span>(<span class="ident">PySystemExit</span>, <span class="ident">PyExc_SystemExit</span>, <span class="macro">native_doc!</span>(<span class="string">&quot;SystemExit&quot;</span>));
 <span class="macro">impl_native_exception!</span>(<span class="ident">PyTypeError</span>, <span class="ident">PyExc_TypeError</span>, <span class="macro">native_doc!</span>(<span class="string">&quot;TypeError&quot;</span>));
 <span class="macro">impl_native_exception!</span>(
     <span class="ident">PyUnboundLocalError</span>,
     <span class="ident">PyExc_UnboundLocalError</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;UnboundLocalError&quot;</span>)
 );
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="macro">impl_native_exception!</span>(
     <span class="ident">PyUnicodeError</span>,
     <span class="ident">PyExc_UnicodeError</span>,
     <span class="macro">native_doc!</span>(<span class="string">&quot;UnicodeError&quot;</span>),
     <span class="ident">ffi::PyUnicodeErrorObject</span>
+);
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+<span class="macro">impl_native_exception!</span>(
+    <span class="ident">PyUnicodeError</span>,
+    <span class="ident">PyExc_UnicodeError</span>,
+    <span class="macro">native_doc!</span>(<span class="string">&quot;UnicodeError&quot;</span>)
 );
 <span class="comment">// these three errors need arguments, so they&#39;re too annoying to write tests for using macros...</span>
 <span class="macro">impl_native_exception!</span>(
@@ -2002,5 +2034,5 @@ Python::with_gil(|py| {
     <span class="macro">test_exception!</span>(<span class="ident">PyWindowsError</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
 </body></html>
