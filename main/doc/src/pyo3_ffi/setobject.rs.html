@@ -143,6 +143,17 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">Py_LIMITED_API</span>, <span class="ident">PyPy</span>)))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyport::Py_hash_t</span>;
@@ -174,9 +185,20 @@
     <span class="kw">pub</span> <span class="ident">weakreflist</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 }
 
-<span class="comment">// skipped PySet_GET_SIZE</span>
+<span class="comment">// skipped</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>), <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PySet_GET_SIZE</span>(<span class="ident">so</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="ident">Py_ssize_t</span> {
+    <span class="macro">debug_assert_eq!</span>(<span class="ident">PyAnySet_Check</span>(<span class="ident">so</span>), <span class="number">1</span>);
+    <span class="kw">let</span> <span class="ident">so</span> <span class="op">=</span> <span class="ident">so</span>.<span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">PySetObject</span><span class="op">&gt;</span>();
+    (<span class="kw-2">*</span><span class="ident">so</span>).<span class="ident">used</span>
+}
 
-<span class="comment">// skipped _PySet_Dummy</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">windows</span>, <span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;pythonXY&quot;</span>))]</span>
+<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">_PySet_Dummy</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>;
+}
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>))]</span>
@@ -282,5 +304,5 @@
         <span class="op">|</span><span class="op">|</span> <span class="ident">PyType_IsSubtype</span>(<span class="ident">Py_TYPE</span>(<span class="ident">ob</span>), <span class="macro">addr_of_mut_shim!</span>(<span class="ident">PySet_Type</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">c_int</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4e725bad7 2022-06-04)" ></div>
 </body></html>
