@@ -87,27 +87,17 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyFrameObject</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Py_ssize_t</span>, <span class="ident">_PyErr_StackItem</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::_PyErr_StackItem</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyGenObject</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;Py_TRACE_REFS&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">_ob_next</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">py_sys_config</span> <span class="op">=</span> <span class="string">&quot;Py_TRACE_REFS&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">_ob_prev</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
-    <span class="kw">pub</span> <span class="ident">ob_refcnt</span>: <span class="ident">Py_ssize_t</span>,
-    <span class="kw">pub</span> <span class="ident">ob_type</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">gi_frame</span>: <span class="kw-2">*mut</span> <span class="ident">PyFrameObject</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="ident">gi_running</span>: <span class="ident">c_int</span>,
@@ -180,5 +170,5 @@
 
 <span class="comment">// skipped _PyAsyncGenValueWrapperNew</span>
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4e725bad7 2022-06-04)" ></div>
 </body></html>

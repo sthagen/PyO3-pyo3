@@ -96,6 +96,8 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::cpython::code::PyCodeObject</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pystate::PyThreadState</span>;
@@ -130,6 +132,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="ident">f_stacktop</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">f_trace</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
     <span class="kw">pub</span> <span class="ident">f_stackdepth</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">f_trace_lines</span>: <span class="ident">c_char</span>,
     <span class="kw">pub</span> <span class="ident">f_trace_opcodes</span>: <span class="ident">c_char</span>,
@@ -141,6 +144,7 @@
     <span class="kw">pub</span> <span class="ident">f_iblock</span>: <span class="ident">c_int</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">Py_3_10</span>))]</span>
     <span class="kw">pub</span> <span class="ident">f_executing</span>: <span class="ident">c_char</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_10</span>)]</span>
     <span class="kw">pub</span> <span class="ident">f_state</span>: <span class="ident">PyFrameState</span>,
     <span class="kw">pub</span> <span class="ident">f_blockstack</span>: [<span class="ident">PyTryBlock</span>; <span class="ident"><span class="kw">crate</span>::CO_MAXBLOCKS</span>],
     <span class="kw">pub</span> <span class="ident">f_localsplus</span>: [<span class="kw-2">*mut</span> <span class="ident">PyObject</span>; <span class="number">1</span>],
@@ -188,5 +192,5 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyFrame_ClearFreeList</span>() -&gt; <span class="ident">c_int</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4e725bad7 2022-06-04)" ></div>
 </body></html>

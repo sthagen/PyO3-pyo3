@@ -129,6 +129,54 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PyObject</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Py_ssize_t</span>;
@@ -155,7 +203,14 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySyntaxErrorObject</span> {
-    <span class="kw">pub</span> <span class="ident">exception_base</span>: <span class="ident">PyBaseExceptionObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">dict</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">traceback</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">context</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">cause</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">suppress_context</span>: <span class="ident">char</span>,
+
     <span class="kw">pub</span> <span class="ident">msg</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">filename</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">lineno</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
@@ -172,7 +227,14 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyImportErrorObject</span> {
-    <span class="kw">pub</span> <span class="ident">exception_base</span>: <span class="ident">PyBaseExceptionObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">dict</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">traceback</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">context</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">cause</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">suppress_context</span>: <span class="ident">char</span>,
+
     <span class="kw">pub</span> <span class="ident">msg</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">path</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
@@ -182,7 +244,14 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyUnicodeErrorObject</span> {
-    <span class="kw">pub</span> <span class="ident">exception_base</span>: <span class="ident">PyBaseExceptionObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">dict</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">traceback</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">context</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">cause</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">suppress_context</span>: <span class="ident">char</span>,
+
     <span class="kw">pub</span> <span class="ident">encoding</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">object</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">Py_ssize_t</span>,
@@ -194,7 +263,14 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PySystemExitObject</span> {
-    <span class="kw">pub</span> <span class="ident">exception_base</span>: <span class="ident">PyBaseExceptionObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">dict</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">traceback</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">context</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">cause</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">suppress_context</span>: <span class="ident">char</span>,
+
     <span class="kw">pub</span> <span class="ident">code</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 }
 
@@ -202,7 +278,14 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyOSErrorObject</span> {
-    <span class="kw">pub</span> <span class="ident">exception_base</span>: <span class="ident">PyBaseExceptionObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">dict</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">traceback</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">context</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">cause</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="kw">pub</span> <span class="ident">suppress_context</span>: <span class="ident">char</span>,
+
     <span class="kw">pub</span> <span class="ident">myerrno</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">strerror</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
     <span class="kw">pub</span> <span class="ident">filename</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
@@ -215,7 +298,20 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyStopIterationObject</span> {
-    <span class="kw">pub</span> <span class="ident">exception_base</span>: <span class="ident">PyBaseExceptionObject</span>,
+    <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">dict</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">traceback</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">context</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">cause</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">suppress_context</span>: <span class="ident">char</span>,
+
     <span class="kw">pub</span> <span class="ident">value</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
 }
 
@@ -254,5 +350,5 @@
 <span class="comment">// skipped _Py_FatalErrorFormat</span>
 <span class="comment">// skipped Py_FatalError</span>
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4e725bad7 2022-06-04)" ></div>
 </body></html>

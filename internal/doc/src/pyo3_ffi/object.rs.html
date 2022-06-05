@@ -561,6 +561,8 @@
 <span id="554">554</span>
 <span id="555">555</span>
 <span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
 </pre><pre class="rust"><code><span class="comment">// FFI note: this file changed a lot between 3.6 and 3.10.</span>
 <span class="comment">// Some missing definitions may not be marked &quot;skipped&quot;.</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyport</span>::{<span class="ident">Py_hash_t</span>, <span class="ident">Py_ssize_t</span>};
@@ -934,10 +936,12 @@
 
 <span class="kw">const</span> <span class="ident">Py_TPFLAGS_HAVE_STACKLESS_EXTENSION</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0</span>;
 
-<span class="comment">// skipped Py_TPFLAGS_METHOD_DESCRIPTOR</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_TPFLAGS_METHOD_DESCRIPTOR</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">17</span>;
 
-<span class="doccomment">/// Objects support type attribute cache</span>
+<span class="doccomment">/// This flag does nothing in Python 3.10+</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_TPFLAGS_HAVE_VERSION_TAG</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
+
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_TPFLAGS_VALID_VERSION_TAG</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">19</span>;
 
 <span class="comment">/* Type is abstract and cannot be instantiated */</span>
@@ -1118,5 +1122,5 @@
     (<span class="ident">Py_TYPE</span>(<span class="ident">op</span>) <span class="op">==</span> <span class="macro">addr_of_mut_shim!</span>(<span class="ident">PyType_Type</span>)) <span class="kw">as</span> <span class="ident">c_int</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4e725bad7 2022-06-04)" ></div>
 </body></html>

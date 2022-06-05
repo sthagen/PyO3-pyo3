@@ -97,6 +97,15 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::methodobject::PyMethodDef</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyport::Py_ssize_t</span>;
@@ -165,10 +174,19 @@
 };
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyModuleDef_Slot</span> {
     <span class="kw">pub</span> <span class="ident">slot</span>: <span class="ident">c_int</span>,
     <span class="kw">pub</span> <span class="ident">value</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PyModuleDef_Slot</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">PyModuleDef_Slot</span> {
+        <span class="ident">PyModuleDef_Slot</span> {
+            <span class="ident">slot</span>: <span class="number">0</span>,
+            <span class="ident">value</span>: <span class="ident">std::ptr::null_mut</span>(),
+        }
+    }
 }
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">Py_mod_create</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
@@ -190,5 +208,5 @@
     <span class="kw">pub</span> <span class="ident">m_free</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">freefunc</span><span class="op">&gt;</span>,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4e725bad7 2022-06-04)" ></div>
 </body></html>

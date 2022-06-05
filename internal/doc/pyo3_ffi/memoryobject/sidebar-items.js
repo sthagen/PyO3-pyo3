@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["PyMemoryView_Check",""],["PyMemoryView_FromMemory",""],["PyMemoryView_FromObject",""],["PyMemoryView_GetContiguous",""]],"static":[["PyMemoryView_Type",""]]});
+initSidebarItems({"fn":[["PyMemoryView_Check",""],["PyMemoryView_FromMemory",""],["PyMemoryView_FromObject",""],["PyMemoryView_GetContiguous",""]],"static":[["PyMemoryView_Type",""],["_PyManagedBuffer_Type",""]]});

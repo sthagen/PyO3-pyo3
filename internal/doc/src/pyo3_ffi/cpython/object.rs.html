@@ -396,6 +396,10 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">PyObject</span>, <span class="ident">Py_ssize_t</span>};
 <span class="kw">use</span> <span class="ident">std::mem</span>;
@@ -612,15 +616,15 @@
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTypeObject</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>)))]</span>
     <span class="kw">pub</span> <span class="ident">ob_refcnt</span>: <span class="ident">Py_ssize_t</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>)))]</span>
     <span class="kw">pub</span> <span class="ident">ob_pypy_link</span>: <span class="ident">Py_ssize_t</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>)))]</span>
     <span class="kw">pub</span> <span class="ident">ob_type</span>: <span class="kw-2">*mut</span> <span class="ident">PyTypeObject</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>)))]</span>
     <span class="kw">pub</span> <span class="ident">ob_size</span>: <span class="ident">Py_ssize_t</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>))))]</span>
     <span class="kw">pub</span> <span class="ident">ob_base</span>: <span class="ident">object::PyVarObject</span>,
     <span class="kw">pub</span> <span class="ident">tp_name</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
     <span class="kw">pub</span> <span class="ident">tp_basicsize</span>: <span class="ident">Py_ssize_t</span>,
@@ -674,7 +678,7 @@
     <span class="kw">pub</span> <span class="ident">tp_finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">object::destructor</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_8</span>)]</span>
     <span class="kw">pub</span> <span class="ident">tp_vectorcall</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::vectorcallfunc</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">all</span>(<span class="ident">PyPy</span>, <span class="ident">Py_3_8</span>), <span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>), <span class="ident">Py_3_8</span>, <span class="ident">not</span>(<span class="ident">Py_3_9</span>))))]</span>
     <span class="kw">pub</span> <span class="ident">tp_print</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">printfunc</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">PyPy</span>)]</span>
     <span class="kw">pub</span> <span class="ident">tp_pypy_flags</span>: <span class="ident">std::os::raw::c_long</span>,
@@ -702,6 +706,7 @@
     <span class="kw">pub</span> <span class="ident">ht_name</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
     <span class="kw">pub</span> <span class="ident">ht_slots</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
     <span class="kw">pub</span> <span class="ident">ht_qualname</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="kw">pub</span> <span class="ident">ht_cached_keys</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)]</span>
     <span class="kw">pub</span> <span class="ident">ht_module</span>: <span class="kw-2">*mut</span> <span class="ident">object::PyObject</span>,
@@ -762,8 +767,11 @@
 <span class="comment">// skipped Py_SETREF</span>
 <span class="comment">// skipped Py_XSETREF</span>
 
-<span class="comment">// skipped _PyNone_Type</span>
-<span class="comment">// skipped _PyNotImplemented_Type</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">windows</span>, <span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;pythonXY&quot;</span>))]</span>
+<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">_PyNone_Type</span>: <span class="ident">PyTypeObject</span>;
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">_PyNotImplemented_Type</span>: <span class="ident">PyTypeObject</span>;
+}
 
 <span class="comment">// skipped _Py_SwappedOp</span>
 
@@ -788,5 +796,5 @@
 <span class="comment">// skipped Py_TRASHCAN_SAFE_BEGIN</span>
 <span class="comment">// skipped Py_TRASHCAN_SAFE_END</span>
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (a6b8c6954 2022-06-03)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (4e725bad7 2022-06-04)" ></div>
 </body></html>

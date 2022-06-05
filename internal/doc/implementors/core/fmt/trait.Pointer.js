@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["pyo3_ffi"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Pointer.html\" title=\"trait core::fmt::Pointer\">Pointer</a> for <a class=\"union\" href=\"pyo3_ffi/methodobject/union.PyMethodDefPointer.html\" title=\"union pyo3_ffi::methodobject::PyMethodDefPointer\">PyMethodDefPointer</a>","synthetic":false,"types":["pyo3_ffi::methodobject::PyMethodDefPointer"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

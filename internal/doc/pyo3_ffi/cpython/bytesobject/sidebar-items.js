@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_PyBytes_Resize",""]]});
+initSidebarItems({"fn":[["_PyBytes_Resize",""]],"struct":[["PyBytesObject",""]]});
