@@ -881,6 +881,8 @@
 <span id="874">874</span>
 <span id="875">875</span>
 <span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Interaction with Python&#39;s global interpreter lock</span>
@@ -1612,6 +1614,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span> <span class="comment">// We are building wasm Python with pthreads disabled</span>
     <span class="kw">fn</span> <span class="ident">test_clone_without_gil</span>() {
         <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Py</span>, <span class="ident">PyAny</span>};
         <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync::Arc</span>, <span class="ident">thread</span>};
@@ -1682,6 +1685,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span> <span class="comment">// We are building wasm Python with pthreads disabled</span>
     <span class="kw">fn</span> <span class="ident">test_clone_in_other_thread</span>() {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Py</span>;
         <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync::Arc</span>, <span class="ident">thread</span>};
@@ -1758,5 +1762,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (50b00252a 2022-06-06)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (5435ed691 2022-06-07)" ></div>
 </body></html>

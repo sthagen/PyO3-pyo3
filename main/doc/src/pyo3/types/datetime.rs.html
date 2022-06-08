@@ -594,6 +594,8 @@
 <span id="587">587</span>
 <span id="588">588</span>
 <span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Safe Rust wrappers for types defined in the Python `datetime` library</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! For more details about these types, see the [Python</span>
@@ -1142,6 +1144,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">ignore</span>)]</span> <span class="comment">// DateTime import fails on wasm for mysterious reasons</span>
     <span class="kw">fn</span> <span class="ident">test_new_with_fold</span>() {
         <span class="ident"><span class="kw">crate</span>::Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyDateTime</span>, <span class="ident">PyTimeAccess</span>};
@@ -1156,6 +1159,7 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">ignore</span>)]</span> <span class="comment">// DateTime import fails on wasm for mysterious reasons</span>
     <span class="kw">fn</span> <span class="ident">test_get_tzinfo</span>() {
         <span class="ident"><span class="kw">crate</span>::Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion::ToPyObject</span>;
@@ -1184,5 +1188,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (50b00252a 2022-06-06)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (5435ed691 2022-06-07)" ></div>
 </body></html>
