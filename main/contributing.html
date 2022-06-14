@@ -220,6 +220,30 @@ See <a href="https://github.com/PyO3/pyo3/tree/main/xtask#readme">it's documenta
 <pre><code>cargo +nightly bench
 </code></pre>
 <p>Second, there is a Python-based benchmark contained in the <code>pytests</code> subdirectory. You can read more about it <a href="pytests">here</a>.</p>
+<h2 id="code-coverage"><a class="header" href="#code-coverage">Code coverage</a></h2>
+<p>You can view what code is and isn't covered by PyO3's tests. We aim to have 100% coverage - please check coverage and add tests if you notice a lack of coverage!</p>
+<ul>
+<li>First, generate a <code>lcov.info</code> file with </li>
+</ul>
+<pre><code class="language-shell">cargo xtask coverage
+</code></pre>
+<p>You can install an IDE plugin to view the coverage. For example, if you use VSCode:</p>
+<ul>
+<li>Add the <a href="https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters">coverage-gutters</a> plugin.</li>
+<li>Add these settings to VSCode's <code>settings.json</code>:</li>
+</ul>
+<pre><code class="language-json">{    
+    &quot;coverage-gutters.coverageFileNames&quot;: [
+        &quot;lcov.info&quot;,
+        &quot;cov.xml&quot;,
+        &quot;coverage.xml&quot;,
+    ],
+    &quot;coverage-gutters.showLineCoverage&quot;: true
+}
+</code></pre>
+<ul>
+<li>You should now be able to see green highlights for code that is tested, and red highlights for code that is not tested.</li>
+</ul>
 <h2 id="sponsor-this-project"><a class="header" href="#sponsor-this-project">Sponsor this project</a></h2>
 <p>At the moment there is no official organisation that accepts sponsorship on PyO3's behalf. If you're seeking to provide significant funding to the PyO3 ecosystem, please reach out to us on <a href="https://github.com/PyO3/pyo3/issues/new">GitHub</a> or <a href="https://gitter.im/PyO3/Lobby">Gitter</a> and we can discuss.</p>
 <p>In the meanwhile, some of our maintainers have personal GitHub sponsorship pages and would be grateful for your support:</p>
