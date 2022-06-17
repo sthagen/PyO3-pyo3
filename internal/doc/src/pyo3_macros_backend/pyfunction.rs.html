@@ -1009,7 +1009,6 @@
         <span class="ident">doc</span>,
         <span class="ident">deprecations</span>: <span class="ident">options</span>.<span class="ident">deprecations</span>,
         <span class="ident">text_signature</span>: <span class="ident">options</span>.<span class="ident">text_signature</span>,
-        <span class="ident">krate</span>: <span class="ident">krate</span>.<span class="ident">clone</span>(),
         <span class="ident">unsafety</span>: <span class="ident">func</span>.<span class="ident">sig</span>.<span class="ident">unsafety</span>,
     };
 
@@ -1021,7 +1020,6 @@
     <span class="kw">let</span> <span class="ident">methoddef</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">get_methoddef</span>(<span class="ident">wrapper_ident</span>);
 
     <span class="kw">let</span> <span class="ident">wrapped_pyfunction</span> <span class="op">=</span> <span class="macro">quote!</span> {
-        #<span class="ident">wrapper</span>
 
         <span class="comment">// Create a module with the same name as the `#[pyfunction]` - this way `use &lt;the function&gt;`</span>
         <span class="comment">// will actually bring both the module and the function into scope.</span>
@@ -1040,6 +1038,8 @@
             <span class="kw">impl</span> #<span class="ident">name::MakeDef</span> {
                 <span class="kw">const</span> <span class="ident">DEF</span>: #<span class="ident">krate::impl_::pyfunction::PyMethodDef</span> <span class="op">=</span> #<span class="ident">methoddef</span>;
             }
+
+            #<span class="ident">wrapper</span>
         };
     };
     <span class="prelude-val">Ok</span>(<span class="ident">wrapped_pyfunction</span>)
@@ -1150,5 +1150,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (ca122c7eb 2022-06-13)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (cacc75c82 2022-06-16)" ></div>
 </body></html>

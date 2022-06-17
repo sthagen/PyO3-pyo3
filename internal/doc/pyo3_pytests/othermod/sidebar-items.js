@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["__pyfunction_double",""],["double",""],["othermod",""]],"mod":[["double",""],["othermod",""]],"struct":[["ModClass",""]]});
+initSidebarItems({"fn":[["double",""],["othermod",""]],"mod":[["double",""],["othermod",""]],"struct":[["ModClass",""]]});

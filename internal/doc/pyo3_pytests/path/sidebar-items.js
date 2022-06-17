@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["__pyfunction_make_path",""],["__pyfunction_take_pathbuf",""],["make_path",""],["path",""],["take_pathbuf",""]],"mod":[["make_path",""],["path",""],["take_pathbuf",""]]});
+initSidebarItems({"fn":[["make_path",""],["path",""],["take_pathbuf",""]],"mod":[["make_path",""],["path",""],["take_pathbuf",""]]});

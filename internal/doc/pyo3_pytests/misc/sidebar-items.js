@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["__pyfunction_issue_219",""],["issue_219",""],["misc",""]],"mod":[["issue_219",""],["misc",""]]});
+initSidebarItems({"fn":[["issue_219",""],["misc",""]],"mod":[["issue_219",""],["misc",""]]});
