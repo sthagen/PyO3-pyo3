@@ -908,12 +908,12 @@
 
             <span class="comment">// iter method</span>
             <span class="kw">for</span> <span class="ident">el</span> <span class="kw">in</span> <span class="ident">set</span>.<span class="ident">iter</span>() {
-                <span class="macro">assert_eq!</span>(<span class="number">1i32</span>, <span class="ident">el</span>.<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+                <span class="macro">assert_eq!</span>(<span class="number">1i32</span>, <span class="ident">el</span>.<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
             }
 
             <span class="comment">// intoiterator iteration</span>
             <span class="kw">for</span> <span class="ident">el</span> <span class="kw">in</span> <span class="ident">set</span> {
-                <span class="macro">assert_eq!</span>(<span class="number">1i32</span>, <span class="ident">el</span>.<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+                <span class="macro">assert_eq!</span>(<span class="number">1i32</span>, <span class="ident">el</span>.<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
             }
         });
     }
@@ -994,5 +994,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (cacc75c82 2022-06-16)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
 </body></html>

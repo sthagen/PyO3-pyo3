@@ -7498,6 +7498,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Fix FFI definitions <code>PyTypeObject</code>. <code>PyHeapTypeObject</code>, and <code>PyCFunctionObject</code> having incorrect members on PyPy 3.9. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
 <li>Fix FFI definition <code>PyGetSetDef</code> to have <code>*const c_char</code> for <code>doc</code> member (not <code>*mut c_char</code>). <a href="https://github.com/PyO3/pyo3/pull/2439">#2439</a></li>
 <li>Fix <code>#[pyo3(from_py_with = &quot;...&quot;)]</code> being ignored for 1-element tuple structs and transparent structs. <a href="https://github.com/PyO3/pyo3/pull/2440">#2440</a></li>
+<li>Use <code>memoffset</code> for computing PyCell offsets <a href="https://github.com/PyO3/pyo3/pull/2450">#2450</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a href="https://github.com/pyo3/pyo3/compare/v0.16.4...v0.16.5">0.16.5</a> - 2022-05-15</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>

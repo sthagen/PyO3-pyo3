@@ -1450,13 +1450,13 @@
 
             <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>)));
 
-            <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">1_i32</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
             <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">2</span>, <span class="prelude-val">Some</span>(<span class="number">2</span>)));
 
-            <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">2_i32</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
             <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)));
 
-            <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">3_i32</span>, <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
             <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">size_hint</span>(), (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)));
         });
     }
@@ -1469,7 +1469,7 @@
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">tuple</span>.<span class="ident">len</span>());
 
             <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">item</span>) <span class="kw">in</span> <span class="ident">tuple</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                <span class="macro">assert_eq!</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">item</span>.<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+                <span class="macro">assert_eq!</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">item</span>.<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
             }
         });
     }
@@ -1483,9 +1483,9 @@
 
             <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">as_slice</span>();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">slice</span>.<span class="ident">len</span>());
-            <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">slice</span>[<span class="number">0</span>].<span class="ident">extract</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">slice</span>[<span class="number">1</span>].<span class="ident">extract</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">slice</span>[<span class="number">2</span>].<span class="ident">extract</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">1_i32</span>, <span class="ident">slice</span>[<span class="number">0</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">2_i32</span>, <span class="ident">slice</span>[<span class="number">1</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">3_i32</span>, <span class="ident">slice</span>[<span class="number">2</span>].<span class="ident">extract</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
         });
     }
 
@@ -1876,5 +1876,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (cacc75c82 2022-06-16)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
 </body></html>
