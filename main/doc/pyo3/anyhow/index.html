@@ -10,7 +10,7 @@
 <a href="https://docs.rs/anyhow/" title="A trait object based error system for easy idiomatic error handling in Rust applications.">anyhow</a>’s
 <a href="https://docs.rs/anyhow/latest/anyhow/struct.Error.html" title="Anyhows `Error` type, a wrapper around a dynamic error type"><code>Error</code></a>
 type to <a href="../prelude/struct.PyErr.html" title="PyErr"><code>PyErr</code></a>.</p>
-<p>Use of an error handling library like <a href="https://docs.rs/anyhow/1.0.57/anyhow/index.html" title="anyhow">anyhow</a> is common in application code and when you just
+<p>Use of an error handling library like <a href="https://docs.rs/anyhow/1.0.58/anyhow/index.html" title="anyhow">anyhow</a> is common in application code and when you just
 want error handling to be easy. If you are writing a library or you need more control over your
 errors you might want to design your own error type instead.</p>
 <p>This implementation always creates a Python <a href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="Built-in Exceptions — Python documentation"><code>RuntimeError</code></a>. You might find that you need to
@@ -49,7 +49,7 @@ The required anyhow version may vary based on the version of PyO3.</p>
     <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">error</span>);
 }</code></pre></div>
 <h2 id="example-using-anyhow-in-general"><a href="#example-using-anyhow-in-general">Example: Using <code>anyhow</code> in general</a></h2>
-<p>Note that you don’t need this feature to convert a <a href="../prelude/struct.PyErr.html" title="PyErr"><code>PyErr</code></a> into an <a href="https://docs.rs/anyhow/1.0.57/anyhow/struct.Error.html" title="anyhow::Error"><code>anyhow::Error</code></a>, because
+<p>Note that you don’t need this feature to convert a <a href="../prelude/struct.PyErr.html" title="PyErr"><code>PyErr</code></a> into an <a href="https://docs.rs/anyhow/1.0.58/anyhow/struct.Error.html" title="anyhow::Error"><code>anyhow::Error</code></a>, because
 it can already convert anything that implements <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html"><code>Error</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">pyo3::prelude</span>::<span class="kw-2">*</span>;
@@ -86,5 +86,5 @@ it can already convert anything that implements <a href="https://doc.rust-lang.o
     <span class="macro">println!</span>(<span class="string">&quot;The text is \&quot;{}\&quot;&quot;</span>, <span class="ident">text</span>);
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (bb8c2f411 2022-06-19)" ></div>
 </body></html>

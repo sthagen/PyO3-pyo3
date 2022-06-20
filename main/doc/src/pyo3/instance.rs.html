@@ -1124,15 +1124,45 @@
 <span id="1117">1117</span>
 <span id="1118">1118</span>
 <span id="1119">1119</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::boolean_struct::False</span>;
+<span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion::PyTryFrom</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="self">self</span>, <span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gil</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pycell</span>::{<span class="ident">PyBorrowError</span>, <span class="ident">PyBorrowMutError</span>, <span class="ident">PyCell</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyDict</span>, <span class="ident">PyString</span>, <span class="ident">PyTuple</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ffi</span>, <span class="ident">pyclass::MutablePyClass</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyClass</span>,
-    <span class="ident">PyClassInitializer</span>, <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
+    <span class="ident">ffi</span>, <span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyClass</span>, <span class="ident">PyClassInitializer</span>,
+    <span class="ident">PyRef</span>, <span class="ident">PyRefMut</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>,
 };
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
 <span class="kw">use</span> <span class="ident">std::mem</span>;
@@ -1558,7 +1588,7 @@
     <span class="doccomment">/// [`try_borrow_mut`](#method.try_borrow_mut).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">borrow_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="self">self</span>, <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>) -&gt; <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, <span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">MutablePyClass</span>,
+        <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Frozen</span> <span class="op">=</span> <span class="ident">False</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>).<span class="ident">borrow_mut</span>()
     }
@@ -1588,7 +1618,7 @@
         <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, <span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">PyBorrowMutError</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">MutablePyClass</span>,
+        <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Frozen</span> <span class="op">=</span> <span class="ident">False</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">as_ref</span>(<span class="ident">py</span>).<span class="ident">try_borrow_mut</span>()
     }
@@ -2034,7 +2064,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">MutablePyClass</span>,
+    <span class="ident">T</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Frozen</span> <span class="op">=</span> <span class="ident">False</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pyref</span>: <span class="ident">PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">unsafe</span> { <span class="ident">Py::from_borrowed_ptr</span>(<span class="ident">pyref</span>.<span class="ident">py</span>(), <span class="ident">pyref</span>.<span class="ident">as_ptr</span>()) }
@@ -2242,7 +2272,35 @@ a = A()
             <span class="prelude-val">Ok</span>(())
         })
     }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+    <span class="kw">mod</span> <span class="ident">using_macros</span> {
+        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+        <span class="attribute">#[<span class="ident"><span class="kw">crate</span>::pyclass</span>]</span>
+        <span class="attribute">#[<span class="ident">pyo3</span>(<span class="kw">crate</span> <span class="op">=</span> <span class="string">&quot;crate&quot;</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">SomeClass</span>(<span class="ident">i32</span>);
+
+        <span class="attribute">#[<span class="ident">test</span>]</span>
+        <span class="kw">fn</span> <span class="ident">instance_borrow_methods</span>() {
+            <span class="comment">// More detailed tests of the underlying semantics in pycell.rs</span>
+            <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">Py::new</span>(<span class="ident">py</span>, <span class="ident">SomeClass</span>(<span class="number">0</span>)).<span class="ident">unwrap</span>();
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">borrow</span>(<span class="ident">py</span>).<span class="number">0</span>, <span class="number">0</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">try_borrow</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>().<span class="number">0</span>, <span class="number">0</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">borrow_mut</span>(<span class="ident">py</span>).<span class="number">0</span>, <span class="number">0</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">try_borrow_mut</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>().<span class="number">0</span>, <span class="number">0</span>);
+
+                <span class="ident">instance</span>.<span class="ident">borrow_mut</span>(<span class="ident">py</span>).<span class="number">0</span> <span class="op">=</span> <span class="number">123</span>;
+
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">borrow</span>(<span class="ident">py</span>).<span class="number">0</span>, <span class="number">123</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">try_borrow</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>().<span class="number">0</span>, <span class="number">123</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">borrow_mut</span>(<span class="ident">py</span>).<span class="number">0</span>, <span class="number">123</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">instance</span>.<span class="ident">try_borrow_mut</span>(<span class="ident">py</span>).<span class="ident">unwrap</span>().<span class="number">0</span>, <span class="number">123</span>);
+            })
+        }
+    }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (bb8c2f411 2022-06-19)" ></div>
 </body></html>
