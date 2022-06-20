@@ -1007,15 +1007,6 @@
 <span id="1000">1000</span>
 <span id="1001">1001</span>
 <span id="1002">1002</span>
-<span id="1003">1003</span>
-<span id="1004">1004</span>
-<span id="1005">1005</span>
-<span id="1006">1006</span>
-<span id="1007">1007</span>
-<span id="1008">1008</span>
-<span id="1009">1009</span>
-<span id="1010">1010</span>
-<span id="1011">1011</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -1079,7 +1070,7 @@
     <span class="kw">pub</span> <span class="ident">dict</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">kw::dict</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">extends</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExtendsAttribute</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">freelist</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FreelistAttribute</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">immutable</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">kw::immutable</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">frozen</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">kw::frozen</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">mapping</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">kw::mapping</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">module</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ModuleAttribute</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NameAttribute</span><span class="op">&gt;</span>,
@@ -1096,7 +1087,7 @@
     <span class="ident">Dict</span>(<span class="ident">kw::dict</span>),
     <span class="ident">Extends</span>(<span class="ident">ExtendsAttribute</span>),
     <span class="ident">Freelist</span>(<span class="ident">FreelistAttribute</span>),
-    <span class="ident">Immutable</span>(<span class="ident">kw::immutable</span>),
+    <span class="ident">Frozen</span>(<span class="ident">kw::frozen</span>),
     <span class="ident">Mapping</span>(<span class="ident">kw::mapping</span>),
     <span class="ident">Module</span>(<span class="ident">ModuleAttribute</span>),
     <span class="ident">Name</span>(<span class="ident">NameAttribute</span>),
@@ -1119,8 +1110,8 @@
             <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">PyClassPyO3Option::Extends</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">attributes::kw::freelist</span>) {
             <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">PyClassPyO3Option::Freelist</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">attributes::kw::immutable</span>) {
-            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">PyClassPyO3Option::Immutable</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">attributes::kw::frozen</span>) {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">PyClassPyO3Option::Frozen</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">attributes::kw::mapping</span>) {
             <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">PyClassPyO3Option::Mapping</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">attributes::kw::module</span>) {
@@ -1178,7 +1169,7 @@
             <span class="ident">PyClassPyO3Option::Dict</span>(<span class="ident">dict</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">dict</span>),
             <span class="ident">PyClassPyO3Option::Extends</span>(<span class="ident">extends</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">extends</span>),
             <span class="ident">PyClassPyO3Option::Freelist</span>(<span class="ident">freelist</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">freelist</span>),
-            <span class="ident">PyClassPyO3Option::Immutable</span>(<span class="ident">immutable</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">immutable</span>),
+            <span class="ident">PyClassPyO3Option::Frozen</span>(<span class="ident">frozen</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">frozen</span>),
             <span class="ident">PyClassPyO3Option::Mapping</span>(<span class="ident">mapping</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">mapping</span>),
             <span class="ident">PyClassPyO3Option::Module</span>(<span class="ident">module</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">module</span>),
             <span class="ident">PyClassPyO3Option::Name</span>(<span class="ident">name</span>) =&gt; <span class="macro">set_option!</span>(<span class="ident">name</span>),
@@ -1731,12 +1722,14 @@
         <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cls</span>;
 
         <span class="macro">quote!</span> {
-            <span class="kw">impl</span> <span class="ident">_pyo3::PyClass</span> <span class="kw">for</span> #<span class="ident">cls</span> { }
+            <span class="kw">impl</span> <span class="ident">_pyo3::PyClass</span> <span class="kw">for</span> #<span class="ident">cls</span> {
+                <span class="kw">type</span> <span class="ident">Frozen</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::PyClassMutability</span> <span class="kw">as</span> <span class="ident">_pyo3::pycell::PyClassMutability</span><span class="op">&gt;</span><span class="ident">::Frozen</span>;
+            }
         }
     }
     <span class="kw">fn</span> <span class="ident">impl_extractext</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
         <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cls</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">attr</span>.<span class="ident">options</span>.<span class="ident">immutable</span>.<span class="ident">is_some</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">attr</span>.<span class="ident">options</span>.<span class="ident">frozen</span>.<span class="ident">is_some</span>() {
             <span class="macro">quote!</span> {
                 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">_pyo3::derive_utils::ExtractExt</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">cls</span>
                 {
@@ -1873,17 +1866,7 @@
 
         <span class="kw">let</span> <span class="ident">deprecations</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">attr</span>.<span class="ident">deprecations</span>;
 
-        <span class="kw">let</span> <span class="ident">mutability</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">attr</span>.<span class="ident">options</span>.<span class="ident">immutable</span>.<span class="ident">is_some</span>() {
-            <span class="macro">quote!</span> {
-                 <span class="ident">_pyo3::pycell::Immutable</span>
-            }
-        } <span class="kw">else</span> {
-            <span class="macro">quote!</span> {
-                <span class="ident">_pyo3::pycell::Mutable</span>
-            }
-        };
-
-        <span class="kw">let</span> <span class="ident">class_mutability</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">attr</span>.<span class="ident">options</span>.<span class="ident">immutable</span>.<span class="ident">is_some</span>() {
+        <span class="kw">let</span> <span class="ident">class_mutability</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">attr</span>.<span class="ident">options</span>.<span class="ident">frozen</span>.<span class="ident">is_some</span>() {
             <span class="macro">quote!</span> {
                 <span class="ident">ImmutableChild</span>
             }
@@ -1925,7 +1908,6 @@
                 <span class="kw">type</span> <span class="ident">BaseType</span> <span class="op">=</span> #<span class="ident">base</span>;
                 <span class="kw">type</span> <span class="ident">ThreadChecker</span> <span class="op">=</span> #<span class="ident">thread_checker</span>;
                 #<span class="ident">inventory</span>
-                <span class="kw">type</span> <span class="ident">Mutability</span> <span class="op">=</span> #<span class="ident">mutability</span>;
                 <span class="kw">type</span> <span class="ident">PyClassMutability</span> <span class="op">=</span> <span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">base</span> <span class="kw">as</span> <span class="ident">_pyo3::impl_::pyclass::PyClassBaseType</span><span class="op">&gt;</span><span class="ident">::PyClassMutability</span> <span class="kw">as</span> <span class="ident">_pyo3::pycell::PyClassMutability</span><span class="op">&gt;</span>::#<span class="ident">class_mutability</span>;
                 <span class="kw">type</span> <span class="ident">Dict</span> <span class="op">=</span> #<span class="ident">dict</span>;
                 <span class="kw">type</span> <span class="ident">WeakRef</span> <span class="op">=</span> #<span class="ident">weakref</span>;
@@ -2028,5 +2010,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (bb8c2f411 2022-06-19)" ></div>
 </body></html>

@@ -183,7 +183,6 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
-<span id="179">179</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
 <span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
@@ -196,9 +195,8 @@
 <span class="doccomment">//! [typeobj docs](https://docs.python.org/3/c-api/typeobj.html)</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::callback</span>::{<span class="ident">HashCallbackOutput</span>, <span class="ident">IntoPyCallbackOutput</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">pyclass::MutablePyClass</span>, <span class="ident">FromPyObject</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>,
-};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::boolean_struct::False</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exceptions</span>, <span class="ident">ffi</span>, <span class="ident">FromPyObject</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyObject</span>};
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
 <span class="doccomment">/// Basic Python class customization</span>
@@ -214,14 +212,14 @@
 
     <span class="kw">fn</span> <span class="ident">__setattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Value</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">PyObjectSetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">MutablePyClass</span>,
+        <span class="self">Self</span>: <span class="ident">PyObjectSetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Frozen</span> <span class="op">=</span> <span class="ident">False</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">__delattr__</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident"><span class="self">Self</span>::Name</span>) -&gt; <span class="ident"><span class="self">Self</span>::Result</span>
     <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">PyObjectDelAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">MutablePyClass</span>,
+        <span class="self">Self</span>: <span class="ident">PyObjectDelAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Frozen</span> <span class="op">=</span> <span class="ident">False</span><span class="op">&gt;</span>,
     {
         <span class="macro">unimplemented!</span>()
     }
@@ -265,12 +263,12 @@
     <span class="kw">type</span> <span class="ident">Name</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="prelude-ty">Result</span>: <span class="ident">IntoPyCallbackOutput</span><span class="op">&lt;</span><span class="ident">PyObject</span><span class="op">&gt;</span>;
 }
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectSetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">MutablePyClass</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectSetAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Frozen</span> <span class="op">=</span> <span class="ident">False</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Name</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="ident">Value</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="prelude-ty">Result</span>: <span class="ident">IntoPyCallbackOutput</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 }
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectDelAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">MutablePyClass</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyObjectDelAttrProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>: <span class="ident">PyObjectProtocol</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">Frozen</span> <span class="op">=</span> <span class="ident">False</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Name</span>: <span class="ident">FromPyObject</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="prelude-ty">Result</span>: <span class="ident">IntoPyCallbackOutput</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 }
@@ -364,5 +362,5 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::CompareOp</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (bb8c2f411 2022-06-19)" ></div>
 </body></html>

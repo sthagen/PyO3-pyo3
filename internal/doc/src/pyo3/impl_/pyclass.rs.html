@@ -958,14 +958,11 @@
 <span id="951">951</span>
 <span id="952">952</span>
 <span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exceptions</span>::{<span class="ident">PyAttributeError</span>, <span class="ident">PyNotImplementedError</span>},
     <span class="ident">ffi</span>,
     <span class="ident">impl_::freelist::FreeList</span>,
-    <span class="ident">pycell</span>::{<span class="ident">GetBorrowChecker</span>, <span class="ident">Mutability</span>, <span class="ident">PyCellLayout</span>, <span class="ident">PyClassMutability</span>},
+    <span class="ident">pycell</span>::{<span class="ident">GetBorrowChecker</span>, <span class="ident">PyCellLayout</span>, <span class="ident">PyClassMutability</span>},
     <span class="ident">pyclass_init::PyObjectInit</span>,
     <span class="ident">type_object::PyLayout</span>,
     <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyResult</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>,
@@ -1126,9 +1123,6 @@
 
     <span class="doccomment">/// Base class</span>
     <span class="kw">type</span> <span class="ident">BaseType</span>: <span class="ident">PyTypeInfo</span> <span class="op">+</span> <span class="ident">PyClassBaseType</span>;
-
-    <span class="doccomment">/// Immutable or mutable</span>
-    <span class="kw">type</span> <span class="ident">Mutability</span>: <span class="ident">Mutability</span>;
 
     <span class="doccomment">/// Immutable or mutable</span>
     <span class="kw">type</span> <span class="ident">PyClassMutability</span>: <span class="ident">PyClassMutability</span> <span class="op">+</span> <span class="ident">GetBorrowChecker</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
@@ -1918,5 +1912,5 @@
     <span class="ident">result</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (bb8c2f411 2022-06-19)" ></div>
 </body></html>

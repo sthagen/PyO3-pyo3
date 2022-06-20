@@ -298,11 +298,9 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
-<span id="294">294</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Contains initialization utilities for `#[pyclass]`.</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::callback::IntoPyCallbackOutput</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::impl_::pyclass</span>::{<span class="ident">PyClassBaseType</span>, <span class="ident">PyClassDict</span>, <span class="ident">PyClassThreadChecker</span>, <span class="ident">PyClassWeakRef</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pyclass::MutablePyClass</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">PyCell</span>, <span class="ident">PyClass</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ffi::PyTypeObject</span>,
@@ -571,8 +569,8 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">S</span>, <span class="ident">B</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">MutablePyClass</span><span class="op">&lt;</span><span class="ident">BaseType</span> <span class="op">=</span> <span class="ident">B</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MutablePyClass</span>,
+    <span class="ident">S</span>: <span class="ident">PyClass</span><span class="op">&lt;</span><span class="ident">BaseType</span> <span class="op">=</span> <span class="ident">B</span><span class="op">&gt;</span>,
+    <span class="ident">B</span>: <span class="ident">PyClass</span>,
     <span class="ident">B::BaseType</span>: <span class="ident">PyClassBaseType</span><span class="op">&lt;</span><span class="ident">Initializer</span> <span class="op">=</span> <span class="ident">PyNativeTypeInitializer</span><span class="op">&lt;</span><span class="ident">B::BaseType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sub_and_base</span>: (<span class="ident">S</span>, <span class="ident">B</span>)) -&gt; <span class="ident">PyClassInitializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
@@ -594,5 +592,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (bb8c2f411 2022-06-19)" ></div>
 </body></html>

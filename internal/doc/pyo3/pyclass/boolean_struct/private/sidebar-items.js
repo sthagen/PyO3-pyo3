@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["Boolean","A way to “seal” the boolean traits."]]});
