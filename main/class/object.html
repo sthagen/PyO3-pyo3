@@ -290,6 +290,28 @@ impl Number {
 }
 <span class="boring">}
 </span></code></pre></pre>
+<p>If you obtain the result by comparing two Rust values, as in this example, you
+can take a shortcut using <code>CompareOp::matches</code>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::class::basic::CompareOp;
+
+<span class="boring">use pyo3::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct Number(i32);
+</span><span class="boring">
+</span>#[pymethods]
+impl Number {
+    fn __richcmp__(&amp;self, other: &amp;Self, op: CompareOp) -&gt; bool {
+        op.matches(self.0.cmp(&amp;other.0))
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>It checks that the <code>std::cmp::Ordering</code> obtained from Rust's <code>Ord</code> matches
+the given <code>CompareOp</code>.</p>
 <h3 id="truthyness"><a class="header" href="#truthyness">Truthyness</a></h3>
 <p>We'll consider <code>Number</code> to be <code>True</code> if it is nonzero:</p>
 <pre><pre class="playground"><code class="language-rust">

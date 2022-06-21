@@ -1888,8 +1888,10 @@ The <code>CompareOp</code> argument indicates the comparison operation being per
 <details>
 <summary>Return type</summary>
 The return type will normally be `PyResult<bool>`, but any Python object can be returned.
-If the `object` is not of the type specified in the signature, the generated code will
-automatically `return NotImplemented`.
+If the second argument `object` is not of the type specified in the
+signature, the generated code will automatically `return NotImplemented`.
+<p>You can use <a href="https://pyo3.rs/main/doc/pyo3/pyclass/enum.CompareOp.html#method.matches"><code>CompareOp::matches</code></a> to adapt a Rust <code>std::cmp::Ordering</code> result
+to the requested comparison.</p>
 </details>
 </li>
 <li>
@@ -2552,6 +2554,28 @@ impl Number {
 }
 <span class="boring">}
 </span></code></pre></pre>
+<p>If you obtain the result by comparing two Rust values, as in this example, you
+can take a shortcut using <code>CompareOp::matches</code>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use pyo3::class::basic::CompareOp;
+
+<span class="boring">use pyo3::prelude::*;
+</span><span class="boring">
+</span><span class="boring">#[pyclass]
+</span><span class="boring">struct Number(i32);
+</span><span class="boring">
+</span>#[pymethods]
+impl Number {
+    fn __richcmp__(&amp;self, other: &amp;Self, op: CompareOp) -&gt; bool {
+        op.matches(self.0.cmp(&amp;other.0))
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>It checks that the <code>std::cmp::Ordering</code> obtained from Rust's <code>Ord</code> matches
+the given <code>CompareOp</code>.</p>
 <h3 id="truthyness"><a class="header" href="#truthyness">Truthyness</a></h3>
 <p>We'll consider <code>Number</code> to be <code>True</code> if it is nonzero:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -7462,6 +7486,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Add FFI definitions <code>Py_fstring_input</code>, <code>sendfunc</code>, and <code>_PyErr_StackItem</code>. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
 <li>Add <code>PyDateTime::new_with_fold</code>, <code>PyTime::new_with_fold</code>, <code>PyTime::get_fold</code>, <code>PyDateTime::get_fold</code> for PyPy. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
 <li>Allow <code>#[classattr]</code> take <code>Python</code> argument. <a href="https://github.com/PyO3/pyo3/issues/2383">#2383</a></li>
+<li>Add <code>CompareOp::matches</code> to easily implement <code>__richcmp__</code> as the result of a
+Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO3/pyo3/pull/2460">#2460</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>

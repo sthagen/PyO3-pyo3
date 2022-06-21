@@ -218,8 +218,10 @@ The <code>CompareOp</code> argument indicates the comparison operation being per
 <details>
 <summary>Return type</summary>
 The return type will normally be `PyResult<bool>`, but any Python object can be returned.
-If the `object` is not of the type specified in the signature, the generated code will
-automatically `return NotImplemented`.
+If the second argument `object` is not of the type specified in the
+signature, the generated code will automatically `return NotImplemented`.
+<p>You can use <a href="https://pyo3.rs/main/doc/pyo3/pyclass/enum.CompareOp.html#method.matches"><code>CompareOp::matches</code></a> to adapt a Rust <code>std::cmp::Ordering</code> result
+to the requested comparison.</p>
 </details>
 </li>
 <li>

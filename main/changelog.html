@@ -160,6 +160,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Add FFI definitions <code>Py_fstring_input</code>, <code>sendfunc</code>, and <code>_PyErr_StackItem</code>. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
 <li>Add <code>PyDateTime::new_with_fold</code>, <code>PyTime::new_with_fold</code>, <code>PyTime::get_fold</code>, <code>PyDateTime::get_fold</code> for PyPy. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
 <li>Allow <code>#[classattr]</code> take <code>Python</code> argument. <a href="https://github.com/PyO3/pyo3/issues/2383">#2383</a></li>
+<li>Add <code>CompareOp::matches</code> to easily implement <code>__richcmp__</code> as the result of a
+Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO3/pyo3/pull/2460">#2460</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>

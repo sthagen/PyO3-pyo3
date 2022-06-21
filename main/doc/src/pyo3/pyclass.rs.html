@@ -604,6 +604,54 @@
 <span id="597">597</span>
 <span id="598">598</span>
 <span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
 </pre><pre class="rust"><code><span class="doccomment">//! `PyClass` and related traits.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">callback::IntoPyCallbackOutput</span>,
@@ -616,6 +664,7 @@
     <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyCell</span>, <span class="ident">PyErr</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">cmp::Ordering</span>,
     <span class="ident">convert::TryInto</span>,
     <span class="ident">ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>},
     <span class="ident">os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_uint</span>, <span class="ident">c_void</span>},
@@ -1058,6 +1107,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">CompareOp</span> {
+    <span class="doccomment">/// Conversion from the C enum.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">op</span>: <span class="ident">c_int</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">op</span> {
             <span class="ident">ffi::Py_LT</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Lt</span>),
@@ -1067,6 +1117,37 @@
             <span class="ident">ffi::Py_GT</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Gt</span>),
             <span class="ident">ffi::Py_GE</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">CompareOp::Ge</span>),
             <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns if a Rust [`std::cmp::Ordering`] matches this ordering query.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Usage example:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use pyo3::prelude::*;</span>
+    <span class="doccomment">/// # use pyo3::class::basic::CompareOp;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[pyclass]</span>
+    <span class="doccomment">/// struct Size {</span>
+    <span class="doccomment">///     size: usize</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[pymethods]</span>
+    <span class="doccomment">/// impl Size {</span>
+    <span class="doccomment">///     fn __richcmp__(&amp;self, other: &amp;Size, op: CompareOp) -&gt; bool {</span>
+    <span class="doccomment">///         op.matches(self.size.cmp(&amp;other.size))</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">result</span>: <span class="ident">Ordering</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">CompareOp::Eq</span> =&gt; <span class="ident">result</span> <span class="op">==</span> <span class="ident">Ordering::Equal</span>,
+            <span class="ident">CompareOp::Ne</span> =&gt; <span class="ident">result</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering::Equal</span>,
+            <span class="ident">CompareOp::Lt</span> =&gt; <span class="ident">result</span> <span class="op">==</span> <span class="ident">Ordering::Less</span>,
+            <span class="ident">CompareOp::Le</span> =&gt; <span class="ident">result</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering::Greater</span>,
+            <span class="ident">CompareOp::Gt</span> =&gt; <span class="ident">result</span> <span class="op">==</span> <span class="ident">Ordering::Greater</span>,
+            <span class="ident">CompareOp::Ge</span> =&gt; <span class="ident">result</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering::Less</span>,
         }
     }
 }
@@ -1203,6 +1284,21 @@
 
 <span class="kw">impl</span> <span class="ident">Frozen</span> <span class="kw">for</span> <span class="ident">boolean_struct::True</span> {}
 <span class="kw">impl</span> <span class="ident">Frozen</span> <span class="kw">for</span> <span class="ident">boolean_struct::False</span> {}
+
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_compare_op_matches</span>() {
+        <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::CompareOp</span>;
+        <span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
+
+        <span class="macro">assert!</span>(<span class="ident">CompareOp::Eq</span>.<span class="ident">matches</span>(<span class="ident">Ordering::Equal</span>));
+        <span class="macro">assert!</span>(<span class="ident">CompareOp::Ne</span>.<span class="ident">matches</span>(<span class="ident">Ordering::Less</span>));
+        <span class="macro">assert!</span>(<span class="ident">CompareOp::Ge</span>.<span class="ident">matches</span>(<span class="ident">Ordering::Greater</span>));
+        <span class="macro">assert!</span>(<span class="ident">CompareOp::Gt</span>.<span class="ident">matches</span>(<span class="ident">Ordering::Greater</span>));
+        <span class="macro">assert!</span>(<span class="ident">CompareOp::Le</span>.<span class="ident">matches</span>(<span class="ident">Ordering::Equal</span>));
+        <span class="macro">assert!</span>(<span class="ident">CompareOp::Lt</span>.<span class="ident">matches</span>(<span class="ident">Ordering::Less</span>));
+    }
+}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (bb8c2f411 2022-06-19)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (5750a6aa2 2022-06-20)" ></div>
 </body></html>
