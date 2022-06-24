@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ModuleDef","`Sync` wrapper of `ffi::PyModuleDef`."],["ModuleInitializer","Wrapper to enable initializer to be used in const fns."]]});
+window.SIDEBAR_ITEMS = {"struct":[["ModuleDef","`Sync` wrapper of `ffi::PyModuleDef`."],["ModuleInitializer","Wrapper to enable initializer to be used in const fns."]]};

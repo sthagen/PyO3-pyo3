@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["iter",""],["iternext",""]],"trait":[["PyIterIterProtocol",""],["PyIterNextProtocol",""],["PyIterProtocol","Python Iterator Interface."]]});
+window.SIDEBAR_ITEMS = {"fn":[["iter",""],["iternext",""]],"trait":[["PyIterIterProtocol",""],["PyIterNextProtocol",""],["PyIterProtocol","Python Iterator Interface."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["impl_",""]],"struct":[["PySet","Represents a Python `set`"]]});
+window.SIDEBAR_ITEMS = {"mod":[["impl_",""]],"struct":[["PySet","Represents a Python `set`"]]};

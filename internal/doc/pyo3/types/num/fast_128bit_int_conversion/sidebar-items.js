@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["int_convert_128",""]]});
+window.SIDEBAR_ITEMS = {"macro":[["int_convert_128",""]]};

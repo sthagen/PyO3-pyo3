@@ -1,1 +1,1 @@
-initSidebarItems({"static":[["PyFilter_Type",""],["PyMap_Type",""],["PyZip_Type",""]]});
+window.SIDEBAR_ITEMS = {"static":[["PyFilter_Type",""],["PyMap_Type",""],["PyZip_Type",""]]};

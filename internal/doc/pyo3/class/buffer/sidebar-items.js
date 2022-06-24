@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["getbuffer",""],["releasebuffer",""]],"trait":[["PyBufferGetBufferProtocol",""],["PyBufferProtocol","Buffer protocol interface"],["PyBufferReleaseBufferProtocol",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["getbuffer",""],["releasebuffer",""]],"trait":[["PyBufferGetBufferProtocol",""],["PyBufferProtocol","Buffer protocol interface"],["PyBufferReleaseBufferProtocol",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyFloat","Represents a Python `float` object."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyFloat","Represents a Python `float` object."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["DEF",""]],"struct":[["MakeDef",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["DEF",""]],"struct":[["MakeDef",""]]};

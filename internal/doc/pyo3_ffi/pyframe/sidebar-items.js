@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["PyFrame_GetLineNumber",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["PyFrame_GetLineNumber",""]]};

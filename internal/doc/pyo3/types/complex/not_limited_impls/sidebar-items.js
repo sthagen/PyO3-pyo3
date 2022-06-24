@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["complex_operation",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["complex_operation",""]]};

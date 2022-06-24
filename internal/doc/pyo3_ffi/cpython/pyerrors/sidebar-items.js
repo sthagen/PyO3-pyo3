@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyBaseExceptionObject",""],["PyImportErrorObject",""],["PyOSErrorObject",""],["PyStopIterationObject",""],["PySyntaxErrorObject",""],["PySystemExitObject",""],["PyUnicodeErrorObject",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyBaseExceptionObject",""],["PyImportErrorObject",""],["PyOSErrorObject",""],["PyStopIterationObject",""],["PySyntaxErrorObject",""],["PySystemExitObject",""],["PyUnicodeErrorObject",""]]};

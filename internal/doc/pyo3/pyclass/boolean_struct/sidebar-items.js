@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["private",""]],"struct":[["False",""],["True",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["private",""]],"struct":[["False",""],["True",""]]};

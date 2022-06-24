@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyIterator","A Python iterator object."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyIterator","A Python iterator object."]]};

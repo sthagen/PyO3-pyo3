@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["Py_ExitStatusException",""],["Py_InitializeFromConfig",""],["Py_PreInitialize",""],["Py_PreInitializeFromArgs",""],["Py_PreInitializeFromBytesArgs",""],["Py_RunMain",""],["_Py_InitializeMain",""],["_Py_IsCoreInitialized",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["Py_ExitStatusException",""],["Py_InitializeFromConfig",""],["Py_PreInitialize",""],["Py_PreInitializeFromArgs",""],["Py_PreInitializeFromBytesArgs",""],["Py_RunMain",""],["_Py_InitializeMain",""],["_Py_IsCoreInitialized",""]]};

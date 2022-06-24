@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["IntoPyResult",""]]});
+window.SIDEBAR_ITEMS = {"trait":[["IntoPyResult",""]]};

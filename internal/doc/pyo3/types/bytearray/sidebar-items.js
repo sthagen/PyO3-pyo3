@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyByteArray","Represents a Python `bytearray`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyByteArray","Represents a Python `bytearray`."]]};

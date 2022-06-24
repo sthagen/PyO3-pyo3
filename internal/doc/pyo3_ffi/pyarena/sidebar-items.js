@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyArena",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyArena",""]]};

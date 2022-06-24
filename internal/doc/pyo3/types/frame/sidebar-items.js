@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyFrame","Represents a Python frame."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyFrame","Represents a Python frame."]]};

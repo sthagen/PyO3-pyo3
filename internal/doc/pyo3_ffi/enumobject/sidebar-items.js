@@ -1,1 +1,1 @@
-initSidebarItems({"static":[["PyEnum_Type",""],["PyReversed_Type",""]]});
+window.SIDEBAR_ITEMS = {"static":[["PyEnum_Type",""],["PyReversed_Type",""]]};

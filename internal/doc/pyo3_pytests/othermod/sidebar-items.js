@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["double",""],["othermod",""]],"mod":[["double",""],["othermod",""]],"struct":[["ModClass",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["double",""],["othermod",""]],"mod":[["double",""],["othermod",""]],"struct":[["ModClass",""]]};

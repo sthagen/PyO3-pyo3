@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["Py_DecodeLocale",""],["Py_EncodeLocale",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["Py_DecodeLocale",""],["Py_EncodeLocale",""]]};

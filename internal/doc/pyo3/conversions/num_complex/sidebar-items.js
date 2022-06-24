@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["complex_conversion",""]]});
+window.SIDEBAR_ITEMS = {"macro":[["complex_conversion",""]]};

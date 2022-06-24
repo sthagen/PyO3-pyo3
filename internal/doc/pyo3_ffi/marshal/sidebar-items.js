@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["PyMarshal_ReadObjectFromString",""],["PyMarshal_WriteObjectToString",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["PyMarshal_ReadObjectFromString",""],["PyMarshal_WriteObjectToString",""]]};

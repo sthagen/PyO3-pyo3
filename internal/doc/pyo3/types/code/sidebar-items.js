@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyCode","Represents a Python code object."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyCode","Represents a Python code object."]]};

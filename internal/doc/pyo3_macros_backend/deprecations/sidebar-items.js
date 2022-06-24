@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Deprecation",""]],"struct":[["Deprecations",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Deprecation",""]],"struct":[["Deprecations",""]]};

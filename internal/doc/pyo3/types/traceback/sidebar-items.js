@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyTraceback","Represents a Python traceback."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyTraceback","Represents a Python traceback."]]};

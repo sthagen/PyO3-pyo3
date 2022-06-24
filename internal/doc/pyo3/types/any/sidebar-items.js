@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["PyObject_Check",""]],"struct":[["PyAny","Represents any Python object."]]});
+window.SIDEBAR_ITEMS = {"fn":[["PyObject_Check",""]],"struct":[["PyAny","Represents any Python object."]]};

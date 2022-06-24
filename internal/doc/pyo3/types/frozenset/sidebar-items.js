@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["impl_",""]],"struct":[["PyFrozenSet","Represents a  Python `frozenset`"]]});
+window.SIDEBAR_ITEMS = {"mod":[["impl_",""]],"struct":[["PyFrozenSet","Represents a  Python `frozenset`"]]};

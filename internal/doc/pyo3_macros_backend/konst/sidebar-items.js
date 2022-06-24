@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PyO3ConstAttribute",""]],"struct":[["ConstAttributes",""],["ConstSpec",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["PyO3ConstAttribute",""]],"struct":[["ConstAttributes",""],["ConstSpec",""]]};

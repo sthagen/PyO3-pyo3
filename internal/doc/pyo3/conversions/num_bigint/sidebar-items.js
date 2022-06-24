@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["extract",""]],"macro":[["bigint_conversion",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["extract",""]],"macro":[["bigint_conversion",""]]};

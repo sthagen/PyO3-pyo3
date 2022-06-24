@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyType","Represents a reference to a Python `type object`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyType","Represents a reference to a Python `type object`."]]};

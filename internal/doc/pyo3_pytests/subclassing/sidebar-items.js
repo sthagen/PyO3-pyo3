@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["subclassing",""]],"mod":[["subclassing",""]],"struct":[["Subclassable",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["subclassing",""]],"mod":[["subclassing",""]],"struct":[["Subclassable",""]]};

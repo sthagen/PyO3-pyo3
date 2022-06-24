@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["impl_to_pyerr",""]]});
+window.SIDEBAR_ITEMS = {"macro":[["impl_to_pyerr",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Boolean","A way to “seal” the boolean traits."]]});
+window.SIDEBAR_ITEMS = {"trait":[["Boolean","A way to “seal” the boolean traits."]]};

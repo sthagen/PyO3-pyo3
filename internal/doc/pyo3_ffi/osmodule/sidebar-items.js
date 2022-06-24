@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["PyOS_FSPath",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["PyOS_FSPath",""]]};

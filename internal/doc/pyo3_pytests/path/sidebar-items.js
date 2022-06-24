@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_path",""],["path",""],["take_pathbuf",""]],"mod":[["make_path",""],["path",""],["take_pathbuf",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["make_path",""],["path",""],["take_pathbuf",""]],"mod":[["make_path",""],["path",""],["take_pathbuf",""]]};

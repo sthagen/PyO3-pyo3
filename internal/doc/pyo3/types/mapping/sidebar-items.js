@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PyMapping","Represents a reference to a Python object supporting the mapping protocol."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PyMapping","Represents a reference to a Python object supporting the mapping protocol."]]};
