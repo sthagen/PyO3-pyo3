@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["othermod",""]],"struct":[["ModClass",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["othermod",""]],"struct":[["ModClass",""]]};

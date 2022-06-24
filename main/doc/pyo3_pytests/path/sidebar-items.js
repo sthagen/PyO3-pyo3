@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["path",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["path",""]]};

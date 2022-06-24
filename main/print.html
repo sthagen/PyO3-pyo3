@@ -329,6 +329,7 @@ about this topic.</p>
 </li>
 <li><a href="https://github.com/pola-rs/polars">polars</a> <em>Fast multi-threaded DataFrame library in Rust | Python | Node.js</em></li>
 <li><a href="https://github.com/cjermain/rust-python-coverage">rust-python-coverage</a> <em>Example PyO3 project with automated test coverage for Rust and Python</em></li>
+<li><a href="https://github.com/jinlow/forust">forust</a> <em>A lightweight gradient boosted decision tree library written in Rust.</em></li>
 </ul>
 <h2 id="articles-and-other-media"><a class="header" href="#articles-and-other-media">Articles and other media</a></h2>
 <ul>
@@ -415,80 +416,6 @@ initialization function will be applied automatically as the Python docstring of
 
 print(my_extension.__doc__)
 </code></pre>
-<h2 id="organizing-your-module-registration-code"><a class="header" href="#organizing-your-module-registration-code">Organizing your module registration code</a></h2>
-<p>For most projects, it's adequate to centralize all your FFI code into a single Rust module.</p>
-<p>However, for larger projects, it can be helpful to split your Rust code into several Rust modules to keep your code 
-readable. Unfortunately, though, some of the macros like <code>wrap_pyfunction!</code> do not yet work when used on code defined 
-in other modules (<a href="https://github.com/PyO3/pyo3/issues/1709">#1709</a>). One way to work around this is to pass 
-references to the <code>PyModule</code> so that each module registers its own FFI code. For example:</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>// src/lib.rs
-use pyo3::prelude::*;
-
-#[pymodule]
-fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
-    dirutil::register(py, m)?;
-    osutil::register(py, m)?;
-    Ok(())
-}
-
-// src/dirutil.rs
-<span class="boring">mod dirutil {
-</span>use pyo3::prelude::*;
-
-pub(crate) fn register(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
-    m.add_class::&lt;SomeClass&gt;()?;
-    Ok(())
-}
-
-#[pyclass]
-struct SomeClass {/* ... */}
-<span class="boring">}
-</span>
-// src/osutil.rs
-<span class="boring">mod osutil {
-</span>use pyo3::prelude::*;
-
-pub(crate) fn register(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
-    m.add_function(wrap_pyfunction!(determine_current_os, m)?)?;
-    Ok(())
-}
-
-#[pyfunction]
-fn determine_current_os() -&gt; String {
-    &quot;linux&quot;.to_owned()
-}
-<span class="boring">}
-</span><span class="boring">}
-</span></code></pre></pre>
-<p>Another workaround for splitting FFI code across multiple modules (<a href="https://github.com/PyO3/pyo3/issues/1709">#1709</a>)
-is to add <code>use module::*</code>, like this: </p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>// src/lib.rs
-use pyo3::prelude::*;
-use osutil::*;
-
-#[pymodule]
-fn my_extension(py: Python&lt;'_&gt;, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
-    m.add_function(wrap_pyfunction!(determine_current_os, m)?)?;
-    Ok(())
-}
-
-// src/osutil.rs
-<span class="boring">mod osutil {
-</span>use pyo3::prelude::*;
-
-#[pyfunction]
-pub(crate) fn determine_current_os() -&gt; String {
-    &quot;linux&quot;.to_owned()
-}
-<span class="boring">}
-</span><span class="boring">}
-</span></code></pre></pre>
 <h2 id="python-submodules"><a class="header" href="#python-submodules">Python submodules</a></h2>
 <p>You can create a module hierarchy within a single extension module by using 
 <a href="https://pyo3.rs/main/doc/pyo3/prelude/struct.PyModule.html#method.add_submodule"><code>PyModule.add_submodule()</code></a>.
@@ -1711,6 +1638,27 @@ impl MyEnum {
 Python::with_gil(|py| {
     let cls = py.get_type::&lt;MyEnum&gt;();
     pyo3::py_run!(py, cls, &quot;assert repr(cls.Answer) == '42'&quot;)
+})
+<span class="boring">}
+</span></code></pre></pre>
+<p>Enums and their variants can also be renamed using <code>#[pyo3(name)]</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass(name = &quot;RenamedEnum&quot;)]
+enum MyEnum {
+    #[pyo3(name = &quot;UPPERCASE&quot;)]
+    Variant,
+}
+
+Python::with_gil(|py| {
+    let x = Py::new(py, MyEnum::Variant).unwrap();
+    let cls = py.get_type::&lt;MyEnum&gt;();
+    pyo3::py_run!(py, x cls, r#&quot;
+        assert repr(x) == 'RenamedEnum.UPPERCASE'
+        assert x == cls.UPPERCASE
+    &quot;#)
 })
 <span class="boring">}
 </span></code></pre></pre>
@@ -7488,6 +7436,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow <code>#[classattr]</code> take <code>Python</code> argument. <a href="https://github.com/PyO3/pyo3/issues/2383">#2383</a></li>
 <li>Add <code>CompareOp::matches</code> to easily implement <code>__richcmp__</code> as the result of a
 Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO3/pyo3/pull/2460">#2460</a></li>
+<li>Supprt <code>#[pyo3(name)]</code> on enum variants <a href="https://github.com/PyO3/pyo3/pull/2457">#2457</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
@@ -7526,6 +7475,8 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix FFI definition <code>PyGetSetDef</code> to have <code>*const c_char</code> for <code>doc</code> member (not <code>*mut c_char</code>). <a href="https://github.com/PyO3/pyo3/pull/2439">#2439</a></li>
 <li>Fix <code>#[pyo3(from_py_with = &quot;...&quot;)]</code> being ignored for 1-element tuple structs and transparent structs. <a href="https://github.com/PyO3/pyo3/pull/2440">#2440</a></li>
 <li>Use <code>memoffset</code> for computing PyCell offsets <a href="https://github.com/PyO3/pyo3/pull/2450">#2450</a></li>
+<li>Fix incorrect enum names being returned by <code>repr</code> for enums renamed by <code>#[pyclass(name)]</code> <a href="https://github.com/PyO3/pyo3/pull/2457">#2457</a></li>
+<li>Fix incorrect Python version cfg definition on <code>PyObject_CallNoArgs</code><a href="https://github.com/PyO3/pyo3/pull/2476">#2476</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a href="https://github.com/pyo3/pyo3/compare/v0.16.4...v0.16.5">0.16.5</a> - 2022-05-15</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
@@ -7999,7 +7950,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Deprecate FFI definitions <code>PyGen_NeedsFinalizing</code>, <code>PyImport_Cleanup</code> (removed in 3.9), and <code>PyOS_InitInterrupts</code> (3.10). <a href="https://github.com/PyO3/pyo3/pull/1348">#1348</a></li>
 <li>Deprecate FFI definition <code>PyOS_AfterFork</code> for Python 3.7 and up. <a href="https://github.com/PyO3/pyo3/pull/1348">#1348</a></li>
 <li>Deprecate FFI definitions <code>PyCoro_Check</code>, <code>PyAsyncGen_Check</code>, and <code>PyCoroWrapper_Check</code>, which have never been in the Python API (for the first two, it is possible to use <code>PyCoro_CheckExact</code> and <code>PyAsyncGen_CheckExact</code> instead; these are the actual functions provided by the Python API). <a href="https://github.com/PyO3/pyo3/pull/1348">#1348</a></li>
-<li>Deprecate FFI definitions for <code>PyUnicode_FromUnicode</code>, <code>PyUnicode_AsUnicode</code> and <code>PyUnicode_AsUnicodeAndSize</code>, which will be removed from 3.12 and up due to <a href="https://www.python.org/dev/peps/pep-0623/">PEP 613</a>. <a href="https://github.com/PyO3/pyo3/pull/1370">#1370</a></li>
+<li>Deprecate FFI definitions for <code>PyUnicode_FromUnicode</code>, <code>PyUnicode_AsUnicode</code> and <code>PyUnicode_AsUnicodeAndSize</code>, which will be removed from 3.12 and up due to <a href="https://www.python.org/dev/peps/pep-0623/">PEP 623</a>. <a href="https://github.com/PyO3/pyo3/pull/1370">#1370</a></li>
 </ul>
 <h3 id="removed-2"><a class="header" href="#removed-2">Removed</a></h3>
 <ul>

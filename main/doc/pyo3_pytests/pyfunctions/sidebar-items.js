@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["pyfunctions",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["pyfunctions",""]]};

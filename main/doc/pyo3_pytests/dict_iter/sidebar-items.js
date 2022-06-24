@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["dict_iter",""]],"struct":[["DictSize",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["dict_iter",""]],"struct":[["DictSize",""]]};

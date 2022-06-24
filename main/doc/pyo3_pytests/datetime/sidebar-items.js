@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["datetime",""]],"struct":[["TzClass",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["datetime",""]],"struct":[["TzClass",""]]};

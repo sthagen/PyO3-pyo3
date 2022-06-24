@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["False",""],["True",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["False",""],["True",""]]};

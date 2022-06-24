@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["buf_and_str","Objects related to PyBuffer and PyStr"],["datetime",""],["dict_iter",""],["misc",""],["objstore",""],["othermod","https://github.com/PyO3/pyo3/issues/233"],["path",""],["pyclasses",""],["pyfunctions",""],["subclassing","Test for #220"]]});
+window.SIDEBAR_ITEMS = {"mod":[["buf_and_str","Objects related to PyBuffer and PyStr"],["datetime",""],["dict_iter",""],["misc",""],["objstore",""],["othermod","https://github.com/PyO3/pyo3/issues/233"],["path",""],["pyclasses",""],["pyfunctions",""],["subclassing","Test for #220"]]};

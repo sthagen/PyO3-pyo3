@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["objstore",""]],"struct":[["ObjStore",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["objstore",""]],"struct":[["ObjStore",""]]};

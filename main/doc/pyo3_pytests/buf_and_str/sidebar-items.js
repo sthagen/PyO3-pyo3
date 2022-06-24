@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["buf_and_str",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["buf_and_str",""]]};

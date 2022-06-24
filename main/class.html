@@ -1040,6 +1040,27 @@ Python::with_gil(|py| {
 })
 <span class="boring">}
 </span></code></pre></pre>
+<p>Enums and their variants can also be renamed using <code>#[pyo3(name)]</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use pyo3::prelude::*;
+</span>#[pyclass(name = &quot;RenamedEnum&quot;)]
+enum MyEnum {
+    #[pyo3(name = &quot;UPPERCASE&quot;)]
+    Variant,
+}
+
+Python::with_gil(|py| {
+    let x = Py::new(py, MyEnum::Variant).unwrap();
+    let cls = py.get_type::&lt;MyEnum&gt;();
+    pyo3::py_run!(py, x cls, r#&quot;
+        assert repr(x) == 'RenamedEnum.UPPERCASE'
+        assert x == cls.UPPERCASE
+    &quot;#)
+})
+<span class="boring">}
+</span></code></pre></pre>
 <p>You may not use enums as a base class or let enums inherit from other classes.</p>
 <pre><pre class="playground"><code class="language-rust compile_fail">
 <span class="boring">#![allow(unused)]

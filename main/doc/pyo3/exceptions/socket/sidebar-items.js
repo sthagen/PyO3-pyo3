@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["gaierror","A Rust type representing an exception defined in Python code."],["herror","A Rust type representing an exception defined in Python code."],["timeout","A Rust type representing an exception defined in Python code."]]});
+window.SIDEBAR_ITEMS = {"struct":[["gaierror","A Rust type representing an exception defined in Python code."],["herror","A Rust type representing an exception defined in Python code."],["timeout","A Rust type representing an exception defined in Python code."]]};

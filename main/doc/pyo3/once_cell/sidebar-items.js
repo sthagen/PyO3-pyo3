@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["GILOnceCell","A write-once cell similar to `once_cell::OnceCell`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["GILOnceCell","A write-once cell similar to `once_cell::OnceCell`."]]};

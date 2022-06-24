@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["pyclasses",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["pyclasses",""]]};
