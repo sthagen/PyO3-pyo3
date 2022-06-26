@@ -1061,6 +1061,9 @@
 <span id="1055">1055</span>
 <span id="1056">1056</span>
 <span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -1922,9 +1925,7 @@
         };
 
         <span class="kw">let</span> (<span class="ident">pymethods_items</span>, <span class="ident">inventory</span>, <span class="ident">inventory_class</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">methods_type</span> {
-            <span class="ident">PyClassMethodsType::Specialization</span> =&gt; {
-                (<span class="macro">quote!</span> { <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">py_methods</span>()); }, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-            }
+            <span class="ident">PyClassMethodsType::Specialization</span> =&gt; (<span class="macro">quote!</span> { <span class="ident">collector</span>.<span class="ident">py_methods</span>() }, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
             <span class="ident">PyClassMethodsType::Inventory</span> =&gt; {
                 <span class="comment">// To allow multiple #[pymethods] block, we define inventory types.</span>
                 <span class="kw">let</span> <span class="ident">inventory_class_name</span> <span class="op">=</span> <span class="ident">syn::Ident::new</span>(
@@ -1933,9 +1934,12 @@
                 );
                 (
                     <span class="macro">quote!</span> {
-                        <span class="kw">for</span> <span class="ident">inventory</span> <span class="kw">in</span> <span class="ident">_pyo3::inventory::iter</span>::<span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">_pyo3::impl_::pyclass::PyClassImpl</span><span class="op">&gt;</span><span class="ident">::Inventory</span><span class="op">&gt;</span>() {
-                            <span class="ident">visitor</span>(<span class="ident">_pyo3::impl_::pyclass::PyClassInventory::items</span>(<span class="ident">inventory</span>));
-                        }
+                        <span class="ident">::std::boxed::Box::new</span>(
+                            <span class="ident">::std::iter::Iterator::map</span>(
+                                <span class="ident">_pyo3::inventory::iter</span>::<span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">_pyo3::impl_::pyclass::PyClassImpl</span><span class="op">&gt;</span><span class="ident">::Inventory</span><span class="op">&gt;</span>(),
+                                <span class="ident">_pyo3::impl_::pyclass::PyClassInventory::items</span>
+                            )
+                        )
                     },
                     <span class="prelude-val">Some</span>(<span class="macro">quote!</span> { <span class="kw">type</span> <span class="ident">Inventory</span> <span class="op">=</span> #<span class="ident">inventory_class_name</span>; }),
                     <span class="prelude-val">Some</span>(<span class="ident">define_inventory_class</span>(<span class="kw-2">&amp;</span><span class="ident">inventory_class_name</span>)),
@@ -1945,15 +1949,15 @@
 
         <span class="kw">let</span> <span class="ident">pyproto_items</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pyproto&quot;</span>) {
             <span class="prelude-val">Some</span>(<span class="macro">quote!</span> {
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">object_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">number_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">iter_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">gc_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">descr_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">mapping_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">sequence_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">async_protocol_items</span>());
-                <span class="ident">visitor</span>(<span class="ident">collector</span>.<span class="ident">buffer_protocol_items</span>());
+                <span class="ident">collector</span>.<span class="ident">object_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">number_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">iter_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">gc_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">descr_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">mapping_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">sequence_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">async_protocol_items</span>(),
+                <span class="ident">collector</span>.<span class="ident">buffer_protocol_items</span>(),
             })
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
@@ -2022,7 +2026,7 @@
                 <span class="kw">type</span> <span class="ident">WeakRef</span> <span class="op">=</span> #<span class="ident">weakref</span>;
                 <span class="kw">type</span> <span class="ident">BaseNativeType</span> <span class="op">=</span> #<span class="ident">base_nativetype</span>;
 
-                <span class="kw">fn</span> <span class="ident">for_all_items</span>(<span class="ident">visitor</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">::std::ops::FnMut</span>(<span class="op">&amp;</span> <span class="ident">_pyo3::impl_::pyclass::PyClassItems</span>)) {
+                <span class="kw">fn</span> <span class="ident">items_iter</span>() -&gt; <span class="ident">_pyo3::impl_::pyclass::PyClassItemsIter</span> {
                     <span class="kw">use</span> <span class="ident">_pyo3::impl_::pyclass</span>::<span class="kw-2">*</span>;
                     <span class="kw">let</span> <span class="ident">collector</span> <span class="op">=</span> <span class="ident">PyClassImplCollector</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="ident">::new</span>();
                     #<span class="ident">deprecations</span>;
@@ -2030,9 +2034,11 @@
                         <span class="ident">methods</span>: <span class="kw-2">&amp;</span>[#(#<span class="ident">default_method_defs</span>),<span class="kw-2">*</span>],
                         <span class="ident">slots</span>: <span class="kw-2">&amp;</span>[#(#<span class="ident">default_slot_defs</span>),<span class="op">*</span> #(#<span class="ident">freelist_slots</span>),<span class="kw-2">*</span>],
                     };
-                    <span class="ident">visitor</span>(<span class="kw-2">&amp;</span><span class="ident">INTRINSIC_ITEMS</span>);
-                    #<span class="ident">pymethods_items</span>
-                    #<span class="ident">pyproto_items</span>
+                    <span class="ident">PyClassItemsIter::new</span>(
+                        <span class="kw-2">&amp;</span><span class="ident">INTRINSIC_ITEMS</span>,
+                        #<span class="ident">pymethods_items</span>,
+                        #<span class="ident">pyproto_items</span>
+                    )
                 }
 
                 #<span class="ident">dict_offset</span>
@@ -2119,5 +2125,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (43347397f 2022-06-23)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (20a6f3a8a 2022-06-25)" ></div>
 </body></html>
