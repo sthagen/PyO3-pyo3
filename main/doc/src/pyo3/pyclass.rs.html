@@ -648,9 +648,6 @@
 <span id="642">642</span>
 <span id="643">643</span>
 <span id="644">644</span>
-<span id="645">645</span>
-<span id="646">646</span>
-<span id="647">647</span>
 </pre><pre class="rust"><code><span class="doccomment">//! `PyClass` and related traits.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">callback::IntoPyCallbackOutput</span>,
@@ -658,7 +655,7 @@
     <span class="ident">ffi</span>,
     <span class="ident">impl_::pyclass</span>::{
         <span class="ident">assign_sequence_item_from_mapping</span>, <span class="ident">get_sequence_item_from_mapping</span>, <span class="ident">tp_dealloc</span>, <span class="ident">PyClassImpl</span>,
-        <span class="ident">PyClassItems</span>,
+        <span class="ident">PyClassItemsIter</span>,
     },
     <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyCell</span>, <span class="ident">PyErr</span>, <span class="ident">PyMethodDefType</span>, <span class="ident">PyObject</span>, <span class="ident">PyResult</span>, <span class="ident">PyTypeInfo</span>, <span class="ident">Python</span>,
 };
@@ -701,7 +698,7 @@
             <span class="ident">tp_dealloc</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
             <span class="ident">T::dict_offset</span>(),
             <span class="ident">T::weaklist_offset</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">T::for_all_items</span>,
+            <span class="ident">T::items_iter</span>,
             <span class="ident">T::IS_BASETYPE</span>,
             <span class="ident">T::IS_MAPPING</span>,
         )
@@ -722,7 +719,7 @@
     <span class="ident">tp_dealloc</span>: <span class="ident">ffi::destructor</span>,
     <span class="ident">dict_offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi::Py_ssize_t</span><span class="op">&gt;</span>,
     <span class="ident">weaklist_offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ffi::Py_ssize_t</span><span class="op">&gt;</span>,
-    <span class="ident">for_all_items</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">PyClassItems</span>)),
+    <span class="ident">get_items_iter</span>: <span class="kw">fn</span>() -&gt; <span class="ident">PyClassItemsIter</span>,
     <span class="ident">is_basetype</span>: <span class="ident">bool</span>,
     <span class="ident">is_mapping</span>: <span class="ident">bool</span>,
 ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">ffi::PyTypeObject</span><span class="op">&gt;</span> {
@@ -750,7 +747,7 @@
     <span class="kw">let</span> <span class="ident">PyClassInfo</span> {
         <span class="ident">method_defs</span>,
         <span class="ident">property_defs</span>,
-    } <span class="op">=</span> <span class="ident">method_defs_to_pyclass_info</span>(<span class="ident">for_all_items</span>, <span class="ident">dict_offset</span>.<span class="ident">is_none</span>());
+    } <span class="op">=</span> <span class="ident">method_defs_to_pyclass_info</span>(<span class="ident">get_items_iter</span>(), <span class="ident">dict_offset</span>.<span class="ident">is_none</span>());
 
     <span class="comment">// normal methods</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">method_defs</span>.<span class="ident">is_empty</span>() {
@@ -773,7 +770,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">Py_3_9</span>), <span class="ident">not</span>(<span class="ident">Py_LIMITED_API</span>)))]</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer_procs</span>: <span class="ident">ffi::PyBufferProcs</span> <span class="op">=</span> <span class="ident">Default::default</span>();
 
-    <span class="ident">for_all_items</span>(<span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">items</span><span class="op">|</span> {
+    <span class="kw">for</span> <span class="ident">items</span> <span class="kw">in</span> <span class="ident">get_items_iter</span>() {
         <span class="kw">for</span> <span class="ident">slot</span> <span class="kw">in</span> <span class="ident">items</span>.<span class="ident">slots</span> {
             <span class="kw">match</span> <span class="ident">slot</span>.<span class="ident">slot</span> {
                 <span class="ident">ffi::Py_tp_new</span> =&gt; <span class="ident">has_new</span> <span class="op">=</span> <span class="bool-val">true</span>,
@@ -795,7 +792,7 @@
             }
         }
         <span class="ident">slots</span>.<span class="ident">extend_from_slice</span>(<span class="ident">items</span>.<span class="ident">slots</span>);
-    });
+    }
 
     <span class="kw">if</span> <span class="op">!</span><span class="ident">is_mapping</span> {
         <span class="comment">// If mapping methods implemented, define sequence methods get implemented too.</span>
@@ -973,14 +970,11 @@
     <span class="ident">property_defs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ffi::PyGetSetDef</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">method_defs_to_pyclass_info</span>(
-    <span class="ident">for_all_items</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">PyClassItems</span>)),
-    <span class="ident">has_dict</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">PyClassInfo</span> {
+<span class="kw">fn</span> <span class="ident">method_defs_to_pyclass_info</span>(<span class="ident">items_iter</span>: <span class="ident">PyClassItemsIter</span>, <span class="ident">has_dict</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PyClassInfo</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">method_defs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">property_defs_map</span> <span class="op">=</span> <span class="ident">std::collections::HashMap::new</span>();
 
-    <span class="ident">for_all_items</span>(<span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">items</span><span class="op">|</span> {
+    <span class="kw">for</span> <span class="ident">items</span> <span class="kw">in</span> <span class="ident">items_iter</span> {
         <span class="kw">for</span> <span class="ident">def</span> <span class="kw">in</span> <span class="ident">items</span>.<span class="ident">methods</span> {
             <span class="kw">match</span> <span class="ident">def</span> {
                 <span class="ident">PyMethodDefType::Getter</span>(<span class="ident">getter</span>) =&gt; {
@@ -1003,7 +997,7 @@
                 <span class="ident">PyMethodDefType::ClassAttribute</span>(<span class="kw">_</span>) =&gt; {}
             }
         }
-    });
+    }
 
     <span class="comment">// TODO: use into_values when on MSRV Rust &gt;= 1.54</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">property_defs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">property_defs_map</span>
@@ -1299,5 +1293,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (43347397f 2022-06-23)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (20a6f3a8a 2022-06-25)" ></div>
 </body></html>
