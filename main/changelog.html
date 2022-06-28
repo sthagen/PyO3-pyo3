@@ -203,6 +203,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Use <code>memoffset</code> for computing PyCell offsets <a href="https://github.com/PyO3/pyo3/pull/2450">#2450</a></li>
 <li>Fix incorrect enum names being returned by <code>repr</code> for enums renamed by <code>#[pyclass(name)]</code> <a href="https://github.com/PyO3/pyo3/pull/2457">#2457</a></li>
 <li>Fix incorrect Python version cfg definition on <code>PyObject_CallNoArgs</code><a href="https://github.com/PyO3/pyo3/pull/2476">#2476</a></li>
+<li>Fix use-after-free in <code>PyCapsule</code> type. <a href="https://github.com/PyO3/pyo3/pull/2481">#2481</a></li>
 </ul>
 <h2 id="a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a class="header" href="#a-hrefhttpsgithubcompyo3pyo3comparev0164v01650165a---2022-05-15"><a href="https://github.com/pyo3/pyo3/compare/v0.16.4...v0.16.5">0.16.5</a> - 2022-05-15</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
