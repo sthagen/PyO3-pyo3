@@ -243,21 +243,6 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 <span class="doccomment">//! This crate declares only the proc macro attributes, as a crate defining proc macro attributes</span>
 <span class="doccomment">//! must not contain any other public items.</span>
@@ -339,21 +324,6 @@
     .<span class="ident">into</span>()
 }
 
-<span class="doccomment">/// A proc macro used to expose Rust structs and fieldless enums as Python objects.</span>
-<span class="doccomment">///</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../docs/pyclass_parameters.md&quot;</span>)))]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For more on creating Python classes,</span>
-<span class="doccomment">/// see the [class section of the guide][1].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [1]: https://pyo3.rs/latest/class.html</span>
-<span class="doccomment">/// [params-1]: ../prelude/struct.PyAny.html</span>
-<span class="doccomment">/// [params-2]: https://en.wikipedia.org/wiki/Free_list</span>
-<span class="doccomment">/// [params-3]: std::marker::Send</span>
-<span class="doccomment">/// [params-4]: std::rc::Rc</span>
-<span class="doccomment">/// [params-5]: std::sync::Arc</span>
-<span class="doccomment">/// [params-6]: https://docs.python.org/3/library/weakref.html</span>
-<span class="doccomment">/// [params-mapping]: https://pyo3.rs/latest/class/protocols.html#mapping--sequence-types</span>
 <span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pyclass</span>(<span class="ident">attr</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="kw">use</span> <span class="ident">syn::Item</span>;
@@ -513,5 +483,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>

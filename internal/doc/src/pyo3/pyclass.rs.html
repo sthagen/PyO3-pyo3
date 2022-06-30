@@ -648,6 +648,9 @@
 <span id="642">642</span>
 <span id="643">643</span>
 <span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
 </pre><pre class="rust"><code><span class="doccomment">//! `PyClass` and related traits.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">callback::IntoPyCallbackOutput</span>,
@@ -667,15 +670,16 @@
     <span class="ident">ptr</span>,
 };
 
-<span class="doccomment">/// If `PyClass` is implemented for a Rust type `T`, then we can use `T` in the Python</span>
-<span class="doccomment">/// world, via `PyCell`.</span>
+<span class="doccomment">/// Types that can be used as Python classes.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The `#[pyclass]` attribute automatically implements this trait for your Rust struct,</span>
-<span class="doccomment">/// so you normally don&#39;t have to use this trait directly.</span>
+<span class="doccomment">/// The `#[pyclass]` attribute implements this trait for your Rust struct -</span>
+<span class="doccomment">/// you shouldn&#39;t implement this trait directly.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PyClass</span>:
     <span class="ident">PyTypeInfo</span><span class="op">&lt;</span><span class="ident">AsRefTarget</span> <span class="op">=</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PyClassImpl</span><span class="op">&lt;</span><span class="ident">Layout</span> <span class="op">=</span> <span class="ident">PyCell</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>
 {
-    <span class="doccomment">/// Frozen or not</span>
+    <span class="doccomment">/// Whether the pyclass is frozen.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This can be enabled via `#[pyclass(frozen)]`.</span>
     <span class="kw">type</span> <span class="ident">Frozen</span>: <span class="ident">Frozen</span>;
 }
 
@@ -1254,10 +1258,11 @@
     })
 }
 
-<span class="doccomment">/// A mechanism to have associated True / False values in the absence of</span>
-<span class="doccomment">/// associated const equality.</span>
+<span class="doccomment">/// A workaround for [associated const equality](https://github.com/rust-lang/rust/issues/92827).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This serves to have True / False values in the [`PyClass`] trait&#39;s `Frozen` type.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">boolean_struct</span> {
-
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">private</span> {
         <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -1273,6 +1278,7 @@
 }
 
 <span class="doccomment">/// A trait which is used to describe whether a `#[pyclass]` is frozen.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Frozen</span>: <span class="ident">boolean_struct::private::Boolean</span> {}
 
 <span class="kw">impl</span> <span class="ident">Frozen</span> <span class="kw">for</span> <span class="ident">boolean_struct::True</span> {}
@@ -1293,5 +1299,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>
