@@ -471,6 +471,17 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">auto_traits</span>, <span class="ident">negative_impls</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc_auto_cfg</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(
@@ -878,7 +889,18 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pyproto&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros::pyproto</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros</span>::{<span class="ident">pyclass</span>, <span class="ident">pyfunction</span>, <span class="ident">pymethods</span>, <span class="ident">pymodule</span>, <span class="ident">FromPyObject</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros</span>::{<span class="ident">pyfunction</span>, <span class="ident">pymethods</span>, <span class="ident">pymodule</span>, <span class="ident">FromPyObject</span>};
+
+<span class="doccomment">/// A proc macro used to expose Rust structs and fieldless enums as Python objects.</span>
+<span class="doccomment">///</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../guide/pyclass_parameters.md&quot;</span>)))]</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// For more on creating Python classes,</span>
+<span class="doccomment">/// see the [class section of the guide][1].</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [1]: https://pyo3.rs/latest/class.html</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pyo3_macros::pyclass</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -939,5 +961,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (ddcbba036 2022-06-29)" ></div>
 </body></html>
