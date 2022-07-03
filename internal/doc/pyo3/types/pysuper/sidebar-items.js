@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["PySuper","Represents a Python `super` object."]]};

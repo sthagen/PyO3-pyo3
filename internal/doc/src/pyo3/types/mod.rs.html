@@ -290,6 +290,10 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Various types defined by the Python interpreter such as `int`, `str` and `tuple`.</span>
@@ -319,6 +323,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::module::PyModule</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::num::PyLong</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::num::PyLong</span> <span class="kw">as</span> <span class="ident">PyInt</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::pysuper::PySuper</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::sequence::PySequence</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::set::PySet</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::slice</span>::{<span class="ident">PySlice</span>, <span class="ident">PySliceIndices</span>};
@@ -569,6 +575,8 @@
 <span class="kw">mod</span> <span class="ident">mapping</span>;
 <span class="kw">mod</span> <span class="ident">module</span>;
 <span class="kw">mod</span> <span class="ident">num</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="kw">mod</span> <span class="ident">pysuper</span>;
 <span class="kw">mod</span> <span class="ident">sequence</span>;
 <span class="kw">mod</span> <span class="ident">set</span>;
 <span class="kw">mod</span> <span class="ident">slice</span>;

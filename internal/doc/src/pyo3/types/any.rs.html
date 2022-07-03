@@ -1118,11 +1118,23 @@
 <span id="1112">1112</span>
 <span id="1113">1113</span>
 <span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::class::basic::CompareOp</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">FromPyObject</span>, <span class="ident">IntoPy</span>, <span class="ident">IntoPyPointer</span>, <span class="ident">PyTryFrom</span>, <span class="ident">ToPyObject</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::err</span>::{<span class="ident">PyDowncastError</span>, <span class="ident">PyErr</span>, <span class="ident">PyResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exceptions::PyTypeError</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_object::PyTypeInfo</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PySuper</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyDict</span>, <span class="ident">PyIterator</span>, <span class="ident">PyList</span>, <span class="ident">PyString</span>, <span class="ident">PyTuple</span>, <span class="ident">PyType</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">err</span>, <span class="ident">ffi</span>, <span class="ident">Py</span>, <span class="ident">PyNativeType</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::cell::UnsafeCell</span>;
@@ -2002,6 +2014,14 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="ident">PyNativeType::py</span>(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Return a proxy object that delegates method calls to a parent or sibling class of type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to the Python expression `super()`</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">py_super</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PySuper</span><span class="op">&gt;</span> {
+        <span class="ident">PySuper::new</span>(<span class="self">self</span>.<span class="ident">get_type</span>(), <span class="self">self</span>)
     }
 }
 
