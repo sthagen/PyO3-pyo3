@@ -1650,9 +1650,9 @@ enum BadSubclass{
 <p>The <code>#[pyclass]</code> macro expands to roughly the code seen below. The <code>PyClassImplCollector</code> is the type used internally by PyO3 for dtolnay specialization:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span><span class="boring">#[cfg(not(feature = &quot;multiple-pymethods&quot;))] {
+</span><span class="boring">#[cfg(not(any(feature = &quot;multiple-pymethods&quot;, feature = &quot;pyproto&quot;)))] {
 </span><span class="boring">use pyo3::prelude::*;
-</span>// Note: the implementation differs slightly with the `multiple-pymethods` feature enabled.
+</span>// Note: the implementation differs slightly with the `pyproto` or `multiple-pymethods` features enabled.
 struct MyClass {
 <span class="boring">    #[allow(dead_code)]
 </span>    num: i32,
@@ -4631,7 +4631,7 @@ section for further detail.</p>
 <p>This feature is enabled by default. To disable it, set <code>default-features = false</code> for the <code>pyo3</code> entry in your Cargo.toml.</p>
 </blockquote>
 <h3 id="multiple-pymethods"><a class="header" href="#multiple-pymethods"><code>multiple-pymethods</code></a></h3>
-<p>This feature enables a dependency on <code>inventory</code>, which enables each <code>#[pyclass]</code> to have more than one <code>#[pymethods]</code> block.</p>
+<p>This feature enables a dependency on <code>inventory</code>, which enables each <code>#[pyclass]</code> to have more than one <code>#[pymethods]</code> block. This feature also requires a minimum Rust version of 1.62 due to limitations in the <code>inventory</code> crate.</p>
 <p>Most users should only need a single <code>#[pymethods]</code> per <code>#[pyclass]</code>. In addition, not all platforms (e.g. Wasm) are supported by <code>inventory</code>. For this reason this feature is not enabled by default, meaning fewer dependencies and faster compilation for the majority of users.</p>
 <p>See <a href="class.html#implementation-details">the <code>#[pyclass]</code> implementation details</a> for more information.</p>
 <h3 id="pyproto"><a class="header" href="#pyproto"><code>pyproto</code></a></h3>
@@ -5858,6 +5858,9 @@ struct MyClass;
 <p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next.
 For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</a>.</p>
 <h2 id="from-016-to-017"><a class="header" href="#from-016-to-017">from 0.16.* to 0.17</a></h2>
+<p>### The <code>multiple-pymethods</code> feature now requires Rust 1.62</p>
+<p>Due to limitations in the <code>inventory</code> crate which the <code>multiple-pymethods</code> feature depends on, this feature now
+requires Rust 1.62. For more information see <a href="https://github.com/dtolnay/inventory/issues/32">dtolnay/inventory#32</a>.</p>
 <h3 id="added-impl-intopypypystring-for-str"><a class="header" href="#added-impl-intopypypystring-for-str">Added <code>impl IntoPy&lt;Py&lt;PyString&gt;&gt; for &amp;str</code></a></h3>
 <p>This may cause inference errors.</p>
 <p>Before:</p>
@@ -7285,6 +7288,10 @@ PyO3 versions, please see the <a href="https://pyo3.rs/latest/migration.html">mi
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a class="header" href="#unreleased"><a href="https://github.com/pyo3/pyo3/compare/v0.16.5...HEAD">Unreleased</a></a></h2>
+<h3 id="packaging"><a class="header" href="#packaging">Packaging</a></h3>
+<ul>
+<li>Update inventory dependency to <code>0.3</code> (the <code>multiple-pymethods</code> feature now requires Rust 1.62 for correctness). <a href="https://github.com/PyO3/pyo3/pull/2492">#2492</a></li>
+</ul>
 <h3 id="added"><a class="header" href="#added">Added</a></h3>
 <ul>
 <li>Implement <code>ToPyObject</code> for <code>[T; N]</code>. <a href="https://github.com/PyO3/pyo3/pull/2313">#2313</a></li>
@@ -7377,7 +7384,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix directory names starting with the letter <code>n</code> breaking serialization of the interpreter configuration on Windows since PyO3 0.16.3. <a href="https://github.com/PyO3/pyo3/pull/2299">#2299</a></li>
 </ul>
 <h2 id="0163---2022-04-05"><a class="header" href="#0163---2022-04-05"><a href="https://github.com/pyo3/pyo3/compare/v0.16.2...v0.16.3">0.16.3</a> - 2022-04-05</a></h2>
-<h3 id="packaging"><a class="header" href="#packaging">Packaging</a></h3>
+<h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>
 <ul>
 <li>Extend <code>parking_lot</code> dependency supported versions to include 0.12. <a href="https://github.com/PyO3/pyo3/pull/2239">#2239</a></li>
 </ul>
@@ -7407,13 +7414,13 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Correct dependency version for <code>syn</code> to require minimal patch version 1.0.56. <a href="https://github.com/PyO3/pyo3/pull/2240">#2240</a></li>
 </ul>
 <h2 id="0162---2022-03-15"><a class="header" href="#0162---2022-03-15"><a href="https://github.com/pyo3/pyo3/compare/v0.16.1...v0.16.2">0.16.2</a> - 2022-03-15</a></h2>
-<h3 id="packaging-1"><a class="header" href="#packaging-1">Packaging</a></h3>
+<h3 id="packaging-2"><a class="header" href="#packaging-2">Packaging</a></h3>
 <ul>
 <li>Warn when modules are imported on PyPy 3.7 versions older than PyPy 7.3.8, as they are known to have binary compatibility issues. <a href="https://github.com/PyO3/pyo3/pull/2217">#2217</a></li>
 <li>Ensure build script of <code>pyo3-ffi</code> runs before that of <code>pyo3</code> to fix cross compilation. <a href="https://github.com/PyO3/pyo3/pull/2224">#2224</a></li>
 </ul>
 <h2 id="0161---2022-03-05"><a class="header" href="#0161---2022-03-05"><a href="https://github.com/pyo3/pyo3/compare/v0.16.0...v0.16.1">0.16.1</a> - 2022-03-05</a></h2>
-<h3 id="packaging-2"><a class="header" href="#packaging-2">Packaging</a></h3>
+<h3 id="packaging-3"><a class="header" href="#packaging-3">Packaging</a></h3>
 <ul>
 <li>Extend <code>hashbrown</code> optional dependency supported versions to include 0.12. <a href="https://github.com/PyO3/pyo3/pull/2197">#2197</a></li>
 </ul>
@@ -7423,7 +7430,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix regression from 0.16 preventing cross compiling to aarch64 macOS. <a href="https://github.com/PyO3/pyo3/pull/2201">#2201</a></li>
 </ul>
 <h2 id="0160---2022-02-27"><a class="header" href="#0160---2022-02-27"><a href="https://github.com/pyo3/pyo3/compare/v0.15.1...v0.16.0">0.16.0</a> - 2022-02-27</a></h2>
-<h3 id="packaging-3"><a class="header" href="#packaging-3">Packaging</a></h3>
+<h3 id="packaging-4"><a class="header" href="#packaging-4">Packaging</a></h3>
 <ul>
 <li>Update MSRV to Rust 1.48. <a href="https://github.com/PyO3/pyo3/pull/2004">#2004</a></li>
 <li>Update <code>indoc</code> optional dependency to 1.0. <a href="https://github.com/PyO3/pyo3/pull/2004">#2004</a></li>
@@ -7524,7 +7531,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix <code>TypeError</code> thrown when argument parsing failed missing the originating causes. <a href="https://github.com/PyO3/pyo3/pull/2178">2177</a></li>
 </ul>
 <h2 id="0152---2022-04-14"><a class="header" href="#0152---2022-04-14"><a href="https://github.com/pyo3/pyo3/compare/v0.15.1...v0.15.2">0.15.2</a> - 2022-04-14</a></h2>
-<h3 id="packaging-4"><a class="header" href="#packaging-4">Packaging</a></h3>
+<h3 id="packaging-5"><a class="header" href="#packaging-5">Packaging</a></h3>
 <ul>
 <li>Backport of PyPy 3.9 support from PyO3 0.16. <a href="https://github.com/PyO3/pyo3/pull/2262">#2262</a></li>
 </ul>
@@ -7547,7 +7554,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix panic in <code>__get__</code> implementation when accessing descriptor on type object. <a href="https://github.com/PyO3/pyo3/pull/1997">#1997</a></li>
 </ul>
 <h2 id="0150---2021-11-03"><a class="header" href="#0150---2021-11-03"><a href="https://github.com/pyo3/pyo3/compare/v0.14.5...v0.15.0">0.15.0</a> - 2021-11-03</a></h2>
-<h3 id="packaging-5"><a class="header" href="#packaging-5">Packaging</a></h3>
+<h3 id="packaging-6"><a class="header" href="#packaging-6">Packaging</a></h3>
 <ul>
 <li><code>pyo3</code>'s <code>Cargo.toml</code> now advertises <code>links = &quot;python&quot;</code> to inform Cargo that it links against <em>libpython</em>. <a href="https://github.com/PyO3/pyo3/pull/1819">#1819</a></li>
 <li>Added optional <code>anyhow</code> feature to convert <code>anyhow::Error</code> into <code>PyErr</code>. <a href="https://github.com/PyO3/pyo3/pull/1822">#1822</a></li>
@@ -7662,7 +7669,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix crashes on PyPy due to incorrect definitions of <code>PyList_SET_ITEM</code>. <a href="https://github.com/PyO3/pyo3/pull/1713">#1713</a></li>
 </ul>
 <h2 id="0140---2021-07-03"><a class="header" href="#0140---2021-07-03"><a href="https://github.com/pyo3/pyo3/compare/v0.13.2...v0.14.0">0.14.0</a> - 2021-07-03</a></h2>
-<h3 id="packaging-6"><a class="header" href="#packaging-6">Packaging</a></h3>
+<h3 id="packaging-7"><a class="header" href="#packaging-7">Packaging</a></h3>
 <ul>
 <li>Update <code>num-bigint</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1481">#1481</a></li>
 <li>Update <code>num-complex</code> optional dependency to 0.4. <a href="https://github.com/PyO3/pyo3/pull/1482">#1482</a></li>
@@ -7772,7 +7779,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix <code>ToPyObject</code> impl for <code>HashSet</code> to accept non-default hashers. <a href="https://github.com/PyO3/pyo3/pull/1702">#1702</a></li>
 </ul>
 <h2 id="0132---2021-02-12"><a class="header" href="#0132---2021-02-12"><a href="https://github.com/pyo3/pyo3/compare/v0.13.1...v0.13.2">0.13.2</a> - 2021-02-12</a></h2>
-<h3 id="packaging-7"><a class="header" href="#packaging-7">Packaging</a></h3>
+<h3 id="packaging-8"><a class="header" href="#packaging-8">Packaging</a></h3>
 <ul>
 <li>Lower minimum supported Rust version to 1.41. <a href="https://github.com/PyO3/pyo3/pull/1421">#1421</a></li>
 </ul>
@@ -7831,7 +7838,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix missing <code>Py_INCREF</code> on heap type objects on Python versions before 3.8. <a href="https://github.com/PyO3/pyo3/pull/1365">#1365</a></li>
 </ul>
 <h2 id="0130---2020-12-22"><a class="header" href="#0130---2020-12-22"><a href="https://github.com/pyo3/pyo3/compare/v0.12.4...v0.13.0">0.13.0</a> - 2020-12-22</a></h2>
-<h3 id="packaging-8"><a class="header" href="#packaging-8">Packaging</a></h3>
+<h3 id="packaging-9"><a class="header" href="#packaging-9">Packaging</a></h3>
 <ul>
 <li>Drop support for Python 3.5 (as it is now end-of-life). <a href="https://github.com/PyO3/pyo3/pull/1250">#1250</a></li>
 <li>Bump minimum supported Rust version to 1.45. <a href="https://github.com/PyO3/pyo3/pull/1272">#1272</a></li>

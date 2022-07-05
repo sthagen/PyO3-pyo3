@@ -138,6 +138,9 @@
 <p>This guide can help you upgrade code through breaking changes from one PyO3 version to the next.
 For a detailed list of all changes, see the <a href="changelog.html">CHANGELOG</a>.</p>
 <h2 id="from-016-to-017"><a class="header" href="#from-016-to-017">from 0.16.* to 0.17</a></h2>
+<p>### The <code>multiple-pymethods</code> feature now requires Rust 1.62</p>
+<p>Due to limitations in the <code>inventory</code> crate which the <code>multiple-pymethods</code> feature depends on, this feature now
+requires Rust 1.62. For more information see <a href="https://github.com/dtolnay/inventory/issues/32">dtolnay/inventory#32</a>.</p>
 <h3 id="added-impl-intopypypystring-for-str"><a class="header" href="#added-impl-intopypypystring-for-str">Added <code>impl IntoPy&lt;Py&lt;PyString&gt;&gt; for &amp;str</code></a></h3>
 <p>This may cause inference errors.</p>
 <p>Before:</p>
