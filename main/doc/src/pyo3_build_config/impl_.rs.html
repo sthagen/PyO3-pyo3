@@ -2668,7 +2668,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// When the `PYO3_NO_PYTHON` variable is set, or during cross compile situations, then alternative</span>
 <span class="doccomment">/// strategies are used to populate this type.</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InterpreterConfig</span> {
     <span class="doccomment">/// The Python implementation flavor.</span>
     <span class="doccomment">///</span>
@@ -3233,7 +3233,7 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PythonImplementation</span> {
     <span class="ident">CPython</span>,
     <span class="ident">PyPy</span>,
@@ -3341,7 +3341,7 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
 <span class="doccomment">///</span>
 <span class="doccomment">/// Usually this is collected from the environment (i.e. `PYO3_CROSS_*` and `CARGO_CFG_TARGET_*`)</span>
 <span class="doccomment">/// when a cross-compilation configuration is detected.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CrossCompileConfig</span> {
     <span class="doccomment">/// The directory containing the Python library to link against.</span>
     <span class="kw">pub</span> <span class="ident">lib_dir</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>,
@@ -3635,7 +3635,7 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
 <span class="doccomment">/// is the equivalent of `#ifdef {varname}` in C.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// see Misc/SpecialBuilds.txt in the python source for what these mean.</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BuildFlags</span>(<span class="kw">pub</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">BuildFlag</span><span class="op">&gt;</span>);
 
@@ -5191,5 +5191,5 @@ for key, val in build_time_vars.items():
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (7b46aa594 2022-07-05)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (1c7b36d4d 2022-07-12)" ></div>
 </body></html>

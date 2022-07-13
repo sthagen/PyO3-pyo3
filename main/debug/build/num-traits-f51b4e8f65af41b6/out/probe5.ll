@@ -1,30 +1,30 @@
-; ModuleID = 'probe5.b8f8ac2a-cgu.0'
-source_filename = "probe5.b8f8ac2a-cgu.0"
+; ModuleID = 'probe5.66474d62-cgu.0'
+source_filename = "probe5.66474d62-cgu.0"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
 %"core::panic::location::Location" = type { { [0 x i8]*, i64 }, i32, i32 }
 
-@alloc3 = private unnamed_addr constant <{ [75 x i8] }> <{ [75 x i8] c"/rustc/7b46aa594c4bdc507fbd904b6777ca30c37a9209/library/core/src/num/mod.rs" }>, align 1
+@alloc3 = private unnamed_addr constant <{ [75 x i8] }> <{ [75 x i8] c"/rustc/1c7b36d4db582cb47513a6c7176baaec1c3346ab/library/core/src/num/mod.rs" }>, align 1
 @alloc4 = private unnamed_addr constant <{ i8*, [16 x i8] }> <{ i8* getelementptr inbounds (<{ [75 x i8] }>, <{ [75 x i8] }>* @alloc3, i32 0, i32 0, i32 0), [16 x i8] c"K\00\00\00\00\00\00\00K\03\00\00\05\00\00\00" }>, align 8
 @str.0 = internal constant [25 x i8] c"attempt to divide by zero"
 
 ; probe5::probe
 ; Function Attrs: nonlazybind uwtable
-define void @_ZN6probe55probe17h1182c29f7dc40554E() unnamed_addr #0 {
+define void @_ZN6probe55probe17he444d684b4e861b6E() unnamed_addr #0 {
 start:
   %0 = call i1 @llvm.expect.i1(i1 false, i1 false)
-  br i1 %0, label %panic.i, label %"_ZN4core3num21_$LT$impl$u20$u32$GT$10div_euclid17ha36146064e305061E.exit"
+  br i1 %0, label %panic.i, label %"_ZN4core3num21_$LT$impl$u20$u32$GT$10div_euclid17h1aac550335f44c6aE.exit"
 
 panic.i:                                          ; preds = %start
 ; call core::panicking::panic
-  call void @_ZN4core9panicking5panic17h2c01fe35420426ffE([0 x i8]* align 1 bitcast ([25 x i8]* @str.0 to [0 x i8]*), i64 25, %"core::panic::location::Location"* align 8 bitcast (<{ i8*, [16 x i8] }>* @alloc4 to %"core::panic::location::Location"*)) #3
+  call void @_ZN4core9panicking5panic17h1587c1d8cb739ff2E([0 x i8]* align 1 bitcast ([25 x i8]* @str.0 to [0 x i8]*), i64 25, %"core::panic::location::Location"* align 8 bitcast (<{ i8*, [16 x i8] }>* @alloc4 to %"core::panic::location::Location"*)) #3
   unreachable
 
-"_ZN4core3num21_$LT$impl$u20$u32$GT$10div_euclid17ha36146064e305061E.exit": ; preds = %start
+"_ZN4core3num21_$LT$impl$u20$u32$GT$10div_euclid17h1aac550335f44c6aE.exit": ; preds = %start
   br label %bb1
 
-bb1:                                              ; preds = %"_ZN4core3num21_$LT$impl$u20$u32$GT$10div_euclid17ha36146064e305061E.exit"
+bb1:                                              ; preds = %"_ZN4core3num21_$LT$impl$u20$u32$GT$10div_euclid17h1aac550335f44c6aE.exit"
   ret void
 }
 
@@ -33,7 +33,7 @@ declare i1 @llvm.expect.i1(i1, i1) #1
 
 ; core::panicking::panic
 ; Function Attrs: cold noinline noreturn nonlazybind uwtable
-declare void @_ZN4core9panicking5panic17h2c01fe35420426ffE([0 x i8]* align 1, i64, %"core::panic::location::Location"* align 8) unnamed_addr #2
+declare void @_ZN4core9panicking5panic17h1587c1d8cb739ff2E([0 x i8]* align 1, i64, %"core::panic::location::Location"* align 8) unnamed_addr #2
 
 attributes #0 = { nonlazybind uwtable "probe-stack"="__rust_probestack" "target-cpu"="x86-64" }
 attributes #1 = { nofree nosync nounwind readnone willreturn }
