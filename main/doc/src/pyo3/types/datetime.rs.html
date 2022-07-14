@@ -595,6 +595,37 @@
 <span id="589">589</span>
 <span id="590">590</span>
 <span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Safe Rust wrappers for types defined in the Python `datetime` library</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! For more details about these types, see the [Python</span>
@@ -618,7 +649,7 @@
 };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::instance::PyNativeType</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::PyTuple</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">PyAny</span>, <span class="ident">PyObject</span>, <span class="ident">Python</span>, <span class="ident">ToPyObject</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsPyPointer</span>, <span class="ident">IntoPy</span>, <span class="ident">Py</span>, <span class="ident">PyAny</span>, <span class="ident">Python</span>};
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
 <span class="kw">fn</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">_py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">PyDateTime_CAPI</span> {
@@ -841,7 +872,7 @@
         <span class="ident">minute</span>: <span class="ident">u8</span>,
         <span class="ident">second</span>: <span class="ident">u8</span>,
         <span class="ident">microsecond</span>: <span class="ident">u32</span>,
-        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyObject</span><span class="op">&gt;</span>,
+        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyDateTime</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">api</span> <span class="op">=</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">py</span>);
         <span class="kw">unsafe</span> {
@@ -877,7 +908,7 @@
         <span class="ident">minute</span>: <span class="ident">u8</span>,
         <span class="ident">second</span>: <span class="ident">u8</span>,
         <span class="ident">microsecond</span>: <span class="ident">u32</span>,
-        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyObject</span><span class="op">&gt;</span>,
+        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span><span class="op">&gt;</span>,
         <span class="ident">fold</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyDateTime</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">api</span> <span class="op">=</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">py</span>);
@@ -900,20 +931,13 @@
 
     <span class="doccomment">/// Construct a `datetime` object from a POSIX timestamp</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is equivalent to `datetime.datetime.from_timestamp`</span>
+    <span class="doccomment">/// This is equivalent to `datetime.datetime.fromtimestamp`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_timestamp</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>(
         <span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
         <span class="ident">timestamp</span>: <span class="ident">f64</span>,
-        <span class="ident">time_zone_info</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span><span class="op">&gt;</span>,
+        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyDateTime</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">timestamp</span>: <span class="ident">PyObject</span> <span class="op">=</span> <span class="ident">timestamp</span>.<span class="ident">to_object</span>(<span class="ident">py</span>);
-
-        <span class="kw">let</span> <span class="ident">time_zone_info</span>: <span class="ident">PyObject</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">time_zone_info</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">time_zone_info</span>) =&gt; <span class="ident">time_zone_info</span>.<span class="ident">to_object</span>(<span class="ident">py</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">py</span>.<span class="prelude-val">None</span>(),
-        };
-
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">PyTuple::new</span>(<span class="ident">py</span>, <span class="kw-2">&amp;</span>[<span class="ident">timestamp</span>, <span class="ident">time_zone_info</span>]);
+        <span class="kw">let</span> <span class="ident">args</span>: <span class="ident">Py</span><span class="op">&lt;</span><span class="ident">PyTuple</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="ident">timestamp</span>, <span class="ident">tzinfo</span>).<span class="ident">into_py</span>(<span class="ident">py</span>);
 
         <span class="comment">// safety ensure API is loaded</span>
         <span class="kw">let</span> <span class="ident">_api</span> <span class="op">=</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">py</span>);
@@ -993,7 +1017,7 @@
         <span class="ident">minute</span>: <span class="ident">u8</span>,
         <span class="ident">second</span>: <span class="ident">u8</span>,
         <span class="ident">microsecond</span>: <span class="ident">u32</span>,
-        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyObject</span><span class="op">&gt;</span>,
+        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyTime</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">api</span> <span class="op">=</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">py</span>);
         <span class="kw">unsafe</span> {
@@ -1016,7 +1040,7 @@
         <span class="ident">minute</span>: <span class="ident">u8</span>,
         <span class="ident">second</span>: <span class="ident">u8</span>,
         <span class="ident">microsecond</span>: <span class="ident">u32</span>,
-        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyObject</span><span class="op">&gt;</span>,
+        <span class="ident">tzinfo</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span><span class="op">&gt;</span>,
         <span class="ident">fold</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PyResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;p</span> <span class="ident">PyTime</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">api</span> <span class="op">=</span> <span class="ident">ensure_datetime_api</span>(<span class="ident">py</span>);
@@ -1070,9 +1094,11 @@
     }
 }
 
-<span class="doccomment">/// Bindings for `datetime.tzinfo`</span>
+<span class="doccomment">/// Bindings for `datetime.tzinfo`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is an abstract base class and should not be constructed directly.</span>
+<span class="doccomment">/// This is an abstract base class and cannot be constructed directly.</span>
+<span class="doccomment">/// For concrete time zone implementations, see [`timezone_utc`] and</span>
+<span class="doccomment">/// the [`zoneinfo` module](https://docs.python.org/3/library/zoneinfo.html).</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PyTzInfo</span>(<span class="ident">PyAny</span>);
 <span class="macro">pyobject_native_type!</span>(
@@ -1082,6 +1108,11 @@
     #<span class="ident">module</span><span class="op">=</span><span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>),
     #<span class="ident">checkfunction</span><span class="op">=</span><span class="ident">PyTZInfo_Check</span>
 );
+
+<span class="doccomment">/// Equivalent to `datetime.timezone.utc`</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timezone_utc</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span> {
+    <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="ident">ensure_datetime_api</span>(<span class="ident">py</span>).<span class="ident">TimeZone_UTC</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">PyTzInfo</span>) }
+}
 
 <span class="doccomment">/// Bindings for `datetime.timedelta`</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
@@ -1132,7 +1163,7 @@
 }
 
 <span class="comment">// Utility function</span>
-<span class="kw">fn</span> <span class="ident">opt_to_pyobj</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyObject</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span> {
+<span class="kw">fn</span> <span class="ident">opt_to_pyobj</span>(<span class="ident">py</span>: <span class="ident">Python</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PyTzInfo</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">ffi::PyObject</span> {
     <span class="comment">// Convenience function for unpacking Options to either an Object or None</span>
     <span class="kw">match</span> <span class="ident">opt</span> {
         <span class="prelude-val">Some</span>(<span class="ident">tzi</span>) =&gt; <span class="ident">tzi</span>.<span class="ident">as_ptr</span>(),
@@ -1142,12 +1173,49 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::py_run</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">ignore</span>)]</span> <span class="comment">// DateTime import fails on wasm for mysterious reasons</span>
+    <span class="kw">fn</span> <span class="ident">test_datetime_fromtimestamp</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">PyDateTime::from_timestamp</span>(<span class="ident">py</span>, <span class="number">100.0</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
+            <span class="macro">py_run!</span>(
+                <span class="ident">py</span>,
+                <span class="ident">dt</span>,
+                <span class="string">&quot;import datetime; assert dt == datetime.datetime.fromtimestamp(100)&quot;</span>
+            );
+
+            <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">PyDateTime::from_timestamp</span>(<span class="ident">py</span>, <span class="number">100.0</span>, <span class="prelude-val">Some</span>(<span class="ident">timezone_utc</span>(<span class="ident">py</span>))).<span class="ident">unwrap</span>();
+            <span class="macro">py_run!</span>(
+                <span class="ident">py</span>,
+                <span class="ident">dt</span>,
+                <span class="string">&quot;import datetime; assert dt == datetime.datetime.fromtimestamp(100, datetime.timezone.utc)&quot;</span>
+            );
+        })
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">ignore</span>)]</span> <span class="comment">// DateTime import fails on wasm for mysterious reasons</span>
+    <span class="kw">fn</span> <span class="ident">test_date_fromtimestamp</span>() {
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">PyDate::from_timestamp</span>(<span class="ident">py</span>, <span class="number">100</span>).<span class="ident">unwrap</span>();
+            <span class="macro">py_run!</span>(
+                <span class="ident">py</span>,
+                <span class="ident">dt</span>,
+                <span class="string">&quot;import datetime; assert dt == datetime.date.fromtimestamp(100)&quot;</span>
+            );
+        })
+    }
+
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">ignore</span>)]</span> <span class="comment">// DateTime import fails on wasm for mysterious reasons</span>
     <span class="kw">fn</span> <span class="ident">test_new_with_fold</span>() {
-        <span class="ident"><span class="kw">crate</span>::Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyDateTime</span>, <span class="ident">PyTimeAccess</span>};
-
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">PyDateTime::new_with_fold</span>(<span class="ident">py</span>, <span class="number">2021</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">20</span>, <span class="number">32</span>, <span class="number">40</span>, <span class="number">341516</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>);
             <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">PyDateTime::new_with_fold</span>(<span class="ident">py</span>, <span class="number">2021</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">20</span>, <span class="number">32</span>, <span class="number">40</span>, <span class="number">341516</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>);
 
@@ -1156,29 +1224,23 @@
         });
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">ignore</span>)]</span> <span class="comment">// DateTime import fails on wasm for mysterious reasons</span>
     <span class="kw">fn</span> <span class="ident">test_get_tzinfo</span>() {
         <span class="ident"><span class="kw">crate</span>::Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversion::ToPyObject</span>;
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">PyDateTime</span>, <span class="ident">PyTime</span>, <span class="ident">PyTzInfoAccess</span>};
+            <span class="kw">let</span> <span class="ident">utc</span> <span class="op">=</span> <span class="ident">timezone_utc</span>(<span class="ident">py</span>);
 
-            <span class="kw">let</span> <span class="ident">datetime</span> <span class="op">=</span> <span class="ident">py</span>.<span class="ident">import</span>(<span class="string">&quot;datetime&quot;</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">print</span>(<span class="ident">py</span>)).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">timezone</span> <span class="op">=</span> <span class="ident">datetime</span>.<span class="ident">getattr</span>(<span class="string">&quot;timezone&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">utc</span> <span class="op">=</span> <span class="ident">timezone</span>.<span class="ident">getattr</span>(<span class="string">&quot;utc&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">to_object</span>(<span class="ident">py</span>);
+            <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">PyDateTime::new</span>(<span class="ident">py</span>, <span class="number">2018</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">utc</span>)).<span class="ident">unwrap</span>();
 
-            <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">PyDateTime::new</span>(<span class="ident">py</span>, <span class="number">2018</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">utc</span>)).<span class="ident">unwrap</span>();
-
-            <span class="macro">assert!</span>(<span class="ident">dt</span>.<span class="ident">get_tzinfo</span>().<span class="ident">unwrap</span>().<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="ident">utc</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">dt</span>.<span class="ident">get_tzinfo</span>().<span class="ident">unwrap</span>().<span class="ident">eq</span>(<span class="ident">utc</span>).<span class="ident">unwrap</span>());
 
             <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">PyDateTime::new</span>(<span class="ident">py</span>, <span class="number">2018</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
 
             <span class="macro">assert!</span>(<span class="ident">dt</span>.<span class="ident">get_tzinfo</span>().<span class="ident">is_none</span>());
 
-            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">PyTime::new</span>(<span class="ident">py</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">utc</span>)).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">PyTime::new</span>(<span class="ident">py</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">utc</span>)).<span class="ident">unwrap</span>();
 
-            <span class="macro">assert!</span>(<span class="ident">t</span>.<span class="ident">get_tzinfo</span>().<span class="ident">unwrap</span>().<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="ident">utc</span>).<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(<span class="ident">t</span>.<span class="ident">get_tzinfo</span>().<span class="ident">unwrap</span>().<span class="ident">eq</span>(<span class="ident">utc</span>).<span class="ident">unwrap</span>());
 
             <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">PyTime::new</span>(<span class="ident">py</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
 
@@ -1187,5 +1249,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (1c7b36d4d 2022-07-12)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (87588a2af 2022-07-13)" ></div>
 </body></html>

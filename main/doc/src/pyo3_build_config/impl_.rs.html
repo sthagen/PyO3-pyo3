@@ -2597,6 +2597,17 @@
 <span id="2591">2591</span>
 <span id="2592">2592</span>
 <span id="2593">2593</span>
+<span id="2594">2594</span>
+<span id="2595">2595</span>
+<span id="2596">2596</span>
+<span id="2597">2597</span>
+<span id="2598">2598</span>
+<span id="2599">2599</span>
+<span id="2600">2600</span>
+<span id="2601">2601</span>
+<span id="2602">2602</span>
+<span id="2603">2603</span>
+<span id="2604">2604</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Main implementation module included in both the `pyo3-build-config` library crate</span>
 <span class="doccomment">//! and its build script.</span>
 
@@ -3070,7 +3081,8 @@ print(&quot;mingw&quot;, get_platform().startswith(&quot;mingw&quot;))
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lib_dir</span>.<span class="ident">is_none</span>() {
             <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">target_triple_from_env</span>();
             <span class="kw">let</span> <span class="ident">py_version</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">abi3</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">version</span>) };
-            <span class="self">self</span>.<span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident">import_lib::generate_import_lib</span>(<span class="kw-2">&amp;</span><span class="ident">target</span>, <span class="ident">py_version</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.<span class="ident">lib_dir</span> <span class="op">=</span>
+                <span class="ident">import_lib::generate_import_lib</span>(<span class="kw-2">&amp;</span><span class="ident">target</span>, <span class="self">self</span>.<span class="ident">implementation</span>, <span class="ident">py_version</span>)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -4026,7 +4038,13 @@ for key, val in build_time_vars.items():
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;python3-dll-a&quot;</span>)]</span>
     <span class="kw">if</span> <span class="ident">lib_dir</span>.<span class="ident">is_none</span>() {
         <span class="kw">let</span> <span class="ident">py_version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abi3</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">version</span>) };
-        <span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident"><span class="self">self</span>::import_lib::generate_import_lib</span>(<span class="kw-2">&amp;</span><span class="ident">cross_compile_config</span>.<span class="ident">target</span>, <span class="ident">py_version</span>)<span class="question-mark">?</span>;
+        <span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident"><span class="self">self</span>::import_lib::generate_import_lib</span>(
+            <span class="kw-2">&amp;</span><span class="ident">cross_compile_config</span>.<span class="ident">target</span>,
+            <span class="ident">cross_compile_config</span>
+                .<span class="ident">implementation</span>
+                .<span class="ident">unwrap_or</span>(<span class="ident">PythonImplementation::CPython</span>),
+            <span class="ident">py_version</span>,
+        )<span class="question-mark">?</span>;
     }
 
     <span class="prelude-val">Ok</span>(<span class="ident">InterpreterConfig</span> {
@@ -4364,7 +4382,11 @@ for key, val in build_time_vars.items():
         } <span class="kw">else</span> {
             <span class="prelude-val">Some</span>(<span class="ident">interpreter_config</span>.<span class="ident">version</span>)
         };
-        <span class="ident">interpreter_config</span>.<span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident"><span class="self">self</span>::import_lib::generate_import_lib</span>(<span class="kw-2">&amp;</span><span class="ident">host</span>, <span class="ident">py_version</span>)<span class="question-mark">?</span>;
+        <span class="ident">interpreter_config</span>.<span class="ident">lib_dir</span> <span class="op">=</span> <span class="ident"><span class="self">self</span>::import_lib::generate_import_lib</span>(
+            <span class="kw-2">&amp;</span><span class="ident">host</span>,
+            <span class="ident">interpreter_config</span>.<span class="ident">implementation</span>,
+            <span class="ident">py_version</span>,
+        )<span class="question-mark">?</span>;
     }
 
     <span class="prelude-val">Ok</span>(<span class="ident">interpreter_config</span>)
@@ -5191,5 +5213,5 @@ for key, val in build_time_vars.items():
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (1c7b36d4d 2022-07-12)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (87588a2af 2022-07-13)" ></div>
 </body></html>

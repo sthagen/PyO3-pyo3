@@ -7294,6 +7294,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 </ul>
 <h3 id="added"><a class="header" href="#added">Added</a></h3>
 <ul>
+<li>Add <code>timezone_utc()</code>. <a href="https://github.com/PyO3/pyo3/pull/1588">#1588</a></li>
 <li>Implement <code>ToPyObject</code> for <code>[T; N]</code>. <a href="https://github.com/PyO3/pyo3/pull/2313">#2313</a></li>
 <li>Added the internal <code>IntoPyResult</code> trait to give better error messages when function return types do not implement <code>IntoPy</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
 <li>Add <code>PyDictKeys</code>, <code>PyDictValues</code> and <code>PyDictItems</code> Rust types to represent <code>dict_keys</code>, <code>dict_values</code> and <code>dict_items</code> types. <a href="https://github.com/PyO3/pyo3/pull/2358">#2358</a></li>
@@ -7306,10 +7307,12 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Add <code>CompareOp::matches</code> to easily implement <code>__richcmp__</code> as the result of a
 Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO3/pyo3/pull/2460">#2460</a></li>
 <li>Supprt <code>#[pyo3(name)]</code> on enum variants <a href="https://github.com/PyO3/pyo3/pull/2457">#2457</a></li>
-<li>Add <code>PySuper</code> object <a href="https://github.com/PyO3/pyo3/issues/2049">#2049</a> </li>
+<li>Add <code>PySuper</code> object <a href="https://github.com/PyO3/pyo3/issues/2049">#2049</a></li>
+<li>Add support for generating PyPy Windows import library. <a href="https://github.com/PyO3/pyo3/pull/2506">#2506</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
+<li>Change datetime constructors taking a <code>tzinfo</code> to take <code>Option&lt;&amp;PyTzInfo&gt;</code> instead of <code>Option&lt;&amp;PyObject&gt;</code>: <code>PyDateTime::new()</code>, <code>PyDateTime::new_with_fold()</code>, <code>PyTime::new()</code>, and <code>PyTime::new_with_fold()</code>. <a href="https://github.com/PyO3/pyo3/pull/1588">#1588</a></li>
 <li>Several methods of <code>Py</code> and <code>PyAny</code> now accept <code>impl IntoPy&lt;Py&lt;PyString&gt;&gt;</code> rather than just <code>&amp;str</code> to allow use of the <code>intern!</code> macro. <a href="https://github.com/PyO3/pyo3/pull/2312">#2312</a></li>
 <li>Move <code>PyTypeObject::type_object</code> method to <code>PyTypeInfo</code> trait, and deprecate <code>PyTypeObject</code> trait. <a href="https://github.com/PyO3/pyo3/pull/2287">#2287</a></li>
 <li>The deprecated <code>pyproto</code> feature is now disabled by default. <a href="https://github.com/PyO3/pyo3/pull/2322">#2322</a></li>
@@ -7320,6 +7323,7 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Prevent multiple <code>#[pymethods]</code> with the same name for a single <code>#[pyclass]</code>. <a href="https://github.com/PyO3/pyo3/pull/2399">#2399</a></li>
 <li>Fixup <code>lib_name</code> when using <code>PYO3_CONFIG_FILE</code>. <a href="https://github.com/PyO3/pyo3/pull/2404">#2404</a></li>
 <li>Iterators over <code>PySet</code> and <code>PyDict</code> will now panic if the underlying collection is mutated during the iteration. <a href="https://github.com/PyO3/pyo3/pull/2380">#2380</a></li>
+<li><code>FromPyObject::extract</code> now raises an error if source type is <code>PyString</code> and target type is <code>Vec&lt;T&gt;</code>. <a href="https://github.com/PyO3/pyo3/pull/2500">#2500</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
