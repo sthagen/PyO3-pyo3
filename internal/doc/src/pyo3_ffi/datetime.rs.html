@@ -616,6 +616,15 @@
 <span id="610">610</span>
 <span id="611">611</span>
 <span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
 </pre><pre class="rust"><code><span class="doccomment">//! FFI bindings to the functions and structs defined in `datetime.h`</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This is the unsafe thin  wrapper around the [CPython C API](https://docs.python.org/3/c-api/datetime.html),</span>
@@ -1192,8 +1201,17 @@
 <span class="comment">// skipped non-limited PyTime_FromTime</span>
 <span class="comment">// skipped non-limited PyTime_FromTimeAndFold</span>
 <span class="comment">// skipped non-limited PyDelta_FromDSU</span>
-<span class="comment">// skipped non-limited PyTimeZone_FromOffset</span>
-<span class="comment">// skipped non-limited PyTimeZone_FromOffsetAndName</span>
+
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyTimeZone_FromOffset</span>(<span class="ident">offset</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span> {
+    ((<span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>()).<span class="ident">TimeZone_FromTimeZone</span>)(<span class="ident">offset</span>, <span class="ident">std::ptr::null_mut</span>())
+}
+
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyTimeZone_FromOffsetAndName</span>(
+    <span class="ident">offset</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+    <span class="ident">name</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>,
+) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span> {
+    ((<span class="kw-2">*</span><span class="ident">PyDateTimeAPI</span>()).<span class="ident">TimeZone_FromTimeZone</span>)(<span class="ident">offset</span>, <span class="ident">name</span>)
+}
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">PyPy</span>))]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">PyDateTime_FromTimestamp</span>(<span class="ident">args</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">PyObject</span> {
@@ -1229,5 +1247,5 @@
 <span class="kw">static</span> <span class="ident">PyDateTimeAPI_impl</span>: <span class="ident">PyDateTimeAPISingleton</span> <span class="op">=</span>
     <span class="ident">PyDateTimeAPISingleton</span>(<span class="ident">UnsafeCell::new</span>(<span class="ident">ptr::null_mut</span>()));
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (1c7b36d4d 2022-07-12)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (87588a2af 2022-07-13)" ></div>
 </body></html>
