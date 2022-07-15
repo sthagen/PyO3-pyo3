@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supprt `#[pyo3(name)]` on enum variants [#2457](https://github.com/PyO3/pyo3/pull/2457)
 - Add `PySuper` object [#2049](https://github.com/PyO3/pyo3/issues/2049)
 - Add support for generating PyPy Windows import library. [#2506](https://github.com/PyO3/pyo3/pull/2506)
+- Add FFI definitions for `Py_EnterRecursiveCall` and `Py_LeaveRecursiveCall`. [#2511](https://github.com/PyO3/pyo3/pull/2511)
 
 ### Changed
 
@@ -88,6 +89,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added missing `warn_default_encoding` field to `PyConfig` on 3.10+. The previously missing field could result in incorrect behavior or crashes. [#2370](https://github.com/PyO3/pyo3/pull/2370)
 - Fixed order of `pathconfig_warnings` and `program_name` fields of `PyConfig` on 3.10+. Previously, the order of the fields was swapped and this could lead to incorrect behavior or crashes. [#2370](https://github.com/PyO3/pyo3/pull/2370)
+
+### Removed
+
+- Remove all functionality deprecated in PyO3 0.15. [#2283](https://github.com/PyO3/pyo3/pull/2283)
 
 ## [0.16.4] - 2022-04-14
 
