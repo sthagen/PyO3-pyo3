@@ -48,20 +48,16 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span>};
 <span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote_spanned</span>, <span class="ident">ToTokens</span>};
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Deprecation</span> {
-    <span class="ident">CallAttribute</span>,
     <span class="ident">PyClassGcOption</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Deprecation</span> {
     <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="ident">syn::Ident</span> {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Deprecation::CallAttribute</span> =&gt; <span class="string">&quot;CALL_ATTRIBUTE&quot;</span>,
             <span class="ident">Deprecation::PyClassGcOption</span> =&gt; <span class="string">&quot;PYCLASS_GC_OPTION&quot;</span>,
         };
         <span class="ident">syn::Ident::new</span>(<span class="ident">string</span>, <span class="ident">span</span>)
@@ -97,5 +93,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (87588a2af 2022-07-13)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c2f428d2f 2022-07-14)" ></div>
 </body></html>

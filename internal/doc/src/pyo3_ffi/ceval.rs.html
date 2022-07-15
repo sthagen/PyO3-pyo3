@@ -120,6 +120,12 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::object::PyObject</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pystate::PyThreadState</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_void</span>};
@@ -195,8 +201,14 @@
     <span class="kw">fn</span> <span class="ident">_Py_CheckRecursiveCall</span>(<span class="ident">_where</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>) -&gt; <span class="ident">c_int</span>;
 }
 
-<span class="comment">// skipped Py_EnterRecursiveCall</span>
-<span class="comment">// skipped Py_LeaveRecursiveCall</span>
+<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPy_EnterRecursiveCall&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_EnterRecursiveCall</span>(<span class="ident">arg1</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>);
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">Py_3_9</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">PyPy</span>, <span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;PyPy_LeaveRecursiveCall&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Py_LeaveRecursiveCall</span>();
+}
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PyEval_GetFuncName</span>(<span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">PyObject</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">c_char</span>;
@@ -237,5 +249,5 @@
 <span class="comment">// skipped FVS_MASK</span>
 <span class="comment">// skipped FVS_HAVE_SPEC</span>
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (87588a2af 2022-07-13)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_ffi" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c2f428d2f 2022-07-14)" ></div>
 </body></html>

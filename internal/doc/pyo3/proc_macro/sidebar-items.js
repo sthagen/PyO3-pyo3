@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"attr":[["pyclass",""],["pyfunction","A proc macro used to expose Rust functions to Python."],["pymethods","A proc macro used to expose methods to Python."],["pymodule","A proc macro used to implement Python modules."],["pyproto","A proc macro used to implement Python’s dunder methods."]]};
