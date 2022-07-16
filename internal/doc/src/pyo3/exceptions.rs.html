@@ -1018,6 +1018,12 @@
 <span id="1012">1012</span>
 <span id="1013">1013</span>
 <span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="doccomment">//! Exception types defined by Python.</span>
@@ -1128,7 +1134,13 @@
                     .<span class="ident">get_or_init</span>(<span class="ident">py</span>, <span class="op">|</span><span class="op">|</span> {
                         <span class="kw">let</span> <span class="ident">imp</span> <span class="op">=</span> <span class="ident">py</span>
                             .<span class="ident">import</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>))
-                            .<span class="ident">expect</span>(<span class="macro">concat!</span>(<span class="string">&quot;Can not import module: &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>)));
+                            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                                <span class="kw">let</span> <span class="ident">traceback</span> <span class="op">=</span> <span class="ident">err</span>
+                                    .<span class="ident">traceback</span>(<span class="ident">py</span>)
+                                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">tb</span><span class="op">|</span> <span class="ident">tb</span>.<span class="ident">format</span>().<span class="ident">expect</span>(<span class="string">&quot;raised exception will have a traceback&quot;</span>))
+                                    .<span class="ident">unwrap_or_default</span>();
+                                <span class="macro">::std::panic!</span>(<span class="string">&quot;Can not import module {}: {}\n{}&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>), <span class="ident">err</span>, <span class="ident">traceback</span>);
+                            });
                         <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="ident">imp</span>.<span class="ident">getattr</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)).<span class="ident">expect</span>(<span class="macro">concat!</span>(
                             <span class="string">&quot;Can not load exception class: {}.{}&quot;</span>,
                             <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>),
@@ -2033,5 +2045,5 @@ Python::with_gil(|py| {
     <span class="macro">test_exception!</span>(<span class="ident">PyWindowsError</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c2f428d2f 2022-07-14)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (23e21bdd2 2022-07-15)" ></div>
 </body></html>
