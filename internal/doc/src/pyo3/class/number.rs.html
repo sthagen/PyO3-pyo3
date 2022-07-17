@@ -1522,7 +1522,7 @@
             .<span class="ident">try_borrow_mut</span>()<span class="question-mark">?</span>
             .<span class="ident">__ipow__</span>(
                 <span class="macro">extract_or_return_not_implemented!</span>(<span class="ident">other</span>),
-                <span class="kw">match</span> <span class="ident">modulo</span>.<span class="ident">extract</span>(<span class="ident">py</span>) {
+                <span class="kw">match</span> <span class="ident">modulo</span>.<span class="ident">to_borrowed_any</span>(<span class="ident">py</span>).<span class="ident">extract</span>() {
                     <span class="prelude-val">Ok</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>,
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::ffi::Py_NotImplemented</span>();
@@ -1571,5 +1571,5 @@
 <span class="macro">py_binary_reversed_num_func!</span>(<span class="ident">rmatmul</span>, <span class="ident">PyNumberRMatmulProtocol</span>, <span class="ident">T::__rmatmul__</span>);
 <span class="macro">py_binary_self_func!</span>(<span class="ident">imatmul</span>, <span class="ident">PyNumberIMatmulProtocol</span>, <span class="ident">T::__imatmul__</span>);
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (23e21bdd2 2022-07-15)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (d5e7f4782 2022-07-16)" ></div>
 </body></html>

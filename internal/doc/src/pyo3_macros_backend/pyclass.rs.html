@@ -1064,6 +1064,21 @@
 <span id="1058">1058</span>
 <span id="1059">1059</span>
 <span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (c) 2017-present PyO3 Project and Contributors</span>
 
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -1843,21 +1858,36 @@
         <span class="kw">let</span> <span class="ident">cls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cls</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">attr</span>.<span class="ident">options</span>.<span class="ident">frozen</span>.<span class="ident">is_some</span>() {
             <span class="macro">quote!</span> {
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">_pyo3::derive_utils::ExtractExt</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">cls</span>
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;py</span><span class="op">&gt;</span> <span class="ident">_pyo3::impl_::extract_argument::PyFunctionArgument</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;py</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">cls</span>
                 {
-                    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">_pyo3::PyRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, #<span class="ident">cls</span><span class="op">&gt;</span>;
+                    <span class="kw">type</span> <span class="ident">Holder</span> <span class="op">=</span> <span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="ident">_pyo3::PyRef</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, #<span class="ident">cls</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+
+                    <span class="attribute">#[<span class="ident">inline</span>]</span>
+                    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">_pyo3::PyAny</span>, <span class="ident">holder</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Holder</span>) -&gt; <span class="ident">_pyo3::PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                        <span class="ident">_pyo3::impl_::extract_argument::extract_pyclass_ref</span>(<span class="ident">obj</span>, <span class="ident">holder</span>)
+                    }
                 }
             }
         } <span class="kw">else</span> {
             <span class="macro">quote!</span> {
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">_pyo3::derive_utils::ExtractExt</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">cls</span>
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;py</span><span class="op">&gt;</span> <span class="ident">_pyo3::impl_::extract_argument::PyFunctionArgument</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;py</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">cls</span>
                 {
-                    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">_pyo3::PyRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, #<span class="ident">cls</span><span class="op">&gt;</span>;
+                    <span class="kw">type</span> <span class="ident">Holder</span> <span class="op">=</span> <span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="ident">_pyo3::PyRef</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, #<span class="ident">cls</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+
+                    <span class="attribute">#[<span class="ident">inline</span>]</span>
+                    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">_pyo3::PyAny</span>, <span class="ident">holder</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Holder</span>) -&gt; <span class="ident">_pyo3::PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                        <span class="ident">_pyo3::impl_::extract_argument::extract_pyclass_ref</span>(<span class="ident">obj</span>, <span class="ident">holder</span>)
+                    }
                 }
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">_pyo3::derive_utils::ExtractExt</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> #<span class="ident">cls</span>
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;py</span><span class="op">&gt;</span> <span class="ident">_pyo3::impl_::extract_argument::PyFunctionArgument</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;py</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> #<span class="ident">cls</span>
                 {
-                    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">_pyo3::PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, #<span class="ident">cls</span><span class="op">&gt;</span>;
+                    <span class="kw">type</span> <span class="ident">Holder</span> <span class="op">=</span> <span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="ident">_pyo3::PyRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;py</span>, #<span class="ident">cls</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+
+                    <span class="attribute">#[<span class="ident">inline</span>]</span>
+                    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;py</span> <span class="ident">_pyo3::PyAny</span>, <span class="ident">holder</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Holder</span>) -&gt; <span class="ident">_pyo3::PyResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                        <span class="ident">_pyo3::impl_::extract_argument::extract_pyclass_ref_mut</span>(<span class="ident">obj</span>, <span class="ident">holder</span>)
+                    }
                 }
             }
         }
@@ -2125,5 +2155,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (23e21bdd2 2022-07-15)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_macros_backend" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (d5e7f4782 2022-07-16)" ></div>
 </body></html>
