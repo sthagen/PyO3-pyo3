@@ -152,31 +152,34 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Add <code>PyDictKeys</code>, <code>PyDictValues</code> and <code>PyDictItems</code> Rust types to represent <code>dict_keys</code>, <code>dict_values</code> and <code>dict_items</code> types. <a href="https://github.com/PyO3/pyo3/pull/2358">#2358</a></li>
 <li>Add macro <code>append_to_inittab</code>. <a href="https://github.com/PyO3/pyo3/pull/2377">#2377</a></li>
 <li>Add FFI definition <code>PyFrame_GetCode</code>. <a href="https://github.com/PyO3/pyo3/pull/2406">#2406</a></li>
-<li>Added <code>PyCode</code> and <code>PyFrame</code> high level objects. <a href="https://github.com/PyO3/pyo3/pull/2408">#2408</a></li>
+<li>Add <code>PyCode</code> and <code>PyFrame</code> high level objects. <a href="https://github.com/PyO3/pyo3/pull/2408">#2408</a></li>
 <li>Add FFI definitions <code>Py_fstring_input</code>, <code>sendfunc</code>, and <code>_PyErr_StackItem</code>. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
 <li>Add <code>PyDateTime::new_with_fold</code>, <code>PyTime::new_with_fold</code>, <code>PyTime::get_fold</code>, <code>PyDateTime::get_fold</code> for PyPy. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
-<li>Allow <code>#[classattr]</code> take <code>Python</code> argument. <a href="https://github.com/PyO3/pyo3/issues/2383">#2383</a></li>
-<li>Add <code>CompareOp::matches</code> to easily implement <code>__richcmp__</code> as the result of a
-Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO3/pyo3/pull/2460">#2460</a></li>
-<li>Supprt <code>#[pyo3(name)]</code> on enum variants <a href="https://github.com/PyO3/pyo3/pull/2457">#2457</a></li>
-<li>Add <code>PySuper</code> object <a href="https://github.com/PyO3/pyo3/issues/2049">#2049</a></li>
+<li>Support <code>#[pyo3(name)]</code> on enum variants <a href="https://github.com/PyO3/pyo3/pull/2457">#2457</a></li>
+<li>Add <code>CompareOp::matches</code> to easily implement <code>__richcmp__</code> as the result of a Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO3/pyo3/pull/2460">#2460</a></li>
+<li>Add <code>PySuper</code> object <a href="https://github.com/PyO3/pyo3/pull/2486">#2486</a></li>
 <li>Add support for generating PyPy Windows import library. <a href="https://github.com/PyO3/pyo3/pull/2506">#2506</a></li>
 <li>Add FFI definitions for <code>Py_EnterRecursiveCall</code> and <code>Py_LeaveRecursiveCall</code>. <a href="https://github.com/PyO3/pyo3/pull/2511">#2511</a></li>
 </ul>
 <h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
 <li>Change datetime constructors taking a <code>tzinfo</code> to take <code>Option&lt;&amp;PyTzInfo&gt;</code> instead of <code>Option&lt;&amp;PyObject&gt;</code>: <code>PyDateTime::new()</code>, <code>PyDateTime::new_with_fold()</code>, <code>PyTime::new()</code>, and <code>PyTime::new_with_fold()</code>. <a href="https://github.com/PyO3/pyo3/pull/1588">#1588</a></li>
-<li>Several methods of <code>Py</code> and <code>PyAny</code> now accept <code>impl IntoPy&lt;Py&lt;PyString&gt;&gt;</code> rather than just <code>&amp;str</code> to allow use of the <code>intern!</code> macro. <a href="https://github.com/PyO3/pyo3/pull/2312">#2312</a></li>
 <li>Move <code>PyTypeObject::type_object</code> method to <code>PyTypeInfo</code> trait, and deprecate <code>PyTypeObject</code> trait. <a href="https://github.com/PyO3/pyo3/pull/2287">#2287</a></li>
+<li>Several methods of <code>Py</code> and <code>PyAny</code> now accept <code>impl IntoPy&lt;Py&lt;PyString&gt;&gt;</code> rather than just <code>&amp;str</code> to allow use of the <code>intern!</code> macro. <a href="https://github.com/PyO3/pyo3/pull/2312">#2312</a></li>
 <li>The deprecated <code>pyproto</code> feature is now disabled by default. <a href="https://github.com/PyO3/pyo3/pull/2322">#2322</a></li>
-<li>Deprecate <code>ToBorrowedObject</code> trait (it is only used as a wrapper for <code>ToPyObject</code>). <a href="https://github.com/PyO3/pyo3/pull/2333">#2333</a></li>
 <li><code>impl&lt;T, const N: usize&gt; IntoPy&lt;PyObject&gt; for [T; N]</code> now requires <code>T: IntoPy</code> rather than <code>T: ToPyObject</code>. <a href="https://github.com/PyO3/pyo3/pull/2326">#2326</a></li>
+<li>Deprecate <code>ToBorrowedObject</code> trait (it is only used as a wrapper for <code>ToPyObject</code>). <a href="https://github.com/PyO3/pyo3/pull/2333">#2333</a></li>
 <li>Correct <code>wrap_pymodule</code> to match normal namespacing rules: it no longer &quot;sees through&quot; glob imports of <code>use submodule::*</code> when <code>submodule::submodule</code> is a <code>#[pymodule]</code>. <a href="https://github.com/PyO3/pyo3/pull/2363">#2363</a></li>
+<li>Iterators over <code>PySet</code> and <code>PyDict</code> will now panic if the underlying collection is mutated during the iteration. <a href="https://github.com/PyO3/pyo3/pull/2380">#2380</a></li>
 <li>Allow <code>#[classattr]</code> methods to be fallible. <a href="https://github.com/PyO3/pyo3/pull/2385">#2385</a></li>
 <li>Prevent multiple <code>#[pymethods]</code> with the same name for a single <code>#[pyclass]</code>. <a href="https://github.com/PyO3/pyo3/pull/2399">#2399</a></li>
 <li>Fixup <code>lib_name</code> when using <code>PYO3_CONFIG_FILE</code>. <a href="https://github.com/PyO3/pyo3/pull/2404">#2404</a></li>
-<li>Iterators over <code>PySet</code> and <code>PyDict</code> will now panic if the underlying collection is mutated during the iteration. <a href="https://github.com/PyO3/pyo3/pull/2380">#2380</a></li>
+<li>Allow <code>#[classattr]</code> take <code>Python</code> argument. <a href="https://github.com/PyO3/pyo3/pull/2456">#2456</a></li>
 <li><code>FromPyObject::extract</code> now raises an error if source type is <code>PyString</code> and target type is <code>Vec&lt;T&gt;</code>. <a href="https://github.com/PyO3/pyo3/pull/2500">#2500</a></li>
+</ul>
+<h3 id="removed"><a class="header" href="#removed">Removed</a></h3>
+<ul>
+<li>Remove all functionality deprecated in PyO3 0.15. <a href="https://github.com/PyO3/pyo3/pull/2283">#2283</a></li>
 </ul>
 <h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
@@ -193,18 +196,19 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <li>Fix FFI definition <code>PyGenObject</code> having multiple incorrect members on various Python versions. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
 <li>Fix FFI definition <code>PySyntaxErrorObject</code> missing members <code>end_lineno</code> and <code>end_offset</code> on Python 3.10 and up. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
 <li>Fix FFI definition <code>PyHeapTypeObject</code> missing member <code>ht_module</code> on Python 3.9 and up. <a href="https://github.com/PyO3/pyo3/pull/2423">#2423</a></li>
-<li>Fix FFI definition <code>PyFrameObject</code> having multiple incorrect members on various Python versions. <a href="https://github.com/PyO3/pyo3/pull/2424">#2424</a></li>
+<li>Fix FFI definition <code>PyFrameObject</code> having multiple incorrect members on various Python versions. <a href="https://github.com/PyO3/pyo3/pull/2424">#2424</a> <a href="https://github.com/PyO3/pyo3/pull/2434">#2434</a></li>
 <li>Fix FFI definition <code>PyTypeObject</code> missing deprecated field <code>tp_print</code> on Python 3.8. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
 <li>Fix FFI definitions <code>PyDateTime_CAPI</code>. <code>PyDateTime_Date</code>, <code>PyASCIIObject</code>, <code>PyBaseExceptionObject</code>, <code>PyListObject</code>, and <code>PyTypeObject</code> on PyPy. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
 <li>Fix FFI definition <code>_inittab</code> field <code>initfunc</code> typo'd as <code>initfun</code>. <a href="https://github.com/PyO3/pyo3/pull/2431">#2431</a></li>
 <li>Fix FFI definitions <code>_PyDateTime_BaseTime</code> and <code>_PyDateTime_BaseDateTime</code> incorrectly having <code>fold</code> member. <a href="https://github.com/PyO3/pyo3/pull/2432">#2432</a></li>
-<li>Fix FFI definitions <code>PyTypeObject</code>. <code>PyHeapTypeObject</code>, and <code>PyCFunctionObject</code> having incorrect members on PyPy 3.9. <a href="https://github.com/PyO3/pyo3/pull/2428">#2428</a></li>
+<li>Fix FFI definitions <code>PyTypeObject</code>. <code>PyHeapTypeObject</code>, and <code>PyCFunctionObject</code> having incorrect members on PyPy 3.9. <a href="https://github.com/PyO3/pyo3/pull/2433">#2433</a></li>
 <li>Fix FFI definition <code>PyGetSetDef</code> to have <code>*const c_char</code> for <code>doc</code> member (not <code>*mut c_char</code>). <a href="https://github.com/PyO3/pyo3/pull/2439">#2439</a></li>
 <li>Fix <code>#[pyo3(from_py_with = &quot;...&quot;)]</code> being ignored for 1-element tuple structs and transparent structs. <a href="https://github.com/PyO3/pyo3/pull/2440">#2440</a></li>
 <li>Use <code>memoffset</code> for computing PyCell offsets <a href="https://github.com/PyO3/pyo3/pull/2450">#2450</a></li>
 <li>Fix incorrect enum names being returned by <code>repr</code> for enums renamed by <code>#[pyclass(name)]</code> <a href="https://github.com/PyO3/pyo3/pull/2457">#2457</a></li>
 <li>Fix incorrect Python version cfg definition on <code>PyObject_CallNoArgs</code><a href="https://github.com/PyO3/pyo3/pull/2476">#2476</a></li>
 <li>Fix use-after-free in <code>PyCapsule</code> type. <a href="https://github.com/PyO3/pyo3/pull/2481">#2481</a></li>
+<li>Fix several clippy warnings generated by <code>#[pyfunction]</code> arguments. <a href="https://github.com/PyO3/pyo3/pull/2503">#2503</a></li>
 </ul>
 <h2 id="0165---2022-05-15"><a class="header" href="#0165---2022-05-15"><a href="https://github.com/pyo3/pyo3/compare/v0.16.4...v0.16.5">0.16.5</a> - 2022-05-15</a></h2>
 <h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
@@ -220,10 +224,6 @@ Rust <code>std::cmp::Ordering</code> comparison. <a href="https://github.com/PyO
 <ul>
 <li>Added missing <code>warn_default_encoding</code> field to <code>PyConfig</code> on 3.10+. The previously missing field could result in incorrect behavior or crashes. <a href="https://github.com/PyO3/pyo3/pull/2370">#2370</a></li>
 <li>Fixed order of <code>pathconfig_warnings</code> and <code>program_name</code> fields of <code>PyConfig</code> on 3.10+. Previously, the order of the fields was swapped and this could lead to incorrect behavior or crashes. <a href="https://github.com/PyO3/pyo3/pull/2370">#2370</a></li>
-</ul>
-<h3 id="removed"><a class="header" href="#removed">Removed</a></h3>
-<ul>
-<li>Remove all functionality deprecated in PyO3 0.15. <a href="https://github.com/PyO3/pyo3/pull/2283">#2283</a></li>
 </ul>
 <h2 id="0164---2022-04-14"><a class="header" href="#0164---2022-04-14"><a href="https://github.com/pyo3/pyo3/compare/v0.16.3...v0.16.4">0.16.4</a> - 2022-04-14</a></h2>
 <h3 id="added-2"><a class="header" href="#added-2">Added</a></h3>

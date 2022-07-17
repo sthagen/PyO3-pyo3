@@ -1084,12 +1084,24 @@ impl ::pyo3::PyClass for MyClass {
     type Frozen = pyo3::pyclass::boolean_struct::False;
 }
 
-impl&lt;'a&gt; ::pyo3::derive_utils::ExtractExt&lt;'a&gt; for &amp;'a mut MyClass {
-    type Target = ::pyo3::PyRefMut&lt;'a, MyClass&gt;;
+impl&lt;'a, 'py&gt; ::pyo3::impl_::extract_argument::PyFunctionArgument&lt;'a, 'py&gt; for &amp;'a MyClass
+{
+    type Holder = ::std::option::Option&lt;::pyo3::PyRef&lt;'py, MyClass&gt;&gt;;
+
+    #[inline]
+    fn extract(obj: &amp;'py ::pyo3::PyAny, holder: &amp;'a mut Self::Holder) -&gt; ::pyo3::PyResult&lt;Self&gt; {
+        ::pyo3::impl_::extract_argument::extract_pyclass_ref(obj, holder)
+    }
 }
 
-impl&lt;'a&gt; ::pyo3::derive_utils::ExtractExt&lt;'a&gt; for &amp;'a MyClass {
-    type Target = ::pyo3::PyRef&lt;'a, MyClass&gt;;
+impl&lt;'a, 'py&gt; ::pyo3::impl_::extract_argument::PyFunctionArgument&lt;'a, 'py&gt; for &amp;'a mut MyClass
+{
+    type Holder = ::std::option::Option&lt;::pyo3::PyRefMut&lt;'py, MyClass&gt;&gt;;
+
+    #[inline]
+    fn extract(obj: &amp;'py ::pyo3::PyAny, holder: &amp;'a mut Self::Holder) -&gt; ::pyo3::PyResult&lt;Self&gt; {
+        ::pyo3::impl_::extract_argument::extract_pyclass_ref_mut(obj, holder)
+    }
 }
 
 impl pyo3::IntoPy&lt;PyObject&gt; for MyClass {

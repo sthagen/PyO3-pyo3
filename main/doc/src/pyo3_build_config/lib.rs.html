@@ -232,6 +232,11 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Configuration used by PyO3 for conditional support of varying Python versions.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This crate exposes functionality to be called from build scripts to simplify building crates</span>
@@ -382,6 +387,11 @@
     <span class="kw">if</span> <span class="ident">rustc_minor_version</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">51</span> {
         <span class="macro">println!</span>(<span class="string">&quot;cargo:rustc-cfg=addr_of&quot;</span>);
     }
+
+    <span class="comment">// Enable use of Option::insert on Rust 1.53 and greater</span>
+    <span class="kw">if</span> <span class="ident">rustc_minor_version</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">53</span> {
+        <span class="macro">println!</span>(<span class="string">&quot;cargo:rustc-cfg=option_insert&quot;</span>);
+    }
 }
 
 <span class="doccomment">/// Private exports used in PyO3&#39;s build.rs</span>
@@ -461,5 +471,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (23e21bdd2 2022-07-15)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="pyo3_build_config" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (d5e7f4782 2022-07-16)" ></div>
 </body></html>
