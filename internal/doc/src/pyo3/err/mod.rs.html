@@ -1733,12 +1733,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">set_typeerror</span>() {
-        <span class="kw">let</span> <span class="ident">gil</span> <span class="op">=</span> <span class="ident">Python::acquire_gil</span>();
-        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">gil</span>.<span class="ident">python</span>();
-        <span class="kw">let</span> <span class="ident">err</span>: <span class="ident">PyErr</span> <span class="op">=</span> <span class="ident">exceptions::PyTypeError::new_err</span>(());
-        <span class="ident">err</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
-        <span class="macro">assert!</span>(<span class="ident">PyErr::occurred</span>(<span class="ident">py</span>));
-        <span class="ident">drop</span>(<span class="ident">PyErr::fetch</span>(<span class="ident">py</span>));
+        <span class="ident">Python::with_gil</span>(<span class="op">|</span><span class="ident">py</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">err</span>: <span class="ident">PyErr</span> <span class="op">=</span> <span class="ident">exceptions::PyTypeError::new_err</span>(());
+            <span class="ident">err</span>.<span class="ident">restore</span>(<span class="ident">py</span>);
+            <span class="macro">assert!</span>(<span class="ident">PyErr::occurred</span>(<span class="ident">py</span>));
+            <span class="ident">drop</span>(<span class="ident">PyErr::fetch</span>(<span class="ident">py</span>));
+        });
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1867,5 +1867,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (d5e7f4782 2022-07-16)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="pyo3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (d68e7ebc3 2022-07-20)" ></div>
 </body></html>
