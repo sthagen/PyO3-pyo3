@@ -174,7 +174,17 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow <code>#[classattr]</code> methods to be fallible. <a href="https://github.com/PyO3/pyo3/pull/2385">#2385</a></li>
 <li>Prevent multiple <code>#[pymethods]</code> with the same name for a single <code>#[pyclass]</code>. <a href="https://github.com/PyO3/pyo3/pull/2399">#2399</a></li>
 <li>Fixup <code>lib_name</code> when using <code>PYO3_CONFIG_FILE</code>. <a href="https://github.com/PyO3/pyo3/pull/2404">#2404</a></li>
+<li>Iterators over <code>PySet</code> and <code>PyDict</code> will now panic if the underlying collection is mutated during the iteration. <a href="https://github.com/PyO3/pyo3/pull/2380">#2380</a></li>
 <li>Allow <code>#[classattr]</code> take <code>Python</code> argument. <a href="https://github.com/PyO3/pyo3/pull/2456">#2456</a></li>
+<li>Rework <code>PyCapsule</code> type to resolve multiple soundness issues: <a href="https://github.com/PyO3/pyo3/pull/2485">#2485</a>
+<ul>
+<li><code>PyCapsule::new</code> and <code>PyCapsule::new_with_destructor</code> now take <code>name: Option&lt;CString&gt;</code> instead of <code>&amp;CStr</code>.</li>
+<li>The destructor <code>F</code> in <code>PyCapsule::new_with_destructor</code> must now be <code>Send</code>.</li>
+<li><code>PyCapsule::get_context</code> deprecated in favour of <code>PyCapsule::context</code> which doesn't take a <code>py: Python&lt;'_&gt;</code> argument.</li>
+<li><code>PyCapsule::set_context</code> no longer takes a <code>py: Python&lt;'_&gt;</code> argument.</li>
+<li><code>PyCapsule::name</code> now returns <code>PyResult&lt;Option&lt;&amp;CStr&gt;&gt;</code> instead of <code>&amp;CStr</code>.</li>
+</ul>
+</li>
 <li><code>FromPyObject::extract</code> now raises an error if source type is <code>PyString</code> and target type is <code>Vec&lt;T&gt;</code>. <a href="https://github.com/PyO3/pyo3/pull/2500">#2500</a></li>
 </ul>
 <h3 id="removed"><a class="header" href="#removed">Removed</a></h3>
