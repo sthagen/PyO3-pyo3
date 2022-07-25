@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["capsule_destructor",""]],"struct":[["CapsuleContents",""],["PyCapsule","Represents a Python Capsule as described in Capsules:"]],"trait":[["AssertNotZeroSized","Guarantee `T` is not zero sized at compile time."]]};
+window.SIDEBAR_ITEMS = {"fn":[["capsule_destructor",""],["ensure_no_error",""]],"struct":[["CapsuleContents",""],["PyCapsule","Represents a Python Capsule as described in Capsules:"]],"trait":[["AssertNotZeroSized","Guarantee `T` is not zero sized at compile time."]]};
