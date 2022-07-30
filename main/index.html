@@ -236,6 +236,7 @@ pip install maturin
 maturin init --bindings pyo3
 maturin develop
 </code></pre>
+<p>If you want to be able to run <code>cargo test</code> or use this project in a Cargo workspace and are running into linker issues, there are some workarounds in <a href="https://pyo3.rs/latest/faq.html#i-cant-run-cargo-test-or-i-cant-build-in-a-cargo-workspace-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">the FAQ</a>.</p>
 <p>As well as with <code>maturin</code>, it is possible to build using <a href="https://github.com/PyO3/setuptools-rust"><code>setuptools-rust</code></a> or <a href="https://pyo3.rs/latest/building_and_distribution.html#manual-builds">manually</a>. Both offer more flexibility than <code>maturin</code> but require more configuration to get started.</p>
 <h3 id="using-python-from-rust"><a class="header" href="#using-python-from-rust">Using Python from Rust</a></h3>
 <p>To embed Python into a Rust binary, you need to ensure that your Python installation contains a shared library. The following steps demonstrate how to ensure this (for Ubuntu), and then give some example code which runs an embedded Python interpreter.</p>

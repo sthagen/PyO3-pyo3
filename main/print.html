@@ -237,6 +237,7 @@ pip install maturin
 maturin init --bindings pyo3
 maturin develop
 </code></pre>
+<p>If you want to be able to run <code>cargo test</code> or use this project in a Cargo workspace and are running into linker issues, there are some workarounds in <a href="https://pyo3.rs/latest/faq.html#i-cant-run-cargo-test-or-i-cant-build-in-a-cargo-workspace-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">the FAQ</a>.</p>
 <p>As well as with <code>maturin</code>, it is possible to build using <a href="https://github.com/PyO3/setuptools-rust"><code>setuptools-rust</code></a> or <a href="https://pyo3.rs/latest/building_and_distribution.html#manual-builds">manually</a>. Both offer more flexibility than <code>maturin</code> but require more configuration to get started.</p>
 <h3 id="using-python-from-rust"><a class="header" href="#using-python-from-rust">Using Python from Rust</a></h3>
 <p>To embed Python into a Rust binary, you need to ensure that your Python installation contains a shared library. The following steps demonstrate how to ensure this (for Ubuntu), and then give some example code which runs an embedded Python interpreter.</p>
@@ -5000,7 +5001,7 @@ rustflags = [
 <h3 id="the-extension-module-feature"><a class="header" href="#the-extension-module-feature">The <code>extension-module</code> feature</a></h3>
 <p>PyO3's <code>extension-module</code> feature is used to disable <a href="https://en.wikipedia.org/wiki/Linker_(computing)">linking</a> to <code>libpython</code> on unix targets.</p>
 <p>This is necessary because by default PyO3 links to <code>libpython</code>. This makes binaries, tests, and examples &quot;just work&quot;. However, Python extensions on unix must not link to libpython for <a href="https://www.python.org/dev/peps/pep-0513/">manylinux</a> compliance.</p>
-<p>The downside of not linking to <code>libpython</code> is that binaries, tests, and examples (which usually embed Python) will fail to build. If you have an extension module as well as other outputs in a single project, you need to use optional Cargo features to disable the <code>extension-module</code> when you're not building the extension module. See <a href="faq.html#i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">the FAQ</a> for an example workaround.</p>
+<p>The downside of not linking to <code>libpython</code> is that binaries, tests, and examples (which usually embed Python) will fail to build. If you have an extension module as well as other outputs in a single project, you need to use optional Cargo features to disable the <code>extension-module</code> when you're not building the extension module. See <a href="faq.html#i-cant-run-cargo-test-or-i-cant-build-in-a-cargo-workspace-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">the FAQ</a> for an example workaround.</p>
 <h3 id="py_limited_apiabi3"><a class="header" href="#py_limited_apiabi3"><code>Py_LIMITED_API</code>/<code>abi3</code></a></h3>
 <p>By default, Python extension modules can only be used with the same Python version they were compiled against. For example, an extension module built for Python 3.5 can't be imported in Python 3.8. <a href="https://www.python.org/dev/peps/pep-0384/">PEP 384</a> introduced the idea of the limited Python API, which would have a stable ABI enabling extension modules built with it to be used against multiple Python versions. This is also known as <code>abi3</code>.</p>
 <p>The advantage of building extension modules using the limited Python API is that package vendors only need to build and distribute a single copy (for each OS / architecture), and users can install it on all Python versions from the <a href="building_and_distribution.html#minimum-python-version-for-abi3">minimum version</a> and up. The downside of this is that PyO3 can't use optimizations which rely on being compiled against a known exact Python version. It's up to you to decide whether this matters for your extension module. It's also possible to design your extension module such that you can distribute <code>abi3</code> wheels but allow users compiling from source to benefit from additional optimizations - see the <a href="./building_and_distribution/multiple_python_versions.html">support for multiple python versions</a> section of this guide, in particular the <code>#[cfg(Py_LIMITED_API)]</code> flag.</p>
@@ -5747,14 +5748,34 @@ fn main() -&gt; PyResult&lt;()&gt; {
 <li>Deadlock.</li>
 </ol>
 <p>PyO3 provides a struct <a href="https://pyo3.rs/main/doc/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> which works equivalently to <code>OnceCell</code> but relies solely on the Python GIL for thread safety. This means it can be used in place of <code>lazy_static</code> or <code>once_cell</code> where you are experiencing the deadlock described above. See the documentation for <a href="https://pyo3.rs/main/doc/pyo3/once_cell/struct.GILOnceCell.html"><code>GILOnceCell</code></a> for an example how to use it.</p>
-<h2 id="i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror"><a class="header" href="#i-cant-run-cargo-test-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">I can't run <code>cargo test</code>: I'm having linker issues like &quot;Symbol not found&quot; or &quot;Undefined reference to _PyExc_SystemError&quot;!</a></h2>
-<p>Currently, <a href="https://github.com/PyO3/pyo3/issues/340">#340</a> causes <code>cargo test</code> to fail with linking errors when the <code>extension-module</code> feature is activated. For now you can work around this by making the <code>extension-module</code> feature optional and running the tests with <code>cargo test --no-default-features</code>:</p>
+<h2 id="i-cant-run-cargo-test-or-i-cant-build-in-a-cargo-workspace-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror"><a class="header" href="#i-cant-run-cargo-test-or-i-cant-build-in-a-cargo-workspace-im-having-linker-issues-like-symbol-not-found-or-undefined-reference-to-_pyexc_systemerror">I can't run <code>cargo test</code>; or I can't build in a Cargo workspace: I'm having linker issues like &quot;Symbol not found&quot; or &quot;Undefined reference to _PyExc_SystemError&quot;!</a></h2>
+<p>Currently, <a href="https://github.com/PyO3/pyo3/issues/340">#340</a> causes <code>cargo test</code> to fail with linking errors when the <code>extension-module</code> feature is activated. Linking errors can also happen when building in a cargo workspace where a different crate also uses PyO3 (see <a href="https://github.com/PyO3/pyo3/issues/2521">#2521</a>). For now, there are three ways we can work around these issues.</p>
+<ol>
+<li>Make the <code>extension-module</code> feature optional. Build with <code>maturin develop --features &quot;extension-module&quot;</code></li>
+</ol>
+<pre><code class="language-toml">[dependencies.pyo3]
+git = &quot;https://github.com/pyo3/pyo3&quot;
+
+[features]
+extension-module = [&quot;pyo3/extension-module&quot;]
+</code></pre>
+<ol start="2">
+<li>Make the <code>extension-module</code> feature optional and default. Run tests with <code>cargo test --no-default-features</code>:</li>
+</ol>
 <pre><code class="language-toml">[dependencies.pyo3]
 git = &quot;https://github.com/pyo3/pyo3&quot;
 
 [features]
 extension-module = [&quot;pyo3/extension-module&quot;]
 default = [&quot;extension-module&quot;]
+</code></pre>
+<ol start="3">
+<li>If you are using a <a href="https://maturin.rs/metadata.html"><code>pyproject.toml</code></a> file to control maturin settings, add the following section:</li>
+</ol>
+<pre><code class="language-toml">[tool.maturin]
+features = [&quot;pyo3/extension-module&quot;]
+# Or for maturin 0.12:
+# cargo-extra-args = [&quot;--features&quot;, &quot;pyo3/extension-module&quot;]
 </code></pre>
 <h2 id="i-cant-run-cargo-test-my-crate-cannot-be-found-for-tests-in-tests-directory"><a class="header" href="#i-cant-run-cargo-test-my-crate-cannot-be-found-for-tests-in-tests-directory">I can't run <code>cargo test</code>: my crate cannot be found for tests in <code>tests/</code> directory!</a></h2>
 <p>The Rust book suggests to <a href="https://doc.rust-lang.org/book/ch11-03-test-organization.html#integration-tests">put integration tests inside a <code>tests/</code> directory</a>.</p>
