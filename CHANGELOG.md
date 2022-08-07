@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `PySuper` object [#2486](https://github.com/PyO3/pyo3/pull/2486)
 - Add support for generating PyPy Windows import library. [#2506](https://github.com/PyO3/pyo3/pull/2506)
 - Add FFI definitions for `Py_EnterRecursiveCall` and `Py_LeaveRecursiveCall`. [#2511](https://github.com/PyO3/pyo3/pull/2511)
+- Add `get_item_with_error` on `PyDict` that exposes `PyDict_GetItemWIthError` for non-PyPy. [#2536](https://github.com/PyO3/pyo3/pull/2536)
 
 ### Changed
 
@@ -51,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `PyCapsule::set_context` no longer takes a `py: Python<'_>` argument.
   - `PyCapsule::name` now returns `PyResult<Option<&CStr>>` instead of `&CStr`.
 - `FromPyObject::extract` now raises an error if source type is `PyString` and target type is `Vec<T>`. [#2500](https://github.com/PyO3/pyo3/pull/2500)
+- `pyo3_build_config::add_extension_module_link_args()` now also emits linker arguments for `wasm32-unknown-emscripten`. [#2500](https://github.com/PyO3/pyo3/pull/2500)
 
 ### Removed
 
