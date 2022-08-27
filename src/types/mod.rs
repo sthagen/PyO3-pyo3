@@ -16,6 +16,8 @@ pub use self::datetime::{
     PyTzInfo, PyTzInfoAccess,
 };
 pub use self::dict::{IntoPyDict, PyDict};
+#[cfg(not(PyPy))]
+pub use self::dict::{PyDictItems, PyDictKeys, PyDictValues};
 pub use self::floatob::PyFloat;
 #[cfg(all(not(Py_LIMITED_API), not(PyPy)))]
 pub use self::frame::PyFrame;
@@ -242,7 +244,7 @@ macro_rules! pyobject_native_type_sized {
             type BaseNativeType = $name;
             type ThreadChecker = $crate::impl_::pyclass::ThreadCheckerStub<$crate::PyObject>;
             type Initializer = $crate::pyclass_init::PyNativeTypeInitializer<Self>;
-            type PyClassMutability = $crate::pycell::ImmutableClass;
+            type PyClassMutability = $crate::pycell::impl_::ImmutableClass;
         }
     }
 }

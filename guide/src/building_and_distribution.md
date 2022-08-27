@@ -1,4 +1,4 @@
-# Building and Distribution
+# Building and distribution
 
 This chapter of the guide goes into detail on how to build and distribute projects using PyO3. The way to achieve this is very different depending on whether the project is a Python module implemented in Rust, or a Rust binary embedding Python. For both types of project there are also common problems such as the Python version to build for and the [linker](https://en.wikipedia.org/wiki/Linker_(computing)) arguments to use.
 
@@ -293,9 +293,13 @@ An experimental `pyo3` crate feature `generate-import-lib` enables the user to c
 extension modules for Windows targets without setting the `PYO3_CROSS_LIB_DIR` environment
 variable or providing any Windows Python library files. It uses an external [`python3-dll-a`] crate
 to generate import libraries for the Python DLL for MinGW-w64 and MSVC compile targets.
+`python3-dll-a` uses the binutils `dlltool` program to generate DLL import libraries for MinGW-w64 targets.
+It is possible to override the default `dlltool` command name for the cross target
+by setting `PYO3_MINGW_DLLTOOL` environment variable.
 *Note*: MSVC targets require LLVM binutils or MSVC build tools to be available on the host system.
 More specifically, `python3-dll-a` requires `llvm-dlltool` or `lib.exe` executable to be present in `PATH` when
-targeting `*-pc-windows-msvc`.
+targeting `*-pc-windows-msvc`. Zig compiler executable can be used in place of `llvm-dlltool` when `ZIG_COMMAND`
+environment variable is set to the installed Zig program name (`"zig"` or `"python -m ziglang"`).
 
 An example might look like the following (assuming your target's sysroot is at `/home/pyo3/cross/sysroot` and that your target is `armv7`):
 
