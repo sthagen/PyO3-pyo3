@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `type_input()` and `type_output()` to get the Python type of any Python-compatible object. [#2490](https://github.com/PyO3/pyo3/pull/2490)
+
+### Removed
+
+- Remove the deprecated `pyproto` feature, `#[pyproto]` macro, and all accompanying APIs. [#2587](https://github.com/PyO3/pyo3/pull/2587)
+
+## [0.17.1] - 2022-08-28
+
 ### Fixed
 
 - Fix visibility of `PyDictItems`, `PyDictKeys`, and `PyDictValues` types added in PyO3 0.17.0.
@@ -1275,7 +1285,8 @@ Yanked
 
 - Initial release
 
-[Unreleased]: https://github.com/pyo3/pyo3/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/pyo3/pyo3/compare/v0.17.1...HEAD
+[0.17.1]: https://github.com/pyo3/pyo3/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/pyo3/pyo3/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/pyo3/pyo3/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/pyo3/pyo3/compare/v0.16.4...v0.16.5

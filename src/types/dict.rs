@@ -3,6 +3,7 @@
 use super::PyMapping;
 use crate::err::{self, PyErr, PyResult};
 use crate::ffi::Py_ssize_t;
+use crate::inspect::types::TypeInfo;
 use crate::types::{PyAny, PyList};
 #[cfg(not(PyPy))]
 use crate::IntoPyPointer;
@@ -261,6 +262,7 @@ impl PyDict {
     }
 }
 
+/// PyO3 implementation of an iterator for a Python `dict` object.
 pub struct PyDictIterator<'py> {
     dict: &'py PyDict,
     ppos: ffi::Py_ssize_t,
@@ -382,6 +384,10 @@ where
             .map(|(k, v)| (k.into_py(py), v.into_py(py)));
         IntoPyDict::into_py_dict(iter, py).into()
     }
+
+    fn type_output() -> TypeInfo {
+        TypeInfo::dict_of(K::type_output(), V::type_output())
+    }
 }
 
 impl<K, V> IntoPy<PyObject> for collections::BTreeMap<K, V>
@@ -394,6 +400,10 @@ where
             .into_iter()
             .map(|(k, v)| (k.into_py(py), v.into_py(py)));
         IntoPyDict::into_py_dict(iter, py).into()
+    }
+
+    fn type_output() -> TypeInfo {
+        TypeInfo::dict_of(K::type_output(), V::type_output())
     }
 }
 
@@ -472,6 +482,10 @@ where
         }
         Ok(ret)
     }
+
+    fn type_input() -> TypeInfo {
+        TypeInfo::mapping_of(K::type_input(), V::type_input())
+    }
 }
 
 impl<'source, K, V> FromPyObject<'source> for BTreeMap<K, V>
@@ -486,6 +500,10 @@ where
             ret.insert(K::extract(k)?, V::extract(v)?);
         }
         Ok(ret)
+    }
+
+    fn type_input() -> TypeInfo {
+        TypeInfo::mapping_of(K::type_input(), V::type_input())
     }
 }
 

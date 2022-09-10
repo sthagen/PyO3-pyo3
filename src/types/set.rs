@@ -2,6 +2,7 @@
 //
 
 use crate::err::{self, PyErr, PyResult};
+use crate::inspect::types::TypeInfo;
 #[cfg(Py_LIMITED_API)]
 use crate::types::PyIterator;
 use crate::{ffi, AsPyPointer, FromPyObject, IntoPy, PyAny, PyObject, Python, ToPyObject};
@@ -142,6 +143,7 @@ mod impl_ {
         }
     }
 
+    /// PyO3 implementation of an iterator for a Python `set` object.
     pub struct PySetIterator<'p> {
         it: &'p PyIterator,
     }
@@ -164,6 +166,8 @@ mod impl_ {
 #[cfg(not(Py_LIMITED_API))]
 mod impl_ {
     use super::*;
+
+    /// PyO3 implementation of an iterator for a Python `set` object.
     pub struct PySetIterator<'py> {
         set: &'py super::PyAny,
         pos: ffi::Py_ssize_t,
@@ -271,6 +275,10 @@ where
         }
         set.into()
     }
+
+    fn type_output() -> TypeInfo {
+        TypeInfo::set_of(K::type_output())
+    }
 }
 
 impl<'source, K, S> FromPyObject<'source> for HashSet<K, S>
@@ -281,6 +289,10 @@ where
     fn extract(ob: &'source PyAny) -> PyResult<Self> {
         let set: &PySet = ob.downcast()?;
         set.iter().map(K::extract).collect()
+    }
+
+    fn type_input() -> TypeInfo {
+        TypeInfo::set_of(K::type_input())
     }
 }
 
@@ -297,6 +309,10 @@ where
         }
         set.into()
     }
+
+    fn type_output() -> TypeInfo {
+        TypeInfo::set_of(K::type_output())
+    }
 }
 
 impl<'source, K> FromPyObject<'source> for BTreeSet<K>
@@ -306,6 +322,10 @@ where
     fn extract(ob: &'source PyAny) -> PyResult<Self> {
         let set: &PySet = ob.downcast()?;
         set.iter().map(K::extract).collect()
+    }
+
+    fn type_input() -> TypeInfo {
+        TypeInfo::set_of(K::type_input())
     }
 }
 
