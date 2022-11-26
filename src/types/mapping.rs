@@ -142,7 +142,7 @@ impl<'v> PyTryFrom<'v> for PyMapping {
         // TODO: surface specific errors in this chain to the user
         if let Ok(abc) = get_mapping_abc(value.py()) {
             if value.is_instance(abc).unwrap_or(false) {
-                unsafe { return Ok(<PyMapping as PyTryFrom>::try_from_unchecked(value)) }
+                unsafe { return Ok(value.downcast_unchecked()) }
             }
         }
 
@@ -151,7 +151,7 @@ impl<'v> PyTryFrom<'v> for PyMapping {
 
     #[inline]
     fn try_from_exact<V: Into<&'v PyAny>>(value: V) -> Result<&'v PyMapping, PyDowncastError<'v>> {
-        <PyMapping as PyTryFrom>::try_from(value)
+        value.into().downcast()
     }
 
     #[inline]
@@ -194,13 +194,13 @@ mod tests {
         Python::with_gil(|py| {
             let mut v = HashMap::new();
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             assert_eq!(0, mapping.len().unwrap());
             assert!(mapping.is_empty().unwrap());
 
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let mapping2 = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping2: &PyMapping = ob.downcast(py).unwrap();
             assert_eq!(1, mapping2.len().unwrap());
             assert!(!mapping2.is_empty().unwrap());
         });
@@ -212,7 +212,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert("key0", 1234);
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             mapping.set_item("key1", "foo").unwrap();
 
             assert!(mapping.contains("key0").unwrap());
@@ -227,7 +227,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             assert_eq!(
                 32,
                 mapping.get_item(7i32).unwrap().extract::<i32>().unwrap()
@@ -245,7 +245,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             assert!(mapping.set_item(7i32, 42i32).is_ok()); // change
             assert!(mapping.set_item(8i32, 123i32).is_ok()); // insert
             assert_eq!(
@@ -265,7 +265,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             assert!(mapping.del_item(7i32).is_ok());
             assert_eq!(0, mapping.len().unwrap());
             assert!(mapping
@@ -283,12 +283,12 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             // Can't just compare against a vector of tuples since we don't have a guaranteed ordering.
             let mut key_sum = 0;
             let mut value_sum = 0;
             for el in mapping.items().unwrap().iter().unwrap() {
-                let tuple = el.unwrap().cast_as::<PyTuple>().unwrap();
+                let tuple = el.unwrap().downcast::<PyTuple>().unwrap();
                 key_sum += tuple.get_item(0).unwrap().extract::<i32>().unwrap();
                 value_sum += tuple.get_item(1).unwrap().extract::<i32>().unwrap();
             }
@@ -305,7 +305,7 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             // Can't just compare against a vector of tuples since we don't have a guaranteed ordering.
             let mut key_sum = 0;
             for el in mapping.keys().unwrap().iter().unwrap() {
@@ -323,7 +323,7 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let mapping = <PyMapping as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let mapping: &PyMapping = ob.downcast(py).unwrap();
             // Can't just compare against a vector of tuples since we don't have a guaranteed ordering.
             let mut values_sum = 0;
             for el in mapping.values().unwrap().iter().unwrap() {

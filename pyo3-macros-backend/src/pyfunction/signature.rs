@@ -211,9 +211,19 @@ pub struct PythonSignature {
     pub accepts_kwargs: bool,
 }
 
+impl PythonSignature {
+    pub fn has_no_args(&self) -> bool {
+        self.positional_parameters.is_empty()
+            && self.keyword_only_parameters.is_empty()
+            && !self.accepts_varargs
+            && !self.accepts_kwargs
+    }
+}
+
 pub struct FunctionSignature<'a> {
     pub arguments: Vec<FnArg<'a>>,
     pub python_signature: PythonSignature,
+    pub attribute: Option<SignatureAttribute>,
 }
 
 pub enum ParseState {
@@ -362,7 +372,7 @@ impl<'a> FunctionSignature<'a> {
             ),
         };
 
-        for item in attribute.value.items {
+        for item in &attribute.value.items {
             match item {
                 SignatureItem::Argument(arg) => {
                     let fn_arg = next_argument_checked(&arg.ident)?;
@@ -372,8 +382,8 @@ impl<'a> FunctionSignature<'a> {
                         arg.eq_and_default.is_none(),
                         arg.span(),
                     )?;
-                    if let Some((_, default)) = arg.eq_and_default {
-                        fn_arg.default = Some(default);
+                    if let Some((_, default)) = &arg.eq_and_default {
+                        fn_arg.default = Some(default.clone());
                     }
                 }
                 SignatureItem::VarargsSep(sep) => parse_state.finish_pos_args(sep.span())?,
@@ -402,6 +412,7 @@ impl<'a> FunctionSignature<'a> {
         Ok(FunctionSignature {
             arguments,
             python_signature,
+            attribute: Some(attribute),
         })
     }
 
@@ -506,6 +517,7 @@ impl<'a> FunctionSignature<'a> {
                 keyword_only_parameters,
                 accepts_kwargs,
             },
+            attribute: None,
         })
     }
 
@@ -541,6 +553,7 @@ impl<'a> FunctionSignature<'a> {
         Self {
             arguments,
             python_signature,
+            attribute: None,
         }
     }
 }

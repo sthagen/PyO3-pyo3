@@ -25,7 +25,11 @@ create_exception!(mymodule, CustomError, PyException);
 
 Python::with_gil(|py| {
     let ctx = [("CustomError", py.get_type::<CustomError>())].into_py_dict(py);
-    pyo3::py_run!(py, *ctx, "assert str(CustomError) == \"<class 'mymodule.CustomError'>\"");
+    pyo3::py_run!(
+        py,
+        *ctx,
+        "assert str(CustomError) == \"<class 'mymodule.CustomError'>\""
+    );
     pyo3::py_run!(py, *ctx, "assert CustomError('oops').args == ('oops',)");
 });
 ```
@@ -47,12 +51,11 @@ fn mymodule(py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     Ok(())
 }
-
 ```
 
 ## Raising an exception
 
-As described in the [function error handling](./function/error_handling.md) chapter, to raise an exception from a `#[pyfunction]` or `#[pymethods]`, return an `Err(PyErr)`. PyO3 will automatically raise this exception for you when returing the result to Python.
+As described in the [function error handling](./function/error_handling.md) chapter, to raise an exception from a `#[pyfunction]` or `#[pymethods]`, return an `Err(PyErr)`. PyO3 will automatically raise this exception for you when returning the result to Python.
 
 You can also manually write and fetch errors in the Python interpreter's global state:
 
@@ -115,7 +118,6 @@ fn tell(file: &PyAny) -> PyResult<u64> {
         Ok(x) => x.extract::<u64>(),
     }
 }
-
 ```
 
 [`pyo3::exceptions`]({{#PYO3_DOCS_URL}}/pyo3/exceptions/index.html)

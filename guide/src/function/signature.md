@@ -94,7 +94,7 @@ num=44
 num=-1
 ```
 
-> Note: for keywords like `struct`, to use it as a function argument, use "raw ident" syntax `r#struct` in both the signature and the function definition:
+> Note: to use keywords like `struct` as a function argument, use "raw identifier" syntax `r#struct` in both the signature and the function definition:
 >
 > ```rust
 > # #![allow(dead_code)]
@@ -120,7 +120,7 @@ Below are the same examples as above which using the deprecated syntax:
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
-#[pyfunction(kwds="**")]
+#[pyfunction(kwds = "**")]
 fn num_kwds(kwds: Option<&PyDict>) -> usize {
     kwds.map_or(0, |dict| dict.len())
 }
@@ -166,12 +166,7 @@ impl MyClass {
         MyClass { num }
     }
 
-    #[args(
-        num = "10",
-        py_args = "*",
-        name = "\"Hello\"",
-        py_kwargs = "**"
-    )]
+    #[args(num = "10", py_args = "*", name = "\"Hello\"", py_kwargs = "**")]
     fn method(
         &mut self,
         num: i32,

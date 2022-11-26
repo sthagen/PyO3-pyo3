@@ -395,7 +395,6 @@ fn my_module(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 #         Ok(())
 #     })
 # }
-
 ```
 
 ## Appendix: Writing some unsafe code
@@ -443,7 +442,7 @@ fn wrap(obj: &PyAny) -> Result<i32, PyErr> {
 }
 ```
 
-[`PyErr::take`]: https://docs.rs/pyo3/latest/pyo3/prelude/struct.PyErr.html#method.take
-[`Python`]: https://docs.rs/pyo3/latest/pyo3/struct.Python.html
-[`FromPyObject`]: https://docs.rs/pyo3/latest/pyo3/conversion/trait.FromPyObject.html
-[`pyo3::ffi::PyLong_AsUnsignedLongMask`]: https://docs.rs/pyo3/latest/pyo3/ffi/fn.PyLong_AsUnsignedLongMask.html
+[`PyErr::take`]: {{#PYO3_DOCS_URL}}/pyo3/prelude/struct.PyErr.html#method.take
+[`Python`]: {{#PYO3_DOCS_URL}}/pyo3/struct.Python.html
+[`FromPyObject`]: {{#PYO3_DOCS_URL}}/pyo3/conversion/trait.FromPyObject.html
+[`pyo3::ffi::PyLong_AsUnsignedLongMask`]: {{#PYO3_DOCS_URL}}/pyo3/ffi/fn.PyLong_AsUnsignedLongMask.html

@@ -11,8 +11,8 @@ The magic methods handled by PyO3 are very similar to the standard Python ones o
  - Magic methods for the buffer protocol
 
 When PyO3 handles a magic method, a couple of changes apply compared to other `#[pymethods]`:
- - The `#[pyo3(text_signature = "...")]` attribute is not allowed
- - The signature is restricted to match the magic method
+ - The Rust function signature is restricted to match the magic method.
+ - The `#[pyo3(signature = (...)]` and `#[pyo3(text_signature = "...")]` attributes are not allowed.
 
 The following sections list of all magic methods PyO3 currently handles.  The
 given signatures should be interpreted as follows:
@@ -48,7 +48,7 @@ given signatures should be interpreted as follows:
     # use pyo3::prelude::*;
     #
     #[pyclass]
-    struct NotHashable { }
+    struct NotHashable {}
 
     #[pymethods]
     impl NotHashable {
@@ -229,7 +229,7 @@ Use the `#[pyclass(sequence)]` annotation to instruct PyO3 to fill the `sq_lengt
     # use pyo3::prelude::*;
     #
     #[pyclass]
-    struct NoContains { }
+    struct NoContains {}
 
     #[pymethods]
     impl NoContains {
@@ -243,17 +243,24 @@ Use the `#[pyclass(sequence)]` annotation to instruct PyO3 to fill the `sq_lengt
 
     Implements retrieval of the `self[a]` element.
 
-    *Note:* Negative integer indexes are not handled specially.
+    *Note:* Negative integer indexes are not handled specially by PyO3.
+    However, for classes with `#[pyclass(sequence)]`, when a negative index is
+    accessed via `PySequence::get_item`, the underlying C API already adjusts
+    the index to be positive.
 
   - `__setitem__(<self>, object, object) -> ()`
 
     Implements assignment to the `self[a]` element.
     Should only be implemented if elements can be replaced.
 
+    Same behavior regarding negative indices as for `__getitem__`.
+
   - `__delitem__(<self>, object) -> ()`
 
     Implements deletion of the `self[a]` element.
     Should only be implemented if elements can be deleted.
+
+    Same behavior regarding negative indices as for `__getitem__`.
 
   * `fn __concat__(&self, other: impl FromPyObject) -> PyResult<impl ToPyObject>`
 

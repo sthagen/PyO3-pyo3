@@ -113,7 +113,7 @@ pub unsafe trait PyNativeType: Sized {
 /// #         let m = pyo3::types::PyModule::new(py, "test")?;
 /// #         m.add_class::<Foo>()?;
 /// #
-/// #         let foo: &PyCell<Foo> = pyo3::PyTryFrom::try_from(m.getattr("Foo")?.call0()?)?;
+/// #         let foo: &PyCell<Foo> = m.getattr("Foo")?.call0()?.downcast()?;
 /// #         let dict = &foo.borrow().inner;
 /// #         let dict: &PyDict = dict.as_ref(py);
 /// #
@@ -150,7 +150,7 @@ pub unsafe trait PyNativeType: Sized {
 /// #         let m = pyo3::types::PyModule::new(py, "test")?;
 /// #         m.add_class::<Foo>()?;
 /// #
-/// #         let foo: &PyCell<Foo> = pyo3::PyTryFrom::try_from(m.getattr("Foo")?.call0()?)?;
+/// #         let foo: &PyCell<Foo> = m.getattr("Foo")?.call0()?.downcast()?;
 /// #         let bar = &foo.borrow().inner;
 /// #         let bar: &Bar = &*bar.borrow(py);
 /// #
@@ -995,11 +995,37 @@ impl PyObject {
     ///
     /// This can cast only to native Python types, not types implemented in Rust. For a more
     /// flexible alternative, see [`Py::extract`](struct.Py.html#method.extract).
+    #[inline]
+    pub fn downcast<'p, T>(&'p self, py: Python<'p>) -> Result<&T, PyDowncastError<'_>>
+    where
+        T: PyTryFrom<'p>,
+    {
+        <T as PyTryFrom<'_>>::try_from(self.as_ref(py))
+    }
+
+    /// Casts the PyObject to a concrete Python object type without checking validity.
+    ///
+    /// This can cast only to native Python types, not types implemented in Rust. For a more
+    /// flexible alternative, see [`Py::extract`](struct.Py.html#method.extract).
+    ///
+    /// # Safety
+    ///
+    /// Callers must ensure that the type is valid or risk type confusion.
+    #[inline]
+    pub unsafe fn downcast_unchecked<'p, T>(&'p self, py: Python<'p>) -> &T
+    where
+        T: PyTryFrom<'p>,
+    {
+        <T as PyTryFrom<'_>>::try_from_unchecked(self.as_ref(py))
+    }
+
+    /// Casts the PyObject to a concrete Python object type.
+    #[deprecated(since = "0.18.0", note = "use downcast() instead")]
     pub fn cast_as<'p, D>(&'p self, py: Python<'p>) -> Result<&'p D, PyDowncastError<'_>>
     where
         D: PyTryFrom<'p>,
     {
-        <D as PyTryFrom<'_>>::try_from(unsafe { py.from_borrowed_ptr::<PyAny>(self.as_ptr()) })
+        self.downcast(py)
     }
 }
 

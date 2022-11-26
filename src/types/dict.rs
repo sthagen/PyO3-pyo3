@@ -4,7 +4,7 @@ use super::PyMapping;
 use crate::err::{self, PyErr, PyResult};
 use crate::ffi::Py_ssize_t;
 use crate::types::{PyAny, PyList};
-use crate::{ffi, AsPyPointer, PyTryFrom, Python, ToPyObject};
+use crate::{ffi, AsPyPointer, Python, ToPyObject};
 #[cfg(not(PyPy))]
 use crate::{IntoPyPointer, PyObject};
 use std::ptr::NonNull;
@@ -255,7 +255,7 @@ impl PyDict {
 
     /// Returns `self` cast as a `PyMapping`.
     pub fn as_mapping(&self) -> &PyMapping {
-        unsafe { PyMapping::try_from_unchecked(self) }
+        unsafe { self.downcast_unchecked() }
     }
 }
 
@@ -421,8 +421,8 @@ mod tests {
     #[cfg(not(PyPy))]
     use crate::exceptions;
     #[cfg(not(PyPy))]
-    use crate::{types::PyList, PyTypeInfo};
-    use crate::{types::PyTuple, PyTryFrom, Python, ToPyObject};
+    use crate::types::PyList;
+    use crate::{types::PyTuple, Python, ToPyObject};
     use std::collections::{BTreeMap, HashMap};
 
     #[test]
@@ -478,11 +478,11 @@ mod tests {
         Python::with_gil(|py| {
             let mut v = HashMap::new();
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert_eq!(0, dict.len());
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict2 = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict2: &PyDict = ob.downcast(py).unwrap();
             assert_eq!(1, dict2.len());
         });
     }
@@ -493,7 +493,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert!(dict.contains(7i32).unwrap());
             assert!(!dict.contains(8i32).unwrap());
         });
@@ -505,7 +505,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert_eq!(32, dict.get_item(7i32).unwrap().extract::<i32>().unwrap());
             assert!(dict.get_item(8i32).is_none());
         });
@@ -518,7 +518,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert_eq!(
                 32,
                 dict.get_item_with_error(7i32)
@@ -541,7 +541,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert!(dict.set_item(7i32, 42i32).is_ok()); // change
             assert!(dict.set_item(8i32, 123i32).is_ok()); // insert
             assert_eq!(
@@ -577,7 +577,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert!(dict.set_item(7i32, 42i32).is_ok()); // change
             assert!(dict.set_item(8i32, 123i32).is_ok()); // insert
             assert_eq!(32i32, v[&7i32]); // not updated!
@@ -591,7 +591,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert!(dict.del_item(7i32).is_ok());
             assert_eq!(0, dict.len());
             assert!(dict.get_item(7i32).is_none());
@@ -604,7 +604,7 @@ mod tests {
             let mut v = HashMap::new();
             v.insert(7, 32);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             assert!(dict.del_item(7i32).is_ok()); // change
             assert_eq!(32i32, *v.get(&7i32).unwrap()); // not updated!
         });
@@ -618,12 +618,12 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             // Can't just compare against a vector of tuples since we don't have a guaranteed ordering.
             let mut key_sum = 0;
             let mut value_sum = 0;
             for el in dict.items().iter() {
-                let tuple = el.cast_as::<PyTuple>().unwrap();
+                let tuple = el.downcast::<PyTuple>().unwrap();
                 key_sum += tuple.get_item(0).unwrap().extract::<i32>().unwrap();
                 value_sum += tuple.get_item(1).unwrap().extract::<i32>().unwrap();
             }
@@ -640,7 +640,7 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             // Can't just compare against a vector of tuples since we don't have a guaranteed ordering.
             let mut key_sum = 0;
             for el in dict.keys().iter() {
@@ -658,7 +658,7 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             // Can't just compare against a vector of tuples since we don't have a guaranteed ordering.
             let mut values_sum = 0;
             for el in dict.values().iter() {
@@ -676,7 +676,7 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             let mut key_sum = 0;
             let mut value_sum = 0;
             for (key, value) in dict.iter() {
@@ -697,7 +697,7 @@ mod tests {
             v.insert(9, 123);
 
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
 
             for (key, value) in dict.iter() {
                 dict.set_item(key, value.extract::<i32>().unwrap() + 7)
@@ -715,7 +715,7 @@ mod tests {
                 v.insert(i * 2, i * 2);
             }
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
 
             for (i, (key, value)) in dict.iter().enumerate() {
                 let key = key.extract::<i32>().unwrap();
@@ -740,7 +740,7 @@ mod tests {
                 v.insert(i * 2, i * 2);
             }
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
 
             for (i, (key, value)) in dict.iter().enumerate() {
                 let key = key.extract::<i32>().unwrap();
@@ -764,7 +764,7 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
 
             let mut iter = dict.iter();
             assert_eq!(iter.size_hint(), (v.len(), Some(v.len())));
@@ -790,7 +790,7 @@ mod tests {
             v.insert(8, 42);
             v.insert(9, 123);
             let ob = v.to_object(py);
-            let dict = <PyDict as PyTryFrom>::try_from(ob.as_ref(py)).unwrap();
+            let dict: &PyDict = ob.downcast(py).unwrap();
             let mut key_sum = 0;
             let mut value_sum = 0;
             for (key, value) in dict {
@@ -886,7 +886,7 @@ mod tests {
         Python::with_gil(|py| {
             let dict = abc_dict(py);
             let keys = dict.call_method0("keys").unwrap();
-            assert!(keys.is_instance(PyDictKeys::type_object(py)).unwrap());
+            assert!(keys.is_instance(py.get_type::<PyDictKeys>()).unwrap());
         })
     }
 
@@ -896,7 +896,7 @@ mod tests {
         Python::with_gil(|py| {
             let dict = abc_dict(py);
             let values = dict.call_method0("values").unwrap();
-            assert!(values.is_instance(PyDictValues::type_object(py)).unwrap());
+            assert!(values.is_instance(py.get_type::<PyDictValues>()).unwrap());
         })
     }
 
@@ -906,7 +906,7 @@ mod tests {
         Python::with_gil(|py| {
             let dict = abc_dict(py);
             let items = dict.call_method0("items").unwrap();
-            assert!(items.is_instance(PyDictItems::type_object(py)).unwrap());
+            assert!(items.is_instance(py.get_type::<PyDictItems>()).unwrap());
         })
     }
 }

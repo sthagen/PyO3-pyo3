@@ -37,7 +37,7 @@ mutable Rust reference for mutating operations such as
 be created through `Python<'_>` with a GIL lifetime) is sufficient.
 
 However, Rust structs wrapped as Python objects (called `pyclass` types) usually
-*do* need `&mut` access.  Due to the GIL, PyO3 *can* guarantee thread-safe acces
+*do* need `&mut` access.  Due to the GIL, PyO3 *can* guarantee thread-safe access
 to them, but it cannot statically guarantee uniqueness of `&mut` references once
 an object's ownership has been passed to the Python interpreter, ensuring
 references is done at runtime using `PyCell`, a scheme very similar to
@@ -89,7 +89,7 @@ For a `&PyAny` object reference `any` where the underlying object is a `#[pyclas
 # use pyo3::{Py, Python, PyAny, PyResult};
 # #[pyclass] #[derive(Clone)] struct MyClass { }
 # Python::with_gil(|py| -> PyResult<()> {
-let obj: &PyAny = Py::new(py, MyClass { })?.into_ref(py);
+let obj: &PyAny = Py::new(py, MyClass {})?.into_ref(py);
 
 // To &PyCell<MyClass> with PyAny::downcast
 let _: &PyCell<MyClass> = obj.downcast()?;
@@ -227,7 +227,7 @@ wrapped in a Python object.  The cell part is an analog to stdlib's
 taking `&SomeType` or `&mut SomeType`) while maintaining the aliasing rules of
 Rust references.
 
-Like pyo3's Python native types, `PyCell<T>` implements `Deref<Target = PyAny>`,
+Like PyO3's Python native types, `PyCell<T>` implements `Deref<Target = PyAny>`,
 so it also exposes all of the methods on `PyAny`.
 
 **Conversions:**
@@ -238,7 +238,7 @@ so it also exposes all of the methods on `PyAny`.
 # use pyo3::prelude::*;
 # #[pyclass] struct MyClass { }
 # Python::with_gil(|py| -> PyResult<()> {
-let cell: &PyCell<MyClass> = PyCell::new(py, MyClass { })?;
+let cell: &PyCell<MyClass> = PyCell::new(py, MyClass {})?;
 
 // To PyRef<T> with .borrow() or .try_borrow()
 let py_ref: PyRef<'_, MyClass> = cell.try_borrow()?;
@@ -258,7 +258,7 @@ let _: &mut MyClass = &mut *py_ref_mut;
 # use pyo3::prelude::*;
 # #[pyclass] struct MyClass { }
 # Python::with_gil(|py| -> PyResult<()> {
-let cell: &PyCell<MyClass> = PyCell::new(py, MyClass { })?;
+let cell: &PyCell<MyClass> = PyCell::new(py, MyClass {})?;
 
 // Use methods from PyAny on PyCell<T> with Deref implementation
 let _ = cell.repr()?;

@@ -13,11 +13,11 @@ Unfortunately these functions are not sufficient for distinguishing such types,
 leading to inconsistent behavior (see
 [pyo3/pyo3#2072](https://github.com/PyO3/pyo3/issues/2072)).
 
-PyO3 0.17 changes these downcast checks to explicityly test if the type is a
+PyO3 0.17 changes these downcast checks to explicitly test if the type is a
 subclass of the corresponding abstract base class `collections.abc.Mapping` or
 `collections.abc.Sequence`. Note this requires calling into Python, which may
 incur a performance penalty over the previous method. If this performance
-penatly is a problem, you may be able to perform your own checks and use
+penalty is a problem, you may be able to perform your own checks and use
 `try_from_unchecked` (unsafe).
 
 Another side-effect is that a pyclass defined in Rust with PyO3 will need to
@@ -44,7 +44,6 @@ impl Mapping {
     // ...
     // truncated implementation of this mapping pyclass - basically a wrapper around a HashMap
 }
-
 ```
 
 You must register the class with `collections.abc.Mapping` before the downcast will work:
@@ -155,7 +154,7 @@ use pyo3::class::{PyBasicProtocol, PyIterProtocol};
 use pyo3::types::PyString;
 
 #[pyclass]
-struct MyClass { }
+struct MyClass {}
 
 #[pyproto]
 impl PyBasicProtocol for MyClass {
@@ -179,7 +178,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyString;
 
 #[pyclass]
-struct MyClass { }
+struct MyClass {}
 
 #[pymethods]
 impl MyClass {
@@ -332,7 +331,7 @@ The limitation of the new default implementation is that it cannot support multi
 
 Some protocol (aka `__dunder__`) methods such as `__bytes__` and `__format__` have been possible to implement two ways in PyO3 for some time: via a `#[pyproto]` (e.g. `PyBasicProtocol` for the methods listed here), or by writing them directly in `#[pymethods]`. This is only true for a handful of the `#[pyproto]` methods (for technical reasons to do with the way PyO3 currently interacts with the Python C-API).
 
-In the interest of having onle one way to do things, the `#[pyproto]` forms of these methods have been deprecated.
+In the interest of having only one way to do things, the `#[pyproto]` forms of these methods have been deprecated.
 
 To migrate just move the affected methods from a `#[pyproto]` to a `#[pymethods]` block.
 
@@ -343,7 +342,7 @@ use pyo3::prelude::*;
 use pyo3::class::basic::PyBasicProtocol;
 
 #[pyclass]
-struct MyClass { }
+struct MyClass {}
 
 #[pyproto]
 impl PyBasicProtocol for MyClass {
@@ -359,7 +358,7 @@ After:
 use pyo3::prelude::*;
 
 #[pyclass]
-struct MyClass { }
+struct MyClass {}
 
 #[pymethods]
 impl MyClass {
@@ -373,7 +372,7 @@ impl MyClass {
 
 ### Minimum Rust version increased to Rust 1.45
 
-PyO3 `0.13` makes use of new Rust language features stabilised between Rust 1.40 and Rust 1.45. If you are using a Rust compiler older than Rust 1.45, you will need to update your toolchain to be able to continue using PyO3.
+PyO3 `0.13` makes use of new Rust language features stabilized between Rust 1.40 and Rust 1.45. If you are using a Rust compiler older than Rust 1.45, you will need to update your toolchain to be able to continue using PyO3.
 
 ### Runtime changes to support the CPython limited API
 
@@ -457,7 +456,10 @@ assert_eq!(err.to_string(), "TypeError: error message");
 
 // Now possible to interact with exception instances, new for PyO3 0.12
 let instance: &PyBaseException = err.instance(py);
-assert_eq!(instance.getattr("__class__")?, PyTypeError::type_object(py).as_ref());
+assert_eq!(
+    instance.getattr("__class__")?,
+    PyTypeError::type_object(py).as_ref()
+);
 # Ok(())
 # }).unwrap();
 ```
@@ -568,7 +570,7 @@ There can be two fixes:
    #[pyclass]
    struct NotThreadSafe {
        shared_bools: Rc<RefCell<Vec<bool>>>,
-       closure: Box<dyn Fn()>
+       closure: Box<dyn Fn()>,
    }
    ```
 
@@ -581,14 +583,14 @@ There can be two fixes:
    #[pyclass]
    struct ThreadSafe {
        shared_bools: Arc<Mutex<Vec<bool>>>,
-       closure: Box<dyn Fn() + Send>
+       closure: Box<dyn Fn() + Send>,
    }
    ```
 
    In situations where you cannot change your `#[pyclass]` to automatically implement `Send`
    (e.g., when it contains a raw pointer), you can use `unsafe impl Send`.
    In such cases, care should be taken to ensure the struct is actually thread safe.
-   See [the Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html) for more.
+   See [the Rustonomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html) for more.
 
 2. If you think that your `#[pyclass]` should not be accessed by another thread, you can use
    `unsendable` flag. A class marked with `unsendable` panics when accessed by another thread,
@@ -679,10 +681,10 @@ struct MyClass {}
 
 #[pymethods]
 impl MyClass {
-   #[new]
-   fn new(obj: &PyRawObject) {
-       obj.init(MyClass { })
-   }
+    #[new]
+    fn new(obj: &PyRawObject) {
+        obj.init(MyClass {})
+    }
 }
 ```
 
@@ -694,10 +696,10 @@ struct MyClass {}
 
 #[pymethods]
 impl MyClass {
-   #[new]
-   fn new() -> Self {
-       MyClass {}
-   }
+    #[new]
+    fn new() -> Self {
+        MyClass {}
+    }
 }
 ```
 
@@ -720,7 +722,7 @@ Here is an example.
 
 #[pyclass]
 struct Names {
-    names: Vec<String>
+    names: Vec<String>,
 }
 
 #[pymethods]

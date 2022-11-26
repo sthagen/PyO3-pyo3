@@ -282,10 +282,8 @@ impl PyString {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[cfg(all(not(Py_LIMITED_API), target_endian = "little"))]
-    use crate::PyTypeInfo;
     use crate::Python;
-    use crate::{PyObject, PyTryFrom, ToPyObject};
+    use crate::{PyObject, ToPyObject};
     #[cfg(all(not(Py_LIMITED_API), target_endian = "little"))]
     use std::borrow::Cow;
 
@@ -294,7 +292,7 @@ mod tests {
         Python::with_gil(|py| {
             let s = "ascii 🐈";
             let obj: PyObject = PyString::new(py, s).into();
-            let py_string = <PyString as PyTryFrom>::try_from(obj.as_ref(py)).unwrap();
+            let py_string: &PyString = obj.downcast(py).unwrap();
             assert_eq!(s, py_string.to_str().unwrap());
         })
     }
@@ -303,7 +301,7 @@ mod tests {
     fn test_to_str_surrogate() {
         Python::with_gil(|py| {
             let obj: PyObject = py.eval(r#"'\ud800'"#, None, None).unwrap().into();
-            let py_string = <PyString as PyTryFrom>::try_from(obj.as_ref(py)).unwrap();
+            let py_string: &PyString = obj.downcast(py).unwrap();
             assert!(py_string.to_str().is_err());
         })
     }
@@ -313,7 +311,7 @@ mod tests {
         Python::with_gil(|py| {
             let s = "哈哈🐈";
             let obj: PyObject = PyString::new(py, s).into();
-            let py_string = <PyString as PyTryFrom>::try_from(obj.as_ref(py)).unwrap();
+            let py_string: &PyString = obj.downcast(py).unwrap();
             assert_eq!(s, py_string.to_str().unwrap());
         })
     }
@@ -325,7 +323,7 @@ mod tests {
                 .eval(r#"'🐈 Hello \ud800World'"#, None, None)
                 .unwrap()
                 .into();
-            let py_string = <PyString as PyTryFrom>::try_from(obj.as_ref(py)).unwrap();
+            let py_string: &PyString = obj.downcast(py).unwrap();
             assert_eq!(py_string.to_string_lossy(), "🐈 Hello ���World");
         })
     }
@@ -334,7 +332,7 @@ mod tests {
     fn test_debug_string() {
         Python::with_gil(|py| {
             let v = "Hello\n".to_object(py);
-            let s = <PyString as PyTryFrom>::try_from(v.as_ref(py)).unwrap();
+            let s: &PyString = v.downcast(py).unwrap();
             assert_eq!(format!("{:?}", s), "'Hello\\n'");
         })
     }
@@ -343,7 +341,7 @@ mod tests {
     fn test_display_string() {
         Python::with_gil(|py| {
             let v = "Hello\n".to_object(py);
-            let s = <PyString as PyTryFrom>::try_from(v.as_ref(py)).unwrap();
+            let s: &PyString = v.downcast(py).unwrap();
             assert_eq!(format!("{}", s), "Hello\n");
         })
     }
@@ -379,7 +377,7 @@ mod tests {
             let data = unsafe { s.data().unwrap() };
             assert_eq!(data, PyStringData::Ucs1(b"f\xfe"));
             let err = data.to_string(py).unwrap_err();
-            assert!(err.get_type(py).is(PyUnicodeDecodeError::type_object(py)));
+            assert!(err.get_type(py).is(py.get_type::<PyUnicodeDecodeError>()));
             assert!(err
                 .to_string()
                 .contains("'utf-8' codec can't decode byte 0xfe in position 1"));
@@ -392,7 +390,7 @@ mod tests {
     fn test_string_data_ucs2() {
         Python::with_gil(|py| {
             let s = py.eval("'foo\\ud800'", None, None).unwrap();
-            let py_string = s.cast_as::<PyString>().unwrap();
+            let py_string = s.downcast::<PyString>().unwrap();
             let data = unsafe { py_string.data().unwrap() };
 
             assert_eq!(data, PyStringData::Ucs2(&[102, 111, 111, 0xd800]));
@@ -421,7 +419,7 @@ mod tests {
             let data = unsafe { s.data().unwrap() };
             assert_eq!(data, PyStringData::Ucs2(&[0xff22, 0xd800]));
             let err = data.to_string(py).unwrap_err();
-            assert!(err.get_type(py).is(PyUnicodeDecodeError::type_object(py)));
+            assert!(err.get_type(py).is(py.get_type::<PyUnicodeDecodeError>()));
             assert!(err
                 .to_string()
                 .contains("'utf-16' codec can't decode bytes in position 0-3"));
@@ -460,7 +458,7 @@ mod tests {
             let data = unsafe { s.data().unwrap() };
             assert_eq!(data, PyStringData::Ucs4(&[0x20000, 0xd800]));
             let err = data.to_string(py).unwrap_err();
-            assert!(err.get_type(py).is(PyUnicodeDecodeError::type_object(py)));
+            assert!(err.get_type(py).is(py.get_type::<PyUnicodeDecodeError>()));
             assert!(err
                 .to_string()
                 .contains("'utf-32' codec can't decode bytes in position 0-7"));
