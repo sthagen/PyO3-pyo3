@@ -140,3 +140,4 @@
 /v0.9.1/* https://pyo3.github.io/pyo3/v0.9.1/:splat 200
 /v0.9.2/doc/* https://docs.rs/pyo3/0.9.2/:splat
 /v0.9.2/* https://pyo3.github.io/pyo3/v0.9.2/:splat 200
+/dev/bench/* https://pyo3.github.io/pyo3/dev/bench/:splat 200
