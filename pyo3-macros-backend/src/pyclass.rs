@@ -6,9 +6,10 @@ use crate::attributes::{
     self, kw, take_pyo3_options, CrateAttribute, ExtendsAttribute, FreelistAttribute,
     ModuleAttribute, NameAttribute, NameLitStr, TextSignatureAttribute,
 };
-use crate::deprecations::{Deprecation, Deprecations};
+use crate::deprecations::Deprecations;
 use crate::konst::{ConstAttributes, ConstSpec};
 use crate::method::FnSpec;
+use crate::pyfunction::text_signature_or_none;
 use crate::pyimpl::{gen_py_const, PyClassMethodsType};
 use crate::pymethod::{
     impl_py_getter_def, impl_py_setter_def, MethodAndMethodDef, MethodAndSlotDef, PropertyType,
@@ -92,8 +93,6 @@ enum PyClassPyO3Option {
     TextSignature(TextSignatureAttribute),
     Unsendable(kw::unsendable),
     Weakref(kw::weakref),
-
-    DeprecatedGC(kw::gc),
 }
 
 impl Parse for PyClassPyO3Option {
@@ -129,8 +128,6 @@ impl Parse for PyClassPyO3Option {
             input.parse().map(PyClassPyO3Option::Unsendable)
         } else if lookahead.peek(attributes::kw::weakref) {
             input.parse().map(PyClassPyO3Option::Weakref)
-        } else if lookahead.peek(attributes::kw::gc) {
-            input.parse().map(PyClassPyO3Option::DeprecatedGC)
         } else {
             Err(lookahead.error())
         }
@@ -183,10 +180,6 @@ impl PyClassPyO3Options {
             PyClassPyO3Option::TextSignature(text_signature) => set_option!(text_signature),
             PyClassPyO3Option::Unsendable(unsendable) => set_option!(unsendable),
             PyClassPyO3Option::Weakref(weakref) => set_option!(weakref),
-
-            PyClassPyO3Option::DeprecatedGC(gc) => self
-                .deprecations
-                .push(Deprecation::PyClassGcOption, gc.span()),
         }
         Ok(())
     }
@@ -198,12 +191,10 @@ pub fn build_py_class(
     methods_type: PyClassMethodsType,
 ) -> syn::Result<TokenStream> {
     args.options.take_pyo3_options(&mut class.attrs)?;
+    let text_signature_string = text_signature_or_none(args.options.text_signature.as_ref());
     let doc = utils::get_doc(
         &class.attrs,
-        args.options
-            .text_signature
-            .as_ref()
-            .map(|attr| (get_class_python_name(&class.ident, &args), attr)),
+        text_signature_string.map(|s| (get_class_python_name(&class.ident, &args), s)),
     );
     let krate = get_pyo3_crate(&args.options.krate);
 
@@ -461,12 +452,11 @@ pub fn build_py_enum(
         bail_spanned!(enum_.brace_token.span => "#[pyclass] can't be used on enums without any variants");
     }
 
+    let text_signature_string = text_signature_or_none(args.options.text_signature.as_ref());
+
     let doc = utils::get_doc(
         &enum_.attrs,
-        args.options
-            .text_signature
-            .as_ref()
-            .map(|attr| (get_class_python_name(&enum_.ident, &args), attr)),
+        text_signature_string.map(|s| (get_class_python_name(&enum_.ident, &args), s)),
     );
     let enum_ = PyClassEnum::new(enum_)?;
     impl_enum(enum_, &args, doc, method_type)
