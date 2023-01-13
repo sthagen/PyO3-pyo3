@@ -7,7 +7,7 @@ rustup default nightly
 PYO3_VERSION=$(cargo search pyo3 --limit 1 | head -1 | tr -s ' ' | cut -d ' ' -f 3 | tr -d '"')
 
 ## Start from the existing gh-pages content.
-## By servicng it over netlify, we can have better UX for users because
+## By serving it over netlify, we can have better UX for users because
 ## netlify can then redirect e.g. /v0.17.0 to /v0.17.0/
 ## which leads to better loading of CSS assets.
 
@@ -16,18 +16,20 @@ mv pyo3-gh-pages netlify_build
 
 ## Configure netlify _redirects file
 
-# TODO: have some better system to automatically generate this on build rather
-# than check this in to the repo
-cp .netlify/_redirects netlify_build/
+# Add redirect for each documented version
+for d in netlify_build/v*; do
+    version="${d/netlify_build\/v/}"
+    echo "/v$version/doc/* https://docs.rs/pyo3/$version/:splat" >> netlify_build/_redirects
+done
 
-# Add latest redirect (proxy)
-echo "/latest/* https://pyo3.github.io/pyo3/v${PYO3_VERSION}/:splat 200" >> netlify_build/_redirects
+# Add latest redirect
+echo "/latest/* /v${PYO3_VERSION}/:splat" >> netlify_build/_redirects
 
 ## Add landing page redirect
 if [ "${CONTEXT}" == "deploy-preview" ]; then
-    echo "<meta http-equiv=refresh content=0;url=main/>" > netlify_build/index.html
+    echo "/ /main/" >> netlify_build/_redirects
 else
-    echo "<meta http-equiv=refresh content=0;url=v${PYO3_VERSION}/>" > netlify_build/index.html
+    echo "/ /v${PYO3_VERSION}/" >> netlify_build/_redirects
 fi
 
 ## Generate towncrier release notes
