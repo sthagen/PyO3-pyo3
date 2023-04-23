@@ -62,9 +62,9 @@ def coverage(session: nox.Session) -> None:
         "--package=pyo3-macros",
         "--package=pyo3-ffi",
         "report",
-        "--lcov",
+        "--codecov",
         "--output-path",
-        "coverage.lcov",
+        "coverage.json",
         external=True,
     )
 
@@ -422,6 +422,10 @@ def set_minimal_package_versions(session: nox.Session, venv_backend="none"):
         "examples/word-count",
     )
     min_pkg_versions = {
+        # newer versions of rust_decimal want newer arrayvec
+        "rust_decimal": "1.18.0",
+        # newer versions of arrayvec use const generics (Rust 1.51+)
+        "arrayvec": "0.5.2",
         "csv": "1.1.6",
         "indexmap": "1.6.2",
         "inventory": "0.3.4",
@@ -433,6 +437,7 @@ def set_minimal_package_versions(session: nox.Session, venv_backend="none"):
         "once_cell": "1.14.0",
         "rayon": "1.5.3",
         "rayon-core": "1.9.3",
+        "regex": "1.7.3",
         # string_cache 0.8.4 depends on parking_lot 0.12
         "string_cache": "0.8.3",
         # 1.15.0 depends on hermit-abi 0.2.6 which has edition 2021 and breaks 1.48.0
@@ -540,8 +545,9 @@ def _get_rust_target() -> str:
 def _get_feature_sets() -> Tuple[Tuple[str, ...], ...]:
     """Returns feature sets to use for clippy job"""
     rust_version = _get_rust_version()
-    if rust_version[:2] >= (1, 62):
-        # multiple-pymethods feature not supported before 1.62
+    cargo_target = os.getenv("CARGO_BUILD_TARGET", "")
+    if rust_version[:2] >= (1, 62) and "wasm32-wasi" not in cargo_target:
+        # multiple-pymethods feature not supported before 1.62 or on WASI
         return (
             ("--no-default-features",),
             (
