@@ -665,6 +665,7 @@ impl PyAny {
     /// Returns whether the object is considered to be None.
     ///
     /// This is equivalent to the Python expression `self is None`.
+    #[inline]
     pub fn is_none(&self) -> bool {
         unsafe { ffi::Py_None() == self.as_ptr() }
     }
@@ -778,7 +779,7 @@ impl PyAny {
     ///
     /// Python::with_gil(|py| {
     ///     let dict = PyDict::new(py);
-    ///     assert!(dict.is_instance_of::<PyAny>().unwrap());
+    ///     assert!(dict.is_instance_of::<PyAny>());
     ///     let any: &PyAny = dict.as_ref();
     ///
     ///     assert!(any.downcast::<PyDict>().is_ok());
@@ -904,18 +905,37 @@ impl PyAny {
     /// Checks whether this object is an instance of type `ty`.
     ///
     /// This is equivalent to the Python expression `isinstance(self, ty)`.
+    #[inline]
     pub fn is_instance(&self, ty: &PyAny) -> PyResult<bool> {
         let result = unsafe { ffi::PyObject_IsInstance(self.as_ptr(), ty.as_ptr()) };
         err::error_on_minusone(self.py(), result)?;
         Ok(result == 1)
     }
 
+    /// Checks whether this object is an instance of exactly type `ty` (not a subclass).
+    ///
+    /// This is equivalent to the Python expression `type(self) is ty`.
+    #[inline]
+    pub fn is_exact_instance(&self, ty: &PyAny) -> bool {
+        self.get_type().is(ty)
+    }
+
     /// Checks whether this object is an instance of type `T`.
     ///
     /// This is equivalent to the Python expression `isinstance(self, T)`,
     /// if the type `T` is known at compile time.
-    pub fn is_instance_of<T: PyTypeInfo>(&self) -> PyResult<bool> {
-        self.is_instance(T::type_object(self.py()))
+    #[inline]
+    pub fn is_instance_of<T: PyTypeInfo>(&self) -> bool {
+        T::is_type_of(self)
+    }
+
+    /// Checks whether this object is an instance of exactly type `T`.
+    ///
+    /// This is equivalent to the Python expression `type(self) is T`,
+    /// if the type `T` is known at compile time.
+    #[inline]
+    pub fn is_exact_instance_of<T: PyTypeInfo>(&self) -> bool {
+        T::is_exact_type_of(self)
     }
 
     /// Determines if self contains `value`.
@@ -954,7 +974,7 @@ impl PyAny {
 #[cfg(test)]
 mod tests {
     use crate::{
-        types::{IntoPyDict, PyList, PyLong, PyModule},
+        types::{IntoPyDict, PyBool, PyList, PyLong, PyModule},
         Python, ToPyObject,
     };
     #[test]
@@ -1040,21 +1060,47 @@ class SimpleClass:
     }
 
     #[test]
-    fn test_any_isinstance_of() {
+    fn test_any_is_instance_of() {
         Python::with_gil(|py| {
             let x = 5.to_object(py).into_ref(py);
-            assert!(x.is_instance_of::<PyLong>().unwrap());
+            assert!(x.is_instance_of::<PyLong>());
 
             let l = vec![x, x].to_object(py).into_ref(py);
-            assert!(l.is_instance_of::<PyList>().unwrap());
+            assert!(l.is_instance_of::<PyList>());
         });
     }
 
     #[test]
-    fn test_any_isinstance() {
+    fn test_any_is_instance() {
         Python::with_gil(|py| {
             let l = vec![1u8, 2].to_object(py).into_ref(py);
             assert!(l.is_instance(py.get_type::<PyList>()).unwrap());
+        });
+    }
+
+    #[test]
+    fn test_any_is_exact_instance_of() {
+        Python::with_gil(|py| {
+            let x = 5.to_object(py).into_ref(py);
+            assert!(x.is_exact_instance_of::<PyLong>());
+
+            let t = PyBool::new(py, true);
+            assert!(t.is_instance_of::<PyLong>());
+            assert!(!t.is_exact_instance_of::<PyLong>());
+            assert!(t.is_exact_instance_of::<PyBool>());
+
+            let l = vec![x, x].to_object(py).into_ref(py);
+            assert!(l.is_exact_instance_of::<PyList>());
+        });
+    }
+
+    #[test]
+    fn test_any_is_exact_instance() {
+        Python::with_gil(|py| {
+            let t = PyBool::new(py, true);
+            assert!(t.is_instance(py.get_type::<PyLong>()).unwrap());
+            assert!(!t.is_exact_instance(py.get_type::<PyLong>()));
+            assert!(t.is_exact_instance(py.get_type::<PyBool>()));
         });
     }
 

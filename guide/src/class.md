@@ -211,6 +211,32 @@ Python::with_gil(|py| {
 });
 ```
 
+### frozen classes: Opting out of interior mutability
+
+As detailed above, runtime borrow checking is currently enabled by default. But a class can opt of out it by declaring itself `frozen`. It can still use interior mutability via standard Rust types like `RefCell` or `Mutex`, but it is not bound to the implementation provided by PyO3 and can choose the most appropriate strategy on field-by-field basis.
+
+Classes which are `frozen` and also `Sync`, e.g. they do use `Mutex` but not `RefCell`, can be accessed without needing the Python GIL via the `PyCell::get` and `Py::get` methods:
+
+```rust
+use std::sync::atomic::{AtomicUsize, Ordering};
+# use pyo3::prelude::*;
+
+#[pyclass(frozen)]
+struct FrozenCounter {
+    value: AtomicUsize,
+}
+
+let py_counter: Py<FrozenCounter>  = Python::with_gil(|py| {
+    let counter = FrozenCounter { value: AtomicUsize::new(0) };
+
+    Py::new(py, counter).unwrap()
+});
+
+py_counter.get().value.fetch_add(1, Ordering::Relaxed);
+```
+
+Frozen classes are likely to become the default thereby guiding the PyO3 ecosystem towards a more deliberate application of interior mutability. Eventually, this should enable further optimizations of PyO3's internals and avoid downstream code paying the cost of interior mutability when it is not actually required.
+
 ## Customizing the class
 
 {{#include ../pyclass_parameters.md}}
@@ -606,6 +632,27 @@ Declares a class method callable from Python.
 * The first parameter implicitly has type `&PyType`.
 * For details on `parameter-list`, see the documentation of `Method arguments` section.
 * The return type must be `PyResult<T>` or `T` for some `T` that implements `IntoPy<PyObject>`.
+
+### Constructors which accept a class argument
+
+To create a constructor which takes a positional class argument, you can combine the `#[classmethod]` and `#[new]` modifiers:
+```rust
+# use pyo3::prelude::*;
+# use pyo3::types::PyType;
+# #[pyclass]
+# struct BaseClass(PyObject);
+#
+#[pymethods]
+impl BaseClass {
+    #[new]
+    #[classmethod]
+    fn py_new<'p>(cls: &'p PyType, py: Python<'p>) -> PyResult<Self> {
+      // Get an abstract attribute (presumably) declared on a subclass of this class.
+      let subclass_attr = cls.getattr("a_class_attr")?;
+      Ok(Self(subclass_attr.to_object(py)))
+    }
+}
+```
 
 ## Static methods
 
