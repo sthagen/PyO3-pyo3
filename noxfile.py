@@ -4,15 +4,14 @@ import re
 import subprocess
 import sys
 import tempfile
-import time
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import nox
 
-nox.options.sessions = ["test", "clippy", "fmt"]
+nox.options.sessions = ["test", "clippy", "fmt", "docs"]
 
 
 PYO3_DIR = Path(__file__).parent
@@ -96,25 +95,19 @@ def _clippy(session: nox.Session, *, env: Dict[str, str] = None) -> bool:
     success = True
     env = env or os.environ
     for feature_set in _get_feature_sets():
-        command = "clippy"
-        extra = ("--", "--deny=warnings")
-        if _get_rust_version()[:2] == (1, 48):
-            # 1.48 crashes during clippy because of lints requested
-            # in .cargo/config
-            command = "check"
-            extra = ()
         try:
             _run(
                 session,
                 "cargo",
-                command,
+                "clippy",
                 *feature_set,
                 "--all-targets",
                 "--workspace",
                 # linting pyo3-ffi-check requires docs to have been built or
                 # the macros will error; doesn't seem worth it on CI
                 "--exclude=pyo3-ffi-check",
-                *extra,
+                "--",
+                "--deny=warnings",
                 external=True,
                 env=env,
             )
@@ -126,31 +119,43 @@ def _clippy(session: nox.Session, *, env: Dict[str, str] = None) -> bool:
 @nox.session(name="clippy-all", venv_backend="none")
 def clippy_all(session: nox.Session) -> None:
     success = True
-    with tempfile.NamedTemporaryFile("r+") as config:
-        env = os.environ.copy()
-        env["PYO3_CONFIG_FILE"] = config.name
-        env["PYO3_CI"] = "1"
 
-        def _clippy_with_config(implementation, version) -> bool:
-            config.seek(0)
-            config.truncate(0)
-            config.write(
-                f"""\
-implementation={implementation}
-version={version}
-suppress_build_script_link_lines=true
-"""
-            )
-            config.flush()
+    def _clippy_with_config(env: Dict[str, str]) -> None:
+        nonlocal success
+        success &= _clippy(session, env=env)
 
-            session.log(f"{implementation} {version}")
-            return _clippy(session, env=env)
+    _for_all_version_configs(session, _clippy_with_config)
 
-        for version in PY_VERSIONS:
-            success &= _clippy_with_config("CPython", version)
+    if not success:
+        session.error("one or more jobs failed")
 
-        for version in PYPY_VERSIONS:
-            success &= _clippy_with_config("PyPy", version)
+
+@nox.session(name="check-all", venv_backend="none")
+def check_all(session: nox.Session) -> None:
+    success = True
+
+    def _check(env: Dict[str, str]) -> None:
+        nonlocal success
+        env = env or os.environ
+        for feature_set in _get_feature_sets():
+            try:
+                _run(
+                    session,
+                    "cargo",
+                    "check",
+                    *feature_set,
+                    "--all-targets",
+                    "--workspace",
+                    # linting pyo3-ffi-check requires docs to have been built or
+                    # the macros will error; doesn't seem worth it on CI
+                    "--exclude=pyo3-ffi-check",
+                    external=True,
+                    env=env,
+                )
+            except Exception:
+                success = False
+
+    _for_all_version_configs(session, _check)
 
     if not success:
         session.error("one or more jobs failed")
@@ -159,13 +164,9 @@ suppress_build_script_link_lines=true
 @nox.session(venv_backend="none")
 def publish(session: nox.Session) -> None:
     _run_cargo_publish(session, package="pyo3-build-config")
-    time.sleep(10)
     _run_cargo_publish(session, package="pyo3-macros-backend")
-    time.sleep(10)
     _run_cargo_publish(session, package="pyo3-macros")
-    time.sleep(10)
     _run_cargo_publish(session, package="pyo3-ffi")
-    time.sleep(10)
     _run_cargo_publish(session, package="pyo3")
 
 
@@ -284,6 +285,45 @@ def test_emscripten(session: nox.Session):
         "bash",
         "-c",
         f"source {info.builddir/'emsdk/emsdk_env.sh'} && cargo test",
+    )
+
+
+@nox.session(venv_backend="none")
+def docs(session: nox.Session) -> None:
+    rustdoc_flags = ["-Dwarnings"]
+    toolchain_flags = []
+    cargo_flags = []
+
+    if "open" in session.posargs:
+        cargo_flags.append("--open")
+
+    if "nightly" in session.posargs:
+        rustdoc_flags.append("--cfg docsrs")
+        toolchain_flags.append("+nightly")
+        cargo_flags.extend(["-Z", "unstable-options", "-Z", "rustdoc-scrape-examples"])
+
+    if "nightly" in session.posargs and "internal" in session.posargs:
+        rustdoc_flags.append("--Z unstable-options")
+        rustdoc_flags.append("--document-hidden-items")
+        cargo_flags.append("--document-private-items")
+    else:
+        cargo_flags.extend(["--exclude=pyo3-macros", "--exclude=pyo3-macros-backend"])
+
+    rustdoc_flags.append(session.env.get("RUSTDOCFLAGS", ""))
+    session.env["RUSTDOCFLAGS"] = " ".join(rustdoc_flags)
+
+    _run(
+        session,
+        "cargo",
+        *toolchain_flags,
+        "doc",
+        "--lib",
+        "--no-default-features",
+        "--features=full",
+        "--no-deps",
+        "--workspace",
+        *cargo_flags,
+        external=True,
     )
 
 
@@ -422,42 +462,14 @@ def set_minimal_package_versions(session: nox.Session):
         "examples/word-count",
     )
     min_pkg_versions = {
-        # newer versions of rust_decimal want newer arrayvec
-        "rust_decimal": "1.18.0",
-        # newer versions of arrayvec use const generics (Rust 1.51+)
-        "arrayvec": "0.5.2",
+        "rust_decimal": "1.26.1",
         "csv": "1.1.6",
-        # newer versions of chrono use i32::rem_euclid as a const fn
-        "chrono": "0.4.24",
-        "indexmap": "1.6.2",
-        "inventory": "0.3.4",
-        "hashbrown": "0.9.1",
-        "plotters": "0.3.1",
-        "plotters-svg": "0.3.1",
-        "plotters-backend": "0.3.2",
-        "bumpalo": "3.10.0",
-        "once_cell": "1.14.0",
-        "rayon": "1.5.3",
-        "rayon-core": "1.9.3",
+        "hashbrown": "0.12.3",
+        "once_cell": "1.17.2",
+        "rayon": "1.6.1",
+        "rayon-core": "1.10.2",
         "regex": "1.7.3",
-        # string_cache 0.8.4 depends on parking_lot 0.12
-        "string_cache": "0.8.3",
-        # 1.15.0 depends on hermit-abi 0.2.6 which has edition 2021 and breaks 1.48.0
-        "num_cpus": "1.14.0",
-        "parking_lot": "0.11.0",
-        # 1.0.77 needs basic-toml which has edition 2021
-        "trybuild": "1.0.76",
-        # pins to avoid syn 2.0 (which requires Rust 1.56)
-        "ghost": "0.1.8",
-        "serde": "1.0.156",
-        "serde_derive": "1.0.156",
-        "cxx": "1.0.92",
-        "cxxbridge-macro": "1.0.92",
-        "cxx-build": "1.0.92",
-        "web-sys": "0.3.61",
-        "js-sys": "0.3.61",
-        "wasm-bindgen": "0.2.84",
-        "syn": "1.0.109",
+        "proptest": "1.0.0",
     }
 
     # run cargo update first to ensure that everything is at highest
@@ -634,7 +646,7 @@ def _run_cargo_set_package_version(
     *,
     project: Optional[str] = None,
 ) -> None:
-    command = ["cargo", "update", "-p", pkg_id, "--precise", version]
+    command = ["cargo", "update", "-p", pkg_id, "--precise", version, "--workspace"]
     if project:
         command.append(f"--manifest-path={project}/Cargo.toml")
     _run(session, *command, external=True)
@@ -642,3 +654,32 @@ def _run_cargo_set_package_version(
 
 def _get_output(*args: str) -> str:
     return subprocess.run(args, capture_output=True, text=True, check=True).stdout
+
+
+def _for_all_version_configs(
+    session: nox.Session, job: Callable[[Dict[str, str]], None]
+) -> None:
+    with tempfile.NamedTemporaryFile("r+") as config:
+        env = os.environ.copy()
+        env["PYO3_CONFIG_FILE"] = config.name
+
+        def _job_with_config(implementation, version) -> bool:
+            config.seek(0)
+            config.truncate(0)
+            config.write(
+                f"""\
+implementation={implementation}
+version={version}
+suppress_build_script_link_lines=true
+"""
+            )
+            config.flush()
+
+            session.log(f"{implementation} {version}")
+            return job(env)
+
+        for version in PY_VERSIONS:
+            _job_with_config("CPython", version)
+
+        for version in PYPY_VERSIONS:
+            _job_with_config("PyPy", version)

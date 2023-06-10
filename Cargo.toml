@@ -11,7 +11,8 @@ documentation = "https://docs.rs/crate/pyo3/"
 categories = ["api-bindings", "development-tools::ffi"]
 license = "Apache-2.0"
 exclude = ["/.gitignore", ".cargo/config", "/codecov.yml", "/Makefile", "/pyproject.toml", "/noxfile.py", "/.github", "/tests/test_compile_error.rs", "/tests/ui"]
-edition = "2018"
+edition = "2021"
+rust-version = "1.56"
 
 [dependencies]
 cfg-if = "1.0"
@@ -47,9 +48,7 @@ chrono = { version = "0.4" }
 criterion = "0.3.5"
 # Required for "and $N others" normalization
 trybuild = ">=1.0.70"
-rustversion = "1.0"
-# 1.0.0 requires Rust 1.50
-proptest = { version = "0.10.1", default-features = false, features = ["std"] }
+proptest = { version = "1.0", default-features = false, features = ["std"] }
 send_wrapper = "0.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.61"
@@ -123,6 +122,10 @@ name = "bench_call"
 harness = false
 
 [[bench]]
+name = "bench_comparisons"
+harness = false
+
+[[bench]]
 name = "bench_err"
 harness = false
 
@@ -183,7 +186,6 @@ members = [
     "pyo3-macros-backend",
     "pytests",
     "examples",
-    "xtask"
 ]
 
 [package.metadata.docs.rs]

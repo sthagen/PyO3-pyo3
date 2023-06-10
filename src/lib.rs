@@ -122,7 +122,7 @@
 //!
 //! PyO3 supports the following software versions:
 //!   - Python 3.7 and up (CPython and PyPy)
-//!   - Rust 1.48 and up
+//!   - Rust 1.56 and up
 //!
 //! # Example: Building a native Python module
 //!
@@ -139,7 +139,7 @@
 //! [package]
 //! name = "string-sum"
 //! version = "0.1.0"
-//! edition = "2018"
+//! edition = "2021"
 //!
 //! [lib]
 //! name = "string_sum"
