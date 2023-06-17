@@ -1,7 +1,6 @@
 use crate::attributes::{TextSignatureAttribute, TextSignatureAttributeValue};
-use crate::deprecations::{Deprecation, Deprecations};
 use crate::params::impl_arg_params;
-use crate::pyfunction::{DeprecatedArgs, FunctionSignature, PyFunctionArgPyO3Attributes};
+use crate::pyfunction::{FunctionSignature, PyFunctionArgPyO3Attributes};
 use crate::pyfunction::{PyFunctionOptions, SignatureAttribute};
 use crate::utils::{self, PythonDoc};
 use proc_macro2::{Span, TokenStream};
@@ -236,7 +235,6 @@ pub struct FnSpec<'a> {
     pub python_name: syn::Ident,
     pub signature: FunctionSignature<'a>,
     pub output: syn::Type,
-    pub deprecations: Deprecations,
     pub convention: CallingConvention,
     pub text_signature: Option<TextSignatureAttribute>,
     pub unsafety: Option<syn::Token![unsafe]>,
@@ -281,16 +279,14 @@ impl<'a> FnSpec<'a> {
         let PyFunctionOptions {
             text_signature,
             name,
-            mut deprecations,
             signature,
             ..
         } = options;
 
         let MethodAttributes {
             ty: fn_type_attr,
-            deprecated_args,
             mut python_name,
-        } = parse_method_attributes(meth_attrs, name.map(|name| name.value.0), &mut deprecations)?;
+        } = parse_method_attributes(meth_attrs, name.map(|name| name.value.0))?;
 
         let (fn_type, skip_first_arg, fixed_convention) =
             Self::parse_fn_type(sig, fn_type_attr, &mut python_name)?;
@@ -314,15 +310,9 @@ impl<'a> FnSpec<'a> {
         };
 
         let signature = if let Some(signature) = signature {
-            ensure_spanned!(
-                deprecated_args.is_none(),
-                signature.kw.span() => "cannot define both function signature and legacy arguments"
-            );
             FunctionSignature::from_arguments_and_attribute(arguments, signature)?
-        } else if let Some(deprecated_args) = deprecated_args {
-            FunctionSignature::from_arguments_and_deprecated_args(arguments, deprecated_args)?
         } else {
-            FunctionSignature::from_arguments(arguments, &mut deprecations)
+            FunctionSignature::from_arguments(arguments)?
         };
 
         let convention =
@@ -335,7 +325,6 @@ impl<'a> FnSpec<'a> {
             python_name,
             signature,
             output: ty,
-            deprecations,
             text_signature,
             unsafety: sig.unsafety,
         })
@@ -423,7 +412,6 @@ impl<'a> FnSpec<'a> {
         ident: &proc_macro2::Ident,
         cls: Option<&syn::Type>,
     ) -> Result<TokenStream> {
-        let deprecations = &self.deprecations;
         let self_conversion = self.tp.self_conversion(cls, ExtractErrorMode::Raise);
         let self_arg = self.tp.self_arg();
         let py = syn::Ident::new("_py", Span::call_site());
@@ -457,7 +445,6 @@ impl<'a> FnSpec<'a> {
                         _slf: *mut _pyo3::ffi::PyObject,
                     ) -> _pyo3::PyResult<*mut _pyo3::ffi::PyObject> {
                         let function = #rust_name; // Shadow the function name to avoid #3017
-                        #deprecations
                         #self_conversion
                         #call
                     }
@@ -475,7 +462,6 @@ impl<'a> FnSpec<'a> {
                         _kwnames: *mut _pyo3::ffi::PyObject
                     ) -> _pyo3::PyResult<*mut _pyo3::ffi::PyObject> {
                         let function = #rust_name; // Shadow the function name to avoid #3017
-                        #deprecations
                         #self_conversion
                         #arg_convert
                         #call
@@ -493,7 +479,6 @@ impl<'a> FnSpec<'a> {
                         _kwargs: *mut _pyo3::ffi::PyObject
                     ) -> _pyo3::PyResult<*mut _pyo3::ffi::PyObject> {
                         let function = #rust_name; // Shadow the function name to avoid #3017
-                        #deprecations
                         #self_conversion
                         #arg_convert
                         #call
@@ -518,7 +503,6 @@ impl<'a> FnSpec<'a> {
                     ) -> _pyo3::PyResult<*mut _pyo3::ffi::PyObject> {
                         use _pyo3::callback::IntoPyCallbackOutput;
                         let function = #rust_name; // Shadow the function name to avoid #3017
-                        #deprecations
                         #arg_convert
                         let result = #call;
                         let initializer: _pyo3::PyClassInitializer::<#cls> = result.convert(#py)?;
@@ -636,17 +620,14 @@ impl<'a> FnSpec<'a> {
 #[derive(Debug)]
 struct MethodAttributes {
     ty: Option<MethodTypeAttribute>,
-    deprecated_args: Option<DeprecatedArgs>,
     python_name: Option<syn::Ident>,
 }
 
 fn parse_method_attributes(
     attrs: &mut Vec<syn::Attribute>,
     mut python_name: Option<syn::Ident>,
-    deprecations: &mut Deprecations,
 ) -> Result<MethodAttributes> {
     let mut new_attrs = Vec::new();
-    let mut deprecated_args = None;
     let mut ty: Option<MethodTypeAttribute> = None;
 
     macro_rules! set_compound_ty {
@@ -670,8 +651,8 @@ fn parse_method_attributes(
     }
 
     for attr in attrs.drain(..) {
-        match attr.parse_meta() {
-            Ok(syn::Meta::Path(name)) => {
+        match attr.meta {
+            syn::Meta::Path(ref name) => {
                 if name.is_ident("new") || name.is_ident("__new__") {
                     set_compound_ty!(MethodTypeAttribute::New, name);
                 } else if name.is_ident("init") || name.is_ident("__init__") {
@@ -699,9 +680,7 @@ fn parse_method_attributes(
                     new_attrs.push(attr)
                 }
             }
-            Ok(syn::Meta::List(syn::MetaList {
-                path, mut nested, ..
-            })) => {
+            syn::Meta::List(ref ml @ syn::MetaList { ref path, .. }) => {
                 if path.is_ident("new") {
                     set_ty!(MethodTypeAttribute::New, path);
                 } else if path.is_ident("init") {
@@ -718,10 +697,6 @@ fn parse_method_attributes(
                             attr.span() => "inner attribute is not supported for setter and getter"
                         );
                     }
-                    ensure_spanned!(
-                        nested.len() == 1,
-                        attr.span() => "setter/getter requires one value"
-                    );
 
                     if path.is_ident("setter") {
                         set_ty!(MethodTypeAttribute::Setter, path);
@@ -734,48 +709,27 @@ fn parse_method_attributes(
                         python_name.span() => "`name` may only be specified once"
                     );
 
-                    python_name = match nested.pop().unwrap().into_value() {
-                        syn::NestedMeta::Meta(syn::Meta::Path(w)) if w.segments.len() == 1 => {
-                            Some(w.segments[0].ident.clone())
-                        }
-                        syn::NestedMeta::Lit(lit) => match lit {
-                            syn::Lit::Str(s) => Some(s.parse()?),
-                            _ => {
-                                return Err(syn::Error::new_spanned(
-                                    lit,
-                                    "setter/getter attribute requires str value",
-                                ))
-                            }
-                        },
-                        _ => {
-                            return Err(syn::Error::new_spanned(
-                                nested.first().unwrap(),
-                                "expected ident or string literal for property name",
-                            ))
-                        }
-                    };
-                } else if path.is_ident("args") {
-                    ensure_spanned!(
-                        deprecated_args.is_none(),
-                        nested.span() => "args may only be specified once"
-                    );
-                    deprecations.push(Deprecation::PyMethodArgsAttribute, path.span());
-                    deprecated_args = Some(DeprecatedArgs::from_meta(&nested)?);
+                    if let Ok(ident) = ml.parse_args::<syn::Ident>() {
+                        python_name = Some(ident);
+                    } else if let Ok(syn::Lit::Str(s)) = ml.parse_args::<syn::Lit>() {
+                        python_name = Some(s.parse()?);
+                    } else {
+                        return Err(syn::Error::new_spanned(
+                            ml,
+                            "expected ident or string literal for property name",
+                        ));
+                    }
                 } else {
                     new_attrs.push(attr)
                 }
             }
-            Ok(syn::Meta::NameValue(_)) | Err(_) => new_attrs.push(attr),
+            syn::Meta::NameValue(_) => new_attrs.push(attr),
         }
     }
 
     *attrs = new_attrs;
 
-    Ok(MethodAttributes {
-        ty,
-        deprecated_args,
-        python_name,
-    })
+    Ok(MethodAttributes { ty, python_name })
 }
 
 const IMPL_TRAIT_ERR: &str = "Python functions cannot have `impl Trait` arguments";
