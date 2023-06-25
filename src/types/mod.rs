@@ -179,6 +179,14 @@ macro_rules! pyobject_native_type_named (
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! pyobject_native_static_type_object(
+    ($typeobject:expr) => {
+        |_py| unsafe { ::std::ptr::addr_of_mut!($typeobject) }
+    };
+);
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! pyobject_native_type_info(
     ($name:ty, $typeobject:expr, $module:expr $(, #checkfunction=$checkfunction:path)? $(;$generics:ident)*) => {
         unsafe impl<$($generics,)*> $crate::type_object::PyTypeInfo for $name {
@@ -188,15 +196,8 @@ macro_rules! pyobject_native_type_info(
             const MODULE: ::std::option::Option<&'static str> = $module;
 
             #[inline]
-            fn type_object_raw(_py: $crate::Python<'_>) -> *mut $crate::ffi::PyTypeObject {
-                // Create a very short lived mutable reference and directly
-                // cast it to a pointer: no mutable references can be aliasing
-                // because we hold the GIL.
-                #[cfg(not(addr_of))]
-                unsafe { &mut $typeobject }
-
-                #[cfg(addr_of)]
-                unsafe { ::std::ptr::addr_of_mut!($typeobject) }
+            fn type_object_raw(py: $crate::Python<'_>) -> *mut $crate::ffi::PyTypeObject {
+                $typeobject(py)
             }
 
             $(
