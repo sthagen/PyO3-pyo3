@@ -14,7 +14,7 @@ mod err_state;
 mod impls;
 
 pub use err_state::PyErrArguments;
-use err_state::{boxed_args, PyErrState, PyErrStateNormalized};
+use err_state::{PyErrState, PyErrStateLazyFnOutput, PyErrStateNormalized};
 
 /// Represents a Python exception.
 ///
@@ -119,10 +119,12 @@ impl PyErr {
         T: PyTypeInfo,
         A: PyErrArguments + Send + Sync + 'static,
     {
-        PyErr::from_state(PyErrState::LazyTypeAndValue {
-            ptype: T::type_object,
-            pvalue: boxed_args(args),
-        })
+        PyErr::from_state(PyErrState::Lazy(Box::new(move |py| {
+            PyErrStateLazyFnOutput {
+                ptype: T::type_object(py).into(),
+                pvalue: args.arguments(py),
+            }
+        })))
     }
 
     /// Constructs a new PyErr from the given Python type and arguments.
@@ -139,10 +141,7 @@ impl PyErr {
     where
         A: PyErrArguments + Send + Sync + 'static,
     {
-        PyErr::from_state(PyErrState::LazyValue {
-            ptype: ty.into(),
-            pvalue: boxed_args(args),
-        })
+        PyErr::from_state(PyErrState::lazy(ty, args))
     }
 
     /// Creates a new PyErr.
@@ -178,19 +177,11 @@ impl PyErr {
     /// ```
     pub fn from_value(obj: &PyAny) -> PyErr {
         let state = if let Ok(obj) = obj.downcast::<PyBaseException>() {
-            PyErrState::Normalized(PyErrStateNormalized {
-                ptype: obj.get_type().into(),
-                pvalue: obj.into(),
-                ptraceback: None,
-            })
-        } else if unsafe { ffi::PyExceptionClass_Check(obj.as_ptr()) } != 0 {
-            PyErrState::FfiTuple {
-                ptype: obj.into(),
-                pvalue: None,
-                ptraceback: None,
-            }
+            PyErrState::normalized(obj)
         } else {
-            return exceptions_must_derive_from_base_exception(obj.py());
+            // Assume obj is Type[Exception]; let later normalization handle if this
+            // is not the case
+            PyErrState::lazy(obj, obj.py().None())
         };
 
         PyErr::from_state(state)
@@ -208,7 +199,7 @@ impl PyErr {
     /// });
     /// ```
     pub fn get_type<'py>(&'py self, py: Python<'py>) -> &'py PyType {
-        self.normalized(py).ptype.as_ref(py)
+        self.normalized(py).ptype(py)
     }
 
     /// Returns the value of this exception.
@@ -233,7 +224,14 @@ impl PyErr {
         // NB technically this causes one reference count increase and decrease in quick succession
         // on pvalue, but it's probably not worth optimizing this right now for the additional code
         // complexity.
-        self.normalized(py).pvalue.clone_ref(py)
+        let normalized = self.normalized(py);
+        let exc = normalized.pvalue.clone_ref(py);
+        if let Some(tb) = normalized.ptraceback(py) {
+            unsafe {
+                ffi::PyException_SetTraceback(exc.as_ptr(), tb.as_ptr());
+            }
+        }
+        exc
     }
 
     /// Returns the traceback of this exception object.
@@ -248,10 +246,7 @@ impl PyErr {
     /// });
     /// ```
     pub fn traceback<'py>(&'py self, py: Python<'py>) -> Option<&'py PyTraceback> {
-        self.normalized(py)
-            .ptraceback
-            .as_ref()
-            .map(|obj| obj.as_ref(py))
+        self.normalized(py).ptraceback(py)
     }
 
     /// Gets whether an error is present in the Python interpreter's global state.
@@ -270,6 +265,11 @@ impl PyErr {
     /// expected to have been set, for example from [`PyErr::occurred`] or by an error return value
     /// from a C FFI function, use [`PyErr::fetch`].
     pub fn take(py: Python<'_>) -> Option<PyErr> {
+        Self::_take(py)
+    }
+
+    #[cfg(not(Py_3_12))]
+    fn _take(py: Python<'_>) -> Option<PyErr> {
         let (ptype, pvalue, ptraceback) = unsafe {
             let mut ptype: *mut ffi::PyObject = std::ptr::null_mut();
             let mut pvalue: *mut ffi::PyObject = std::ptr::null_mut();
@@ -277,9 +277,9 @@ impl PyErr {
             ffi::PyErr_Fetch(&mut ptype, &mut pvalue, &mut ptraceback);
 
             // Convert to Py immediately so that any references are freed by early return.
-            let ptype = Py::from_owned_ptr_or_opt(py, ptype);
-            let pvalue = Py::from_owned_ptr_or_opt(py, pvalue);
-            let ptraceback = Py::from_owned_ptr_or_opt(py, ptraceback);
+            let ptype = PyObject::from_owned_ptr_or_opt(py, ptype);
+            let pvalue = PyObject::from_owned_ptr_or_opt(py, pvalue);
+            let ptraceback = PyObject::from_owned_ptr_or_opt(py, ptraceback);
 
             // A valid exception state should always have a non-null ptype, but the other two may be
             // null.
@@ -302,22 +302,18 @@ impl PyErr {
         };
 
         if ptype.as_ptr() == PanicException::type_object_raw(py).cast() {
-            let msg: String = pvalue
+            let msg = pvalue
                 .as_ref()
-                .and_then(|obj| obj.extract(py).ok())
+                .and_then(|obj| obj.as_ref(py).str().ok())
+                .map(|py_str| py_str.to_string_lossy().into())
                 .unwrap_or_else(|| String::from("Unwrapped panic from Python code"));
 
-            eprintln!(
-                "--- PyO3 is resuming a panic after fetching a PanicException from Python. ---"
-            );
-            eprintln!("Python stack trace below:");
-
-            unsafe {
-                ffi::PyErr_Restore(ptype.into_ptr(), pvalue.into_ptr(), ptraceback.into_ptr());
-                ffi::PyErr_PrintEx(0);
-            }
-
-            std::panic::resume_unwind(Box::new(msg))
+            let state = PyErrState::FfiTuple {
+                ptype,
+                pvalue,
+                ptraceback,
+            };
+            Self::print_panic_and_unwind(py, state, msg)
         }
 
         Some(PyErr::from_state(PyErrState::FfiTuple {
@@ -325,6 +321,35 @@ impl PyErr {
             pvalue,
             ptraceback,
         }))
+    }
+
+    #[cfg(Py_3_12)]
+    fn _take(py: Python<'_>) -> Option<PyErr> {
+        let pvalue = unsafe {
+            py.from_owned_ptr_or_opt::<PyBaseException>(ffi::PyErr_GetRaisedException())
+        }?;
+        if pvalue.get_type().as_ptr() == PanicException::type_object_raw(py).cast() {
+            let msg: String = pvalue
+                .str()
+                .map(|py_str| py_str.to_string_lossy().into())
+                .unwrap_or_else(|_| String::from("Unwrapped panic from Python code"));
+            Self::print_panic_and_unwind(py, PyErrState::normalized(pvalue), msg)
+        }
+
+        Some(PyErr::from_state(PyErrState::normalized(pvalue)))
+    }
+
+    fn print_panic_and_unwind(py: Python<'_>, state: PyErrState, msg: String) -> ! {
+        eprintln!("--- PyO3 is resuming a panic after fetching a PanicException from Python. ---");
+        eprintln!("Python stack trace below:");
+
+        state.restore(py);
+
+        unsafe {
+            ffi::PyErr_PrintEx(0);
+        }
+
+        std::panic::resume_unwind(Box::new(msg))
     }
 
     /// Equivalent to [PyErr::take], but when no error is set:
@@ -448,15 +473,10 @@ impl PyErr {
     /// This is the opposite of `PyErr::fetch()`.
     #[inline]
     pub fn restore(self, py: Python<'_>) {
-        let state = match self.state.into_inner() {
-            Some(state) => state,
-            // Safety: restore takes `self` by value so nothing else is accessing this err
-            // and the invariant is that state is always defined except during make_normalized
-            None => unsafe { std::hint::unreachable_unchecked() },
-        };
-
-        let (ptype, pvalue, ptraceback) = state.into_ffi_tuple(py);
-        unsafe { ffi::PyErr_Restore(ptype, pvalue, ptraceback) }
+        self.state
+            .into_inner()
+            .expect("PyErr state should never be invalid outside of normalization")
+            .restore(py)
     }
 
     /// Reports the error as unraisable.
@@ -640,17 +660,10 @@ impl PyErr {
                 .take()
                 .expect("Cannot normalize a PyErr while already normalizing it.")
         };
-        let (mut ptype, mut pvalue, mut ptraceback) = state.into_ffi_tuple(py);
 
         unsafe {
-            ffi::PyErr_NormalizeException(&mut ptype, &mut pvalue, &mut ptraceback);
             let self_state = &mut *self.state.get();
-            *self_state = Some(PyErrState::Normalized(PyErrStateNormalized {
-                ptype: Py::from_owned_ptr_or_opt(py, ptype).expect("Exception type missing"),
-                pvalue: Py::from_owned_ptr_or_opt(py, pvalue).expect("Exception value missing"),
-                ptraceback: Py::from_owned_ptr_or_opt(py, ptraceback),
-            }));
-
+            *self_state = Some(PyErrState::Normalized(state.normalize(py)));
             match self_state {
                 Some(PyErrState::Normalized(n)) => n,
                 _ => unreachable!(),
@@ -786,11 +799,6 @@ impl_signed_integer!(i64);
 impl_signed_integer!(i128);
 impl_signed_integer!(isize);
 
-#[inline]
-fn exceptions_must_derive_from_base_exception(py: Python<'_>) -> PyErr {
-    PyErr::from_state(PyErrState::exceptions_must_derive_from_base_exception(py))
-}
-
 #[cfg(test)]
 mod tests {
     use super::PyErrState;
@@ -822,6 +830,7 @@ mod tests {
             assert!(err.is_instance_of::<exceptions::PyTypeError>(py));
             err.restore(py);
             let err = PyErr::fetch(py);
+
             assert!(err.is_instance_of::<exceptions::PyTypeError>(py));
             assert_eq!(
                 err.to_string(),
@@ -847,6 +856,25 @@ mod tests {
 
         Python::with_gil(|py| {
             let err: PyErr = PanicException::new_err("new panic");
+            err.restore(py);
+            assert!(PyErr::occurred(py));
+
+            // should resume unwind
+            let _ = PyErr::fetch(py);
+        });
+    }
+
+    #[test]
+    #[should_panic(expected = "new panic")]
+    #[cfg(not(Py_3_12))]
+    fn fetching_normalized_panic_exception_resumes_unwind() {
+        use crate::panic::PanicException;
+
+        Python::with_gil(|py| {
+            let err: PyErr = PanicException::new_err("new panic");
+            // Restoring an error doesn't normalize it before Python 3.12,
+            // so we have to explicitly test this case.
+            let _ = err.normalized(py);
             err.restore(py);
             assert!(PyErr::occurred(py));
 
