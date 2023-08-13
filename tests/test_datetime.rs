@@ -36,7 +36,7 @@ fn _get_subclasses<'p>(
 macro_rules! assert_check_exact {
     ($check_func:ident, $check_func_exact:ident, $obj: expr) => {
         unsafe {
-            use pyo3::{ffi::*, AsPyPointer};
+            use pyo3::ffi::*;
             assert!($check_func(($obj).as_ptr()) != 0);
             assert!($check_func_exact(($obj).as_ptr()) != 0);
         }
@@ -46,7 +46,7 @@ macro_rules! assert_check_exact {
 macro_rules! assert_check_only {
     ($check_func:ident, $check_func_exact:ident, $obj: expr) => {
         unsafe {
-            use pyo3::{ffi::*, AsPyPointer};
+            use pyo3::ffi::*;
             assert!($check_func(($obj).as_ptr()) != 0);
             assert!($check_func_exact(($obj).as_ptr()) == 0);
         }
@@ -86,7 +86,7 @@ fn test_time_check() {
 fn test_datetime_check() {
     Python::with_gil(|py| {
         let (obj, sub_obj, sub_sub_obj) = _get_subclasses(py, "datetime", "2018, 1, 1, 13, 30, 15")
-            .map_err(|e| e.print(py))
+            .map_err(|e| e.display(py))
             .unwrap();
         unsafe { PyDateTime_IMPORT() }
 

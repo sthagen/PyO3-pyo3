@@ -18,9 +18,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 //! `PyBuffer` implementation
-use crate::{
-    err, exceptions::PyBufferError, ffi, AsPyPointer, FromPyObject, PyAny, PyResult, Python,
-};
+use crate::{err, exceptions::PyBufferError, ffi, FromPyObject, PyAny, PyResult, Python};
 use std::marker::PhantomData;
 use std::os::raw;
 use std::pin::Pin;
@@ -495,7 +493,7 @@ impl<T: Element> PyBuffer<T> {
 
         err::error_on_minusone(py, unsafe {
             ffi::PyBuffer_ToContiguous(
-                target.as_ptr() as *mut raw::c_void,
+                target.as_mut_ptr().cast(),
                 #[cfg(Py_3_11)]
                 &*self.0,
                 #[cfg(not(Py_3_11))]

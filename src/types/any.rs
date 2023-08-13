@@ -1,5 +1,5 @@
 use crate::class::basic::CompareOp;
-use crate::conversion::{AsPyPointer, FromPyObject, IntoPy, IntoPyPointer, PyTryFrom, ToPyObject};
+use crate::conversion::{AsPyPointer, FromPyObject, IntoPy, PyTryFrom, ToPyObject};
 use crate::err::{PyDowncastError, PyErr, PyResult};
 use crate::exceptions::{PyAttributeError, PyTypeError};
 use crate::type_object::PyTypeInfo;
@@ -36,7 +36,7 @@ use std::os::raw::c_int;
 #[repr(transparent)]
 pub struct PyAny(UnsafeCell<ffi::PyObject>);
 
-impl crate::AsPyPointer for PyAny {
+impl AsPyPointer for PyAny {
     #[inline]
     fn as_ptr(&self) -> *mut ffi::PyObject {
         self.0.get()
@@ -511,12 +511,11 @@ impl PyAny {
         let py = self.py();
 
         let args = args.into_py(py);
-        let kwargs = kwargs.into_ptr();
+        let kwargs = kwargs.map_or(std::ptr::null_mut(), |kwargs| kwargs.as_ptr());
 
         unsafe {
             let return_value = ffi::PyObject_Call(self.as_ptr(), args.as_ptr(), kwargs);
             let ret = py.from_owned_ptr_or_err(return_value);
-            ffi::Py_XDECREF(kwargs);
             ret
         }
     }
@@ -632,12 +631,11 @@ impl PyAny {
 
         let callee = self.getattr(name)?;
         let args: Py<PyTuple> = args.into_py(py);
-        let kwargs = kwargs.into_ptr();
+        let kwargs = kwargs.map_or(std::ptr::null_mut(), |kwargs| kwargs.as_ptr());
 
         unsafe {
             let result_ptr = ffi::PyObject_Call(callee.as_ptr(), args.as_ptr(), kwargs);
             let result = py.from_owned_ptr_or_err(result_ptr);
-            ffi::Py_XDECREF(kwargs);
             result
         }
     }
@@ -894,6 +892,44 @@ impl PyAny {
         <T as PyTryFrom>::try_from(self)
     }
 
+    /// Downcast this `PyAny` to a concrete Python type or pyclass (but not a subclass of it).
+    ///
+    /// It is almost always better to use [`PyAny::downcast`] because it accounts for Python
+    /// subtyping. Use this method only when you do not want to allow subtypes.
+    ///
+    /// The advantage of this method over [`PyAny::downcast`] is that it is faster. The implementation
+    /// of `downcast_exact` uses the equivalent of the Python expression `type(self) is T`, whereas
+    /// `downcast` uses `isinstance(self, T)`.
+    ///
+    /// For extracting a Rust-only type, see [`PyAny::extract`](struct.PyAny.html#method.extract).
+    ///
+    /// # Example: Downcasting to a specific Python object but not a subtype
+    ///
+    /// ```rust
+    /// use pyo3::prelude::*;
+    /// use pyo3::types::{PyBool, PyLong};
+    ///
+    /// Python::with_gil(|py| {
+    ///     let b = PyBool::new(py, true);
+    ///     assert!(b.is_instance_of::<PyBool>());
+    ///     let any: &PyAny = b.as_ref();
+    ///
+    ///     // `bool` is a subtype of `int`, so `downcast` will accept a `bool` as an `int`
+    ///     // but `downcast_exact` will not.
+    ///     assert!(any.downcast::<PyLong>().is_ok());
+    ///     assert!(any.downcast_exact::<PyLong>().is_err());
+    ///
+    ///     assert!(any.downcast_exact::<PyBool>().is_ok());
+    /// });
+    /// ```
+    #[inline]
+    pub fn downcast_exact<'p, T>(&'p self) -> Result<&'p T, PyDowncastError<'_>>
+    where
+        T: PyTryFrom<'p>,
+    {
+        <T as PyTryFrom>::try_from_exact(self)
+    }
+
     /// Converts this `PyAny` to a concrete Python type without checking validity.
     ///
     /// # Safety
@@ -1025,6 +1061,31 @@ impl PyAny {
     #[inline]
     pub fn py(&self) -> Python<'_> {
         PyNativeType::py(self)
+    }
+
+    /// Returns the raw FFI pointer represented by self.
+    ///
+    /// # Safety
+    ///
+    /// Callers are responsible for ensuring that the pointer does not outlive self.
+    ///
+    /// The reference is borrowed; callers should not decrease the reference count
+    /// when they are finished with the pointer.
+    #[inline]
+    pub fn as_ptr(&self) -> *mut ffi::PyObject {
+        self as *const PyAny as *mut ffi::PyObject
+    }
+
+    /// Returns an owned raw FFI pointer represented by self.
+    ///
+    /// # Safety
+    ///
+    /// The reference is owned; when finished the caller should either transfer ownership
+    /// of the pointer or decrease the reference count (e.g. with [`pyo3::ffi::Py_DecRef`](crate::ffi::Py_DecRef)).
+    #[inline]
+    pub fn into_ptr(&self) -> *mut ffi::PyObject {
+        // Safety: self.as_ptr() returns a valid non-null pointer
+        unsafe { ffi::_Py_NewRef(self.as_ptr()) }
     }
 
     /// Return a proxy object that delegates method calls to a parent or sibling class of type.
@@ -1402,7 +1463,10 @@ class SimpleClass:
     #[test]
     fn test_is_ellipsis() {
         Python::with_gil(|py| {
-            let v = py.eval("...", None, None).map_err(|e| e.print(py)).unwrap();
+            let v = py
+                .eval("...", None, None)
+                .map_err(|e| e.display(py))
+                .unwrap();
 
             assert!(v.is_ellipsis());
 

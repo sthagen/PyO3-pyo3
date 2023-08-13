@@ -120,10 +120,7 @@ use crate::gil::{GILGuard, GILPool, SuspendGIL};
 use crate::impl_::not_send::NotSend;
 use crate::types::{PyAny, PyDict, PyModule, PyString, PyType};
 use crate::version::PythonVersionInfo;
-use crate::{
-    ffi, AsPyPointer, FromPyPointer, IntoPy, IntoPyPointer, Py, PyNativeType, PyObject, PyTryFrom,
-    PyTypeInfo,
-};
+use crate::{ffi, FromPyPointer, IntoPy, Py, PyNativeType, PyObject, PyTryFrom, PyTypeInfo};
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::os::raw::c_int;
@@ -544,6 +541,9 @@ impl<'py> Python<'py> {
     /// If `globals` is `None`, it defaults to Python module `__main__`.
     /// If `locals` is `None`, it defaults to the value of `globals`.
     ///
+    /// If `globals` doesn't contain `__builtins__`, default `__builtins__`
+    /// will be added automatically.
+    ///
     /// # Examples
     ///
     /// ```
@@ -567,6 +567,9 @@ impl<'py> Python<'py> {
     ///
     /// If `globals` is `None`, it defaults to Python module `__main__`.
     /// If `locals` is `None`, it defaults to the value of `globals`.
+    ///
+    /// If `globals` doesn't contain `__builtins__`, default `__builtins__`
+    /// will be added automatically.
     ///
     /// # Examples
     /// ```
@@ -628,9 +631,32 @@ impl<'py> Python<'py> {
             }
 
             let globals = globals
-                .map(AsPyPointer::as_ptr)
+                .map(|dict| dict.as_ptr())
                 .unwrap_or_else(|| ffi::PyModule_GetDict(mptr));
-            let locals = locals.map(AsPyPointer::as_ptr).unwrap_or(globals);
+            let locals = locals.map(|dict| dict.as_ptr()).unwrap_or(globals);
+
+            // If `globals` don't provide `__builtins__`, most of the code will fail if Python
+            // version is <3.10. That's probably not what user intended, so insert `__builtins__`
+            // for them.
+            //
+            // See also:
+            // - https://github.com/python/cpython/pull/24564 (the same fix in CPython 3.10)
+            // - https://github.com/PyO3/pyo3/issues/3370
+            let builtins_s = crate::intern!(self, "__builtins__").as_ptr();
+            let has_builtins = ffi::PyDict_Contains(globals, builtins_s);
+            if has_builtins == -1 {
+                return Err(PyErr::fetch(self));
+            }
+            if has_builtins == 0 {
+                // Inherit current builtins.
+                let builtins = ffi::PyEval_GetBuiltins();
+
+                // `PyDict_SetItem` doesn't take ownership of `builtins`, but `PyEval_GetBuiltins`
+                // seems to return a borrowed reference, so no leak here.
+                if ffi::PyDict_SetItem(globals, builtins_s, builtins) == -1 {
+                    return Err(PyErr::fetch(self));
+                }
+            }
 
             let code_obj = ffi::Py_CompileString(code.as_ptr(), "<string>\0".as_ptr() as _, start);
             if code_obj.is_null() {
@@ -1031,7 +1057,7 @@ impl<'unbound> Python<'unbound> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{IntoPyDict, PyList};
+    use crate::types::{IntoPyDict, PyDict, PyList};
     use crate::Py;
     use std::sync::Arc;
 
@@ -1041,7 +1067,7 @@ mod tests {
             // Make sure builtin names are accessible
             let v: i32 = py
                 .eval("min(1, 2)", None, None)
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .unwrap()
                 .extract()
                 .unwrap();
@@ -1158,9 +1184,23 @@ mod tests {
         Python::with_gil(|py| {
             assert_eq!(py.Ellipsis().to_string(), "Ellipsis");
 
-            let v = py.eval("...", None, None).map_err(|e| e.print(py)).unwrap();
+            let v = py
+                .eval("...", None, None)
+                .map_err(|e| e.display(py))
+                .unwrap();
 
             assert!(v.eq(py.Ellipsis()).unwrap());
         });
+    }
+
+    #[test]
+    fn test_py_run_inserts_globals() {
+        Python::with_gil(|py| {
+            let namespace = PyDict::new(py);
+            py.run("class Foo: pass", Some(namespace), Some(namespace))
+                .unwrap();
+            assert!(namespace.get_item("Foo").is_some());
+            assert!(namespace.get_item("__builtins__").is_some());
+        })
     }
 }

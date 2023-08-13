@@ -42,7 +42,6 @@ macro_rules! impl_exception_boilerplate {
         impl ::std::error::Error for $name {
             fn source(&self) -> ::std::option::Option<&(dyn ::std::error::Error + 'static)> {
                 unsafe {
-                    use $crate::AsPyPointer;
                     let cause: &$crate::exceptions::PyBaseException = self
                         .py()
                         .from_owned_ptr_or_opt($crate::ffi::PyException_GetCause(self.as_ptr()))?;
@@ -101,7 +100,6 @@ macro_rules! import_exception {
         impl $name {
             fn type_object_raw(py: $crate::Python<'_>) -> *mut $crate::ffi::PyTypeObject {
                 use $crate::sync::GILOnceCell;
-                use $crate::AsPyPointer;
                 static TYPE_OBJECT: GILOnceCell<$crate::Py<$crate::types::PyType>> =
                     GILOnceCell::new();
 
@@ -240,7 +238,6 @@ macro_rules! create_exception_type_object {
         impl $name {
             fn type_object_raw(py: $crate::Python<'_>) -> *mut $crate::ffi::PyTypeObject {
                 use $crate::sync::GILOnceCell;
-                use $crate::AsPyPointer;
                 static TYPE_OBJECT: GILOnceCell<$crate::Py<$crate::types::PyType>> =
                     GILOnceCell::new();
 
@@ -813,20 +810,20 @@ mod tests {
             let err: PyErr = gaierror::new_err(());
             let socket = py
                 .import("socket")
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .expect("could not import socket");
 
             let d = PyDict::new(py);
             d.set_item("socket", socket)
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .expect("could not setitem");
 
             d.set_item("exc", err)
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .expect("could not setitem");
 
             py.run("assert isinstance(exc, socket.gaierror)", None, Some(d))
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .expect("assertion failed");
         });
     }
@@ -837,15 +834,15 @@ mod tests {
             let err: PyErr = MessageError::new_err(());
             let email = py
                 .import("email")
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .expect("could not import email");
 
             let d = PyDict::new(py);
             d.set_item("email", email)
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .expect("could not setitem");
             d.set_item("exc", err)
-                .map_err(|e| e.print(py))
+                .map_err(|e| e.display(py))
                 .expect("could not setitem");
 
             py.run(
@@ -853,7 +850,7 @@ mod tests {
                 None,
                 Some(d),
             )
-            .map_err(|e| e.print(py))
+            .map_err(|e| e.display(py))
             .expect("assertion failed");
         });
     }

@@ -5,7 +5,7 @@ use crate::{
     exceptions::{self, PyBaseException},
     ffi,
 };
-use crate::{AsPyPointer, IntoPy, IntoPyPointer, Py, PyAny, PyObject, Python, ToPyObject};
+use crate::{IntoPy, Py, PyAny, PyObject, Python, ToPyObject};
 use std::borrow::Cow;
 use std::cell::UnsafeCell;
 use std::ffi::CString;
@@ -431,13 +431,32 @@ impl PyErr {
     }
 
     /// Prints a standard traceback to `sys.stderr`.
+    pub fn display(&self, py: Python<'_>) {
+        #[cfg(Py_3_12)]
+        unsafe {
+            ffi::PyErr_DisplayException(self.value(py).as_ptr())
+        }
+
+        #[cfg(not(Py_3_12))]
+        unsafe {
+            ffi::PyErr_Display(
+                self.get_type(py).as_ptr(),
+                self.value(py).as_ptr(),
+                self.traceback(py)
+                    .map_or(std::ptr::null_mut(), |traceback| traceback.as_ptr()),
+            )
+        }
+    }
+
+    /// Calls `sys.excepthook` and then prints a standard traceback to `sys.stderr`.
     pub fn print(&self, py: Python<'_>) {
         self.clone_ref(py).restore(py);
         unsafe { ffi::PyErr_PrintEx(0) }
     }
 
-    /// Prints a standard traceback to `sys.stderr`, and sets
-    /// `sys.last_{type,value,traceback}` attributes to this exception's data.
+    /// Calls `sys.excepthook` and then prints a standard traceback to `sys.stderr`.
+    ///
+    /// Additionally sets `sys.last_{type,value,traceback,exc}` attributes to this exception.
     pub fn print_and_set_sys_last_vars(&self, py: Python<'_>) {
         self.clone_ref(py).restore(py);
         unsafe { ffi::PyErr_PrintEx(1) }
@@ -623,7 +642,7 @@ impl PyErr {
             // PyException_SetCause _steals_ a reference to cause, so must use .into_ptr()
             ffi::PyException_SetCause(
                 value.as_ptr(),
-                cause.map_or(std::ptr::null_mut(), IntoPyPointer::into_ptr),
+                cause.map_or(std::ptr::null_mut(), Py::into_ptr),
             );
         }
     }

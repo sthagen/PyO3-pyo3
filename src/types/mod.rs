@@ -75,6 +75,7 @@ pub mod iter {
     pub use super::dict::PyDictIterator;
     pub use super::frozenset::PyFrozenSetIterator;
     pub use super::set::PySetIterator;
+    pub use super::tuple::PyTupleIterator;
 }
 
 // Implementations core to all native types
@@ -113,7 +114,6 @@ macro_rules! pyobject_native_type_base(
         {
             #[inline]
             fn to_object(&self, py: $crate::Python<'_>) -> $crate::PyObject {
-                use $crate::AsPyPointer;
                 unsafe { $crate::PyObject::from_borrowed_ptr(py, self.as_ptr()) }
             }
         }
@@ -155,7 +155,6 @@ macro_rules! pyobject_native_type_named (
         impl<$($generics,)*> $crate::IntoPy<$crate::Py<$name>> for &'_ $name {
             #[inline]
             fn into_py(self, py: $crate::Python<'_>) -> $crate::Py<$name> {
-                use $crate::AsPyPointer;
                 unsafe { $crate::Py::from_borrowed_ptr(py, self.as_ptr()) }
             }
         }
@@ -163,7 +162,6 @@ macro_rules! pyobject_native_type_named (
         impl<$($generics,)*> ::std::convert::From<&'_ $name> for $crate::Py<$name> {
             #[inline]
             fn from(other: &$name) -> Self {
-                use $crate::AsPyPointer;
                 use $crate::PyNativeType;
                 unsafe { $crate::Py::from_borrowed_ptr(other.py(), other.as_ptr()) }
             }
@@ -204,7 +202,6 @@ macro_rules! pyobject_native_type_info(
             $(
                 #[inline]
                 fn is_type_of(ptr: &$crate::PyAny) -> bool {
-                    use $crate::AsPyPointer;
                     #[allow(unused_unsafe)]
                     unsafe { $checkfunction(ptr.as_ptr()) > 0 }
                 }

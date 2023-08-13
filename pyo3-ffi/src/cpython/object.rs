@@ -1,5 +1,6 @@
-use crate::object;
-use crate::{PyObject, Py_ssize_t};
+#[cfg(Py_3_8)]
+use crate::vectorcallfunc;
+use crate::{object, PyGetSetDef, PyMemberDef, PyMethodDef, PyObject, Py_ssize_t};
 use std::mem;
 use std::os::raw::{c_char, c_int, c_uint, c_ulong, c_void};
 
@@ -111,14 +112,6 @@ mod bufferinfo {
 
 #[cfg(not(Py_3_11))]
 pub use self::bufferinfo::*;
-
-#[cfg(Py_3_8)]
-pub type vectorcallfunc = unsafe extern "C" fn(
-    callable: *mut PyObject,
-    args: *const *mut PyObject,
-    nargsf: libc::size_t,
-    kwnames: *mut PyObject,
-) -> *mut PyObject;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -253,9 +246,9 @@ pub struct PyTypeObject {
     pub tp_weaklistoffset: Py_ssize_t,
     pub tp_iter: Option<object::getiterfunc>,
     pub tp_iternext: Option<object::iternextfunc>,
-    pub tp_methods: *mut crate::methodobject::PyMethodDef,
-    pub tp_members: *mut crate::structmember::PyMemberDef,
-    pub tp_getset: *mut crate::descrobject::PyGetSetDef,
+    pub tp_methods: *mut PyMethodDef,
+    pub tp_members: *mut PyMemberDef,
+    pub tp_getset: *mut PyGetSetDef,
     pub tp_base: *mut PyTypeObject,
     pub tp_dict: *mut object::PyObject,
     pub tp_descr_get: Option<object::descrgetfunc>,
@@ -275,7 +268,7 @@ pub struct PyTypeObject {
     pub tp_version_tag: c_uint,
     pub tp_finalize: Option<object::destructor>,
     #[cfg(Py_3_8)]
-    pub tp_vectorcall: Option<super::vectorcallfunc>,
+    pub tp_vectorcall: Option<vectorcallfunc>,
     #[cfg(Py_3_12)]
     pub tp_watched: c_char,
     #[cfg(any(all(PyPy, Py_3_8, not(Py_3_10)), all(not(PyPy), Py_3_8, not(Py_3_9))))]
@@ -299,6 +292,8 @@ pub struct PyTypeObject {
 #[derive(Clone)]
 pub struct _specialization_cache {
     pub getitem: *mut PyObject,
+    #[cfg(Py_3_12)]
+    pub getitem_version: u32,
 }
 
 #[repr(C)]
@@ -331,12 +326,10 @@ impl Default for PyHeapTypeObject {
 }
 
 #[inline]
-pub unsafe fn PyHeapType_GET_MEMBERS(
-    etype: *mut PyHeapTypeObject,
-) -> *mut crate::structmember::PyMemberDef {
+pub unsafe fn PyHeapType_GET_MEMBERS(etype: *mut PyHeapTypeObject) -> *mut PyMemberDef {
     let py_type = object::Py_TYPE(etype as *mut object::PyObject);
     let ptr = etype.offset((*py_type).tp_basicsize);
-    ptr as *mut crate::structmember::PyMemberDef
+    ptr as *mut PyMemberDef
 }
 
 // skipped _PyType_Name
@@ -349,6 +342,9 @@ pub unsafe fn PyHeapType_GET_MEMBERS(
 // skipped _PyType_GetModuleByDef
 
 extern "C" {
+    #[cfg(Py_3_12)]
+    pub fn PyType_GetDict(o: *mut PyTypeObject) -> *mut PyObject;
+
     #[cfg_attr(PyPy, link_name = "PyPyObject_Print")]
     pub fn PyObject_Print(o: *mut PyObject, fp: *mut ::libc::FILE, flags: c_int) -> c_int;
 
