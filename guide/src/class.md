@@ -267,6 +267,10 @@ Consult the table below to determine which type your constructor should return:
 
 By default, `object`, i.e. `PyAny` is used as the base class. To override this default,
 use the `extends` parameter for `pyclass` with the full path to the base class.
+Currently, only classes defined in Rust and builtins provided by PyO3 can be inherited
+from; inheriting from other classes defined in Python is not yet supported
+([#991](https://github.com/PyO3/pyo3/issues/991)).
+
 
 For convenience, `(T, U)` implements `Into<PyClassInitializer<T>>` where `U` is the
 base class of `T`.
@@ -340,7 +344,7 @@ impl SubSubClass {
 # });
 ```
 
-You can also inherit native types such as `PyDict`, if they implement
+You can inherit native types such as `PyDict`, if they implement
 [`PySizedLayout`]({{#PYO3_DOCS_URL}}/pyo3/type_object/trait.PySizedLayout.html).
 This is not supported when building for the Python limited API (aka the `abi3` feature of PyO3).
 
@@ -1134,7 +1138,7 @@ impl pyo3::impl_::pyclass::PyClassImpl for MyClass {
     const IS_SUBCLASS: bool = false;
     type Layout = PyCell<MyClass>;
     type BaseType = PyAny;
-    type ThreadChecker = pyo3::impl_::pyclass::ThreadCheckerStub<MyClass>;
+    type ThreadChecker = pyo3::impl_::pyclass::SendablePyClass<MyClass>;
     type PyClassMutability = <<pyo3::PyAny as pyo3::impl_::pyclass::PyClassBaseType>::PyClassMutability as pyo3::impl_::pycell::PyClassMutability>::MutableChild;
     type Dict = pyo3::impl_::pyclass::PyClassDummySlot;
     type WeakRef = pyo3::impl_::pyclass::PyClassDummySlot;

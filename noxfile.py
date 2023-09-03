@@ -483,6 +483,7 @@ def set_minimal_package_versions(session: nox.Session):
         "regex": "1.7.3",
         "proptest": "1.0.0",
         "indexmap": "1.9.3",
+        "chrono": "0.4.25",
     }
 
     # run cargo update first to ensure that everything is at highest
@@ -606,7 +607,11 @@ def _get_coverage_env() -> Dict[str, str]:
 
     for line in output.strip().splitlines():
         (key, value) = line.split("=", maxsplit=1)
-        env[key] = value.strip('"')
+        # Strip single or double quotes from the variable value
+        # - quote used by llvm-cov differs between Windows and Linux
+        if value and value[0] in ("'", '"'):
+            value = value[1:-1]
+        env[key] = value
 
     # Ensure that examples/ and pytests/ all build to the correct target directory to collect
     # coverage artifacts.
