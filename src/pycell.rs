@@ -204,7 +204,6 @@ use crate::type_object::{PyLayout, PySizedLayout};
 use crate::types::PyAny;
 use crate::{
     conversion::{AsPyPointer, FromPyPointer, ToPyObject},
-    ffi::PyBaseObject_Type,
     type_object::get_tp_free,
     PyTypeInfo,
 };
@@ -528,7 +527,7 @@ impl<T: PyClassImpl> PyCell<T> {
 unsafe impl<T: PyClassImpl> PyLayout<T> for PyCell<T> {}
 impl<T: PyClass> PySizedLayout<T> for PyCell<T> {}
 
-impl<T: PyClass> AsPyPointer for PyCell<T> {
+unsafe impl<T: PyClass> AsPyPointer for PyCell<T> {
     fn as_ptr(&self) -> *mut ffi::PyObject {
         (self as *const _) as *mut _
     }
@@ -756,7 +755,7 @@ impl<'a, T: PyClass> std::convert::TryFrom<&'a PyCell<T>> for crate::PyRef<'a, T
     }
 }
 
-impl<'a, T: PyClass> AsPyPointer for PyRef<'a, T> {
+unsafe impl<'a, T: PyClass> AsPyPointer for PyRef<'a, T> {
     fn as_ptr(&self) -> *mut ffi::PyObject {
         self.inner.as_ptr()
     }
@@ -879,7 +878,7 @@ impl<T: PyClass<Frozen = False>> IntoPy<PyObject> for &'_ PyRefMut<'_, T> {
     }
 }
 
-impl<'a, T: PyClass<Frozen = False>> AsPyPointer for PyRefMut<'a, T> {
+unsafe impl<'a, T: PyClass<Frozen = False>> AsPyPointer for PyRefMut<'a, T> {
     fn as_ptr(&self) -> *mut ffi::PyObject {
         self.inner.as_ptr()
     }
@@ -967,15 +966,23 @@ where
 {
     fn ensure_threadsafe(&self) {}
     unsafe fn tp_dealloc(py: Python<'_>, slf: *mut ffi::PyObject) {
+        let type_obj = T::type_object_raw(py);
         // For `#[pyclass]` types which inherit from PyAny, we can just call tp_free
-        if T::type_object_raw(py) == &mut PyBaseObject_Type {
+        if type_obj == std::ptr::addr_of_mut!(ffi::PyBaseObject_Type) {
             return get_tp_free(ffi::Py_TYPE(slf))(slf as _);
         }
 
         // More complex native types (e.g. `extends=PyDict`) require calling the base's dealloc.
         #[cfg(not(Py_LIMITED_API))]
         {
-            if let Some(dealloc) = (*T::type_object_raw(py)).tp_dealloc {
+            if let Some(dealloc) = (*type_obj).tp_dealloc {
+                // Before CPython 3.11 BaseException_dealloc would use Py_GC_UNTRACK which
+                // assumes the exception is currently GC tracked, so we have to re-track
+                // before calling the dealloc so that it can safely call Py_GC_UNTRACK.
+                #[cfg(not(any(Py_3_11, PyPy)))]
+                if ffi::PyType_FastSubclass(type_obj, ffi::Py_TPFLAGS_BASE_EXC_SUBCLASS) == 1 {
+                    ffi::PyObject_GC_Track(slf.cast());
+                }
                 dealloc(slf as _);
             } else {
                 get_tp_free(ffi::Py_TYPE(slf))(slf as _);
