@@ -325,18 +325,17 @@ impl PyErr {
 
     #[cfg(Py_3_12)]
     fn _take(py: Python<'_>) -> Option<PyErr> {
-        let pvalue = unsafe {
-            py.from_owned_ptr_or_opt::<PyBaseException>(ffi::PyErr_GetRaisedException())
-        }?;
+        let state = PyErrStateNormalized::take(py)?;
+        let pvalue = state.pvalue.as_ref(py);
         if pvalue.get_type().as_ptr() == PanicException::type_object_raw(py).cast() {
             let msg: String = pvalue
                 .str()
                 .map(|py_str| py_str.to_string_lossy().into())
                 .unwrap_or_else(|_| String::from("Unwrapped panic from Python code"));
-            Self::print_panic_and_unwind(py, PyErrState::normalized(pvalue), msg)
+            Self::print_panic_and_unwind(py, PyErrState::Normalized(state), msg)
         }
 
-        Some(PyErr::from_state(PyErrState::normalized(pvalue)))
+        Some(PyErr::from_state(PyErrState::Normalized(state)))
     }
 
     fn print_panic_and_unwind(py: Python<'_>, state: PyErrState, msg: String) -> ! {
@@ -822,6 +821,7 @@ impl_signed_integer!(isize);
 mod tests {
     use super::PyErrState;
     use crate::exceptions::{self, PyTypeError, PyValueError};
+    use crate::tests::common::CatchWarnings;
     use crate::{PyErr, PyTypeInfo, Python};
 
     #[test]
@@ -1019,11 +1019,12 @@ mod tests {
             let warnings = py.import("warnings").unwrap();
             warnings.call_method0("resetwarnings").unwrap();
 
-            // First, test with ignoring the warning
-            warnings
-                .call_method1("simplefilter", ("ignore", cls))
-                .unwrap();
-            PyErr::warn(py, cls, "I am warning you", 0).unwrap();
+            // First, test the warning is emitted
+            assert_warnings!(
+                py,
+                { PyErr::warn(py, cls, "I am warning you", 0).unwrap() },
+                [(exceptions::PyUserWarning, "I am warning you")]
+            );
 
             // Test with raising
             warnings
@@ -1031,17 +1032,18 @@ mod tests {
                 .unwrap();
             PyErr::warn(py, cls, "I am warning you", 0).unwrap_err();
 
-            // Test with explicit module and specific filter
+            // Test with error for an explicit module
             warnings.call_method0("resetwarnings").unwrap();
-            warnings
-                .call_method1("simplefilter", ("ignore", cls))
-                .unwrap();
             warnings
                 .call_method1("filterwarnings", ("error", "", cls, "pyo3test"))
                 .unwrap();
 
-            // This has the wrong module and will not raise
-            PyErr::warn(py, cls, "I am warning you", 0).unwrap();
+            // This has the wrong module and will not raise, just be emitted
+            assert_warnings!(
+                py,
+                { PyErr::warn(py, cls, "I am warning you", 0).unwrap() },
+                [(exceptions::PyUserWarning, "I am warning you")]
+            );
 
             let err =
                 PyErr::warn_explicit(py, cls, "I am warning you", "pyo3test.py", 427, None, None)
