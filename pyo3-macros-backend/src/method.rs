@@ -113,12 +113,14 @@ impl FnType {
             }
             FnType::FnClass | FnType::FnNewClass => {
                 quote! {
-                    _pyo3::types::PyType::from_type_ptr(py, _slf as *mut _pyo3::ffi::PyTypeObject),
+                    #[allow(clippy::useless_conversion)]
+                    ::std::convert::Into::into(_pyo3::types::PyType::from_type_ptr(py, _slf as *mut _pyo3::ffi::PyTypeObject)),
                 }
             }
             FnType::FnModule => {
                 quote! {
-                    py.from_borrowed_ptr::<_pyo3::types::PyModule>(_slf),
+                    #[allow(clippy::useless_conversion)]
+                    ::std::convert::Into::into(py.from_borrowed_ptr::<_pyo3::types::PyModule>(_slf)),
                 }
             }
         }
@@ -228,6 +230,7 @@ pub struct FnSpec<'a> {
     pub output: syn::Type,
     pub convention: CallingConvention,
     pub text_signature: Option<TextSignatureAttribute>,
+    pub asyncness: Option<syn::Token![async]>,
     pub unsafety: Option<syn::Token![unsafe]>,
     pub deprecations: Deprecations,
 }
@@ -317,6 +320,7 @@ impl<'a> FnSpec<'a> {
             signature,
             output: ty,
             text_signature,
+            asyncness: sig.asyncness,
             unsafety: sig.unsafety,
             deprecations,
         })
@@ -445,7 +449,11 @@ impl<'a> FnSpec<'a> {
         let func_name = &self.name;
 
         let rust_call = |args: Vec<TokenStream>| {
-            quotes::map_result_into_ptr(quotes::ok_wrap(quote! { function(#self_arg #(#args),*) }))
+            let mut call = quote! { function(#self_arg #(#args),*) };
+            if self.asyncness.is_some() {
+                call = quote! { _pyo3::impl_::coroutine::wrap_future(#call) };
+            }
+            quotes::map_result_into_ptr(quotes::ok_wrap(call))
         };
 
         let rust_name = if let Some(cls) = cls {
