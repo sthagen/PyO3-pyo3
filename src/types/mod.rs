@@ -17,7 +17,7 @@ pub use self::dict::{IntoPyDict, PyDict};
 #[cfg(not(PyPy))]
 pub use self::dict::{PyDictItems, PyDictKeys, PyDictValues};
 pub use self::ellipsis::PyEllipsis;
-pub use self::floatob::PyFloat;
+pub use self::float::PyFloat;
 #[cfg(all(not(Py_LIMITED_API), not(PyPy)))]
 pub use self::frame::PyFrame;
 pub use self::frozenset::{PyFrozenSet, PyFrozenSetBuilder};
@@ -87,7 +87,9 @@ pub mod iter {
 #[macro_export]
 macro_rules! pyobject_native_type_base(
     ($name:ty $(;$generics:ident)* ) => {
-        unsafe impl<$($generics,)*> $crate::PyNativeType for $name {}
+        unsafe impl<$($generics,)*> $crate::PyNativeType for $name {
+            type AsRefSource = Self;
+        }
 
         impl<$($generics,)*> ::std::fmt::Debug for $name {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>)
@@ -281,7 +283,7 @@ mod complex;
 mod datetime;
 mod dict;
 mod ellipsis;
-mod floatob;
+pub(crate) mod float;
 #[cfg(all(not(Py_LIMITED_API), not(PyPy)))]
 mod frame;
 mod frozenset;
@@ -296,7 +298,7 @@ mod notimplemented;
 mod num;
 #[cfg(not(PyPy))]
 mod pysuper;
-mod sequence;
+pub(crate) mod sequence;
 pub(crate) mod set;
 mod slice;
 mod string;

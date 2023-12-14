@@ -2,7 +2,9 @@ use crate::class::basic::CompareOp;
 use crate::conversion::{AsPyPointer, FromPyObject, IntoPy, ToPyObject};
 use crate::err::{PyDowncastError, PyErr, PyResult};
 use crate::exceptions::{PyAttributeError, PyTypeError};
+use crate::ffi_ptr_ext::FfiPtrExt;
 use crate::instance::Py2;
+use crate::py_result_ext::PyResultExt;
 use crate::type_object::{HasPyGilRef, PyTypeCheck, PyTypeInfo};
 #[cfg(not(PyPy))]
 use crate::types::PySuper;
@@ -71,7 +73,7 @@ impl PyAny {
     /// This is equivalent to the Python expression `self is other`.
     #[inline]
     pub fn is<T: AsPyPointer>(&self, other: &T) -> bool {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is(other)
+        Py2::borrowed_from_gil_ref(&self).is(other)
     }
 
     /// Determines whether this object has the given attribute.
@@ -100,7 +102,7 @@ impl PyAny {
     where
         N: IntoPy<Py<PyString>>,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).hasattr(attr_name)
+        Py2::borrowed_from_gil_ref(&self).hasattr(attr_name)
     }
 
     /// Retrieves an attribute value.
@@ -129,7 +131,7 @@ impl PyAny {
     where
         N: IntoPy<Py<PyString>>,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .getattr(attr_name)
             .map(Py2::into_gil_ref)
     }
@@ -206,7 +208,7 @@ impl PyAny {
         N: IntoPy<Py<PyString>>,
         V: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).setattr(attr_name, value)
+        Py2::borrowed_from_gil_ref(&self).setattr(attr_name, value)
     }
 
     /// Deletes an attribute.
@@ -219,7 +221,7 @@ impl PyAny {
     where
         N: IntoPy<Py<PyString>>,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).delattr(attr_name)
+        Py2::borrowed_from_gil_ref(&self).delattr(attr_name)
     }
 
     /// Returns an [`Ordering`] between `self` and `other`.
@@ -272,7 +274,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).compare(other)
+        Py2::borrowed_from_gil_ref(&self).compare(other)
     }
 
     /// Tests whether two Python objects obey a given [`CompareOp`].
@@ -313,7 +315,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .rich_compare(other, compare_op)
             .map(Py2::into_gil_ref)
     }
@@ -325,7 +327,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).lt(other)
+        Py2::borrowed_from_gil_ref(&self).lt(other)
     }
 
     /// Tests whether this object is less than or equal to another.
@@ -335,7 +337,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).le(other)
+        Py2::borrowed_from_gil_ref(&self).le(other)
     }
 
     /// Tests whether this object is equal to another.
@@ -345,7 +347,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).eq(other)
+        Py2::borrowed_from_gil_ref(&self).eq(other)
     }
 
     /// Tests whether this object is not equal to another.
@@ -355,7 +357,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).ne(other)
+        Py2::borrowed_from_gil_ref(&self).ne(other)
     }
 
     /// Tests whether this object is greater than another.
@@ -365,7 +367,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).gt(other)
+        Py2::borrowed_from_gil_ref(&self).gt(other)
     }
 
     /// Tests whether this object is greater than or equal to another.
@@ -375,7 +377,7 @@ impl PyAny {
     where
         O: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).ge(other)
+        Py2::borrowed_from_gil_ref(&self).ge(other)
     }
 
     /// Determines whether this object appears callable.
@@ -406,7 +408,7 @@ impl PyAny {
     ///
     /// [1]: https://docs.python.org/3/library/functions.html#callable
     pub fn is_callable(&self) -> bool {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_callable()
+        Py2::borrowed_from_gil_ref(&self).is_callable()
     }
 
     /// Calls the object.
@@ -444,7 +446,7 @@ impl PyAny {
         args: impl IntoPy<Py<PyTuple>>,
         kwargs: Option<&PyDict>,
     ) -> PyResult<&PyAny> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .call(args, kwargs)
             .map(Py2::into_gil_ref)
     }
@@ -470,7 +472,7 @@ impl PyAny {
     ///
     /// This is equivalent to the Python expression `help()`.
     pub fn call0(&self) -> PyResult<&PyAny> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .call0()
             .map(Py2::into_gil_ref)
     }
@@ -503,7 +505,7 @@ impl PyAny {
     /// # }
     /// ```
     pub fn call1(&self, args: impl IntoPy<Py<PyTuple>>) -> PyResult<&PyAny> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .call1(args)
             .map(Py2::into_gil_ref)
     }
@@ -548,7 +550,7 @@ impl PyAny {
         N: IntoPy<Py<PyString>>,
         A: IntoPy<Py<PyTuple>>,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .call_method(name, args, kwargs)
             .map(Py2::into_gil_ref)
     }
@@ -588,7 +590,7 @@ impl PyAny {
     where
         N: IntoPy<Py<PyString>>,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .call_method0(name)
             .map(Py2::into_gil_ref)
     }
@@ -630,7 +632,7 @@ impl PyAny {
         N: IntoPy<Py<PyString>>,
         A: IntoPy<Py<PyTuple>>,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .call_method1(name, args)
             .map(Py2::into_gil_ref)
     }
@@ -639,7 +641,7 @@ impl PyAny {
     ///
     /// This is equivalent to the Python expression `bool(self)`.
     pub fn is_true(&self) -> PyResult<bool> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_true()
+        Py2::borrowed_from_gil_ref(&self).is_true()
     }
 
     /// Returns whether the object is considered to be None.
@@ -647,7 +649,7 @@ impl PyAny {
     /// This is equivalent to the Python expression `self is None`.
     #[inline]
     pub fn is_none(&self) -> bool {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_none()
+        Py2::borrowed_from_gil_ref(&self).is_none()
     }
 
     /// Returns whether the object is Ellipsis, e.g. `...`.
@@ -655,14 +657,14 @@ impl PyAny {
     /// This is equivalent to the Python expression `self is ...`.
     #[deprecated(since = "0.20.0", note = "use `.is(py.Ellipsis())` instead")]
     pub fn is_ellipsis(&self) -> bool {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_ellipsis()
+        Py2::borrowed_from_gil_ref(&self).is_ellipsis()
     }
 
     /// Returns true if the sequence or mapping has a length of 0.
     ///
     /// This is equivalent to the Python expression `len(self) == 0`.
     pub fn is_empty(&self) -> PyResult<bool> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_empty()
+        Py2::borrowed_from_gil_ref(&self).is_empty()
     }
 
     /// Gets an item from the collection.
@@ -672,7 +674,7 @@ impl PyAny {
     where
         K: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .get_item(key)
             .map(Py2::into_gil_ref)
     }
@@ -685,7 +687,7 @@ impl PyAny {
         K: ToPyObject,
         V: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).set_item(key, value)
+        Py2::borrowed_from_gil_ref(&self).set_item(key, value)
     }
 
     /// Deletes an item from the collection.
@@ -695,7 +697,7 @@ impl PyAny {
     where
         K: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).del_item(key)
+        Py2::borrowed_from_gil_ref(&self).del_item(key)
     }
 
     /// Takes an object and returns an iterator for it.
@@ -703,24 +705,22 @@ impl PyAny {
     /// This is typically a new iterator but if the argument is an iterator,
     /// this returns itself.
     pub fn iter(&self) -> PyResult<&PyIterator> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
-            .iter()
-            .map(|py2| {
-                // Can't use into_gil_ref here because T: PyTypeInfo bound is not satisfied
-                // Safety: into_ptr produces a valid pointer to PyIterator object
-                unsafe { self.py().from_owned_ptr(py2.into_ptr()) }
-            })
+        Py2::borrowed_from_gil_ref(&self).iter().map(|py2| {
+            // Can't use into_gil_ref here because T: PyTypeInfo bound is not satisfied
+            // Safety: into_ptr produces a valid pointer to PyIterator object
+            unsafe { self.py().from_owned_ptr(py2.into_ptr()) }
+        })
     }
 
     /// Returns the Python type object for this object's type.
     pub fn get_type(&self) -> &PyType {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).get_type()
+        Py2::borrowed_from_gil_ref(&self).get_type()
     }
 
     /// Returns the Python type pointer for this object.
     #[inline]
     pub fn get_type_ptr(&self) -> *mut ffi::PyTypeObject {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).get_type_ptr()
+        Py2::borrowed_from_gil_ref(&self).get_type_ptr()
     }
 
     /// Downcast this `PyAny` to a concrete Python type or pyclass.
@@ -857,14 +857,14 @@ impl PyAny {
 
     /// Returns the reference count for the Python object.
     pub fn get_refcnt(&self) -> isize {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).get_refcnt()
+        Py2::borrowed_from_gil_ref(&self).get_refcnt()
     }
 
     /// Computes the "repr" representation of self.
     ///
     /// This is equivalent to the Python expression `repr(self)`.
     pub fn repr(&self) -> PyResult<&PyString> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .repr()
             .map(Py2::into_gil_ref)
     }
@@ -873,7 +873,7 @@ impl PyAny {
     ///
     /// This is equivalent to the Python expression `str(self)`.
     pub fn str(&self) -> PyResult<&PyString> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .str()
             .map(Py2::into_gil_ref)
     }
@@ -882,23 +882,21 @@ impl PyAny {
     ///
     /// This is equivalent to the Python expression `hash(self)`.
     pub fn hash(&self) -> PyResult<isize> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).hash()
+        Py2::borrowed_from_gil_ref(&self).hash()
     }
 
     /// Returns the length of the sequence or mapping.
     ///
     /// This is equivalent to the Python expression `len(self)`.
     pub fn len(&self) -> PyResult<usize> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).len()
+        Py2::borrowed_from_gil_ref(&self).len()
     }
 
     /// Returns the list of attributes of this object.
     ///
     /// This is equivalent to the Python expression `dir(self)`.
     pub fn dir(&self) -> &PyList {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
-            .dir()
-            .into_gil_ref()
+        Py2::borrowed_from_gil_ref(&self).dir().into_gil_ref()
     }
 
     /// Checks whether this object is an instance of type `ty`.
@@ -906,7 +904,7 @@ impl PyAny {
     /// This is equivalent to the Python expression `isinstance(self, ty)`.
     #[inline]
     pub fn is_instance(&self, ty: &PyAny) -> PyResult<bool> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_instance(Py2::borrowed_from_gil_ref(&ty))
+        Py2::borrowed_from_gil_ref(&self).is_instance(Py2::borrowed_from_gil_ref(&ty))
     }
 
     /// Checks whether this object is an instance of exactly type `ty` (not a subclass).
@@ -914,8 +912,7 @@ impl PyAny {
     /// This is equivalent to the Python expression `type(self) is ty`.
     #[inline]
     pub fn is_exact_instance(&self, ty: &PyAny) -> bool {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
-            .is_exact_instance(Py2::borrowed_from_gil_ref(&ty))
+        Py2::borrowed_from_gil_ref(&self).is_exact_instance(Py2::borrowed_from_gil_ref(&ty))
     }
 
     /// Checks whether this object is an instance of type `T`.
@@ -924,7 +921,7 @@ impl PyAny {
     /// if the type `T` is known at compile time.
     #[inline]
     pub fn is_instance_of<T: PyTypeInfo>(&self) -> bool {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_instance_of::<T>()
+        Py2::borrowed_from_gil_ref(&self).is_instance_of::<T>()
     }
 
     /// Checks whether this object is an instance of exactly type `T`.
@@ -933,7 +930,7 @@ impl PyAny {
     /// if the type `T` is known at compile time.
     #[inline]
     pub fn is_exact_instance_of<T: PyTypeInfo>(&self) -> bool {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).is_exact_instance_of::<T>()
+        Py2::borrowed_from_gil_ref(&self).is_exact_instance_of::<T>()
     }
 
     /// Determines if self contains `value`.
@@ -943,7 +940,7 @@ impl PyAny {
     where
         V: ToPyObject,
     {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self).contains(value)
+        Py2::borrowed_from_gil_ref(&self).contains(value)
     }
 
     /// Returns a GIL marker constrained to the lifetime of this type.
@@ -982,7 +979,7 @@ impl PyAny {
     /// This is equivalent to the Python expression `super()`
     #[cfg(not(PyPy))]
     pub fn py_super(&self) -> PyResult<&PySuper> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&self)
+        Py2::borrowed_from_gil_ref(&self)
             .py_super()
             .map(Py2::into_gil_ref)
     }
@@ -1719,10 +1716,8 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
             attr_name: Py2<'_, PyString>,
         ) -> PyResult<Py2<'py, PyAny>> {
             unsafe {
-                Py2::from_owned_ptr_or_err(
-                    any.py(),
-                    ffi::PyObject_GetAttr(any.as_ptr(), attr_name.as_ptr()),
-                )
+                ffi::PyObject_GetAttr(any.as_ptr(), attr_name.as_ptr())
+                    .assume_owned_or_err(any.py())
             }
         }
 
@@ -1772,12 +1767,12 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
         O: ToPyObject,
     {
         fn inner(any: &Py2<'_, PyAny>, other: Py2<'_, PyAny>) -> PyResult<Ordering> {
-            let py = any.py();
             let other = other.as_ptr();
             // Almost the same as ffi::PyObject_RichCompareBool, but this one doesn't try self == other.
             // See https://github.com/PyO3/pyo3/issues/985 for more.
             let do_compare = |other, op| unsafe {
-                Py2::from_owned_ptr_or_err(py, ffi::PyObject_RichCompare(any.as_ptr(), other, op))
+                ffi::PyObject_RichCompare(any.as_ptr(), other, op)
+                    .assume_owned_or_err(any.py())
                     .and_then(|obj| obj.is_true())
             };
             if do_compare(other, ffi::Py_EQ)? {
@@ -1807,10 +1802,8 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
             compare_op: CompareOp,
         ) -> PyResult<Py2<'py, PyAny>> {
             unsafe {
-                Py2::from_owned_ptr_or_err(
-                    any.py(),
-                    ffi::PyObject_RichCompare(any.as_ptr(), other.as_ptr(), compare_op as c_int),
-                )
+                ffi::PyObject_RichCompare(any.as_ptr(), other.as_ptr(), compare_op as c_int)
+                    .assume_owned_or_err(any.py())
             }
         }
 
@@ -1881,14 +1874,12 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
             kwargs: Option<&PyDict>,
         ) -> PyResult<Py2<'py, PyAny>> {
             unsafe {
-                Py2::from_owned_ptr_or_err(
-                    any.py(),
-                    ffi::PyObject_Call(
-                        any.as_ptr(),
-                        args.as_ptr(),
-                        kwargs.map_or(std::ptr::null_mut(), |dict| dict.as_ptr()),
-                    ),
+                ffi::PyObject_Call(
+                    any.as_ptr(),
+                    args.as_ptr(),
+                    kwargs.map_or(std::ptr::null_mut(), |dict| dict.as_ptr()),
                 )
+                .assume_owned_or_err(any.py())
             }
         }
 
@@ -1904,7 +1895,7 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
             ))] {
                 // Optimized path on python 3.9+
                 unsafe {
-                    Py2::from_owned_ptr_or_err(self.py(), ffi::PyObject_CallNoArgs(self.as_ptr()))
+                    ffi::PyObject_CallNoArgs(self.as_ptr()).assume_owned_or_err(self.py())
                 }
             } else {
                 self.call((), None)
@@ -1941,7 +1932,7 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
                 // Optimized path on python 3.9+
                 unsafe {
                     let name = name.into_py(py).attach_into(py);
-                    Py2::from_owned_ptr_or_err(py, ffi::PyObject_CallMethodNoArgs(self.as_ptr(), name.as_ptr()))
+                    ffi::PyObject_CallMethodNoArgs(self.as_ptr(), name.as_ptr()).assume_owned_or_err(py)
                 }
             } else {
                 self.call_method(name, (), None)
@@ -1982,10 +1973,7 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
     {
         fn inner<'py>(any: &Py2<'py, PyAny>, key: Py2<'_, PyAny>) -> PyResult<Py2<'py, PyAny>> {
             unsafe {
-                Py2::from_owned_ptr_or_err(
-                    any.py(),
-                    ffi::PyObject_GetItem(any.as_ptr(), key.as_ptr()),
-                )
+                ffi::PyObject_GetItem(any.as_ptr(), key.as_ptr()).assume_owned_or_err(any.py())
             }
         }
 
@@ -2114,15 +2102,17 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
 
     fn repr(&self) -> PyResult<Py2<'py, PyString>> {
         unsafe {
-            Py2::from_owned_ptr_or_err(self.py(), ffi::PyObject_Repr(self.as_ptr()))
-                .map(|any| any.downcast_into_unchecked())
+            ffi::PyObject_Repr(self.as_ptr())
+                .assume_owned_or_err(self.py())
+                .downcast_into_unchecked()
         }
     }
 
     fn str(&self) -> PyResult<Py2<'py, PyString>> {
         unsafe {
-            Py2::from_owned_ptr_or_err(self.py(), ffi::PyObject_Str(self.as_ptr()))
-                .map(|any| any.downcast_into_unchecked())
+            ffi::PyObject_Str(self.as_ptr())
+                .assume_owned_or_err(self.py())
+                .downcast_into_unchecked()
         }
     }
 
@@ -2140,7 +2130,8 @@ impl<'py> PyAnyMethods<'py> for Py2<'py, PyAny> {
 
     fn dir(&self) -> Py2<'py, PyList> {
         unsafe {
-            Py2::from_owned_ptr(self.py(), ffi::PyObject_Dir(self.as_ptr()))
+            ffi::PyObject_Dir(self.as_ptr())
+                .assume_owned(self.py())
                 .downcast_into_unchecked()
         }
     }
