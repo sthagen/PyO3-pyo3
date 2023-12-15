@@ -272,7 +272,7 @@ macro_rules! pyobject_native_type {
 }
 
 pub(crate) mod any;
-mod boolobject;
+pub(crate) mod boolobject;
 mod bytearray;
 mod bytes;
 mod capsule;
@@ -280,7 +280,7 @@ mod capsule;
 mod code;
 mod complex;
 #[cfg(not(Py_LIMITED_API))]
-mod datetime;
+pub(crate) mod datetime;
 mod dict;
 mod ellipsis;
 pub(crate) mod float;
