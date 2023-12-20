@@ -1325,7 +1325,7 @@ where
 {
     /// Extracts `Self` from the source `PyObject`.
     fn extract(ob: &'a PyAny) -> PyResult<Self> {
-        Py2::<PyAny>::borrowed_from_gil_ref(&ob)
+        Py2::borrowed_from_gil_ref(&ob)
             .downcast()
             .map(Clone::clone)
             .map_err(Into::into)
@@ -1614,7 +1614,7 @@ a = A()
 
     #[cfg(feature = "macros")]
     mod using_macros {
-        use crate::{PyCell, PyTryInto};
+        use crate::PyCell;
 
         use super::*;
 
@@ -1642,7 +1642,9 @@ a = A()
         }
 
         #[test]
+        #[allow(deprecated)]
         fn cell_tryfrom() {
+            use crate::PyTryInto;
             // More detailed tests of the underlying semantics in pycell.rs
             Python::with_gil(|py| {
                 let instance: &PyAny = Py::new(py, SomeClass(0)).unwrap().into_ref(py);
