@@ -281,7 +281,7 @@ mod code;
 mod complex;
 #[cfg(not(Py_LIMITED_API))]
 pub(crate) mod datetime;
-mod dict;
+pub(crate) mod dict;
 mod ellipsis;
 pub(crate) mod float;
 #[cfg(all(not(Py_LIMITED_API), not(PyPy)))]
@@ -301,7 +301,7 @@ mod pysuper;
 pub(crate) mod sequence;
 pub(crate) mod set;
 mod slice;
-mod string;
+pub(crate) mod string;
 mod traceback;
 mod tuple;
 mod typeobject;
