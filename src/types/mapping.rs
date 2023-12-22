@@ -1,6 +1,10 @@
 use crate::err::{PyDowncastError, PyResult};
+use crate::ffi_ptr_ext::FfiPtrExt;
+use crate::instance::Bound;
+use crate::py_result_ext::PyResultExt;
 use crate::sync::GILOnceCell;
 use crate::type_object::PyTypeInfo;
+use crate::types::any::PyAnyMethods;
 use crate::types::{PyAny, PyDict, PySequence, PyType};
 use crate::{ffi, Py, PyNativeType, PyTypeCheck, Python, ToPyObject};
 
@@ -16,15 +20,13 @@ impl PyMapping {
     /// This is equivalent to the Python expression `len(self)`.
     #[inline]
     pub fn len(&self) -> PyResult<usize> {
-        let v = unsafe { ffi::PyMapping_Size(self.as_ptr()) };
-        crate::err::error_on_minusone(self.py(), v)?;
-        Ok(v as usize)
+        Bound::borrowed_from_gil_ref(&self).len()
     }
 
     /// Returns whether the mapping is empty.
     #[inline]
     pub fn is_empty(&self) -> PyResult<bool> {
-        self.len().map(|l| l == 0)
+        Bound::borrowed_from_gil_ref(&self).is_empty()
     }
 
     /// Determines if the mapping contains the specified key.
@@ -34,7 +36,7 @@ impl PyMapping {
     where
         K: ToPyObject,
     {
-        PyAny::contains(self, key)
+        Bound::borrowed_from_gil_ref(&self).contains(key)
     }
 
     /// Gets the item in self with key `key`.
@@ -47,7 +49,9 @@ impl PyMapping {
     where
         K: ToPyObject,
     {
-        PyAny::get_item(self, key)
+        Bound::borrowed_from_gil_ref(&self)
+            .get_item(key)
+            .map(Bound::into_gil_ref)
     }
 
     /// Sets the item in self with key `key`.
@@ -59,7 +63,7 @@ impl PyMapping {
         K: ToPyObject,
         V: ToPyObject,
     {
-        PyAny::set_item(self, key, value)
+        Bound::borrowed_from_gil_ref(&self).set_item(key, value)
     }
 
     /// Deletes the item with key `key`.
@@ -70,34 +74,31 @@ impl PyMapping {
     where
         K: ToPyObject,
     {
-        PyAny::del_item(self, key)
+        Bound::borrowed_from_gil_ref(&self).del_item(key)
     }
 
     /// Returns a sequence containing all keys in the mapping.
     #[inline]
     pub fn keys(&self) -> PyResult<&PySequence> {
-        unsafe {
-            self.py()
-                .from_owned_ptr_or_err(ffi::PyMapping_Keys(self.as_ptr()))
-        }
+        Bound::borrowed_from_gil_ref(&self)
+            .keys()
+            .map(Bound::into_gil_ref)
     }
 
     /// Returns a sequence containing all values in the mapping.
     #[inline]
     pub fn values(&self) -> PyResult<&PySequence> {
-        unsafe {
-            self.py()
-                .from_owned_ptr_or_err(ffi::PyMapping_Values(self.as_ptr()))
-        }
+        Bound::borrowed_from_gil_ref(&self)
+            .values()
+            .map(Bound::into_gil_ref)
     }
 
     /// Returns a sequence of tuples of all (key, value) pairs in the mapping.
     #[inline]
     pub fn items(&self) -> PyResult<&PySequence> {
-        unsafe {
-            self.py()
-                .from_owned_ptr_or_err(ffi::PyMapping_Items(self.as_ptr()))
-        }
+        Bound::borrowed_from_gil_ref(&self)
+            .items()
+            .map(Bound::into_gil_ref)
     }
 
     /// Register a pyclass as a subclass of `collections.abc.Mapping` (from the Python standard
@@ -110,14 +111,139 @@ impl PyMapping {
     }
 }
 
-static MAPPING_ABC: GILOnceCell<Py<PyType>> = GILOnceCell::new();
+/// Implementation of functionality for [`PyMapping`].
+///
+/// These methods are defined for the `Bound<'py, PyMapping>` smart pointer, so to use method call
+/// syntax these methods are separated into a trait, because stable Rust does not yet support
+/// `arbitrary_self_types`.
+#[doc(alias = "PyMapping")]
+pub trait PyMappingMethods<'py> {
+    /// Returns the number of objects in the mapping.
+    ///
+    /// This is equivalent to the Python expression `len(self)`.
+    fn len(&self) -> PyResult<usize>;
+
+    /// Returns whether the mapping is empty.
+    fn is_empty(&self) -> PyResult<bool>;
+
+    /// Determines if the mapping contains the specified key.
+    ///
+    /// This is equivalent to the Python expression `key in self`.
+    fn contains<K>(&self, key: K) -> PyResult<bool>
+    where
+        K: ToPyObject;
+
+    /// Gets the item in self with key `key`.
+    ///
+    /// Returns an `Err` if the item with specified key is not found, usually `KeyError`.
+    ///
+    /// This is equivalent to the Python expression `self[key]`.
+    fn get_item<K>(&self, key: K) -> PyResult<Bound<'py, PyAny>>
+    where
+        K: ToPyObject;
+
+    /// Sets the item in self with key `key`.
+    ///
+    /// This is equivalent to the Python expression `self[key] = value`.
+    fn set_item<K, V>(&self, key: K, value: V) -> PyResult<()>
+    where
+        K: ToPyObject,
+        V: ToPyObject;
+
+    /// Deletes the item with key `key`.
+    ///
+    /// This is equivalent to the Python statement `del self[key]`.
+    fn del_item<K>(&self, key: K) -> PyResult<()>
+    where
+        K: ToPyObject;
+
+    /// Returns a sequence containing all keys in the mapping.
+    fn keys(&self) -> PyResult<Bound<'py, PySequence>>;
+
+    /// Returns a sequence containing all values in the mapping.
+    fn values(&self) -> PyResult<Bound<'py, PySequence>>;
+
+    /// Returns a sequence of tuples of all (key, value) pairs in the mapping.
+    fn items(&self) -> PyResult<Bound<'py, PySequence>>;
+}
+
+impl<'py> PyMappingMethods<'py> for Bound<'py, PyMapping> {
+    #[inline]
+    fn len(&self) -> PyResult<usize> {
+        let v = unsafe { ffi::PyMapping_Size(self.as_ptr()) };
+        crate::err::error_on_minusone(self.py(), v)?;
+        Ok(v as usize)
+    }
+
+    #[inline]
+    fn is_empty(&self) -> PyResult<bool> {
+        self.len().map(|l| l == 0)
+    }
+
+    fn contains<K>(&self, key: K) -> PyResult<bool>
+    where
+        K: ToPyObject,
+    {
+        PyAnyMethods::contains(&**self, key)
+    }
+
+    #[inline]
+    fn get_item<K>(&self, key: K) -> PyResult<Bound<'py, PyAny>>
+    where
+        K: ToPyObject,
+    {
+        PyAnyMethods::get_item(&**self, key)
+    }
+
+    #[inline]
+    fn set_item<K, V>(&self, key: K, value: V) -> PyResult<()>
+    where
+        K: ToPyObject,
+        V: ToPyObject,
+    {
+        PyAnyMethods::set_item(&**self, key, value)
+    }
+
+    #[inline]
+    fn del_item<K>(&self, key: K) -> PyResult<()>
+    where
+        K: ToPyObject,
+    {
+        PyAnyMethods::del_item(&**self, key)
+    }
+
+    #[inline]
+    fn keys(&self) -> PyResult<Bound<'py, PySequence>> {
+        unsafe {
+            ffi::PyMapping_Keys(self.as_ptr())
+                .assume_owned_or_err(self.py())
+                .downcast_into_unchecked()
+        }
+    }
+
+    #[inline]
+    fn values(&self) -> PyResult<Bound<'py, PySequence>> {
+        unsafe {
+            ffi::PyMapping_Values(self.as_ptr())
+                .assume_owned_or_err(self.py())
+                .downcast_into_unchecked()
+        }
+    }
+
+    #[inline]
+    fn items(&self) -> PyResult<Bound<'py, PySequence>> {
+        unsafe {
+            ffi::PyMapping_Items(self.as_ptr())
+                .assume_owned_or_err(self.py())
+                .downcast_into_unchecked()
+        }
+    }
+}
 
 fn get_mapping_abc(py: Python<'_>) -> PyResult<&PyType> {
-    MAPPING_ABC
-        .get_or_try_init(py, || {
-            py.import("collections.abc")?.getattr("Mapping")?.extract()
-        })
-        .map(|ty| ty.as_ref(py))
+    static MAPPING_ABC: GILOnceCell<Py<PyType>> = GILOnceCell::new();
+
+    MAPPING_ABC.get_or_try_init_type_ref(py, "collections.abc", "Mapping")
 }
 
 impl PyTypeCheck for PyMapping {
@@ -130,8 +256,10 @@ impl PyTypeCheck for PyMapping {
         PyDict::is_type_of(object)
             || get_mapping_abc(object.py())
                 .and_then(|abc| object.is_instance(abc))
-                // TODO: surface errors in this chain to the user
-                .unwrap_or(false)
+                .unwrap_or_else(|err| {
+                    err.write_unraisable(object.py(), Some(object));
+                    false
+                })
     }
 }
 
