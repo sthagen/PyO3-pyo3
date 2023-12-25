@@ -42,6 +42,7 @@
 //! }
 //! ```
 use crate::exceptions::{PyTypeError, PyUserWarning, PyValueError};
+use crate::instance::Bound;
 #[cfg(Py_LIMITED_API)]
 use crate::sync::GILOnceCell;
 #[cfg(not(Py_LIMITED_API))]
@@ -248,7 +249,7 @@ impl FromPyObject<'_> for NaiveDateTime {
         // we return a hard error. We could silently remove tzinfo, or assume local timezone
         // and do a conversion, but better leave this decision to the user of the library.
         #[cfg(not(Py_LIMITED_API))]
-        let has_tzinfo = dt.get_tzinfo().is_some();
+        let has_tzinfo = dt.get_tzinfo_bound().is_some();
         #[cfg(Py_LIMITED_API)]
         let has_tzinfo = !dt.getattr(intern!(dt.py(), "tzinfo"))?.is_none();
         if has_tzinfo {
@@ -284,7 +285,7 @@ impl<Tz: TimeZone + for<'a> FromPyObject<'a>> FromPyObject<'_> for DateTime<Tz> 
         check_type(dt, &DatetimeTypes::get(dt.py()).datetime, "PyDateTime")?;
 
         #[cfg(not(Py_LIMITED_API))]
-        let tzinfo = dt.get_tzinfo();
+        let tzinfo = dt.get_tzinfo_bound();
         #[cfg(Py_LIMITED_API)]
         let tzinfo: Option<&PyAny> = dt.getattr(intern!(dt.py(), "tzinfo"))?.extract()?;
 
@@ -465,7 +466,7 @@ fn warn_truncated_leap_second(obj: &PyAny) {
         "ignored leap-second, `datetime` does not support leap-seconds",
         0,
     ) {
-        e.write_unraisable(py, Some(obj))
+        e.write_unraisable_bound(py, Some(Bound::borrowed_from_gil_ref(&obj)))
     };
 }
 
