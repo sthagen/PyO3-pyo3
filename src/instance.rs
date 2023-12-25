@@ -50,18 +50,31 @@ pub struct Bound<'py, T>(Python<'py>, ManuallyDrop<Py<T>>);
 
 impl<'py> Bound<'py, PyAny> {
     /// Constructs a new Bound from a pointer. Panics if ptr is null.
+    ///
+    /// # Safety
+    ///
+    /// `ptr`` must be a valid pointer to a Python object.
     pub(crate) unsafe fn from_owned_ptr(py: Python<'py>, ptr: *mut ffi::PyObject) -> Self {
         Self(py, ManuallyDrop::new(Py::from_owned_ptr(py, ptr)))
     }
 
-    // /// Constructs a new Bound from a pointer. Returns None if ptr is null.
-    // ///
-    // /// Safety: ptr must be a valid pointer to a Python object, or NULL.
-    // pub unsafe fn from_owned_ptr_or_opt(py: Python<'py>, ptr: *mut ffi::PyObject) -> Option<Self> {
-    //     Py::from_owned_ptr_or_opt(py, ptr).map(|obj| Self(py, ManuallyDrop::new(obj)))
-    // }
+    /// Constructs a new Bound from a pointer. Returns None if ptr is null.
+    ///
+    /// # Safety
+    ///
+    /// `ptr`` must be a valid pointer to a Python object, or NULL.
+    pub(crate) unsafe fn from_owned_ptr_or_opt(
+        py: Python<'py>,
+        ptr: *mut ffi::PyObject,
+    ) -> Option<Self> {
+        Py::from_owned_ptr_or_opt(py, ptr).map(|obj| Self(py, ManuallyDrop::new(obj)))
+    }
 
     /// Constructs a new Bound from a pointer. Returns error if ptr is null.
+    ///
+    /// # Safety
+    ///
+    /// `ptr` must be a valid pointer to a Python object, or NULL.
     pub(crate) unsafe fn from_owned_ptr_or_err(
         py: Python<'py>,
         ptr: *mut ffi::PyObject,
@@ -183,8 +196,9 @@ impl<'py, T> Bound<'py, T> {
         unsafe { std::mem::transmute(gil_ref) }
     }
 
-    /// Internal helper to get to pool references for backwards compatibility
-    #[doc(hidden)] // public and doc(hidden) to use in examples and tests for now
+    /// Casts this `Bound<T>` as the corresponding "GIL Ref" type.
+    ///
+    /// This is a helper to be used for migration from the deprecated "GIL Refs" API.
     pub fn as_gil_ref(&'py self) -> &'py T::AsRefTarget
     where
         T: HasPyGilRef,
@@ -192,8 +206,10 @@ impl<'py, T> Bound<'py, T> {
         unsafe { self.py().from_borrowed_ptr(self.as_ptr()) }
     }
 
-    /// Internal helper to get to pool references for backwards compatibility
-    #[doc(hidden)] // public but hidden, to use for tests for now
+    /// Casts this `Bound<T>` as the corresponding "GIL Ref" type, registering the pointer on the
+    /// [release pool](Python::from_owned_ptr).
+    ///
+    /// This is a helper to be used for migration from the deprecated "GIL Refs" API.
     pub fn into_gil_ref(self) -> &'py T::AsRefTarget
     where
         T: HasPyGilRef,
