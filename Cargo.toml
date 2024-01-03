@@ -59,7 +59,7 @@ widestring = "0.5.1"
 futures = "0.3.28"
 
 [build-dependencies]
-pyo3-build-config = { path = "pyo3-build-config", version = "0.21.0-dev", features = ["resolve-config"] }
+pyo3-build-config = { path = "pyo3-build-config", version = "=0.21.0-dev", features = ["resolve-config"] }
 
 [features]
 default = ["macros"]
@@ -133,7 +133,7 @@ members = [
 
 [package.metadata.docs.rs]
 no-default-features = true
-features = ["macros", "num-bigint", "num-complex", "hashbrown", "serde", "multiple-pymethods", "indexmap", "eyre", "either", "chrono", "rust_decimal"]
+features = ["full"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [workspace.lints.clippy]
