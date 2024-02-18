@@ -2,7 +2,7 @@ use crate::instance::Bound;
 use crate::panic::PanicException;
 use crate::type_object::PyTypeInfo;
 use crate::types::any::PyAnyMethods;
-use crate::types::{PyTraceback, PyType};
+use crate::types::{string::PyStringMethods, typeobject::PyTypeMethods, PyTraceback, PyType};
 use crate::{
     exceptions::{self, PyBaseException},
     ffi,
@@ -59,6 +59,15 @@ impl<'a> PyDowncastError<'a> {
         PyDowncastError {
             from,
             to: to.into(),
+        }
+    }
+
+    /// Compatibility API to convert the Bound variant `DowncastError` into the
+    /// gil-ref variant
+    pub(crate) fn from_downcast_err(DowncastError { from, to }: DowncastError<'a, 'a>) -> Self {
+        Self {
+            from: from.as_gil_ref(),
+            to,
         }
     }
 }
@@ -270,7 +279,7 @@ impl PyErr {
     ///
     /// Python::with_gil(|py| {
     ///     let err: PyErr = PyTypeError::new_err(("some type error",));
-    ///     assert!(err.get_type_bound(py).is(PyType::new::<PyTypeError>(py)));
+    ///     assert!(err.get_type_bound(py).is(&PyType::new_bound::<PyTypeError>(py)));
     /// });
     /// ```
     pub fn get_type_bound<'py>(&self, py: Python<'py>) -> Bound<'py, PyType> {
@@ -403,7 +412,7 @@ impl PyErr {
         if ptype.as_ptr() == PanicException::type_object_raw(py).cast() {
             let msg = pvalue
                 .as_ref()
-                .and_then(|obj| obj.as_ref(py).str().ok())
+                .and_then(|obj| obj.bind(py).str().ok())
                 .map(|py_str| py_str.to_string_lossy().into())
                 .unwrap_or_else(|| String::from("Unwrapped panic from Python code"));
 
@@ -425,7 +434,7 @@ impl PyErr {
     #[cfg(Py_3_12)]
     fn _take(py: Python<'_>) -> Option<PyErr> {
         let state = PyErrStateNormalized::take(py)?;
-        let pvalue = state.pvalue.as_ref(py);
+        let pvalue = state.pvalue.bind(py);
         if pvalue.get_type().as_ptr() == PanicException::type_object_raw(py).cast() {
             let msg: String = pvalue
                 .str()
@@ -905,7 +914,6 @@ impl std::fmt::Debug for PyErr {
 
 impl std::fmt::Display for PyErr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use crate::types::string::PyStringMethods;
         Python::with_gil(|py| {
             let value = self.value_bound(py);
             let type_name = value.get_type().qualname().map_err(|_| std::fmt::Error)?;

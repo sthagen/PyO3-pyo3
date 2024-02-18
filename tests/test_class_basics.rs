@@ -230,12 +230,12 @@ impl UnsendableChild {
 
 fn test_unsendable<T: PyClass + 'static>() -> PyResult<()> {
     let obj = Python::with_gil(|py| -> PyResult<_> {
-        let obj: Py<T> = PyType::new::<T>(py).call1((5,))?.extract()?;
+        let obj: Py<T> = PyType::new_bound::<T>(py).call1((5,))?.extract()?;
 
         // Accessing the value inside this thread should not panic
         let caught_panic =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> PyResult<_> {
-                assert_eq!(obj.as_ref(py).getattr("value")?.extract::<usize>()?, 5);
+                assert_eq!(obj.getattr(py, "value")?.extract::<usize>(py)?, 5);
                 Ok(())
             }))
             .is_err();
