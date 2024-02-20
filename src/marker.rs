@@ -728,12 +728,28 @@ impl<'py> Python<'py> {
     }
 
     /// Gets the Python type object for type `T`.
+    #[cfg_attr(
+        not(feature = "gil-refs"),
+        deprecated(
+            since = "0.21.0",
+            note = "`Python::get_type` will be replaced by `Python::get_type_bound` in a future PyO3 version"
+        )
+    )]
     #[inline]
     pub fn get_type<T>(self) -> &'py PyType
     where
         T: PyTypeInfo,
     {
-        T::type_object_bound(self).into_gil_ref()
+        self.get_type_bound::<T>().into_gil_ref()
+    }
+
+    /// Gets the Python type object for type `T`.
+    #[inline]
+    pub fn get_type_bound<T>(self) -> Bound<'py, PyType>
+    where
+        T: PyTypeInfo,
+    {
+        T::type_object_bound(self)
     }
 
     /// Deprecated form of [`Python::import_bound`]
@@ -837,6 +853,7 @@ impl<'py> Python<'py> {
     where
         T: PyTypeCheck<AsRefTarget = T>,
     {
+        #[allow(deprecated)]
         obj.into_ref(self).downcast()
     }
 
@@ -857,6 +874,7 @@ impl<'py> Python<'py> {
     where
         T: HasPyGilRef<AsRefTarget = T>,
     {
+        #[allow(deprecated)]
         obj.into_ref(self).downcast_unchecked()
     }
 
@@ -1150,7 +1168,7 @@ impl<'unbound> Python<'unbound> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{any::PyAnyMethods, IntoPyDict, PyDict, PyList};
+    use crate::types::{IntoPyDict, PyList};
     use std::sync::Arc;
 
     #[test]
