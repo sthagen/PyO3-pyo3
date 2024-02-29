@@ -181,7 +181,7 @@ The next step is to create the module initializer and add our class to it:
 # struct Number(i32);
 #
 #[pymodule]
-fn my_module(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+fn my_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Number>()?;
     Ok(())
 }
@@ -256,6 +256,7 @@ fn return_myclass() -> Py<MyClass> {
 let obj = return_myclass();
 
 Python::with_gil(|py| {
+    #[allow(deprecated)]  // as_ref is part of the deprecated "GIL Refs" API.
     let cell = obj.as_ref(py); // Py<MyClass>::as_ref returns &PyCell<MyClass>
     let obj_ref = cell.borrow(); // Get PyRef<T>
     assert_eq!(obj_ref.num, 1);
@@ -1254,7 +1255,7 @@ impl<'a, 'py> pyo3::impl_::extract_argument::PyFunctionArgument<'a, 'py> for &'a
     type Holder = ::std::option::Option<pyo3::PyRef<'py, MyClass>>;
 
     #[inline]
-    fn extract(obj: &'py pyo3::PyAny, holder: &'a mut Self::Holder) -> pyo3::PyResult<Self> {
+    fn extract(obj: &'a pyo3::Bound<'py, PyAny>, holder: &'a mut Self::Holder) -> pyo3::PyResult<Self> {
         pyo3::impl_::extract_argument::extract_pyclass_ref(obj, holder)
     }
 }
@@ -1264,7 +1265,7 @@ impl<'a, 'py> pyo3::impl_::extract_argument::PyFunctionArgument<'a, 'py> for &'a
     type Holder = ::std::option::Option<pyo3::PyRefMut<'py, MyClass>>;
 
     #[inline]
-    fn extract(obj: &'py pyo3::PyAny, holder: &'a mut Self::Holder) -> pyo3::PyResult<Self> {
+    fn extract(obj: &'a pyo3::Bound<'py, PyAny>, holder: &'a mut Self::Holder) -> pyo3::PyResult<Self> {
         pyo3::impl_::extract_argument::extract_pyclass_ref_mut(obj, holder)
     }
 }

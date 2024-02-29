@@ -168,7 +168,7 @@
 //!
 //! /// A Python module implemented in Rust.
 //! #[pymodule]
-//! fn string_sum(py: Python<'_>, m: &PyModule) -> PyResult<()> {
+//! fn string_sum(m: &Bound<'_, PyModule>) -> PyResult<()> {
 //!     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
 //!
 //!     Ok(())
@@ -324,6 +324,7 @@ pub use crate::version::PythonVersionInfo;
 
 pub(crate) mod ffi_ptr_ext;
 pub(crate) mod py_result_ext;
+pub(crate) mod sealed;
 
 /// Old module which contained some implementation details of the `#[pyproto]` module.
 ///
