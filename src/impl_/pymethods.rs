@@ -7,8 +7,8 @@ use crate::pycell::{PyBorrowError, PyBorrowMutError};
 use crate::pyclass::boolean_struct::False;
 use crate::types::{any::PyAnyMethods, PyModule, PyType};
 use crate::{
-    ffi, Borrowed, Bound, DowncastError, Py, PyAny, PyCell, PyClass, PyErr, PyObject, PyRef,
-    PyRefMut, PyResult, PyTraverseError, PyTypeCheck, PyVisit, Python,
+    ffi, Borrowed, Bound, DowncastError, Py, PyAny, PyClass, PyClassInitializer, PyErr, PyObject,
+    PyRef, PyRefMut, PyResult, PyTraverseError, PyTypeCheck, PyVisit, Python,
 };
 use std::borrow::Cow;
 use std::ffi::CStr;
@@ -518,7 +518,8 @@ impl<'a> From<BoundRef<'a, 'a, PyModule>> for &'a PyModule {
     }
 }
 
-impl<'a, 'py, T: PyClass> From<BoundRef<'a, 'py, T>> for &'a PyCell<T> {
+#[allow(deprecated)]
+impl<'a, 'py, T: PyClass> From<BoundRef<'a, 'py, T>> for &'a crate::PyCell<T> {
     #[inline]
     fn from(bound: BoundRef<'a, 'py, T>) -> Self {
         bound.0.as_gil_ref()
@@ -568,4 +569,14 @@ impl<'py, T> std::ops::Deref for BoundRef<'_, 'py, T> {
     fn deref(&self) -> &Self::Target {
         self.0
     }
+}
+
+pub unsafe fn tp_new_impl<T: PyClass>(
+    py: Python<'_>,
+    initializer: PyClassInitializer<T>,
+    target_type: *mut ffi::PyTypeObject,
+) -> PyResult<*mut ffi::PyObject> {
+    initializer
+        .create_class_object_of_type(py, target_type)
+        .map(Bound::into_ptr)
 }
