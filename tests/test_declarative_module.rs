@@ -3,6 +3,8 @@
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
+#[cfg(not(Py_LIMITED_API))]
+use pyo3::types::PyBool;
 
 #[path = "../src/tests/common.rs"]
 mod common;
@@ -15,8 +17,8 @@ struct ValueClass {
 #[pymethods]
 impl ValueClass {
     #[new]
-    fn new(value: usize) -> ValueClass {
-        ValueClass { value }
+    fn new(value: usize) -> Self {
+        Self { value }
     }
 }
 
@@ -48,6 +50,33 @@ mod declarative_module {
     #[pymodule_export]
     use super::{declarative_module2, double, MyError, ValueClass as Value};
 
+    #[pymodule]
+    mod inner {
+        use super::*;
+
+        #[pyfunction]
+        fn triple(x: usize) -> usize {
+            x * 3
+        }
+
+        #[pyclass]
+        struct Struct;
+
+        #[pymethods]
+        impl Struct {
+            #[new]
+            fn new() -> Self {
+                Self
+            }
+        }
+
+        #[pyclass]
+        enum Enum {
+            A,
+            B,
+        }
+    }
+
     #[pymodule_init]
     fn init(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.add("double2", m.getattr("double")?)
@@ -65,7 +94,6 @@ mod declarative_submodule {
     use super::{double, double_value};
 }
 
-/// A module written using declarative syntax.
 #[pymodule]
 #[pyo3(name = "declarative_module_renamed")]
 mod declarative_module2 {
@@ -84,7 +112,7 @@ fn test_declarative_module() {
         );
 
         py_assert!(py, m, "m.double(2) == 4");
-        py_assert!(py, m, "m.double2(3) == 6");
+        py_assert!(py, m, "m.inner.triple(3) == 9");
         py_assert!(py, m, "m.declarative_submodule.double(4) == 8");
         py_assert!(
             py,
@@ -97,5 +125,46 @@ fn test_declarative_module() {
         py_assert!(py, m, "not hasattr(m, 'LocatedClass')");
         #[cfg(not(Py_LIMITED_API))]
         py_assert!(py, m, "hasattr(m, 'LocatedClass')");
+        py_assert!(py, m, "isinstance(m.inner.Struct(), m.inner.Struct)");
+        py_assert!(py, m, "isinstance(m.inner.Enum.A, m.inner.Enum)");
+    })
+}
+
+#[cfg(not(Py_LIMITED_API))]
+#[pyclass(extends = PyBool)]
+struct ExtendsBool;
+
+#[cfg(not(Py_LIMITED_API))]
+#[pymodule]
+mod class_initialization_module {
+    #[pymodule_export]
+    use super::ExtendsBool;
+}
+
+#[test]
+#[cfg(not(Py_LIMITED_API))]
+fn test_class_initialization_fails() {
+    Python::with_gil(|py| {
+        let err = class_initialization_module::DEF
+            .make_module(py)
+            .unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "RuntimeError: An error occurred while initializing class ExtendsBool"
+        );
+    })
+}
+
+#[pymodule]
+mod r#type {
+    #[pymodule_export]
+    use super::double;
+}
+
+#[test]
+fn test_raw_ident_module() {
+    Python::with_gil(|py| {
+        let m = pyo3::wrap_pymodule!(r#type)(py).into_bound(py);
+        py_assert!(py, m, "m.double(2) == 4");
     })
 }

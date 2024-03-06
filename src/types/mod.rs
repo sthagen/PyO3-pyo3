@@ -5,7 +5,7 @@ pub use self::boolobject::{PyBool, PyBoolMethods};
 pub use self::bytearray::{PyByteArray, PyByteArrayMethods};
 pub use self::bytes::{PyBytes, PyBytesMethods};
 pub use self::capsule::{PyCapsule, PyCapsuleMethods};
-#[cfg(not(Py_LIMITED_API))]
+#[cfg(all(not(Py_LIMITED_API), not(PyPy)))]
 pub use self::code::PyCode;
 pub use self::complex::{PyComplex, PyComplexMethods};
 #[allow(deprecated)]
@@ -249,6 +249,18 @@ macro_rules! pyobject_native_type_info(
                 }
             )?
         }
+
+        impl<$($generics,)*> $crate::impl_::pymodule::PyAddToModule for $name {
+            fn add_to_module(
+                module: &$crate::Bound<'_, $crate::types::PyModule>,
+            ) -> $crate::PyResult<()> {
+                use $crate::types::PyModuleMethods;
+                module.add(
+                    <Self as $crate::PyTypeInfo>::NAME,
+                    <Self as $crate::PyTypeInfo>::type_object_bound(module.py()),
+                )
+            }
+        }
     };
 );
 
@@ -316,7 +328,7 @@ pub(crate) mod boolobject;
 pub(crate) mod bytearray;
 pub(crate) mod bytes;
 pub(crate) mod capsule;
-#[cfg(not(Py_LIMITED_API))]
+#[cfg(all(not(Py_LIMITED_API), not(PyPy)))]
 mod code;
 pub(crate) mod complex;
 #[cfg(not(Py_LIMITED_API))]
