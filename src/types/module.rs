@@ -10,6 +10,8 @@ use crate::{exceptions, ffi, Bound, IntoPy, Py, PyNativeType, PyObject, Python};
 use std::ffi::CString;
 use std::str;
 
+use super::PyStringMethods;
+
 /// Represents a Python [`module`][1] object.
 ///
 /// As with all other Python objects, modules are first class citizens.
@@ -335,11 +337,11 @@ impl PyModule {
     /// use pyo3::prelude::*;
     ///
     /// #[pymodule]
-    /// fn my_module(py: Python<'_>, module: &PyModule) -> PyResult<()> {
+    /// fn my_module(py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<()> {
     ///     let submodule = PyModule::new_bound(py, "submodule")?;
     ///     submodule.add("super_useful_constant", "important")?;
     ///
-    ///     module.add_submodule(submodule.as_gil_ref())?;
+    ///     module.add_submodule(&submodule)?;
     ///     Ok(())
     /// }
     /// ```
@@ -399,8 +401,12 @@ impl PyModule {
     /// [1]: crate::prelude::pyfunction
     /// [2]: crate::wrap_pyfunction
     pub fn add_function<'a>(&'a self, fun: &'a PyCFunction) -> PyResult<()> {
-        let name = fun.getattr(__name__(self.py()))?.extract()?;
-        self.add(name, fun)
+        let name = fun
+            .as_borrowed()
+            .getattr(__name__(self.py()))?
+            .downcast_into::<PyString>()?;
+        let name = name.to_cow()?;
+        self.add(&name, fun)
     }
 }
 
@@ -530,11 +536,11 @@ pub trait PyModuleMethods<'py>: crate::sealed::Sealed {
     /// use pyo3::prelude::*;
     ///
     /// #[pymodule]
-    /// fn my_module(py: Python<'_>, module: &PyModule) -> PyResult<()> {
+    /// fn my_module(py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<()> {
     ///     let submodule = PyModule::new_bound(py, "submodule")?;
     ///     submodule.add("super_useful_constant", "important")?;
     ///
-    ///     module.add_submodule(submodule.as_gil_ref())?;
+    ///     module.add_submodule(&submodule)?;
     ///     Ok(())
     /// }
     /// ```
