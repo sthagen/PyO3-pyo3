@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use proc_macro2::{Span, TokenStream};
-use quote::{quote, quote_spanned, ToTokens};
+use quote::{format_ident, quote, quote_spanned, ToTokens};
 use syn::{ext::IdentExt, spanned::Spanned, Ident, Result};
 
 use crate::utils::Ctx;
@@ -269,19 +269,11 @@ pub struct FnSpec<'a> {
     // r# can be removed by syn::ext::IdentExt::unraw()
     pub python_name: syn::Ident,
     pub signature: FunctionSignature<'a>,
-    pub output: syn::Type,
     pub convention: CallingConvention,
     pub text_signature: Option<TextSignatureAttribute>,
     pub asyncness: Option<syn::Token![async]>,
     pub unsafety: Option<syn::Token![unsafe]>,
     pub deprecations: Deprecations<'a>,
-}
-
-pub fn get_return_info(output: &syn::ReturnType) -> syn::Type {
-    match output {
-        syn::ReturnType::Default => syn::Type::Infer(syn::parse_quote! {_}),
-        syn::ReturnType::Type(_, ty) => *ty.clone(),
-    }
 }
 
 pub fn parse_method_receiver(arg: &syn::FnArg) -> Result<SelfType> {
@@ -329,7 +321,6 @@ impl<'a> FnSpec<'a> {
         ensure_signatures_on_valid_method(&fn_type, signature.as_ref(), text_signature.as_ref())?;
 
         let name = &sig.ident;
-        let ty = get_return_info(&sig.output);
         let python_name = python_name.as_ref().unwrap_or(name).unraw();
 
         let arguments: Vec<_> = sig
@@ -361,7 +352,6 @@ impl<'a> FnSpec<'a> {
             convention,
             python_name,
             signature,
-            output: ty,
             text_signature,
             asyncness: sig.asyncness,
             unsafety: sig.unsafety,
@@ -528,17 +518,33 @@ impl<'a> FnSpec<'a> {
                     Some(cls) => quote!(Some(<#cls as #pyo3_path::PyTypeInfo>::NAME)),
                     None => quote!(None),
                 };
+                let evaluate_args = || -> (Vec<Ident>, TokenStream) {
+                    let mut arg_names = Vec::with_capacity(args.len());
+                    let mut evaluate_arg = quote! {};
+                    for arg in &args {
+                        let arg_name = format_ident!("arg_{}", arg_names.len());
+                        arg_names.push(arg_name.clone());
+                        evaluate_arg.extend(quote! {
+                            let #arg_name = #arg
+                        });
+                    }
+                    (arg_names, evaluate_arg)
+                };
                 let future = match self.tp {
                     FnType::Fn(SelfType::Receiver { mutable: false, .. }) => {
+                        let (arg_name, evaluate_arg) = evaluate_args();
                         quote! {{
+                            #evaluate_arg;
                             let __guard = #pyo3_path::impl_::coroutine::RefGuard::<#cls>::new(&#pyo3_path::impl_::pymethods::BoundRef::ref_from_ptr(py, &_slf))?;
-                            async move { function(&__guard, #(#args),*).await }
+                            async move { function(&__guard, #(#arg_name),*).await }
                         }}
                     }
                     FnType::Fn(SelfType::Receiver { mutable: true, .. }) => {
+                        let (arg_name, evaluate_arg) = evaluate_args();
                         quote! {{
+                            #evaluate_arg;
                             let mut __guard = #pyo3_path::impl_::coroutine::RefMutGuard::<#cls>::new(&#pyo3_path::impl_::pymethods::BoundRef::ref_from_ptr(py, &_slf))?;
-                            async move { function(&mut __guard, #(#args),*).await }
+                            async move { function(&mut __guard, #(#arg_name),*).await }
                         }}
                     }
                     _ => {
