@@ -724,7 +724,7 @@ impl PyErr {
     ///
     /// The `category` should be one of the `Warning` classes available in
     /// [`pyo3::exceptions`](crate::exceptions), or a subclass.  The Python
-    /// object can be retrieved using [`Python::get_type()`].
+    /// object can be retrieved using [`Python::get_type_bound()`].
     ///
     /// Example:
     /// ```rust
@@ -1000,6 +1000,7 @@ where
 }
 
 /// Convert `PyDowncastError` to Python `TypeError`.
+#[cfg(feature = "gil-refs")]
 impl<'a> std::convert::From<PyDowncastError<'a>> for PyErr {
     fn from(err: PyDowncastError<'_>) -> PyErr {
         let args = PyDowncastErrorArguments {

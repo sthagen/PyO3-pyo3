@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
 use crate::attributes::{NameAttribute, RenamingRule};
+use crate::deprecations::deprecate_trailing_option_default;
 use crate::method::{CallingConvention, ExtractErrorMode, PyArg};
 use crate::params::{check_arg_for_gil_refs, impl_regular_arg_param, Holders};
 use crate::utils::Ctx;
@@ -512,7 +513,7 @@ fn impl_py_class_attribute(
         #pyo3_path::class::PyMethodDefType::ClassAttribute({
             #pyo3_path::class::PyClassAttributeDef::new(
                 #python_name,
-                #pyo3_path::impl_::pymethods::PyClassAttributeFactory(#cls::#wrapper_ident)
+                #cls::#wrapper_ident
             )
         })
     };
@@ -637,7 +638,10 @@ pub fn impl_py_setter_def(
             );
             let extract =
                 check_arg_for_gil_refs(tokens, holders.push_gil_refs_checker(arg.ty.span()), ctx);
+
+            let deprecation = deprecate_trailing_option_default(spec);
             quote! {
+                #deprecation
                 #from_py_with
                 let _val = #extract;
             }
@@ -699,7 +703,7 @@ pub fn impl_py_setter_def(
         #pyo3_path::class::PyMethodDefType::Setter(
             #pyo3_path::class::PySetterDef::new(
                 #python_name,
-                #pyo3_path::impl_::pymethods::PySetter(#cls::#wrapper_ident),
+                #cls::#wrapper_ident,
                 #doc
             )
         )
@@ -831,7 +835,7 @@ pub fn impl_py_getter_def(
         #pyo3_path::class::PyMethodDefType::Getter(
             #pyo3_path::class::PyGetterDef::new(
                 #python_name,
-                #pyo3_path::impl_::pymethods::PyGetter(#cls::#wrapper_ident),
+                #cls::#wrapper_ident,
                 #doc
             )
         )
