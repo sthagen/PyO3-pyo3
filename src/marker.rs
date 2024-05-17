@@ -126,12 +126,10 @@ use crate::types::{
     PyAny, PyDict, PyEllipsis, PyModule, PyNone, PyNotImplemented, PyString, PyType,
 };
 use crate::version::PythonVersionInfo;
-#[cfg(feature = "gil-refs")]
-use crate::PyNativeType;
 use crate::{ffi, Bound, IntoPy, Py, PyObject, PyTypeInfo};
 #[allow(deprecated)]
 #[cfg(feature = "gil-refs")]
-use crate::{gil::GILPool, FromPyPointer};
+use crate::{gil::GILPool, FromPyPointer, PyNativeType};
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::os::raw::c_int;
@@ -411,10 +409,10 @@ impl Python<'_> {
     where
         F: for<'py> FnOnce(Python<'py>) -> R,
     {
-        let _guard = GILGuard::acquire();
+        let guard = GILGuard::acquire();
 
         // SAFETY: Either the GIL was already acquired or we just created a new `GILGuard`.
-        f(unsafe { Python::assume_gil_acquired() })
+        f(guard.python())
     }
 
     /// Like [`Python::with_gil`] except Python interpreter state checking is skipped.
@@ -445,10 +443,9 @@ impl Python<'_> {
     where
         F: for<'py> FnOnce(Python<'py>) -> R,
     {
-        let _guard = GILGuard::acquire_unchecked();
+        let guard = GILGuard::acquire_unchecked();
 
-        // SAFETY: Either the GIL was already acquired or we just created a new `GILGuard`.
-        f(Python::assume_gil_acquired())
+        f(guard.python())
     }
 }
 
