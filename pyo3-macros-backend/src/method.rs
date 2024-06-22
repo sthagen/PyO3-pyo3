@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::ffi::CString;
 use std::fmt::Display;
 
 use proc_macro2::{Span, TokenStream};
@@ -6,7 +7,7 @@ use quote::{format_ident, quote, quote_spanned, ToTokens};
 use syn::{ext::IdentExt, spanned::Spanned, Ident, Result};
 
 use crate::deprecations::deprecate_trailing_option_default;
-use crate::utils::Ctx;
+use crate::utils::{Ctx, LitCStr};
 use crate::{
     attributes::{FromPyWithAttribute, TextSignatureAttribute, TextSignatureAttributeValue},
     deprecations::{Deprecation, Deprecations},
@@ -224,7 +225,7 @@ impl FnType {
         holders: &mut Holders,
         ctx: &Ctx,
     ) -> TokenStream {
-        let Ctx { pyo3_path } = ctx;
+        let Ctx { pyo3_path, .. } = ctx;
         match self {
             FnType::Getter(st) | FnType::Setter(st) | FnType::Fn(st) => {
                 let mut receiver = st.receiver(
@@ -281,7 +282,7 @@ pub enum ExtractErrorMode {
 
 impl ExtractErrorMode {
     pub fn handle_error(self, extract: TokenStream, ctx: &Ctx) -> TokenStream {
-        let Ctx { pyo3_path } = ctx;
+        let Ctx { pyo3_path, .. } = ctx;
         match self {
             ExtractErrorMode::Raise => quote! { #extract? },
             ExtractErrorMode::NotImplemented => quote! {
@@ -306,7 +307,7 @@ impl SelfType {
         // main macro callsite.
         let py = syn::Ident::new("py", Span::call_site());
         let slf = syn::Ident::new("_slf", Span::call_site());
-        let Ctx { pyo3_path } = ctx;
+        let Ctx { pyo3_path, .. } = ctx;
         match self {
             SelfType::Receiver { span, mutable } => {
                 let method = if *mutable {
@@ -472,12 +473,10 @@ impl<'a> FnSpec<'a> {
         })
     }
 
-    pub fn null_terminated_python_name(&self, ctx: &Ctx) -> TokenStream {
-        let Ctx { pyo3_path } = ctx;
-        let span = self.python_name.span();
-        let pyo3_path = pyo3_path.to_tokens_spanned(span);
+    pub fn null_terminated_python_name(&self, ctx: &Ctx) -> LitCStr {
         let name = self.python_name.to_string();
-        quote_spanned!(self.python_name.span() => #pyo3_path::ffi::c_str!(#name))
+        let name = CString::new(name).unwrap();
+        LitCStr::new(name, self.python_name.span(), ctx)
     }
 
     fn parse_fn_type(
@@ -600,7 +599,10 @@ impl<'a> FnSpec<'a> {
         cls: Option<&syn::Type>,
         ctx: &Ctx,
     ) -> Result<TokenStream> {
-        let Ctx { pyo3_path } = ctx;
+        let Ctx {
+            pyo3_path,
+            output_span,
+        } = ctx;
         let mut cancel_handle_iter = self
             .signature
             .arguments
@@ -703,7 +705,18 @@ impl<'a> FnSpec<'a> {
                     }
                 }
             };
-            quotes::map_result_into_ptr(quotes::ok_wrap(call, ctx), ctx)
+
+            // We must assign the output_span to the return value of the call,
+            // but *not* of the call itself otherwise the spans get really weird
+            let ret_expr = quote! { let ret = #call; };
+            let ret_var = quote_spanned! {*output_span=> ret };
+            let return_conversion = quotes::map_result_into_ptr(quotes::ok_wrap(ret_var, ctx), ctx);
+            quote! {
+                {
+                    #ret_expr
+                    #return_conversion
+                }
+            }
         };
 
         let func_name = &self.name;
@@ -731,7 +744,6 @@ impl<'a> FnSpec<'a> {
                 let call = rust_call(args, &mut holders);
                 let check_gil_refs = holders.check_gil_refs();
                 let init_holders = holders.init_holders(ctx);
-
                 quote! {
                     unsafe fn #ident<'py>(
                         py: #pyo3_path::Python<'py>,
@@ -804,7 +816,7 @@ impl<'a> FnSpec<'a> {
                 let self_arg = self
                     .tp
                     .self_arg(cls, ExtractErrorMode::Raise, &mut holders, ctx);
-                let call = quote! { #rust_name(#self_arg #(#args),*) };
+                let call = quote_spanned! {*output_span=> #rust_name(#self_arg #(#args),*) };
                 let init_holders = holders.init_holders(ctx);
                 let check_gil_refs = holders.check_gil_refs();
                 quote! {
@@ -833,7 +845,7 @@ impl<'a> FnSpec<'a> {
     /// Return a `PyMethodDef` constructor for this function, matching the selected
     /// calling convention.
     pub fn get_methoddef(&self, wrapper: impl ToTokens, doc: &PythonDoc, ctx: &Ctx) -> TokenStream {
-        let Ctx { pyo3_path } = ctx;
+        let Ctx { pyo3_path, .. } = ctx;
         let python_name = self.null_terminated_python_name(ctx);
         match self.convention {
             CallingConvention::Noargs => quote! {
