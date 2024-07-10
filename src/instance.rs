@@ -744,7 +744,8 @@ impl<T> IntoPy<PyObject> for Borrowed<'_, '_, T> {
 ///  - [`Py::borrow`], [`Py::try_borrow`], [`Py::borrow_mut`], or [`Py::try_borrow_mut`],
 ///
 /// to get a (mutable) reference to a contained pyclass, using a scheme similar to std's [`RefCell`].
-/// See the [guide entry](https://pyo3.rs/latest/class.html#bound-and-interior-mutability)
+/// See the
+#[doc = concat!("[guide entry](https://pyo3.rs/v", env!("CARGO_PKG_VERSION"), "/class.html#bound-and-interior-mutability)")]
 /// for more information.
 ///  - You can call methods directly on `Py` with [`Py::call_bound`], [`Py::call_method_bound`] and friends.
 ///
@@ -1382,14 +1383,6 @@ impl<T> Py<T> {
     /// This is equivalent to the Python expression `self is None`.
     pub fn is_none(&self, _py: Python<'_>) -> bool {
         unsafe { ffi::Py_None() == self.as_ptr() }
-    }
-
-    /// Returns whether the object is considered to be true.
-    ///
-    /// This is equivalent to the Python expression `bool(self)`.
-    #[deprecated(since = "0.21.0", note = "use `.is_truthy()` instead")]
-    pub fn is_true(&self, py: Python<'_>) -> PyResult<bool> {
-        self.is_truthy(py)
     }
 
     /// Returns whether the object is considered to be true.
@@ -2362,19 +2355,6 @@ a = A()
 
                     assert_eq!(instance.bind(py).get().0, i);
                 }
-            })
-        }
-
-        #[test]
-        #[cfg(feature = "gil-refs")]
-        #[allow(deprecated)]
-        fn cell_tryfrom() {
-            use crate::{PyCell, PyTryInto};
-            // More detailed tests of the underlying semantics in pycell.rs
-            Python::with_gil(|py| {
-                let instance: &PyAny = Py::new(py, SomeClass(0)).unwrap().into_ref(py);
-                let _: &PyCell<SomeClass> = PyTryInto::try_into(instance).unwrap();
-                let _: &PyCell<SomeClass> = PyTryInto::try_into_exact(instance).unwrap();
             })
         }
     }

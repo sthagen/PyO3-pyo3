@@ -394,8 +394,17 @@ def check_guide(session: nox.Session):
     docs(session)
     session.posargs.extend(posargs)
 
+    if toml is None:
+        session.error("requires Python 3.11 or `toml` to be installed")
+    pyo3_version = toml.loads((PYO3_DIR / "Cargo.toml").read_text())["package"][
+        "version"
+    ]
+
     remaps = {
         f"file://{PYO3_GUIDE_SRC}/([^/]*/)*?%7B%7B#PYO3_DOCS_URL}}}}": f"file://{PYO3_DOCS_TARGET}",
+        f"https://pyo3.rs/v{pyo3_version}": f"file://{PYO3_GUIDE_TARGET}",
+        "https://pyo3.rs/main/": f"file://{PYO3_GUIDE_TARGET}/",
+        "https://pyo3.rs/latest/": f"file://{PYO3_GUIDE_TARGET}/",
         "%7B%7B#PYO3_DOCS_VERSION}}": "latest",
     }
     remap_args = []
@@ -416,8 +425,7 @@ def check_guide(session: nox.Session):
         session,
         "lychee",
         str(PYO3_DOCS_TARGET),
-        f"--remap=https://pyo3.rs/main/ file://{PYO3_GUIDE_TARGET}/",
-        f"--remap=https://pyo3.rs/latest/ file://{PYO3_GUIDE_TARGET}/",
+        *remap_args,
         f"--exclude=file://{PYO3_DOCS_TARGET}",
         "--exclude=http://www.adobe.com/",
         *session.posargs,
@@ -543,8 +551,8 @@ def check_changelog(session: nox.Session):
         print(fragment.name)
 
 
-@nox.session(name="set-minimal-package-versions", venv_backend="none")
-def set_minimal_package_versions(session: nox.Session):
+@nox.session(name="set-msrv-package-versions", venv_backend="none")
+def set_msrv_package_versions(session: nox.Session):
     from collections import defaultdict
 
     if toml is None:
@@ -708,10 +716,14 @@ def check_feature_powerset(session: nox.Session):
     rust_flags = env.get("RUSTFLAGS", "")
     env["RUSTFLAGS"] = f"{rust_flags} -Dwarnings"
 
+    subcommand = "hack"
+    if "minimal-versions" in session.posargs:
+        subcommand = "minimal-versions"
+
     comma_join = ",".join
     _run_cargo(
         session,
-        "hack",
+        subcommand,
         "--feature-powerset",
         '--optional-deps=""',
         f'--skip="{comma_join(features_to_skip)}"',
