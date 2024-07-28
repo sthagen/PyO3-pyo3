@@ -79,6 +79,7 @@ pub trait ToPyObject {
 /// ```rust
 /// use pyo3::prelude::*;
 ///
+/// # #[allow(dead_code)]
 /// #[pyclass]
 /// struct Number {
 ///     #[pyo3(get, set)]
@@ -366,7 +367,7 @@ where
 /// Converts `()` to an empty Python tuple.
 impl IntoPy<Py<PyTuple>> for () {
     fn into_py(self, py: Python<'_>) -> Py<PyTuple> {
-        PyTuple::empty_bound(py).unbind()
+        PyTuple::empty(py).unbind()
     }
 }
 
