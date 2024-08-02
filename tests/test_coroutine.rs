@@ -75,7 +75,7 @@ fn test_coroutine_qualname() {
             ),
             ("MyClass", gil.get_type_bound::<MyClass>().as_any()),
         ]
-        .into_py_dict_bound(gil);
+        .into_py_dict(gil);
         py_run!(gil, *locals, &handle_windows(test));
     })
 }
@@ -118,6 +118,20 @@ fn sleep_coroutine() {
         let sleep = wrap_pyfunction!(sleep, gil).unwrap();
         let test = r#"import asyncio; assert asyncio.run(sleep(0.1)) == 42"#;
         py_run!(gil, sleep, &handle_windows(test));
+    })
+}
+
+#[pyfunction]
+async fn return_tuple() -> (usize, usize) {
+    (42, 43)
+}
+
+#[test]
+fn tuple_coroutine() {
+    Python::with_gil(|gil| {
+        let func = wrap_pyfunction!(return_tuple, gil).unwrap();
+        let test = r#"import asyncio; assert asyncio.run(func()) == (42, 43)"#;
+        py_run!(gil, func, &handle_windows(test));
     })
 }
 
@@ -302,7 +316,7 @@ fn test_async_method_receiver() {
             assert False
         assert asyncio.run(coro3) == 1
         "#;
-        let locals = [("Counter", gil.get_type_bound::<Counter>())].into_py_dict_bound(gil);
+        let locals = [("Counter", gil.get_type_bound::<Counter>())].into_py_dict(gil);
         py_run!(gil, *locals, test);
     });
 
@@ -337,7 +351,7 @@ fn test_async_method_receiver_with_other_args() {
         assert asyncio.run(v.set_value(10)) == 10
         assert asyncio.run(v.get_value_plus_with(1, 1)) == 12
         "#;
-        let locals = [("Value", gil.get_type_bound::<Value>())].into_py_dict_bound(gil);
+        let locals = [("Value", gil.get_type_bound::<Value>())].into_py_dict(gil);
         py_run!(gil, *locals, test);
     });
 }

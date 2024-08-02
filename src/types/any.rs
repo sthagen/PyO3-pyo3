@@ -176,8 +176,8 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     ///
     /// # fn main() -> PyResult<()> {
     /// Python::with_gil(|py| -> PyResult<()> {
-    ///     let a = PyFloat::new_bound(py, 0_f64);
-    ///     let b = PyFloat::new_bound(py, 42_f64);
+    ///     let a = PyFloat::new(py, 0_f64);
+    ///     let b = PyFloat::new(py, 42_f64);
     ///     assert_eq!(a.compare(b)?, Ordering::Less);
     ///     Ok(())
     /// })?;
@@ -192,7 +192,7 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     ///
     /// # fn main() -> PyResult<()> {
     /// Python::with_gil(|py| -> PyResult<()> {
-    ///     let a = PyFloat::new_bound(py, 0_f64);
+    ///     let a = PyFloat::new(py, 0_f64);
     ///     let b = PyString::new_bound(py, "zero");
     ///     assert!(a.compare(b).is_err());
     ///     Ok(())
@@ -424,7 +424,7 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     ///     let module = PyModule::from_code_bound(py, CODE, "", "")?;
     ///     let fun = module.getattr("function")?;
     ///     let args = ("hello",);
-    ///     let kwargs = PyDict::new_bound(py);
+    ///     let kwargs = PyDict::new(py);
     ///     kwargs.set_item("cruel", "world")?;
     ///     let result = fun.call(args, Some(&kwargs))?;
     ///     assert_eq!(result.extract::<String>()?, "called with args and kwargs");
@@ -516,7 +516,7 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     ///     let module = PyModule::from_code_bound(py, CODE, "", "")?;
     ///     let instance = module.getattr("a")?;
     ///     let args = ("hello",);
-    ///     let kwargs = PyDict::new_bound(py);
+    ///     let kwargs = PyDict::new(py);
     ///     kwargs.set_item("cruel", "world")?;
     ///     let result = instance.call_method("method", args, Some(&kwargs))?;
     ///     assert_eq!(result.extract::<String>()?, "called with args and kwargs");
@@ -676,7 +676,7 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     /// use pyo3::types::{PyDict, PyList};
     ///
     /// Python::with_gil(|py| {
-    ///     let dict = PyDict::new_bound(py);
+    ///     let dict = PyDict::new(py);
     ///     assert!(dict.is_instance_of::<PyAny>());
     ///     let any = dict.as_any();
     ///
@@ -728,7 +728,7 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     /// use pyo3::types::{PyDict, PyList};
     ///
     /// Python::with_gil(|py| {
-    ///     let obj: Bound<'_, PyAny> = PyDict::new_bound(py).into_any();
+    ///     let obj: Bound<'_, PyAny> = PyDict::new(py).into_any();
     ///
     ///     let obj: Bound<'_, PyAny> = match obj.downcast_into::<PyList>() {
     ///         Ok(_) => panic!("obj should not be a list"),
@@ -761,7 +761,7 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     /// use pyo3::types::{PyBool, PyInt};
     ///
     /// Python::with_gil(|py| {
-    ///     let b = PyBool::new_bound(py, true);
+    ///     let b = PyBool::new(py, true);
     ///     assert!(b.is_instance_of::<PyBool>());
     ///     let any: &Bound<'_, PyAny> = b.as_any();
     ///
@@ -1623,7 +1623,7 @@ class NonHeapNonDescriptorInt:
     fn test_call_with_kwargs() {
         Python::with_gil(|py| {
             let list = vec![3, 6, 5, 4, 7].to_object(py);
-            let dict = vec![("reverse", true)].into_py_dict_bound(py);
+            let dict = vec![("reverse", true)].into_py_dict(py);
             list.call_method_bound(py, "sort", (), Some(&dict)).unwrap();
             assert_eq!(list.extract::<Vec<i32>>(py).unwrap(), vec![7, 6, 5, 4, 3]);
         });
@@ -1755,7 +1755,7 @@ class SimpleClass:
             let x = 5.to_object(py).into_bound(py);
             assert!(x.is_exact_instance_of::<PyInt>());
 
-            let t = PyBool::new_bound(py, true);
+            let t = PyBool::new(py, true);
             assert!(t.is_instance_of::<PyInt>());
             assert!(!t.is_exact_instance_of::<PyInt>());
             assert!(t.is_exact_instance_of::<PyBool>());
@@ -1768,7 +1768,7 @@ class SimpleClass:
     #[test]
     fn test_any_is_exact_instance() {
         Python::with_gil(|py| {
-            let t = PyBool::new_bound(py, true);
+            let t = PyBool::new(py, true);
             assert!(t.is_instance(&py.get_type_bound::<PyInt>()).unwrap());
             assert!(!t.is_exact_instance(&py.get_type_bound::<PyInt>()));
             assert!(t.is_exact_instance(&py.get_type_bound::<PyBool>()));
