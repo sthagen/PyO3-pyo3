@@ -116,7 +116,6 @@ pub trait DerefToPyAny {
 #[macro_export]
 macro_rules! pyobject_native_type_named (
     ($name:ty $(;$generics:ident)*) => {
-
         impl<$($generics,)*> ::std::convert::AsRef<$crate::PyAny> for $name {
             #[inline]
             fn as_ref(&self) -> &$crate::PyAny {
@@ -130,14 +129,6 @@ macro_rules! pyobject_native_type_named (
             #[inline]
             fn deref(&self) -> &$crate::PyAny {
                 &self.0
-            }
-        }
-
-        unsafe impl<$($generics,)*> $crate::AsPyPointer for $name {
-            /// Gets the underlying FFI pointer, returns a borrowed pointer.
-            #[inline]
-            fn as_ptr(&self) -> *mut $crate::ffi::PyObject {
-                self.0.as_ptr()
             }
         }
 
@@ -160,6 +151,7 @@ macro_rules! pyobject_native_static_type_object(
 #[macro_export]
 macro_rules! pyobject_native_type_info(
     ($name:ty, $typeobject:expr, $module:expr $(, #checkfunction=$checkfunction:path)? $(;$generics:ident)*) => {
+        #[allow(unsafe_code)]
         unsafe impl<$($generics,)*> $crate::type_object::PyTypeInfo for $name {
             const NAME: &'static str = stringify!($name);
             const MODULE: ::std::option::Option<&'static str> = $module;
