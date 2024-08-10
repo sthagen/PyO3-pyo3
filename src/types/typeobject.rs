@@ -23,8 +23,15 @@ pyobject_native_type_core!(PyType, pyobject_native_static_type_object!(ffi::PyTy
 impl PyType {
     /// Creates a new type object.
     #[inline]
-    pub fn new_bound<T: PyTypeInfo>(py: Python<'_>) -> Bound<'_, PyType> {
+    pub fn new<T: PyTypeInfo>(py: Python<'_>) -> Bound<'_, PyType> {
         T::type_object_bound(py)
+    }
+
+    /// Deprecated name for [`PyType::new`].
+    #[deprecated(since = "0.23.0", note = "renamed to `PyType::new`")]
+    #[inline]
+    pub fn new_bound<T: PyTypeInfo>(py: Python<'_>) -> Bound<'_, PyType> {
+        Self::new::<T>(py)
     }
 
     /// Converts the given FFI pointer into `Bound<PyType>`, to use in safe code.
@@ -163,7 +170,7 @@ impl<'py> PyTypeMethods<'py> for Bound<'py, PyType> {
             if module_str == "builtins" || module_str == "__main__" {
                 qualname.downcast_into()?
             } else {
-                PyString::new_bound(self.py(), &format!("{}.{}", module, qualname))
+                PyString::new(self.py(), &format!("{}.{}", module, qualname))
             }
         };
 

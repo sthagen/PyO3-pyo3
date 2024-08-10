@@ -73,7 +73,7 @@
 //! use send_wrapper::SendWrapper;
 //!
 //! Python::with_gil(|py| {
-//!     let string = PyString::new_bound(py, "foo");
+//!     let string = PyString::new(py, "foo");
 //!
 //!     let wrapped = SendWrapper::new(string);
 //!
@@ -167,7 +167,7 @@ use std::os::raw::c_int;
 /// use send_wrapper::SendWrapper;
 ///
 /// Python::with_gil(|py| {
-///     let string = PyString::new_bound(py, "foo");
+///     let string = PyString::new(py, "foo");
 ///
 ///     let wrapped = SendWrapper::new(string);
 ///
@@ -670,7 +670,7 @@ impl<'py> Python<'py> {
     #[allow(non_snake_case)] // the Python keyword starts with uppercase
     #[inline]
     pub fn None(self) -> PyObject {
-        PyNone::get_bound(self).into_py(self)
+        PyNone::get(self).into_py(self)
     }
 
     /// Gets the Python builtin value `Ellipsis`, or `...`.
@@ -684,7 +684,7 @@ impl<'py> Python<'py> {
     #[allow(non_snake_case)] // the Python keyword starts with uppercase
     #[inline]
     pub fn NotImplemented(self) -> PyObject {
-        PyNotImplemented::get_bound(self).into_py(self)
+        PyNotImplemented::get(self).into_py(self)
     }
 
     /// Gets the running Python interpreter version as a string.

@@ -186,7 +186,7 @@ pub trait PyAnyMethods<'py>: crate::sealed::Sealed {
     /// # fn main() -> PyResult<()> {
     /// Python::with_gil(|py| -> PyResult<()> {
     ///     let a = PyFloat::new(py, 0_f64);
-    ///     let b = PyString::new_bound(py, "zero");
+    ///     let b = PyString::new(py, "zero");
     ///     assert!(a.compare(b).is_err());
     ///     Ok(())
     /// })?;
@@ -1305,7 +1305,7 @@ impl<'py> PyAnyMethods<'py> for Bound<'py, PyAny> {
     }
 
     fn iter(&self) -> PyResult<Bound<'py, PyIterator>> {
-        PyIterator::from_bound_object(self)
+        PyIterator::from_object(self)
     }
 
     fn get_type(&self) -> Bound<'py, PyType> {
@@ -1466,7 +1466,7 @@ impl<'py> PyAnyMethods<'py> for Bound<'py, PyAny> {
 
     #[cfg(not(any(PyPy, GraalPy)))]
     fn py_super(&self) -> PyResult<Bound<'py, PySuper>> {
-        PySuper::new_bound(&self.get_type(), self)
+        PySuper::new(&self.get_type(), self)
     }
 }
 
