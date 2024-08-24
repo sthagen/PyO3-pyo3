@@ -74,7 +74,7 @@ mod inner {
     #[pymethods(crate = "pyo3")]
     impl UnraisableCapture {
         pub fn hook(&mut self, unraisable: Bound<'_, PyAny>) {
-            let err = PyErr::from_value_bound(unraisable.getattr("exc_value").unwrap());
+            let err = PyErr::from_value(unraisable.getattr("exc_value").unwrap());
             let instance = unraisable.getattr("object").unwrap();
             self.capture = Some((err, instance.into()));
         }
@@ -144,7 +144,7 @@ mod inner {
             $crate::tests::common::CatchWarnings::enter($py, |w| {
                 use $crate::types::{PyListMethods, PyStringMethods};
                 $body;
-                let expected_warnings = [$((<$category as $crate::type_object::PyTypeInfo>::type_object_bound($py), $message)),+];
+                let expected_warnings = [$((<$category as $crate::type_object::PyTypeInfo>::type_object($py), $message)),+];
                 assert_eq!(w.len(), expected_warnings.len());
                 for (warning, (category, message)) in w.iter().zip(expected_warnings) {
 
