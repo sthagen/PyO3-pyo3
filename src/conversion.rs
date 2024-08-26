@@ -280,11 +280,11 @@ pub trait IntoPyObject<'py>: Sized {
     type Target;
     /// The smart pointer type to use.
     ///
-    /// This will usually be [`Bound<'py, Target>`], but can special cases `&'a Bound<'py, Target>`
-    /// or [`Borrowed<'a, 'py, Target>`] can be used to minimize reference counting overhead.
+    /// This will usually be [`Bound<'py, Target>`], but in special cases [`Borrowed<'a, 'py, Target>`] can be
+    /// used to minimize reference counting overhead.
     type Output: BoundObject<'py, Self::Target>;
     /// The type returned in the event of a conversion error.
-    type Error;
+    type Error: Into<PyErr>;
 
     /// Performs the conversion.
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error>;
@@ -300,7 +300,6 @@ pub trait IntoPyObject<'py>: Sized {
     where
         I: IntoIterator<Item = Self> + AsRef<[Self]>,
         I::IntoIter: ExactSizeIterator<Item = Self>,
-        PyErr: From<Self::Error>,
     {
         let mut iter = iter.into_iter().map(|e| {
             e.into_pyobject(py)
@@ -324,7 +323,6 @@ pub trait IntoPyObject<'py>: Sized {
         Self: private::Reference,
         I: IntoIterator<Item = Self> + AsRef<[<Self as private::Reference>::BaseType]>,
         I::IntoIter: ExactSizeIterator<Item = Self>,
-        PyErr: From<Self::Error>,
     {
         let mut iter = iter.into_iter().map(|e| {
             e.into_pyobject(py)
@@ -361,11 +359,11 @@ impl<'py, T> IntoPyObject<'py> for Bound<'py, T> {
 
 impl<'a, 'py, T> IntoPyObject<'py> for &'a Bound<'py, T> {
     type Target = T;
-    type Output = &'a Bound<'py, Self::Target>;
+    type Output = Borrowed<'a, 'py, Self::Target>;
     type Error = Infallible;
 
     fn into_pyobject(self, _py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        Ok(self)
+        Ok(self.as_borrowed())
     }
 }
 

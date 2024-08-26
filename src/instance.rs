@@ -17,6 +17,8 @@ use std::ops::Deref;
 use std::ptr::NonNull;
 
 /// Owned or borrowed gil-bound Python smart pointer
+///
+/// This is implemented for [`Bound`] and [`Borrowed`].
 pub trait BoundObject<'py, T>: bound_object_sealed::Sealed {
     /// Type erased version of `Self`
     type Any: BoundObject<'py, PyAny>;
@@ -33,11 +35,15 @@ pub trait BoundObject<'py, T>: bound_object_sealed::Sealed {
 }
 
 mod bound_object_sealed {
-    pub trait Sealed {}
+    /// # Safety
+    ///
+    /// Type must be layout-compatible with `*mut ffi::PyObject`.
+    pub unsafe trait Sealed {}
 
-    impl<'py, T> Sealed for super::Bound<'py, T> {}
-    impl<'a, 'py, T> Sealed for &'a super::Bound<'py, T> {}
-    impl<'a, 'py, T> Sealed for super::Borrowed<'a, 'py, T> {}
+    // SAFETY: `Bound` is layout-compatible with `*mut ffi::PyObject`.
+    unsafe impl<'py, T> Sealed for super::Bound<'py, T> {}
+    // SAFETY: `Borrowed` is layout-compatible with `*mut ffi::PyObject`.
+    unsafe impl<'a, 'py, T> Sealed for super::Borrowed<'a, 'py, T> {}
 }
 
 /// A GIL-attached equivalent to [`Py<T>`].
@@ -612,30 +618,6 @@ impl<'py, T> BoundObject<'py, T> for Bound<'py, T> {
 
     fn unbind(self) -> Py<T> {
         self.unbind()
-    }
-}
-
-impl<'a, 'py, T> BoundObject<'py, T> for &'a Bound<'py, T> {
-    type Any = &'a Bound<'py, PyAny>;
-
-    fn as_borrowed(&self) -> Borrowed<'a, 'py, T> {
-        Bound::as_borrowed(self)
-    }
-
-    fn into_bound(self) -> Bound<'py, T> {
-        self.clone()
-    }
-
-    fn into_any(self) -> Self::Any {
-        self.as_any()
-    }
-
-    fn into_ptr(self) -> *mut ffi::PyObject {
-        self.clone().into_ptr()
-    }
-
-    fn unbind(self) -> Py<T> {
-        self.clone().unbind()
     }
 }
 
@@ -1430,7 +1412,6 @@ impl<T> Py<T> {
     pub fn getattr<'py, N>(&self, py: Python<'py>, attr_name: N) -> PyResult<PyObject>
     where
         N: IntoPyObject<'py, Target = PyString>,
-        N::Error: Into<PyErr>,
     {
         self.bind(py).as_any().getattr(attr_name).map(Bound::unbind)
     }
@@ -1461,8 +1442,6 @@ impl<T> Py<T> {
     where
         N: IntoPyObject<'py, Target = PyString>,
         V: IntoPyObject<'py>,
-        N::Error: Into<PyErr>,
-        V::Error: Into<PyErr>,
     {
         self.bind(py).as_any().setattr(attr_name, value)
     }
@@ -1515,7 +1494,6 @@ impl<T> Py<T> {
     where
         N: IntoPyObject<'py, Target = PyString>,
         A: IntoPy<Py<PyTuple>>,
-        N::Error: Into<PyErr>,
     {
         self.bind(py)
             .as_any()
@@ -1533,7 +1511,6 @@ impl<T> Py<T> {
     where
         N: IntoPyObject<'py, Target = PyString>,
         A: IntoPy<Py<PyTuple>>,
-        N::Error: Into<PyErr>,
     {
         self.bind(py)
             .as_any()
@@ -1550,7 +1527,6 @@ impl<T> Py<T> {
     pub fn call_method0<'py, N>(&self, py: Python<'py>, name: N) -> PyResult<PyObject>
     where
         N: IntoPyObject<'py, Target = PyString>,
-        N::Error: Into<PyErr>,
     {
         self.bind(py).as_any().call_method0(name).map(Bound::unbind)
     }

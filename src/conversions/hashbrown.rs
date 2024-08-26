@@ -59,7 +59,6 @@ where
     K: IntoPyObject<'py> + cmp::Eq + hash::Hash,
     V: IntoPyObject<'py>,
     H: hash::BuildHasher,
-    PyErr: From<K::Error> + From<V::Error>,
 {
     type Target = PyDict;
     type Output = Bound<'py, Self::Target>;
@@ -69,8 +68,8 @@ where
         let dict = PyDict::new(py);
         for (k, v) in self {
             dict.set_item(
-                k.into_pyobject(py)?.into_bound(),
-                v.into_pyobject(py)?.into_bound(),
+                k.into_pyobject(py).map_err(Into::into)?.into_bound(),
+                v.into_pyobject(py).map_err(Into::into)?.into_bound(),
             )?;
         }
         Ok(dict)
@@ -82,7 +81,6 @@ where
     &'a K: IntoPyObject<'py> + cmp::Eq + hash::Hash,
     &'a V: IntoPyObject<'py>,
     H: hash::BuildHasher,
-    PyErr: From<<&'a K as IntoPyObject<'py>>::Error> + From<<&'a V as IntoPyObject<'py>>::Error>,
 {
     type Target = PyDict;
     type Output = Bound<'py, Self::Target>;
@@ -92,8 +90,8 @@ where
         let dict = PyDict::new(py);
         for (k, v) in self {
             dict.set_item(
-                k.into_pyobject(py)?.into_bound(),
-                v.into_pyobject(py)?.into_bound(),
+                k.into_pyobject(py).map_err(Into::into)?.into_bound(),
+                v.into_pyobject(py).map_err(Into::into)?.into_bound(),
             )?;
         }
         Ok(dict)
@@ -143,7 +141,6 @@ impl<'py, K, H> IntoPyObject<'py> for hashbrown::HashSet<K, H>
 where
     K: IntoPyObject<'py> + cmp::Eq + hash::Hash,
     H: hash::BuildHasher,
-    PyErr: From<K::Error>,
 {
     type Target = PySet;
     type Output = Bound<'py, Self::Target>;
@@ -166,7 +163,6 @@ impl<'a, 'py, K, H> IntoPyObject<'py> for &'a hashbrown::HashSet<K, H>
 where
     &'a K: IntoPyObject<'py> + cmp::Eq + hash::Hash,
     H: hash::BuildHasher,
-    PyErr: From<<&'a K as IntoPyObject<'py>>::Error>,
 {
     type Target = PySet;
     type Output = Bound<'py, Self::Target>;
@@ -276,7 +272,7 @@ mod tests {
     #[test]
     fn test_extract_hashbrown_hashset() {
         Python::with_gil(|py| {
-            let set = PySet::new_bound(py, &[1, 2, 3, 4, 5]).unwrap();
+            let set = PySet::new(py, &[1, 2, 3, 4, 5]).unwrap();
             let hash_set: hashbrown::HashSet<usize> = set.extract().unwrap();
             assert_eq!(hash_set, [1, 2, 3, 4, 5].iter().copied().collect());
 
