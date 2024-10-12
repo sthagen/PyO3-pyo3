@@ -97,7 +97,6 @@ impl PyMethodKind {
             "__ior__" => PyMethodKind::Proto(PyMethodProtoKind::Slot(&__IOR__)),
             "__getbuffer__" => PyMethodKind::Proto(PyMethodProtoKind::Slot(&__GETBUFFER__)),
             "__releasebuffer__" => PyMethodKind::Proto(PyMethodProtoKind::Slot(&__RELEASEBUFFER__)),
-            "__clear__" => PyMethodKind::Proto(PyMethodProtoKind::Slot(&__CLEAR__)),
             // Protocols implemented through traits
             "__getattribute__" => {
                 PyMethodKind::Proto(PyMethodProtoKind::SlotFragment(&__GETATTRIBUTE__))
@@ -146,6 +145,7 @@ impl PyMethodKind {
             // Some tricky protocols which don't fit the pattern of the rest
             "__call__" => PyMethodKind::Proto(PyMethodProtoKind::Call),
             "__traverse__" => PyMethodKind::Proto(PyMethodProtoKind::Traverse),
+            "__clear__" => PyMethodKind::Proto(PyMethodProtoKind::Clear),
             // Not a proto
             _ => PyMethodKind::Fn,
         }
@@ -156,6 +156,7 @@ enum PyMethodProtoKind {
     Slot(&'static SlotDef),
     Call,
     Traverse,
+    Clear,
     SlotFragment(&'static SlotFragmentDef),
 }
 
@@ -216,6 +217,9 @@ pub fn gen_py_method(
                 }
                 PyMethodProtoKind::Traverse => {
                     GeneratedPyMethod::Proto(impl_traverse_slot(cls, spec, ctx)?)
+                }
+                PyMethodProtoKind::Clear => {
+                    GeneratedPyMethod::Proto(impl_clear_slot(cls, spec, ctx)?)
                 }
                 PyMethodProtoKind::SlotFragment(slot_fragment_def) => {
                     let proto = slot_fragment_def.generate_pyproto_fragment(cls, spec, ctx)?;
@@ -462,13 +466,59 @@ fn impl_traverse_slot(
             visit: #pyo3_path::ffi::visitproc,
             arg: *mut ::std::os::raw::c_void,
         ) -> ::std::os::raw::c_int {
-            #pyo3_path::impl_::pymethods::_call_traverse::<#cls>(slf, #cls::#rust_fn_ident, visit, arg)
+            #pyo3_path::impl_::pymethods::_call_traverse::<#cls>(slf, #cls::#rust_fn_ident, visit, arg, #cls::__pymethod_traverse__)
         }
     };
     let slot_def = quote! {
         #pyo3_path::ffi::PyType_Slot {
             slot: #pyo3_path::ffi::Py_tp_traverse,
             pfunc: #cls::__pymethod_traverse__ as #pyo3_path::ffi::traverseproc as _
+        }
+    };
+    Ok(MethodAndSlotDef {
+        associated_method,
+        slot_def,
+    })
+}
+
+fn impl_clear_slot(cls: &syn::Type, spec: &FnSpec<'_>, ctx: &Ctx) -> syn::Result<MethodAndSlotDef> {
+    let Ctx { pyo3_path, .. } = ctx;
+    let (py_arg, args) = split_off_python_arg(&spec.signature.arguments);
+    let self_type = match &spec.tp {
+        FnType::Fn(self_type) => self_type,
+        _ => bail_spanned!(spec.name.span() => "expected instance method for `__clear__` function"),
+    };
+    let mut holders = Holders::new();
+    let slf = self_type.receiver(cls, ExtractErrorMode::Raise, &mut holders, ctx);
+
+    if let [arg, ..] = args {
+        bail_spanned!(arg.ty().span() => "`__clear__` function expected to have no arguments");
+    }
+
+    let name = &spec.name;
+    let holders = holders.init_holders(ctx);
+    let fncall = if py_arg.is_some() {
+        quote!(#cls::#name(#slf, py))
+    } else {
+        quote!(#cls::#name(#slf))
+    };
+
+    let associated_method = quote! {
+        pub unsafe extern "C" fn __pymethod_clear__(
+            _slf: *mut #pyo3_path::ffi::PyObject,
+        ) -> ::std::os::raw::c_int {
+            #pyo3_path::impl_::pymethods::_call_clear(_slf, |py, _slf| {
+                #holders
+                let result = #fncall;
+                let result = #pyo3_path::impl_::wrap::converter(&result).wrap(result)?;
+                Ok(result)
+            }, #cls::__pymethod_clear__)
+        }
+    };
+    let slot_def = quote! {
+        #pyo3_path::ffi::PyType_Slot {
+            slot: #pyo3_path::ffi::Py_tp_clear,
+            pfunc: #cls::__pymethod_clear__ as #pyo3_path::ffi::inquiry as _
         }
     };
     Ok(MethodAndSlotDef {
@@ -684,7 +734,7 @@ pub fn impl_py_setter_def(
             #init_holders
             #extract
             let result = #setter_impl;
-            #pyo3_path::callback::convert(py, result)
+            #pyo3_path::impl_::callback::convert(py, result)
         }
     };
 
@@ -813,7 +863,7 @@ pub fn impl_py_getter_def(
             let wrapper_ident = format_ident!("__pymethod_get_{}__", spec.name);
             let call = impl_call_getter(cls, spec, self_type, &mut holders, ctx)?;
             let body = quote! {
-                #pyo3_path::callback::convert(py, #call)
+                #pyo3_path::impl_::callback::convert(py, #call)
             };
 
             let init_holders = holders.init_holders(ctx);
@@ -916,7 +966,7 @@ pub const __REPR__: SlotDef = SlotDef::new("Py_tp_repr", "reprfunc");
 pub const __HASH__: SlotDef = SlotDef::new("Py_tp_hash", "hashfunc")
     .ret_ty(Ty::PyHashT)
     .return_conversion(TokenGenerator(
-        |Ctx { pyo3_path, .. }: &Ctx| quote! { #pyo3_path::callback::HashCallbackOutput },
+        |Ctx { pyo3_path, .. }: &Ctx| quote! { #pyo3_path::impl_::callback::HashCallbackOutput },
     ));
 pub const __RICHCMP__: SlotDef = SlotDef::new("Py_tp_richcompare", "richcmpfunc")
     .extract_error_mode(ExtractErrorMode::NotImplemented)
@@ -1169,8 +1219,8 @@ impl ReturnMode {
             ReturnMode::Conversion(conversion) => {
                 let conversion = TokenGeneratorCtx(*conversion, ctx);
                 quote! {
-                    let _result: #pyo3_path::PyResult<#conversion> = #pyo3_path::callback::convert(py, #call);
-                    #pyo3_path::callback::convert(py, _result)
+                    let _result: #pyo3_path::PyResult<#conversion> = #pyo3_path::impl_::callback::convert(py, #call);
+                    #pyo3_path::impl_::callback::convert(py, _result)
                 }
             }
             ReturnMode::SpecializedConversion(traits, tag) => {
@@ -1183,7 +1233,7 @@ impl ReturnMode {
                 }
             }
             ReturnMode::ReturnSelf => quote! {
-                let _result: #pyo3_path::PyResult<()> = #pyo3_path::callback::convert(py, #call);
+                let _result: #pyo3_path::PyResult<()> = #pyo3_path::impl_::callback::convert(py, #call);
                 _result?;
                 #pyo3_path::ffi::Py_XINCREF(_raw_slf);
                 ::std::result::Result::Ok(_raw_slf)
@@ -1356,7 +1406,7 @@ fn generate_method_body(
     } else {
         quote! {
             let result = #call;
-            #pyo3_path::callback::convert(py, result)
+            #pyo3_path::impl_::callback::convert(py, result)
         }
     })
 }
