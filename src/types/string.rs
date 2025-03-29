@@ -6,16 +6,10 @@ use crate::py_result_ext::PyResultExt;
 use crate::types::any::PyAnyMethods;
 use crate::types::bytes::PyBytesMethods;
 use crate::types::PyBytes;
-#[allow(deprecated)]
-use crate::IntoPy;
 use crate::{ffi, Bound, Py, PyAny, PyResult, Python};
 use std::borrow::Cow;
 use std::ffi::CString;
 use std::str;
-
-/// Deprecated alias for [`PyString`].
-#[deprecated(since = "0.23.0", note = "use `PyString` instead")]
-pub type PyUnicode = PyString;
 
 /// Represents raw data backing a Python `str`.
 ///
@@ -175,19 +169,12 @@ impl PyString {
         }
     }
 
-    /// Deprecated name for [`PyString::new`].
-    #[deprecated(since = "0.23.0", note = "renamed to `PyString::new`")]
-    #[inline]
-    pub fn new_bound<'py>(py: Python<'py>, s: &str) -> Bound<'py, PyString> {
-        Self::new(py, s)
-    }
-
     /// Intern the given string
     ///
     /// This will return a reference to the same Python string object if called repeatedly with the same string.
     ///
-    /// Note that while this is more memory efficient than [`PyString::new_bound`], it unconditionally allocates a
-    /// temporary Python string object and is thereby slower than [`PyString::new_bound`].
+    /// Note that while this is more memory efficient than [`PyString::new`], it unconditionally allocates a
+    /// temporary Python string object and is thereby slower than [`PyString::new`].
     ///
     /// Panics if out of memory.
     pub fn intern<'py>(py: Python<'py>, s: &str) -> Bound<'py, PyString> {
@@ -200,13 +187,6 @@ impl PyString {
             }
             ob.assume_owned(py).downcast_into_unchecked()
         }
-    }
-
-    /// Deprecated name for [`PyString::intern`].
-    #[deprecated(since = "0.23.0", note = "renamed to `PyString::intern`")]
-    #[inline]
-    pub fn intern_bound<'py>(py: Python<'py>, s: &str) -> Bound<'py, PyString> {
-        Self::intern(py, s)
     }
 
     /// Attempts to create a Python string from a Python [bytes-like object].
@@ -228,17 +208,6 @@ impl PyString {
             .assume_owned_or_err(src.py())
             .downcast_into_unchecked()
         }
-    }
-
-    /// Deprecated name for [`PyString::from_object`].
-    #[deprecated(since = "0.23.0", note = "renamed to `PyString::from_object`")]
-    #[inline]
-    pub fn from_object_bound<'py>(
-        src: &Bound<'py, PyAny>,
-        encoding: &str,
-        errors: &str,
-    ) -> PyResult<Bound<'py, PyString>> {
-        Self::from_object(src, encoding, errors)
     }
 }
 
@@ -448,27 +417,6 @@ impl Py<PyString> {
     /// the GIL lifetime.
     pub fn to_string_lossy<'a>(&'a self, py: Python<'_>) -> Cow<'a, str> {
         self.bind_borrowed(py).to_string_lossy()
-    }
-}
-
-#[allow(deprecated)]
-impl IntoPy<Py<PyString>> for Bound<'_, PyString> {
-    fn into_py(self, _py: Python<'_>) -> Py<PyString> {
-        self.unbind()
-    }
-}
-
-#[allow(deprecated)]
-impl IntoPy<Py<PyString>> for &Bound<'_, PyString> {
-    fn into_py(self, _py: Python<'_>) -> Py<PyString> {
-        self.clone().unbind()
-    }
-}
-
-#[allow(deprecated)]
-impl IntoPy<Py<PyString>> for &'_ Py<PyString> {
-    fn into_py(self, py: Python<'_>) -> Py<PyString> {
-        self.clone_ref(py)
     }
 }
 

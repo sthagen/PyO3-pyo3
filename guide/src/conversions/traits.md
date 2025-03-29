@@ -550,7 +550,7 @@ _without_ having a unique python type.
 
 `struct`s will turn into a `PyDict` using the field names as keys, tuple `struct`s will turn convert
 into `PyTuple` with the fields in declaration order.
-```rust
+```rust,no_run
 # #![allow(dead_code)]
 # use pyo3::prelude::*;
 # use std::collections::HashMap;
@@ -574,7 +574,7 @@ For structs with a single field (newtype pattern) the `#[pyo3(transparent)]` opt
 forward the implementation to the inner type.
 
 
-```rust
+```rust,no_run
 # #![allow(dead_code)]
 # use pyo3::prelude::*;
 
@@ -591,7 +591,7 @@ struct TransparentStruct<'py> {
 
 For `enum`s each variant is converted according to the rules for `struct`s above.
 
-```rust
+```rust,no_run
 # #![allow(dead_code)]
 # use pyo3::prelude::*;
 # use std::collections::HashMap;
@@ -618,7 +618,7 @@ Additionally `IntoPyObject` can be derived for a reference to a struct or enum u
       - `#[derive(IntoPyObject)]` will invoke the function with `Cow::Owned`
       - `#[derive(IntoPyObjectRef)]` will invoke the function with `Cow::Borrowed`
 
-    ```rust
+    ```rust,no_run
     # use pyo3::prelude::*;
     # use pyo3::IntoPyObjectExt;
     # use std::borrow::Cow;
@@ -642,7 +642,7 @@ Additionally `IntoPyObject` can be derived for a reference to a struct or enum u
 If the derive macro is not suitable for your use case, `IntoPyObject` can be implemented manually as
 demonstrated below.
 
-```rust
+```rust,no_run
 # use pyo3::prelude::*;
 # #[allow(dead_code)]
 struct MyPyObjectWrapper(PyObject);
@@ -673,7 +673,7 @@ impl<'a, 'py> IntoPyObject<'py> for &'a MyPyObjectWrapper {
 
 `IntoPyObject::into_py_object` returns either `Bound` or `Borrowed` depending on the implementation for a concrete type. For example, the `IntoPyObject` implementation for `u32` produces a `Bound<'py, PyInt>` and the `bool` implementation produces a `Borrowed<'py, 'py, PyBool>`:
 
-```rust
+```rust,no_run
 use pyo3::prelude::*;
 use pyo3::IntoPyObject;
 use pyo3::types::{PyBool, PyInt};
@@ -700,7 +700,7 @@ In this example if we wanted to combine `ints_as_pyints` and `bools_as_pybool` i
 
 Instead, we can write a function that generically converts vectors of either integers or bools into a vector of `Py<PyAny>` using the [`BoundObject`] trait:
 
-```rust
+```rust,no_run
 # use pyo3::prelude::*;
 # use pyo3::BoundObject;
 # use pyo3::IntoPyObject;
@@ -738,55 +738,7 @@ let vec_of_pyobjs: Vec<Py<PyAny>> = Python::with_gil(|py| {
 
 In the example above we used `BoundObject::into_any` and `BoundObject::unbind` to manipulate the python types and smart pointers into the result type we wanted to produce from the function.
 
-### `IntoPy<T>`
-
-<div class="warning">
-
-⚠️ Warning: API update in progress 🛠️
-
-PyO3 0.23 has introduced `IntoPyObject` as the new trait for to-python conversions. While `#[pymethods]` and `#[pyfunction]` contain a compatibility layer to allow `IntoPy<PyObject>` as a return type, all Python API have been migrated to use `IntoPyObject`. To migrate implement `IntoPyObject` for your type.
-</div>
-
-
-This trait defines the to-python conversion for a Rust type. It is usually implemented as
-`IntoPy<PyObject>`, which is the trait needed for returning a value from `#[pyfunction]` and
-`#[pymethods]`.
-
-All types in PyO3 implement this trait, as does a `#[pyclass]` which doesn't use `extends`.
-
-Occasionally you may choose to implement this for custom types which are mapped to Python types
-_without_ having a unique python type.
-
-```rust
-use pyo3::prelude::*;
-# #[allow(dead_code)]
-struct MyPyObjectWrapper(PyObject);
-
-#[allow(deprecated)]
-impl IntoPy<PyObject> for MyPyObjectWrapper {
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        self.0
-    }
-}
-```
-
-### The `ToPyObject` trait
-
-<div class="warning">
-
-⚠️ Warning: API update in progress 🛠️
-
-PyO3 0.23 has introduced `IntoPyObject` as the new trait for to-python conversions. To migrate
-implement `IntoPyObject` on a reference of your type (`impl<'py> IntoPyObject<'py> for &Type { ... }`).
-</div>
-
-[`ToPyObject`] is a conversion trait that allows various objects to be
-converted into [`PyObject`]. `IntoPy<PyObject>` serves the
-same purpose, except that it consumes `self`.
-
-[`IntoPy`]: {{#PYO3_DOCS_URL}}/pyo3/conversion/trait.IntoPy.html
 [`FromPyObject`]: {{#PYO3_DOCS_URL}}/pyo3/conversion/trait.FromPyObject.html
-[`ToPyObject`]: {{#PYO3_DOCS_URL}}/pyo3/conversion/trait.ToPyObject.html
 [`IntoPyObject`]: {{#PYO3_DOCS_URL}}/pyo3/conversion/trait.IntoPyObject.html
 [`IntoPyObjectExt`]: {{#PYO3_DOCS_URL}}/pyo3/conversion/trait.IntoPyObjectExt.html
 [`PyObject`]: {{#PYO3_DOCS_URL}}/pyo3/type.PyObject.html

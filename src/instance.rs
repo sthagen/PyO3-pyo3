@@ -11,8 +11,6 @@ use crate::{
     PyRefMut, PyTypeInfo, Python,
 };
 use crate::{gil, PyTypeCheck};
-#[allow(deprecated)]
-use crate::{IntoPy, ToPyObject};
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::ops::Deref;
@@ -827,24 +825,6 @@ impl<T> Clone for Borrowed<'_, '_, T> {
 
 impl<T> Copy for Borrowed<'_, '_, T> {}
 
-#[allow(deprecated)]
-impl<T> ToPyObject for Borrowed<'_, '_, T> {
-    /// Converts `Py` instance -> PyObject.
-    #[inline]
-    fn to_object(&self, py: Python<'_>) -> PyObject {
-        (*self).into_py(py)
-    }
-}
-
-#[allow(deprecated)]
-impl<T> IntoPy<PyObject> for Borrowed<'_, '_, T> {
-    /// Converts `Py` instance -> PyObject.
-    #[inline]
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        self.to_owned().into_py(py)
-    }
-}
-
 impl<'a, 'py, T> BoundObject<'py, T> for Borrowed<'a, 'py, T> {
     type Any = Borrowed<'a, 'py, PyAny>;
 
@@ -884,7 +864,7 @@ impl<'a, 'py, T> BoundObject<'py, T> for Borrowed<'a, 'py, T> {
 /// See the
 #[doc = concat!("[guide entry](https://pyo3.rs/v", env!("CARGO_PKG_VERSION"), "/class.html#bound-and-interior-mutability)")]
 /// for more information.
-///  - You can call methods directly on `Py` with [`Py::call_bound`], [`Py::call_method_bound`] and friends.
+///  - You can call methods directly on `Py` with [`Py::call`], [`Py::call_method`] and friends.
 ///
 /// These require passing in the [`Python<'py>`](crate::Python) token but are otherwise similar to the corresponding
 /// methods on [`PyAny`].
@@ -1514,19 +1494,6 @@ impl<T> Py<T> {
             .map(Bound::unbind)
     }
 
-    /// Deprecated name for [`Py::call`].
-    #[deprecated(since = "0.23.0", note = "renamed to `Py::call`")]
-    #[allow(deprecated)]
-    #[inline]
-    pub fn call_bound(
-        &self,
-        py: Python<'_>,
-        args: impl IntoPy<Py<PyTuple>>,
-        kwargs: Option<&Bound<'_, PyDict>>,
-    ) -> PyResult<PyObject> {
-        self.call(py, args.into_py(py), kwargs)
-    }
-
     /// Calls the object with only positional arguments.
     ///
     /// This is equivalent to the Python expression `self(*args)`.
@@ -1574,24 +1541,6 @@ impl<T> Py<T> {
                 kwargs,
             )
             .map(Bound::unbind)
-    }
-
-    /// Deprecated name for [`Py::call_method`].
-    #[deprecated(since = "0.23.0", note = "renamed to `Py::call_method`")]
-    #[allow(deprecated)]
-    #[inline]
-    pub fn call_method_bound<N, A>(
-        &self,
-        py: Python<'_>,
-        name: N,
-        args: A,
-        kwargs: Option<&Bound<'_, PyDict>>,
-    ) -> PyResult<PyObject>
-    where
-        N: IntoPy<Py<PyString>>,
-        A: IntoPy<Py<PyTuple>>,
-    {
-        self.call_method(py, name.into_py(py), args.into_py(py), kwargs)
     }
 
     /// Calls a method on the object with only positional arguments.
@@ -1739,60 +1688,6 @@ impl<T> Py<T> {
     /// `ptr` must point to a Python object of type T.
     unsafe fn from_non_null(ptr: NonNull<ffi::PyObject>) -> Self {
         Self(ptr, PhantomData)
-    }
-}
-
-#[allow(deprecated)]
-impl<T> ToPyObject for Py<T> {
-    /// Converts `Py` instance -> PyObject.
-    #[inline]
-    fn to_object(&self, py: Python<'_>) -> PyObject {
-        self.clone_ref(py).into_any()
-    }
-}
-
-#[allow(deprecated)]
-impl<T> IntoPy<PyObject> for Py<T> {
-    /// Converts a `Py` instance to `PyObject`.
-    /// Consumes `self` without calling `Py_DECREF()`.
-    #[inline]
-    fn into_py(self, _py: Python<'_>) -> PyObject {
-        self.into_any()
-    }
-}
-
-#[allow(deprecated)]
-impl<T> IntoPy<PyObject> for &'_ Py<T> {
-    #[inline]
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        self.into_pyobject(py).unwrap().into_any().unbind()
-    }
-}
-
-#[allow(deprecated)]
-impl<T> ToPyObject for Bound<'_, T> {
-    /// Converts `&Bound` instance -> PyObject, increasing the reference count.
-    #[inline]
-    fn to_object(&self, py: Python<'_>) -> PyObject {
-        self.clone().into_py(py)
-    }
-}
-
-#[allow(deprecated)]
-impl<T> IntoPy<PyObject> for Bound<'_, T> {
-    /// Converts a `Bound` instance to `PyObject`.
-    #[inline]
-    fn into_py(self, _py: Python<'_>) -> PyObject {
-        self.into_any().unbind()
-    }
-}
-
-#[allow(deprecated)]
-impl<T> IntoPy<PyObject> for &Bound<'_, T> {
-    /// Converts `&Bound` instance -> PyObject, increasing the reference count.
-    #[inline]
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        self.into_pyobject(py).unwrap().into_any().unbind()
     }
 }
 
