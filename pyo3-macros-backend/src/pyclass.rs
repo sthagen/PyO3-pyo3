@@ -2373,6 +2373,13 @@ impl<'a> PyClassImplsBuilder<'a> {
             }
         };
 
+        let type_name = if cfg!(feature = "experimental-inspect") {
+            let full_name = get_class_python_module_and_name(cls, self.attr);
+            quote! { const TYPE_NAME: &'static str = #full_name; }
+        } else {
+            quote! {}
+        };
+
         Ok(quote! {
             #assertions
 
@@ -2392,6 +2399,8 @@ impl<'a> PyClassImplsBuilder<'a> {
                 type Dict = #dict;
                 type WeakRef = #weakref;
                 type BaseNativeType = #base_nativetype;
+
+                #type_name
 
                 fn items_iter() -> #pyo3_path::impl_::pyclass::PyClassItemsIter {
                     use #pyo3_path::impl_::pyclass::*;
@@ -2459,12 +2468,8 @@ impl<'a> PyClassImplsBuilder<'a> {
                 impl #pyo3_path::impl_::pyclass::PyClassWithFreeList for #cls {
                     #[inline]
                     fn get_free_list(py: #pyo3_path::Python<'_>) -> &'static ::std::sync::Mutex<#pyo3_path::impl_::freelist::PyObjectFreeList> {
-                        static FREELIST: #pyo3_path::sync::GILOnceCell<::std::sync::Mutex<#pyo3_path::impl_::freelist::PyObjectFreeList>> = #pyo3_path::sync::GILOnceCell::new();
-                        // If there's a race to fill the cell, the object created
-                        // by the losing thread will be deallocated via RAII
-                        &FREELIST.get_or_init(py, || {
-                            ::std::sync::Mutex::new(#pyo3_path::impl_::freelist::PyObjectFreeList::with_capacity(#freelist))
-                        })
+                        static FREELIST: #pyo3_path::sync::PyOnceLock<::std::sync::Mutex<#pyo3_path::impl_::freelist::PyObjectFreeList>> = #pyo3_path::sync::PyOnceLock::new();
+                        &FREELIST.get_or_init(py, || ::std::sync::Mutex::new(#pyo3_path::impl_::freelist::PyObjectFreeList::with_capacity(#freelist)))
                     }
                 }
             }

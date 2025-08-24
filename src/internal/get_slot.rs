@@ -56,7 +56,7 @@ where
             ty,
             // SAFETY: the Python runtime is initialized
             #[cfg(all(Py_LIMITED_API, not(Py_3_10)))]
-            is_runtime_3_10(crate::Python::assume_gil_acquired()),
+            is_runtime_3_10(crate::Python::assume_attached()),
         )
     }
 }
@@ -134,9 +134,9 @@ impl_slots! {
 
 #[cfg(all(Py_LIMITED_API, not(Py_3_10)))]
 fn is_runtime_3_10(py: crate::Python<'_>) -> bool {
-    use crate::sync::GILOnceCell;
+    use crate::sync::PyOnceLock;
 
-    static IS_RUNTIME_3_10: GILOnceCell<bool> = GILOnceCell::new();
+    static IS_RUNTIME_3_10: PyOnceLock<bool> = PyOnceLock::new();
     *IS_RUNTIME_3_10.get_or_init(py, || py.version_info() >= (3, 10))
 }
 
