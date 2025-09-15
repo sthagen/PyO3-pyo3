@@ -25,14 +25,12 @@ use std::ffi::{
     c_ushort, c_void,
 };
 use std::marker::PhantomData;
-use std::pin::Pin;
-use std::{cell, mem, ptr, slice};
+use std::{cell, mem, slice};
 use std::{ffi::CStr, fmt::Debug};
 
 /// Allows access to the underlying buffer used by a python object such as `bytes`, `bytearray` or `array.array`.
-// use Pin<Box> because Python expects that the Py_buffer struct has a stable memory address
 #[repr(transparent)]
-pub struct PyBuffer<T>(Pin<Box<ffi::Py_buffer>>, PhantomData<T>);
+pub struct PyBuffer<T>(Box<ffi::Py_buffer>, PhantomData<T>);
 
 // PyBuffer is thread-safe: the shape of the buffer is immutable while a Py_buffer exists.
 // Accessing the buffer contents is protected using the GIL.
@@ -48,10 +46,10 @@ impl<T> Debug for PyBuffer<T> {
             .field("itemsize", &self.0.itemsize)
             .field("readonly", &self.0.readonly)
             .field("ndim", &self.0.ndim)
-            .field("format", &self.0.format)
-            .field("shape", &self.0.shape)
-            .field("strides", &self.0.strides)
-            .field("suboffsets", &self.0.suboffsets)
+            .field("format", &self.format())
+            .field("shape", &self.shape())
+            .field("strides", &self.strides())
+            .field("suboffsets", &self.suboffsets())
             .field("internal", &self.0.internal)
             .finish()
     }
@@ -208,7 +206,7 @@ impl<T: Element> PyBuffer<T> {
         };
         // Create PyBuffer immediately so that if validation checks fail, the PyBuffer::drop code
         // will call PyBuffer_Release (thus avoiding any leaks).
-        let buf = PyBuffer(Pin::from(buf), PhantomData);
+        let buf = PyBuffer(buf, PhantomData);
 
         if buf.0.shape.is_null() {
             Err(PyBufferError::new_err("shape is null"))
@@ -228,7 +226,9 @@ impl<T: Element> PyBuffer<T> {
             Ok(buf)
         }
     }
+}
 
+impl<T> PyBuffer<T> {
     /// Gets the pointer to the start of the buffer memory.
     ///
     /// Warning: the buffer memory can be mutated by other code (including
@@ -367,7 +367,9 @@ impl<T: Element> PyBuffer<T> {
     pub fn is_fortran_contiguous(&self) -> bool {
         unsafe { ffi::PyBuffer_IsContiguous(&*self.0, b'F' as std::ffi::c_char) != 0 }
     }
+}
 
+impl<T: Element> PyBuffer<T> {
     /// Gets the buffer memory as a slice.
     ///
     /// This function succeeds if:
@@ -614,26 +616,17 @@ impl<T: Element> PyBuffer<T> {
     ///
     /// This will automatically be called on drop.
     pub fn release(self, _py: Python<'_>) {
-        // First move self into a ManuallyDrop, so that PyBuffer::drop will
-        // never be called. (It would acquire the GIL and call PyBuffer_Release
-        // again.)
-        let mut mdself = mem::ManuallyDrop::new(self);
-        unsafe {
-            // Next, make the actual PyBuffer_Release call.
-            ffi::PyBuffer_Release(&mut *mdself.0);
-
-            // Finally, drop the contained Pin<Box<_>> in place, to free the
-            // Box memory.
-            let inner: *mut Pin<Box<ffi::Py_buffer>> = &mut mdself.0;
-            ptr::drop_in_place(inner);
-        }
+        // SAFETY: Self is `repr(transparent)` around a Box<ffi::Py_buffer>
+        let mut inner: Box<ffi::Py_buffer> = unsafe { std::mem::transmute(self) };
+        // SAFETY: the ffi::Py_buffer structure is valid until this release call
+        unsafe { ffi::PyBuffer_Release(&mut *inner) };
     }
 }
 
 impl<T> Drop for PyBuffer<T> {
     fn drop(&mut self) {
-        fn inner(buf: &mut Pin<Box<ffi::Py_buffer>>) {
-            if Python::try_attach(|_| unsafe { ffi::PyBuffer_Release(&mut **buf) }).is_none()
+        fn inner(buf: &mut Box<ffi::Py_buffer>) {
+            if Python::try_attach(|_| unsafe { ffi::PyBuffer_Release(buf.as_mut()) }).is_none()
                 && crate::internal::state::is_in_gc_traversal()
             {
                 eprintln!("Warning: PyBuffer dropped while in GC traversal, this is a bug and will leak memory.");
@@ -703,29 +696,24 @@ mod tests {
 
     use crate::ffi;
     use crate::types::any::PyAnyMethods;
+    use crate::types::PyBytes;
     use crate::Python;
 
     #[test]
     fn test_debug() {
         Python::attach(|py| {
-            let bytes = py.eval(ffi::c_str!("b'abcde'"), None, None).unwrap();
+            let bytes = PyBytes::new(py, b"abcde");
             let buffer: PyBuffer<u8> = PyBuffer::get(&bytes).unwrap();
             let expected = format!(
                 concat!(
                     "PyBuffer {{ buf: {:?}, obj: {:?}, ",
                     "len: 5, itemsize: 1, readonly: 1, ",
-                    "ndim: 1, format: {:?}, shape: {:?}, ",
-                    "strides: {:?}, suboffsets: {:?}, internal: {:?} }}",
+                    "ndim: 1, format: \"B\", shape: [5], ",
+                    "strides: [1], suboffsets: None, internal: {:?} }}",
                 ),
-                buffer.0.buf,
-                buffer.0.obj,
-                buffer.0.format,
-                buffer.0.shape,
-                buffer.0.strides,
-                buffer.0.suboffsets,
-                buffer.0.internal
+                buffer.0.buf, buffer.0.obj, buffer.0.internal
             );
-            let debug_repr = format!("{buffer:?}");
+            let debug_repr = format!("{:?}", buffer);
             assert_eq!(debug_repr, expected);
         });
     }
@@ -867,7 +855,7 @@ mod tests {
     #[test]
     fn test_bytes_buffer() {
         Python::attach(|py| {
-            let bytes = py.eval(ffi::c_str!("b'abcde'"), None, None).unwrap();
+            let bytes = PyBytes::new(py, b"abcde");
             let buffer = PyBuffer::get(&bytes).unwrap();
             assert_eq!(buffer.dimensions(), 1);
             assert_eq!(buffer.item_count(), 5);
