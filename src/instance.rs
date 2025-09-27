@@ -167,7 +167,10 @@ impl<'py, T> Bound<'py, T> {
                 // Safety: type_check is responsible for ensuring that the type is correct
                 Ok(unsafe { any.cast_unchecked() })
             } else {
-                Err(DowncastError::new(any, U::NAME))
+                Err(DowncastError::new_from_type(
+                    any.as_borrowed(),
+                    U::classinfo_object(any.py()),
+                ))
             }
         }
 
@@ -211,7 +214,8 @@ impl<'py, T> Bound<'py, T> {
                 // Safety: type_check is responsible for ensuring that the type is correct
                 Ok(unsafe { any.cast_into_unchecked() })
             } else {
-                Err(DowncastIntoError::new(any, U::NAME))
+                let to = U::classinfo_object(any.py());
+                Err(DowncastIntoError::new_from_type(any, to))
             }
         }
 
@@ -264,7 +268,10 @@ impl<'py, T> Bound<'py, T> {
                 // Safety: is_exact_instance_of is responsible for ensuring that the type is correct
                 Ok(unsafe { any.cast_unchecked() })
             } else {
-                Err(DowncastError::new(any, U::NAME))
+                Err(DowncastError::new_from_type(
+                    any.as_borrowed(),
+                    U::type_object(any.py()).into_any(),
+                ))
             }
         }
 
@@ -286,7 +293,8 @@ impl<'py, T> Bound<'py, T> {
                 // Safety: is_exact_instance_of is responsible for ensuring that the type is correct
                 Ok(unsafe { any.cast_into_unchecked() })
             } else {
-                Err(DowncastIntoError::new(any, U::NAME))
+                let to = U::type_object(any.py()).into_any();
+                Err(DowncastIntoError::new_from_type(any, to))
             }
         }
 
@@ -1044,7 +1052,10 @@ impl<'a, 'py> Borrowed<'a, 'py, PyAny> {
             // Safety: type_check is responsible for ensuring that the type is correct
             Ok(unsafe { self.cast_unchecked() })
         } else {
-            Err(DowncastError::new_from_borrowed(self, T::NAME))
+            Err(DowncastError::new_from_type(
+                self,
+                T::classinfo_object(self.py()),
+            ))
         }
     }
 
@@ -2009,10 +2020,29 @@ where
 #[cfg(feature = "py-clone")]
 impl<T> Clone for Py<T> {
     #[track_caller]
+    #[inline]
     fn clone(&self) -> Self {
-        unsafe {
-            state::register_incref(self.0);
+        #[track_caller]
+        #[inline]
+        fn try_incref(obj: NonNull<ffi::PyObject>) {
+            use crate::internal::state::thread_is_attached;
+
+            if thread_is_attached() {
+                // SAFETY: Py_INCREF is safe to call on a valid Python object if the thread is attached.
+                unsafe { ffi::Py_INCREF(obj.as_ptr()) }
+            } else {
+                incref_failed()
+            }
         }
+
+        #[cold]
+        #[track_caller]
+        fn incref_failed() -> ! {
+            panic!("Cannot clone pointer into Python heap without the thread being attached.");
+        }
+
+        try_incref(self.0);
+
         Self(self.0, PhantomData)
     }
 }
@@ -2026,11 +2056,30 @@ impl<T> Clone for Py<T> {
 /// However, if the `pyo3_disable_reference_pool` conditional compilation flag
 /// is enabled, it will abort the process.
 impl<T> Drop for Py<T> {
-    #[track_caller]
+    #[inline]
     fn drop(&mut self) {
-        unsafe {
-            state::register_decref(self.0);
+        // non generic inlineable inner function to reduce code bloat
+        #[inline]
+        fn inner(obj: NonNull<ffi::PyObject>) {
+            use crate::internal::state::thread_is_attached;
+
+            if thread_is_attached() {
+                // SAFETY: Py_DECREF is safe to call on a valid Python object if the thread is attached.
+                unsafe { ffi::Py_DECREF(obj.as_ptr()) }
+            } else {
+                drop_slow(obj)
+            }
         }
+
+        #[cold]
+        fn drop_slow(obj: NonNull<ffi::PyObject>) {
+            // SAFETY: handing ownership of the reference to `register_decref`.
+            unsafe {
+                state::register_decref(obj);
+            }
+        }
+
+        inner(self.0)
     }
 }
 
