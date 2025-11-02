@@ -14,7 +14,7 @@ dynamic = ["version"]
 
 [tool.towncrier]
 filename = "CHANGELOG.md"
-version = "0.27.0"
+version = "0.27.1"
 start_string = "<!-- towncrier release notes start -->\n"
 template = ".towncrier.template.md"
 title_format = "## [{version}] - {project_date}"
@@ -58,7 +58,7 @@ exclude = [
 style = "dash"
 
 [tool.rumdl.MD013]
-paragraphs = false
+line_length = 0
 code_blocks = false
 tables = false
 headings = false

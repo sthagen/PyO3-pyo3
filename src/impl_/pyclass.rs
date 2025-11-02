@@ -1,6 +1,7 @@
 use crate::{
     exceptions::{PyAttributeError, PyNotImplementedError, PyRuntimeError},
     ffi,
+    ffi_ptr_ext::FfiPtrExt,
     impl_::{
         freelist::PyObjectFreeList,
         pycell::{GetBorrowChecker, PyClassMutability, PyClassObjectLayout},
@@ -91,7 +92,6 @@ impl PyClassWeakRef for PyClassDummySlot {
 ///
 /// `#[pyclass(dict)]` automatically adds this.
 #[repr(transparent)]
-#[allow(dead_code)] // These are constructed in INIT and used by the macro code
 pub struct PyClassDictSlot(*mut ffi::PyObject);
 
 impl PyClassDict for PyClassDictSlot {
@@ -108,7 +108,6 @@ impl PyClassDict for PyClassDictSlot {
 ///
 /// `#[pyclass(weakref)]` automatically adds this.
 #[repr(transparent)]
-#[allow(dead_code)] // These are constructed in INIT and used by the macro code
 pub struct PyClassWeakRefSlot(*mut ffi::PyObject);
 
 impl PyClassWeakRef for PyClassWeakRefSlot {
@@ -293,7 +292,7 @@ impl Iterator for PyClassItemsIter {
 
 macro_rules! slot_fragment_trait {
     ($trait_name:ident, $($default_method:tt)*) => {
-        #[allow(non_camel_case_types)]
+        #[allow(non_camel_case_types, reason = "to match Python dunder names")]
         pub trait $trait_name<T>: Sized {
             $($default_method)*
         }
@@ -334,7 +333,8 @@ slot_fragment_trait! {
         attr: *mut ffi::PyObject,
     ) -> PyResult<*mut ffi::PyObject> {
         Err(PyErr::new::<PyAttributeError, _>(
-            (unsafe {Py::<PyAny>::from_borrowed_ptr(py, attr)},)
+            // SAFETY: caller has upheld the safety contract
+            (unsafe { attr.assume_borrowed_unchecked(py) }.to_owned().unbind(),)
         ))
     }
 }
