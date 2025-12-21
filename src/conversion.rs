@@ -7,9 +7,9 @@ use crate::inspect::types::TypeInfo;
 use crate::inspect::TypeHint;
 use crate::pyclass::boolean_struct::False;
 use crate::pyclass::{PyClassGuardError, PyClassGuardMutError};
-use crate::types::PyTuple;
 #[cfg(feature = "experimental-inspect")]
-use crate::types::{PyList, PySequence};
+use crate::types::PyList;
+use crate::types::PyTuple;
 use crate::{
     Borrowed, Bound, BoundObject, Py, PyAny, PyClass, PyClassGuard, PyErr, PyRef, PyRefMut,
     PyTypeCheck, Python,
@@ -463,12 +463,6 @@ pub trait FromPyObject<'a, 'py>: Sized {
         Option::<NeverASequence<Self>>::None
     }
 
-    /// The union of Sequence[Self::INPUT_TYPE] and the input sequence extraction function [`FromPyObject::sequence_extractor`] if it's defined
-    #[cfg(feature = "experimental-inspect")]
-    #[doc(hidden)]
-    const SEQUENCE_INPUT_TYPE: TypeHint =
-        TypeHint::subscript(&PySequence::TYPE_HINT, &[Self::INPUT_TYPE]);
-
     /// Helper used to make a specialized path in extracting `DateTime<Tz>` where `Tz` is
     /// `chrono::Local`, which will accept "naive" datetime objects as being in the local timezone.
     #[cfg(feature = "chrono-local")]
@@ -600,6 +594,9 @@ impl<'py> IntoPyObject<'py> for () {
     type Target = PyTuple;
     type Output = Bound<'py, Self::Target>;
     type Error = Infallible;
+
+    #[cfg(feature = "experimental-inspect")]
+    const OUTPUT_TYPE: TypeHint = PyTuple::TYPE_HINT; // TODO(Tpt): should be tuple[()]
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         Ok(PyTuple::empty(py))

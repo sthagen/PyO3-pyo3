@@ -9,7 +9,7 @@ use syn::{ext::IdentExt, spanned::Spanned, Ident, Result};
 
 use crate::pyfunction::{PyFunctionWarning, WarningFactory};
 use crate::pyversions::is_abi3_before;
-use crate::utils::{expr_to_python, Ctx};
+use crate::utils::Ctx;
 use crate::{
     attributes::{FromPyWithAttribute, TextSignatureAttribute, TextSignatureAttributeValue},
     params::{impl_arg_params, Holders},
@@ -29,28 +29,6 @@ pub struct RegularArg<'a> {
     pub option_wrapped_type: Option<&'a syn::Type>,
     #[cfg(feature = "experimental-inspect")]
     pub annotation: Option<String>,
-}
-
-impl RegularArg<'_> {
-    pub fn default_value(&self) -> String {
-        if let Self {
-            default_value: Some(arg_default),
-            ..
-        } = self
-        {
-            expr_to_python(arg_default)
-        } else if let RegularArg {
-            option_wrapped_type: Some(..),
-            ..
-        } = self
-        {
-            // functions without a `#[pyo3(signature = (...))]` option
-            // will treat trailing `Option<T>` arguments as having a default of `None`
-            "None".to_string()
-        } else {
-            "...".to_string()
-        }
-    }
 }
 
 /// Pythons *args argument
@@ -220,14 +198,6 @@ impl<'a> FnArg<'a> {
             }
         }
     }
-
-    pub fn default_value(&self) -> String {
-        if let Self::Regular(args) = self {
-            args.default_value()
-        } else {
-            "...".to_string()
-        }
-    }
 }
 
 fn handle_argument_error(pat: &syn::Pat) -> syn::Error {
@@ -250,6 +220,8 @@ pub enum FnType {
     Getter(SelfType),
     /// Represents a pymethod annotated with `#[setter]`
     Setter(SelfType),
+    /// Represents a pymethod annotated with `#[deleter]`
+    Deleter(SelfType),
     /// Represents a regular pymethod
     Fn(SelfType),
     /// Represents a pymethod annotated with `#[classmethod]`, like a `@classmethod`
@@ -267,6 +239,7 @@ impl FnType {
         match self {
             FnType::Getter(_)
             | FnType::Setter(_)
+            | FnType::Deleter(_)
             | FnType::Fn(_)
             | FnType::FnClass(_)
             | FnType::FnModule(_) => true,
@@ -277,9 +250,11 @@ impl FnType {
     pub fn signature_attribute_allowed(&self) -> bool {
         match self {
             FnType::Fn(_) | FnType::FnStatic | FnType::FnClass(_) | FnType::FnModule(_) => true,
-            // Setter, Getter and ClassAttribute all have fixed signatures (either take 0 or 1
+            // Getter, Setter and Deleter and ClassAttribute all have fixed signatures (either take 0 or 1
             // arguments) so cannot have a `signature = (...)` attribute.
-            FnType::Getter(_) | FnType::Setter(_) | FnType::ClassAttribute => false,
+            FnType::Getter(_) | FnType::Setter(_) | FnType::Deleter(_) | FnType::ClassAttribute => {
+                false
+            }
         }
     }
 
@@ -292,15 +267,13 @@ impl FnType {
     ) -> Option<TokenStream> {
         let Ctx { pyo3_path, .. } = ctx;
         match self {
-            FnType::Getter(st) | FnType::Setter(st) | FnType::Fn(st) => {
-                let mut receiver = st.receiver(
+            FnType::Getter(st) | FnType::Setter(st) | FnType::Deleter(st) | FnType::Fn(st) => {
+                Some(st.receiver(
                     cls.expect("no class given for Fn with a \"self\" receiver"),
                     error_mode,
                     holders,
                     ctx,
-                );
-                syn::Token![,](Span::call_site()).to_tokens(&mut receiver);
-                Some(receiver)
+                ))
             }
             FnType::FnClass(span) => {
                 let py = syn::Ident::new("py", Span::call_site());
@@ -313,7 +286,7 @@ impl FnType {
                             .cast_unchecked::<#pyo3_path::types::PyType>()
                     )
                 };
-                Some(quote! { unsafe { #ret }, })
+                Some(quote! { unsafe { #ret } })
             }
             FnType::FnModule(span) => {
                 let py = syn::Ident::new("py", Span::call_site());
@@ -326,7 +299,7 @@ impl FnType {
                             .cast_unchecked::<#pyo3_path::types::PyModule>()
                     )
                 };
-                Some(quote! { unsafe { #ret }, })
+                Some(quote! { unsafe { #ret } })
             }
             FnType::FnStatic | FnType::ClassAttribute => None,
         }
@@ -626,6 +599,19 @@ impl<'a> FnSpec<'a> {
 
                 FnType::Setter(parse_receiver("expected receiver for `#[setter]`")?)
             }
+            [MethodTypeAttribute::Deleter(_, name)] => {
+                if let Some(name) = name.take() {
+                    ensure_spanned!(
+                        python_name.replace(name).is_none(),
+                        python_name.span() => "`name` may only be specified once"
+                    );
+                } else if python_name.is_none() {
+                    // Strip off "delete_" prefix if needed
+                    *python_name = strip_fn_name("delete_");
+                }
+
+                FnType::Deleter(parse_receiver("expected receiver for `#[deleter]`")?)
+            }
             [first, rest @ .., last] => {
                 // Join as many of the spans together as possible
                 let span = rest
@@ -694,36 +680,45 @@ impl<'a> FnSpec<'a> {
                     Some(cls) => quote!(Some(<#cls as #pyo3_path::PyClass>::NAME)),
                     None => quote!(None),
                 };
-                let arg_names = (0..args.len())
-                    .map(|i| format_ident!("arg_{}", i))
-                    .collect::<Vec<_>>();
                 let future = match self.tp {
-                    FnType::Fn(SelfType::Receiver { mutable: false, .. }) => {
+                    // If extracting `self`, we move the `_slf` pointer into the async block. This reduces the lifetime for which the Rust state is considered "borrowed"
+                    // to just when the async block is executing.
+                    //
+                    // TODO: we should do this with all arguments, not just `self`, e.g. https://github.com/PyO3/pyo3/issues/5681
+                    FnType::Fn(SelfType::Receiver { mutable, .. }) => {
+                        let arg_names = (0..args.len())
+                            .map(|i| format_ident!("arg_{}", i))
+                            .collect::<Vec<_>>();
+                        let method = syn::Ident::new(
+                            if mutable {
+                                "extract_pyclass_ref_mut"
+                            } else {
+                                "extract_pyclass_ref"
+                            },
+                            Span::call_site(),
+                        );
                         quote! {{
+                            let _slf = unsafe { #pyo3_path::impl_::pymethods::BoundRef::ref_from_ptr(py, &_slf) }.to_owned().unbind();
                             #(let #arg_names = #args;)*
-                            let __guard = unsafe { #pyo3_path::impl_::coroutine::RefGuard::<#cls>::new(&#pyo3_path::impl_::pymethods::BoundRef::ref_from_ptr(py, &_slf))? };
-                            async move { function(&__guard, #(#arg_names),*).await }
-                        }}
-                    }
-                    FnType::Fn(SelfType::Receiver { mutable: true, .. }) => {
-                        quote! {{
-                            #(let #arg_names = #args;)*
-                            let mut __guard = unsafe { #pyo3_path::impl_::coroutine::RefMutGuard::<#cls>::new(&#pyo3_path::impl_::pymethods::BoundRef::ref_from_ptr(py, &_slf))? };
-                            async move { function(&mut __guard, #(#arg_names),*).await }
+                            async move {
+                                // SAFETY: attached when future is polled (see `Coroutine::poll`)
+                                let assume_attached = unsafe { #pyo3_path::impl_::coroutine::AssumeAttachedInCoroutine::new() };
+                                let py = assume_attached.py();
+                                let mut holder = None;
+                                let future = function(
+                                    #pyo3_path::impl_::extract_argument::#method(_slf.bind(py), &mut holder)?,
+                                    #(#arg_names),*
+                                );
+                                drop(py);
+                                let result = future.await;
+                                let result: #pyo3_path::PyResult<_> = #pyo3_path::impl_::wrap::converter(&result).wrap(result).map_err(::std::convert::Into::into);
+                                result
+                            }
                         }}
                     }
                     _ => {
-                        if let Some(self_arg) = self_arg() {
-                            quote! {
-                                function(
-                                    // NB #self_arg includes a comma, so none inserted here
-                                    #self_arg
-                                    #(#args),*
-                                )
-                            }
-                        } else {
-                            quote! { function(#(#args),*) }
-                        }
+                        let args = self_arg().into_iter().chain(args);
+                        quote! { function(#(#args),*) }
                     }
                 };
                 let mut call = quote! {{
@@ -733,8 +728,11 @@ impl<'a> FnSpec<'a> {
                         #qualname_prefix,
                         #throw_callback,
                         async move {
-                            let fut = future.await;
-                            #pyo3_path::impl_::wrap::converter(&fut).wrap(fut)
+                            // SAFETY: attached when future is polled (see `Coroutine::poll`)
+                            let assume_attached = unsafe { #pyo3_path::impl_::coroutine::AssumeAttachedInCoroutine::new() };
+                            let output = future.await;
+                            let res = #pyo3_path::impl_::wrap::converter(&output).wrap(output).map_err(::std::convert::Into::into);
+                            #pyo3_path::impl_::wrap::converter(&res).map_into_pyobject(assume_attached.py(), res)
                         },
                     )
                 }};
@@ -746,15 +744,8 @@ impl<'a> FnSpec<'a> {
                     }};
                 }
                 call
-            } else if let Some(self_arg) = self_arg() {
-                quote! {
-                    function(
-                        // NB #self_arg includes a comma, so none inserted here
-                        #self_arg
-                        #(#args),*
-                    )
-                }
             } else {
+                let args = self_arg().into_iter().chain(args);
                 quote! { function(#(#args),*) }
             };
 
@@ -901,8 +892,10 @@ impl<'a> FnSpec<'a> {
     /// and/or attributes. Prepend the callable name to make a complete `__text_signature__`.
     pub fn text_signature_call_signature(&self) -> Option<String> {
         let self_argument = match &self.tp {
-            // Getters / Setters / ClassAttribute are not callables on the Python side
-            FnType::Getter(_) | FnType::Setter(_) | FnType::ClassAttribute => return None,
+            // Getters / Setters / deleter / ClassAttribute are not callables on the Python side
+            FnType::Getter(_) | FnType::Setter(_) | FnType::Deleter(_) | FnType::ClassAttribute => {
+                return None
+            }
             FnType::Fn(_) => Some("self"),
             FnType::FnModule(_) => Some("module"),
             FnType::FnClass(_) => Some("cls"),
@@ -923,6 +916,7 @@ enum MethodTypeAttribute {
     StaticMethod(Span),
     Getter(Span, Option<Ident>),
     Setter(Span, Option<Ident>),
+    Deleter(Span, Option<Ident>),
     ClassAttribute(Span),
 }
 
@@ -934,6 +928,7 @@ impl MethodTypeAttribute {
             | MethodTypeAttribute::StaticMethod(span)
             | MethodTypeAttribute::Getter(span, _)
             | MethodTypeAttribute::Setter(span, _)
+            | MethodTypeAttribute::Deleter(span, _)
             | MethodTypeAttribute::ClassAttribute(span) => *span,
         }
     }
@@ -1002,6 +997,9 @@ impl MethodTypeAttribute {
         } else if path.is_ident("setter") {
             let name = extract_name(meta, "setter")?;
             Ok(Some(MethodTypeAttribute::Setter(path.span(), name)))
+        } else if path.is_ident("deleter") {
+            let name = extract_name(meta, "deleter")?;
+            Ok(Some(MethodTypeAttribute::Deleter(path.span(), name)))
         } else {
             Ok(None)
         }
@@ -1010,14 +1008,15 @@ impl MethodTypeAttribute {
 
 impl Display for MethodTypeAttribute {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            MethodTypeAttribute::New(_) => "#[new]".fmt(f),
-            MethodTypeAttribute::ClassMethod(_) => "#[classmethod]".fmt(f),
-            MethodTypeAttribute::StaticMethod(_) => "#[staticmethod]".fmt(f),
-            MethodTypeAttribute::Getter(_, _) => "#[getter]".fmt(f),
-            MethodTypeAttribute::Setter(_, _) => "#[setter]".fmt(f),
-            MethodTypeAttribute::ClassAttribute(_) => "#[classattr]".fmt(f),
-        }
+        f.write_str(match self {
+            MethodTypeAttribute::New(_) => "#[new]",
+            MethodTypeAttribute::ClassMethod(_) => "#[classmethod]",
+            MethodTypeAttribute::StaticMethod(_) => "#[staticmethod]",
+            MethodTypeAttribute::Getter(_, _) => "#[getter]",
+            MethodTypeAttribute::Setter(_, _) => "#[setter]",
+            MethodTypeAttribute::Deleter(_, _) => "#[deleter]",
+            MethodTypeAttribute::ClassAttribute(_) => "#[classattr]",
+        })
     }
 }
 
@@ -1057,6 +1056,10 @@ fn ensure_signatures_on_valid_method(
                 debug_assert!(!fn_type.signature_attribute_allowed());
                 bail_spanned!(signature.kw.span() => "`signature` not allowed with `setter`")
             }
+            FnType::Deleter(_) => {
+                debug_assert!(!fn_type.signature_attribute_allowed());
+                bail_spanned!(signature.kw.span() => "`signature` not allowed with `deleter`")
+            }
             FnType::ClassAttribute => {
                 debug_assert!(!fn_type.signature_attribute_allowed());
                 bail_spanned!(signature.kw.span() => "`signature` not allowed with `classattr`")
@@ -1071,6 +1074,9 @@ fn ensure_signatures_on_valid_method(
             }
             FnType::Setter(_) => {
                 bail_spanned!(text_signature.kw.span() => "`text_signature` not allowed with `setter`")
+            }
+            FnType::Deleter(_) => {
+                bail_spanned!(text_signature.kw.span() => "`text_signature` not allowed with `deleter`")
             }
             FnType::ClassAttribute => {
                 bail_spanned!(text_signature.kw.span() => "`text_signature` not allowed with `classattr`")
