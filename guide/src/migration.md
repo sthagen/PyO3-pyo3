@@ -22,12 +22,41 @@ Modules now automatically allow use on free-threaded Python, unless they directl
 <summary><small>Click to expand</small></summary>
 
 `#[pyclass]` types which implement `Clone` used to also implement `FromPyObject` automatically.
-This behaviour is phased out and replaced by an explicit opt-in.
+This behavior is being phased out and replaced by an explicit opt-in, which will allow [better error messages and more user control](https://github.com/PyO3/pyo3/issues/5419).
 Affected types will by marked by a deprecation message.
+
 To migrate use either
 
-- `from_py_object` to keep the automatic derive, or
-- `skip_from_py_object` to accept the new behaviour
+- `#[pyclass(from_py_object)]` to keep the automatic derive, or
+- `#[pyclass(skip_from_py_object)]` to accept the new behavior.
+
+Before:
+
+```rust
+# #![allow(deprecated)]
+# use pyo3::prelude::*;
+#[pyclass]
+#[derive(Clone)]
+struct PyClass {}
+```
+
+After:
+
+```rust
+# use pyo3::prelude::*;
+// If the automatic implementation of `FromPyObject` is desired, opt in:
+#[pyclass(from_py_object)]
+#[derive(Clone)]
+struct PyClass {}
+
+// or if the `FromPyObject` implementation is not needed:
+#[pyclass(skip_from_py_object)]
+#[derive(Clone)]
+struct PyClassWithoutFromPyObject {}
+```
+
+The `#[pyclass(skip_from_py_object)]` option will eventually be deprecated and removed as it becomes the default behavior.
+
 </details>
 
 ### Deprecation of `Py<T>` constructors from raw pointer
@@ -44,7 +73,7 @@ These should be used instead.
 Before:
 
 ```rust
-#![allow(deprecated)]
+# #![allow(deprecated)]
 # use pyo3::prelude::*;
 # use pyo3::types::PyNone;
 # Python::attach(|py| {
@@ -112,7 +141,8 @@ let obj_2 = existing_bound.clone();
 <summary><small>Click to expand</small></summary>
 
 `PyBuffer<T>` now is a typed wrapper around `PyUntypedBuffer`.
-Many methods such as `PyBuffer::format` have been moved to `PyUntypedBuffer::format`. `PyBuffer<T>` dereferences to `PyUntypedBuffer`, so method call syntax will continue to work as-is.
+Many methods such as `PyBuffer::format` have been moved to `PyUntypedBuffer::format`.
+`PyBuffer<T>` dereferences to `PyUntypedBuffer`, so method call syntax will continue to work as-is.
 Users may need to update references to the moved functions.
 </details>
 
@@ -262,7 +292,7 @@ where
 }
 ```
 
-This is very similar to `serde`s [`Deserialize`] and [`DeserializeOwned`] traits, see [here](https://serde.rs/lifetimes.html).
+This is very similar to `serde`s [`Deserialize`] and [`DeserializeOwned`] traits, see [the `serde` docs](https://serde.rs/lifetimes.html).
 
 [`Deserialize`]: https://docs.rs/serde/latest/serde/trait.Deserialize.html
 [`DeserializeOwned`]: https://docs.rs/serde/latest/serde/de/trait.DeserializeOwned.html
@@ -1732,7 +1762,8 @@ PyO3 0.17 changes these downcast checks to explicitly test if the type is a subc
 Note this requires calling into Python, which may incur a performance penalty over the previous method.
 If this performance penalty is a problem, you may be able to perform your own checks and use `try_from_unchecked` (unsafe).
 
-Another side-effect is that a pyclass defined in Rust with PyO3 will need to be _registered_ with the corresponding Python abstract base class for downcasting to succeed. `PySequence::register` and `PyMapping:register` have been added to make it easy to do this from Rust code.
+Another side-effect is that a pyclass defined in Rust with PyO3 will need to be _registered_ with the corresponding Python abstract base class for downcasting to succeed.
+`PySequence::register` and `PyMapping:register` have been added to make it easy to do this from Rust code.
 These are equivalent to calling `collections.abc.Mapping.register(MappingPyClass)` or `collections.abc.Sequence.register(SequencePyClass)` from Python.
 
 For example, for a mapping class defined in Rust:
@@ -2254,7 +2285,8 @@ let result: PyResult<()> = Err(PyTypeError::new_err("error message"));
 <summary><small>Click to expand</small></summary>
 
 Previously exception types were zero-sized marker types purely used to construct `PyErr`.
-In PyO3 0.12, these types have been replaced with full definitions and are usable in the same way as `PyAny`, `PyDict` etc. This makes it possible to interact with Python exception objects.
+In PyO3 0.12, these types have been replaced with full definitions and are usable in the same way as `PyAny`, `PyDict` etc.
+This makes it possible to interact with Python exception objects.
 
 The new types also have names starting with the "Py" prefix.
 For example, before:
