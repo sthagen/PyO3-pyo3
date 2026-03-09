@@ -124,6 +124,8 @@ jobs:
           targets: ${{ matrix.target }}
           components: clippy,rust-src
       - uses: astral-sh/setup-uv@v7
+        with:
+          save-cache: ${{ github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'CI-save-pr-cache') }}
       - run: uvx nox -s clippy-all
     env:
       CARGO_BUILD_TARGET: ${{ matrix.target }}
@@ -231,7 +233,6 @@ jobs:
             "3.11",
             "3.12",
             "3.13",
-            "3.13t",
             "3.14",
             "3.14t",
             "3.15-dev",
