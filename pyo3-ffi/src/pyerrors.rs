@@ -1,6 +1,6 @@
 use crate::object::*;
 use crate::pyport::Py_ssize_t;
-use std::ffi::{c_char, c_int};
+use core::ffi::{c_char, c_int};
 
 extern_libpython! {
     #[cfg_attr(PyPy, link_name = "PyPyErr_SetNone")]
@@ -334,7 +334,7 @@ extern_libpython! {
     pub fn PyErr_SetInterrupt();
     #[cfg(Py_3_10)]
     #[cfg_attr(PyPy, link_name = "PyPyErr_SetInterruptEx")]
-    pub fn PyErr_SetInterruptEx(signum: c_int);
+    pub fn PyErr_SetInterruptEx(signum: c_int) -> c_int;
     #[cfg_attr(PyPy, link_name = "PyPyErr_SyntaxLocation")]
     pub fn PyErr_SyntaxLocation(filename: *const c_char, lineno: c_int);
     #[cfg_attr(PyPy, link_name = "PyPyErr_SyntaxLocationEx")]
