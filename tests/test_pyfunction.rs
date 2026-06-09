@@ -1,5 +1,6 @@
+// TODO https://github.com/PyO3/pyo3/issues/5487
+#![allow(clippy::undocumented_unsafe_blocks)]
 #![cfg(feature = "macros")]
-#![warn(unsafe_op_in_unsafe_fn)]
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicI32, Ordering};
@@ -12,7 +13,7 @@ use pyo3::exceptions::{PyFutureWarning, PyUserWarning};
 use pyo3::prelude::*;
 #[cfg(not(Py_LIMITED_API))]
 use pyo3::types::PyDateTime;
-#[cfg(not(any(Py_LIMITED_API, PyPy)))]
+#[cfg(not(PyPy))]
 use pyo3::types::PyFunction;
 use pyo3::types::{self, PyCFunction};
 use pyo3_macros::pyclass;
@@ -157,7 +158,7 @@ assert a, array.array("i", [2, 4, 6, 8])
     });
 }
 
-#[cfg(not(any(Py_LIMITED_API, PyPy)))]
+#[cfg(not(PyPy))]
 #[pyfunction]
 fn function_with_pyfunction_arg<'py>(fun: &Bound<'py, PyFunction>) -> PyResult<Bound<'py, PyAny>> {
     fun.call((), None)
@@ -185,7 +186,7 @@ fn test_functions_with_function_args() {
         "#
         );
 
-        #[cfg(not(any(Py_LIMITED_API, PyPy)))]
+        #[cfg(not(PyPy))]
         {
             let py_func_arg = wrap_pyfunction!(function_with_pyfunction_arg)(py).unwrap();
 
