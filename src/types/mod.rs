@@ -23,7 +23,6 @@ pub use self::frame::{PyFrame, PyFrameMethods};
 pub use self::frozenset::{PyFrozenSet, PyFrozenSetBuilder, PyFrozenSetMethods};
 pub use self::function::PyCFunction;
 pub use self::function::PyFunction;
-#[cfg(Py_3_9)]
 pub use self::genericalias::PyGenericAlias;
 pub use self::iterator::PyIterator;
 #[cfg(all(not(PyPy), Py_3_10))]
@@ -242,6 +241,7 @@ macro_rules! pyobject_subclassable_native_type {
 #[macro_export]
 macro_rules! pyobject_native_type_sized {
     ($name:ty, $layout:path $(;$generics:ident)*) => {
+        // SAFETY: native objects are valid
         unsafe impl $crate::type_object::PyLayout<$name> for $layout {}
         impl $crate::type_object::PySizedLayout<$name> for $layout {}
     };
@@ -275,7 +275,6 @@ pub(crate) mod float;
 mod frame;
 pub(crate) mod frozenset;
 mod function;
-#[cfg(Py_3_9)]
 pub(crate) mod genericalias;
 pub(crate) mod iterator;
 pub(crate) mod list;
