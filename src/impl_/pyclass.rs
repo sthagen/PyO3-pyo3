@@ -14,9 +14,10 @@ use crate::{
     },
     internal::pyclass_init::PyObjectInit,
     pycell::{impl_::PyClassObjectLayout, PyBorrowError},
+    pyclass::PyClassGuardError,
     types::{any::PyAnyMethods, PyBool},
-    Borrowed, IntoPyObject, IntoPyObjectExt, Py, PyAny, PyClass, PyClassGuard, PyErr, PyResult,
-    PyTypeCheck, PyTypeInfo, Python,
+    Borrowed, FromPyObject, IntoPyObject, IntoPyObjectExt, Py, PyAny, PyClass, PyClassGuard, PyErr,
+    PyResult, PyTypeCheck, PyTypeInfo, Python,
 };
 use core::{
     ffi::CStr,
@@ -33,7 +34,7 @@ mod lazy_type_object;
 mod probes;
 
 pub use assertions::*;
-pub use lazy_type_object::{type_object_init_failed, LazyTypeObject};
+pub use lazy_type_object::{pyclass_type_object_raw, type_object_init_failed, LazyTypeObject};
 pub use probes::*;
 
 /// Gets the offset of the dictionary from the start of the object in bytes.
@@ -46,6 +47,16 @@ pub const fn dict_offset<T: PyClass>() -> PyObjectOffset {
 #[inline]
 pub const fn weaklist_offset<T: PyClass>() -> PyObjectOffset {
     <T as PyClassImpl>::Layout::WEAKLIST_OFFSET
+}
+
+/// Extracts a `T: PyClass + Clone` from a Python object by cloning it out of
+/// the [`PyClassGuard`].
+#[inline]
+pub fn extract_pyclass_with_clone<'a, 'py, T: PyClass + Clone>(
+    obj: Borrowed<'a, 'py, PyAny>,
+) -> Result<T, PyClassGuardError<'a, 'py>> {
+    let guard = <PyClassGuard<'a, T> as FromPyObject<'a, 'py>>::extract(obj)?;
+    Ok(T::clone(&guard))
 }
 
 mod sealed {
@@ -179,6 +190,13 @@ pub struct PyClassItems {
 // Allow PyClassItems in statics
 unsafe impl Sync for PyClassItems {}
 
+/// Shared empty items, used by the macros for classes without any intrinsic items to keep the
+/// generated code small.
+pub static NO_PY_CLASS_ITEMS: PyClassItems = PyClassItems {
+    methods: &[],
+    slots: &[],
+};
+
 /// Implements the underlying functionality of `#[pyclass]`, assembled by various proc macros.
 ///
 /// Users are discouraged from implementing this trait manually; it is a PyO3 implementation detail
@@ -188,7 +206,7 @@ pub trait PyClassImpl: Sized + 'static {
     ///
     /// (Currently defaults to `builtins` if unset, this will likely be improved in the future, it
     /// may also be removed when passing module objects in class init.)
-    const MODULE: Option<&'static str>;
+    const MODULE: Option<&'static str> = None;
 
     /// #[pyclass(subclass)]
     const IS_BASETYPE: bool = false;
@@ -239,12 +257,12 @@ pub trait PyClassImpl: Sized + 'static {
     /// Docstring for the class provided on the struct or enum.
     ///
     /// This is exposed for `PyClassDocGenerator` to use as a docstring piece.
-    const RAW_DOC: &'static CStr;
+    const RAW_DOC: &'static CStr = c"";
 
     /// Fully rendered class doc, including the `text_signature` if a constructor is defined.
     ///
     /// This is constructed at compile-time with const specialization via the proc macros with help
-    /// from the PyClassDocGenerator` type.
+    /// from the `PyClassDocGenerator` type.
     const DOC: &'static CStr;
 
     fn items_iter() -> PyClassItemsIter;
@@ -1012,10 +1030,6 @@ pub unsafe extern "C" fn free_with_freelist<T: PyClassWithFreeList>(obj: *mut c_
                 ffi::PyObject_Free
             };
             free(obj.as_ptr().cast());
-
-            if ffi::PyType_HasFeature(ty, ffi::Py_TPFLAGS_HEAPTYPE) != 0 {
-                ffi::Py_DECREF(ty as *mut ffi::PyObject);
-            }
         }
     }
 }
@@ -1162,10 +1176,9 @@ pub(crate) unsafe extern "C" fn tp_dealloc<T: PyClass>(obj: *mut ffi::PyObject) 
 
 /// Implementation of tp_dealloc for pyclasses with gc
 pub(crate) unsafe extern "C" fn tp_dealloc_with_gc<T: PyClass>(obj: *mut ffi::PyObject) {
-    #[cfg(not(PyPy))]
-    unsafe {
-        ffi::PyObject_GC_UnTrack(obj.cast());
-    }
+    // SAFETY: `tp_dealloc` is required to untrack GC objects before invalidating any fields
+    unsafe { ffi::PyObject_GC_UnTrack(obj.cast()) };
+    // SAFETY: `tp_dealloc` is called with valid `obj` by CPython, with an attached thread state
     unsafe { crate::impl_::trampoline::dealloc(obj, <T as PyClassImpl>::Layout::tp_dealloc) }
 }
 
@@ -1242,7 +1255,6 @@ pub struct PyClassGetterGenerator<
     // at compile time
     const IS_PY_T: bool,
     const IMPLEMENTS_INTOPYOBJECT_REF: bool,
-    const IMPLEMENTS_INTOPYOBJECT: bool,
 >(PhantomData<(ClassT, FieldT)>);
 
 impl<
@@ -1251,16 +1263,7 @@ impl<
         const OFFSET: usize,
         const IS_PY_T: bool,
         const IMPLEMENTS_INTOPYOBJECT_REF: bool,
-        const IMPLEMENTS_INTOPYOBJECT: bool,
-    >
-    PyClassGetterGenerator<
-        ClassT,
-        FieldT,
-        OFFSET,
-        IS_PY_T,
-        IMPLEMENTS_INTOPYOBJECT_REF,
-        IMPLEMENTS_INTOPYOBJECT,
-    >
+    > PyClassGetterGenerator<ClassT, FieldT, OFFSET, IS_PY_T, IMPLEMENTS_INTOPYOBJECT_REF>
 {
     /// Safety: constructing this type requires that there exists a value of type FieldT
     /// at the calculated offset within the type ClassT.
@@ -1274,16 +1277,7 @@ impl<
         U: PyTypeCheck,
         const OFFSET: usize,
         const IMPLEMENTS_INTOPYOBJECT_REF: bool,
-        const IMPLEMENTS_INTOPYOBJECT: bool,
-    >
-    PyClassGetterGenerator<
-        ClassT,
-        Py<U>,
-        OFFSET,
-        true,
-        IMPLEMENTS_INTOPYOBJECT_REF,
-        IMPLEMENTS_INTOPYOBJECT,
-    >
+    > PyClassGetterGenerator<ClassT, Py<U>, OFFSET, true, IMPLEMENTS_INTOPYOBJECT_REF>
 {
     /// `Py<T>` fields have a potential optimization to use Python's "struct members" to read
     /// the field directly from the struct, rather than using a getter function.
@@ -1328,8 +1322,8 @@ impl<
 
 /// Field is not `Py<T>`; try to use `IntoPyObject` for `&T` (preferred over `ToPyObject`) to avoid
 /// potentially expensive clones of containers like `Vec`
-impl<ClassT, FieldT, const OFFSET: usize, const IMPLEMENTS_INTOPYOBJECT: bool>
-    PyClassGetterGenerator<ClassT, FieldT, OFFSET, false, true, IMPLEMENTS_INTOPYOBJECT>
+impl<ClassT, FieldT, const OFFSET: usize>
+    PyClassGetterGenerator<ClassT, FieldT, OFFSET, false, true>
 where
     ClassT: PyClass,
     for<'a, 'py> &'a FieldT: IntoPyObject<'py>,
@@ -1356,8 +1350,8 @@ pub trait PyO3GetField<'py>: IntoPyObject<'py> + Clone + pyo3_get_field::Sealed 
 impl<'py, T> PyO3GetField<'py> for T where T: IntoPyObject<'py> + Clone {}
 
 /// Base case attempts to use IntoPyObject + Clone
-impl<ClassT: PyClass, FieldT, const OFFSET: usize, const IMPLEMENTS_INTOPYOBJECT: bool>
-    PyClassGetterGenerator<ClassT, FieldT, OFFSET, false, false, IMPLEMENTS_INTOPYOBJECT>
+impl<ClassT: PyClass, FieldT, const OFFSET: usize>
+    PyClassGetterGenerator<ClassT, FieldT, OFFSET, false, false>
 {
     pub const fn generate(&self, name: &'static CStr, doc: Option<&'static CStr>) -> PyMethodDefType
     // The bound goes here rather than on the block so that this impl is always available
@@ -1471,12 +1465,9 @@ where
     unsafe { inner::<FieldT>(py, NonNull::from(class_obj.contents()).cast(), OFFSET) }
 }
 
-pub struct ConvertField<
-    const IMPLEMENTS_INTOPYOBJECT_REF: bool,
-    const IMPLEMENTS_INTOPYOBJECT: bool,
->;
+pub struct ConvertField<const IMPLEMENTS_INTOPYOBJECT_REF: bool>;
 
-impl<const IMPLEMENTS_INTOPYOBJECT: bool> ConvertField<true, IMPLEMENTS_INTOPYOBJECT> {
+impl ConvertField<true> {
     #[inline]
     pub fn convert_field<'a, 'py, T>(obj: &'a T, py: Python<'py>) -> PyResult<Py<PyAny>>
     where
@@ -1486,7 +1477,7 @@ impl<const IMPLEMENTS_INTOPYOBJECT: bool> ConvertField<true, IMPLEMENTS_INTOPYOB
     }
 }
 
-impl<const IMPLEMENTS_INTOPYOBJECT: bool> ConvertField<false, IMPLEMENTS_INTOPYOBJECT> {
+impl ConvertField<false> {
     #[inline]
     pub fn convert_field<'py, T>(obj: &T, py: Python<'py>) -> PyResult<Py<PyAny>>
     where
@@ -1590,9 +1581,8 @@ mod tests {
 
         // generate for a non-py field using IntoPyObject for &i32
         // SAFETY: offset is correct
-        let generator = unsafe {
-            PyClassGetterGenerator::<MyClass, i32, FIELD_OFFSET, false, true, false>::new()
-        };
+        let generator =
+            unsafe { PyClassGetterGenerator::<MyClass, i32, FIELD_OFFSET, false, true>::new() };
         let PyMethodDefType::Getter(def) = generator.generate(c"my_field", Some(c"My field doc"))
         else {
             panic!("Expected a Getter");
@@ -1613,9 +1603,8 @@ mod tests {
 
         // generate for a field via `IntoPyObject` + `Clone`
         // SAFETY: offset is correct
-        let generator = unsafe {
-            PyClassGetterGenerator::<MyClass, String, FIELD_OFFSET, false, false, true>::new()
-        };
+        let generator =
+            unsafe { PyClassGetterGenerator::<MyClass, String, FIELD_OFFSET, false, false>::new() };
         let PyMethodDefType::Getter(def) = generator.generate(c"my_field", Some(c"My field doc"))
         else {
             panic!("Expected a Getter");
@@ -1644,7 +1633,7 @@ mod tests {
         const FIELD_OFFSET: usize = offset_of!(MyClass, my_field);
         // SAFETY: offset is correct
         let generator = unsafe {
-            PyClassGetterGenerator::<MyClass, Py<PyAny>, FIELD_OFFSET, true, true, true>::new()
+            PyClassGetterGenerator::<MyClass, Py<PyAny>, FIELD_OFFSET, true, true>::new()
         };
         let PyMethodDefType::StructMember(def) =
             generator.generate(c"my_field", Some(c"My field doc"))
@@ -1679,7 +1668,7 @@ mod tests {
         const FIELD_OFFSET: usize = offset_of!(MyClass, my_field);
         // SAFETY: offset is correct
         let generator = unsafe {
-            PyClassGetterGenerator::<MyClass, Py<PyAny>, FIELD_OFFSET, true, true, true>::new()
+            PyClassGetterGenerator::<MyClass, Py<PyAny>, FIELD_OFFSET, true, true>::new()
         };
         let PyMethodDefType::Getter(def) = generator.generate(c"my_field", Some(c"My field doc"))
         else {

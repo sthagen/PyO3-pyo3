@@ -21,7 +21,7 @@ use std::fmt::Write;
 use std::hash::{Hash, Hasher};
 use std::mem::take;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use syn::{Attribute, Ident, ReturnType, Type, TypePath};
+use syn::{Attribute, Ident, Type, TypePath};
 
 static GLOBAL_COUNTER_FOR_UNIQUE_NAMES: AtomicUsize = AtomicUsize::new(0);
 
@@ -103,7 +103,7 @@ pub fn function_introspection_code(
     name: &str,
     signature: &FunctionSignature<'_>,
     first_argument: Option<&'static str>,
-    returns: ReturnType,
+    returns: PyExpr,
     decorators: impl IntoIterator<Item = PyExpr>,
     is_async: bool,
     is_returning_not_implemented_on_extraction_error: bool,
@@ -131,11 +131,7 @@ pub fn function_introspection_code(
             {
                 returns.as_type_hint().into()
             } else {
-                match returns {
-                    ReturnType::Default => PyExpr::builtin("None"),
-                    ReturnType::Type(_, ty) => PyExpr::from_return_type(*ty, parent),
-                }
-                .into()
+                returns.into()
             },
         ),
     ]);
@@ -425,20 +421,31 @@ impl IntrospectionNode<'_> {
             }
             Self::List(list) => {
                 content.push_str("[");
-                for (i, AttributedIntrospectionNode { node, attributes }) in
-                    list.into_iter().enumerate()
-                {
-                    if attributes.is_empty() {
+                if list.iter().all(|element| element.attributes.is_empty()) {
+                    for (i, element) in list.into_iter().enumerate() {
                         if i > 0 {
                             content.push_str(",");
                         }
-                        node.add_to_serialization(content, pyo3_crate_path);
-                    } else {
+                        element.node.add_to_serialization(content, pyo3_crate_path);
+                    }
+                } else {
+                    // A `,` must only be written if at least one of the elements before the one
+                    // it precedes is compiled in, so we gate it behind an `any(..)` of their
+                    // `cfg`s on top of the element's own. This needs no special case: `any()` is
+                    // false, so the first element gets no separator, and `all()` is true, so an
+                    // element without `cfg` makes every later separator unconditional.
+                    let mut preceding = Vec::new();
+                    for AttributedIntrospectionNode { node, attributes } in list {
+                        content.push_tokens(
+                            quote! { #[cfg(any(#(#preceding),*))] #(#attributes)* ",".as_bytes() },
+                        );
+                        let cfgs = attributes
+                            .iter()
+                            .filter_map(|attribute| attribute.meta.require_list().ok())
+                            .map(|cfg| &cfg.tokens);
+                        preceding.push(quote! { all(#(#cfgs),*) });
                         // We serialize the element to easily gate it behind the attributes
                         let mut nested_builder = ConcatenationBuilder::default();
-                        if i > 0 {
-                            nested_builder.push_str(",");
-                        }
                         node.add_to_serialization(&mut nested_builder, pyo3_crate_path);
                         let nested_content = nested_builder.into_token_stream(pyo3_crate_path);
                         content.push_tokens(quote! { #(#attributes)* #nested_content });

@@ -61,7 +61,7 @@ def _get_output(*args: str, env: dict[str, str] | None = None) -> str:
 
 
 def _parse_supported_interpreter_version(
-    python_impl: Literal["cpython", "pypy"],
+    python_impl: Literal["cpython", "pypy", "graalpy"],
 ) -> tuple[str, str]:
     output = _get_output("cargo", "metadata", "--format-version=1", "--no-deps")
     cargo_packages = json.loads(output)["packages"]
@@ -75,7 +75,7 @@ def _parse_supported_interpreter_version(
 
 
 def _supported_interpreter_versions(
-    python_impl: Literal["cpython", "pypy"],
+    python_impl: Literal["cpython", "pypy", "graalpy"],
 ) -> list[str]:
     min_version, max_version = _parse_supported_interpreter_version(python_impl)
     major = int(min_version.split(".")[0])
@@ -95,6 +95,7 @@ ABI3T_PY_VERSIONS = [
     p for p in PY_VERSIONS if p.endswith("t") and int(p.split(".")[1].strip("t")) > 14
 ]
 PYPY_VERSIONS = _supported_interpreter_versions("pypy")
+GRAALPY_VERSIONS = _supported_interpreter_versions("graalpy")
 
 
 @nox.session(venv_backend="none")
@@ -227,9 +228,8 @@ def rustfmt(session: nox.Session):
 
 @nox.session(name="ruff")
 def ruff(session: nox.Session):
-    session.install("ruff")
-    _run(session, "ruff", "format", ".", "--check")
-    _run(session, "ruff", "check", ".")
+    _run(session, "uv", "run", "ruff", "format", ".", "--check")
+    _run(session, "uv", "run", "ruff", "check", ".")
 
 
 @nox.session(name="rumdl", venv_backend="none")
@@ -548,8 +548,11 @@ def test_wasm(session: nox.Session):
     )
     session.env["PYO3_CROSS_LIB_DIR"] = str(info.libdir)
     session.env["CARGO_BUILD_TARGET"] = target
+    # The checkout is mounted at `/`; point the embedded interpreter at the stdlib and
+    # the WASI build outputs.
+    build_lib_dir = info.libdir.relative_to(info.cpython_dir).as_posix()
     session.env["CARGO_TARGET_WASM32_WASIP1_RUNNER"] = (
-        f"wasmtime run --dir {info.cpython_dir}::/ --env PYTHONPATH=/lib"
+        f"wasmtime run --dir {info.cpython_dir}::/ --env PYTHONPATH=/Lib:/{build_lib_dir}"
     )
     session.env["RUSTFLAGS"] = " ".join(
         [
@@ -1965,6 +1968,9 @@ def _for_all_version_configs(
 
         for version in PYPY_VERSIONS:
             _job_with_config("PyPy", version)
+
+        for version in GRAALPY_VERSIONS:
+            _job_with_config("GraalVM", version)
 
 
 class _ConfigFile:
