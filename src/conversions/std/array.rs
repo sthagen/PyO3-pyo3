@@ -1,6 +1,3 @@
-// TODO https://github.com/PyO3/pyo3/issues/5487
-#![allow(clippy::undocumented_unsafe_blocks)]
-
 use crate::conversion::{FromPyObjectOwned, FromPyObjectSequence, IntoPyObject};
 #[cfg(feature = "experimental-inspect")]
 use crate::inspect::{type_hint_subscript, PyStaticExpr};
@@ -73,6 +70,7 @@ where
 {
     // Types that pass `PySequence_Check` usually implement enough of the sequence protocol
     // to support this function and if not, we will only fail extraction safely.
+    // SAFETY: passing valid pointer to python API
     if unsafe { ffi::PySequence_Check(obj.as_ptr()) } == 0 {
         return Err(CastError::new(obj, PySequence::type_object(obj.py()).into_any()).into());
     }
@@ -178,9 +176,16 @@ pub(crate) fn invalid_sequence_length(expected: usize, actual: usize) -> PyErr {
 mod tests {
     use crate::platform::prelude::*;
     #[cfg(panic = "unwind")]
-    use core::sync::atomic::{AtomicUsize, Ordering};
+    use core::any::Any;
     #[cfg(panic = "unwind")]
-    use std::panic;
+    use core::sync::atomic::{AtomicUsize, Ordering};
+
+    // allow use of panic mod without leaking anything else from std
+    #[cfg(panic = "unwind")]
+    mod panic {
+        extern crate std;
+        pub use std::panic::*;
+    }
 
     use crate::{
         conversion::IntoPyObject,
@@ -347,7 +352,7 @@ mod tests {
 
     // https://stackoverflow.com/a/59211505
     #[cfg(panic = "unwind")]
-    fn catch_unwind_silent<F, R>(f: F) -> std::thread::Result<R>
+    fn catch_unwind_silent<F, R>(f: F) -> Result<R, Box<dyn Any + Send + 'static>>
     where
         F: FnOnce() -> R + panic::UnwindSafe,
     {
